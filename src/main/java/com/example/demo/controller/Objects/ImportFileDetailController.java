@@ -1,0 +1,142 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.example.demo.controller.Objects;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
+import org.jboss.logging.Logger;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.DTOs.ImportedDetailsDTO;
+import com.example.demo.Data.Access.JPA;
+import com.example.demo.controller.Objects.DAL.IODAL;
+import com.example.demo.controller.Objects.Entities.IO;
+import com.example.demo.controller.Objects.Entities.ModuleVersion;
+
+@RestController
+@RequestMapping("/importFileDetail")
+public class ImportFileDetailController extends DefaultBean {
+
+    private final Logger LOG = Logger.getLogger(ImportFileDetailController.class);
+
+    private IO ioImport;
+    private List<ImportedDetailsDTO> impDetails;
+    private LocalDate referenceDate = null;
+
+    @PostConstruct
+    public void init() {
+        LOG.info("Inside INIT");
+        //String ioid = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("io");
+        String ioid = "";
+        LOG.info("IO ID:"+ ioid);
+        if (ioid != null) {
+            setIoImport(IODAL.getIOById(ioid));
+        }
+
+        if (ioImport != null) {
+            setDomain(getIoImport().getDomain());
+            setEntity(getIoImport().getEntity());
+            setModuleVersion(getIoImport().getModule());
+            this.referenceDate = getDateAtLastDay(getIoImport().getReferenceDate().getMonthValue(), getIoImport().getReferenceDate().getYear());
+
+            getImportDetails(refData.getImportID());
+        }
+    }
+
+    public List<ImportedDetailsDTO> getImportDetails(Integer privilege) {
+        List<Object[]> tempReports = new ArrayList<>();
+        if (ioImport == null) {
+        //if (!triggeredByUser ) {
+            return impDetails;
+        }
+        impDetails = new ArrayList<ImportedDetailsDTO>();
+        if (getYear() != null && getMonth() != null) {
+            //CastMonth into number
+            this.referenceDate = getDateAtLastDay(getMonth(), getYear());
+        } else {
+            if (ioImport == null) {
+            //if (triggeredByUser) {
+                LOG.info("Detalhes importação:" + Constants.missingRefDate);
+                return impDetails;
+            }
+        }
+        String domain = getDomain() != null ? getDomain().length() > Constants.DOMAINLENGTH ? getDomain().substring(0, 3).toUpperCase() : getDomain().toUpperCase() : null;
+        
+        tempReports = getImportDetails(getModuleVersion(), referenceDate.format(Constants.DATEFORMATISO8601), getEntity(), domain);
+
+        if (tempReports.isEmpty() || tempReports == null) {
+            LOG.info("Detalhes importação:" + Constants.emptyMessage);
+            return impDetails;
+        }
+
+        LOG.info("TempReports" + tempReports.size());
+        
+        for (Object obj[] : tempReports) {
+            LOG.info("Obj1:" + (obj[0] != null ? obj[0].toString() : "null"));
+            LOG.info("Obj2:" + (obj[1] != null ? obj[1].toString() : "null"));
+            LOG.info("Obj3:" + (obj[2] != null ? obj[2].toString() : "null"));
+            LOG.info("Obj4:" + (obj[3] != null ? obj[3].toString() : "null"));
+            LOG.info("Obj5:" + (obj[4] != null ? obj[4].toString() : "null"));
+            LOG.info("Obj6:" + (obj[5] != null ? obj[5].toString() : "null"));
+            ImportedDetailsDTO impDetail = new ImportedDetailsDTO(
+                obj[0] != null ? obj[0].toString() : null,
+                obj[1] != null ? obj[1].toString() : null,
+                obj[2] != null ? obj[2].toString() : null,
+                obj[3] != null ? obj[3].toString() : null,
+                obj[4] != null ? obj[4].toString() : null,
+                obj[5] != null ? obj[5].toString() : null
+            );            impDetails.add(impDetail);
+        }
+        return impDetails;
+    }
+
+    public IO getIoImport() {
+        return ioImport;
+    }
+
+    public void setIoImport(IO ioImport) {
+        this.ioImport = ioImport;
+    }
+
+    public List<ImportedDetailsDTO> getImpDetails() {
+        return impDetails;
+    }
+
+    public void setImpDetails(List<ImportedDetailsDTO> impDetails) {
+        this.impDetails = impDetails;
+    }
+
+    private List<Object[]> getImportDetails(ModuleVersion module, String referenceDate, ConfEntities entity, String domain) {
+        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
+        List<Object[]> tempReports = new ArrayList<>();
+        
+        try {
+            /*tempReports = jpa.getNativeResultList(Utils.getResource("GetImportedDetails.sql"),
+                    "actionImportId", String.valueOf(Constants.actionImport),
+                    "referenceDate", referenceDate,
+                    "domain", domain,
+                    //"entityID", entity == null ? null : entity.getEntityID(),
+                    "moduleVID", module == null ? null : module.getModuleVID(),
+                    "ioid", ioImport == null ? null : ioImport.getIoId());*/
+
+            tempReports = jpa.getNativeResultList(Utils.getResource("GetImportedDetails.sql"),
+                    "actionImportId", String.valueOf(Constants.actionImport),
+                    "referenceDate", referenceDate,
+                    "format",Constants.ISOBASEFORMAT8601SQLite,
+                    "domain", domain,
+                    "entityID", entity == null ? null : entity.getEntityID(),
+                    "moduleVID", module == null ? null : module.getModuleVID());
+        } catch (Exception e) {
+            LOG.error("Detalhes importação | Erro no processo de obtenção da query GetImportedDetails.sql. ", e);
+        }
+        
+        return tempReports;
+    }
+
+}

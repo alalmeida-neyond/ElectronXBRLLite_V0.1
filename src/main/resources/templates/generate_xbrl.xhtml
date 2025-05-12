@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      >
+
+    <h:head>        
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="./Style/ReportGenStyles.css" rel="stylesheet" type="text/css"/>
+        <link rel="shortcut icon" th:href="@{Images/favico.ico}" />
+        <link href="./Style/Headers.css" rel="stylesheet" type="text/css"/>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+        <ui:include src="/Layouts/title.xhtml"/>
+
+
+    </h:head>
+    <h:body>
+        <f:view contentType="text/html">
+
+            <!--++++++++++ HEADER 1 ++++++++-->
+            <div id="header1">
+                <ui:insert name="header1" >
+                    <ui:include src="../XBRL_2.0/Layouts/xbrl2_header1.xhtml"/>
+                </ui:insert>
+            </div>
+            <!--++++++++++++++++++++++++++++-->
+
+            <div id="mainContainer">
+
+
+                <!--++++++++++ HEADER 2 ++++++++-->
+                <div id="xml_header2">
+                    <ui:insert name="xml_header2" >
+                        <ui:include src="../XBRL_2.0/Layouts/xbrl2_header2.xhtml"/>
+                    </ui:insert>
+                </div>
+                <!--++++++++++++++++++++++++++++-->
+                <table style="width: 100%">
+                    <tr>
+                        <td style="width: 70%; padding: 0;">
+                            <ul style="margin:0; padding: 0px 0px 0px 0px; list-style: none;">
+                                <li class="menu_item" style="float: left;font-size:12px;"><a href="generate_xbrl.xhtml" target="_self" style="display: block; padding: 10px;background-color:#D9D9D9;">Gerar XBRL</a></li>
+                                <li class="menu_item" style="float: left;font-size:12px;"><a href="generateXBRL_files.xhtml" target="_self" style="display: block; padding: 10px;">Download de Ficheiros</a></li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>                
+                <div class="Sep"> </div>
+                <br />
+                
+                <div id="dvPageTitle">Módulo Geração XBRL</div>
+                <br />     
+                <strong>O processo gera ficheiros no formato XBRL-CSV para o módulo seleccionado para a respetiva data e entidade.<br /><br />
+                    Após a geração do ficheiro no formato XBRL-CSV, será disponibilizado o respetivo ficheiro .ZIP para download, na secção <a href="generateXBRL_files.xhtml" style="text-decoration: underline;">ficheiros</a>.<br /></strong><br/> 
+                <div class="Sep"> </div>
+                
+                <div id="dvButtons">
+                    <h:form id="form">
+                        <br/>
+                        <p:growl id="msgs" showDetail="true" />
+
+
+                        <div id="pageContainer" style="padding-left: 10px;">
+
+                            <h:outputLabel for="module" value="Módulo: " />
+                            <h:selectOneMenu  id="module" value="#{generationBean.moduleGeneration}" style="width:160px" onchange="checkAvailabiliy()">
+                                <f:selectItem itemLabel="Módulo" noSelectionOption="true"/>
+                                <f:selectItems value="#{generationBean.getModules()}" var="rep" itemLabel="#{rep[0]}" itemValue="#{rep[1]}"/>
+                            </h:selectOneMenu>
+                            &nbsp;
+                            <h:outputLabel for="year" value=" Data de referência: "/>
+                            <h:selectOneMenu  id="year" value="#{generationBean.yearGeneration}" style="width:150px" onchange="checkAvailabiliy()">
+                                <f:selectItem itemLabel="Ano"  noSelectionOption="true"/>
+                                <f:selectItems value="#{generationBean.getYears()}"/>
+
+                            </h:selectOneMenu>
+                            &nbsp;
+                            <h:selectOneMenu  id="month" value="#{generationBean.monthGeneration}" style="width:150px" onchange="checkAvailabiliy()">
+                                <f:selectItem itemLabel="Mês" noSelectionOption="true" />
+                                <f:selectItems value="#{generationBean.getMonths()}"/>
+
+                            </h:selectOneMenu>
+                            &nbsp;
+                            <h:outputLabel for="entity" value="Entidade: "/>
+                            <h:selectOneMenu  id="entity" value="#{generationBean.entityGeneration}" onchange="checkAvailabiliy()">
+                                <f:selectItem itemLabel="Entidade" itemValue="" noSelectionOption="true"/>
+                                <f:selectItems value="#{generationBean.getEntities()}" var="rep" itemLabel="#{rep.description}" itemValue="#{rep.entityID}"/>
+                            </h:selectOneMenu>
+                            &nbsp;
+                            <h:outputLabel for="domain" value="Domínio: "/>
+                            <h:selectOneMenu  id="domain" value="#{generationBean.domainGeneration}" onchange="checkAvailabiliy()">
+                                <f:selectItem itemLabel="Domínio" itemValue="" noSelectionOption="true"/>
+                                <f:selectItems value="#{generationBean.getDomain()}"/>
+                            </h:selectOneMenu>
+                            &nbsp;
+                            <p:commandButton id="refresh" value="Gerar" action="#{generationBean.startGeneration()}" update="msgs refresh" style="margin-left:-10px;margin-bottom: 8px; font-size:10px" styleClass="btnRefresh" />
+                            <p:remoteCommand id="checkAvailabiliy" name="checkAvailabiliy" process="@this domain entity month year module" actionListener="#{generationBean.onChangeFilters()}" update="refresh msgs"/>
+
+                        </div>
+
+                    </h:form>
+                </div>
+                <br /><br />
+                <div class="Sep"> </div>
+                <br />
+                <div class="SepRed"> 
+                    <div><h:outputText value="Registos de execução" style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px;"/></div>
+                </div>
+
+                <div id="dvLogs">
+
+                    <h:panelGrid columns="1" border="0" style="border:1px solid #CFCFCF;width: 100%">    
+                        <h:form id="myForm2">
+                            <br/>
+                            <div style="float:left;padding-left: 5px;">
+                                Módulo
+                                <h:selectOneMenu  id="module" value="#{generationBean.moduleFilter}" style="width:160px" >
+                                    <f:selectItem itemLabel="Módulo" noSelectionOption="true"/>
+                                    <f:selectItems value="#{generationBean.getModules()}" var="rep" itemLabel="#{rep[0]}" itemValue="#{rep[0]}"/>
+                                </h:selectOneMenu>
+                                &nbsp;
+                                Data referência:
+                                <h:selectOneMenu  id="year" value="#{generationBean.yearFilter}" required="false" style="margin-right:5px; vertical-align: middle;">
+                                    <f:selectItem itemLabel="Ano" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{generationBean.getYears()}"/>
+                                </h:selectOneMenu>
+                                <h:selectOneMenu  id="month" value="#{generationBean.monthFilter}" required="false" style="margin-right:10px; vertical-align: middle;">
+                                    <f:selectItem itemLabel="Mês" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{generationBean.getMonths()}"/>
+                                </h:selectOneMenu>
+
+                                <h:outputLabel for="entity" value="Entidade: "/>
+                                <h:selectOneMenu  id="entity" value="#{generationBean.entityFilter}" style="margin-right:10px;">
+                                    <f:selectItem itemLabel="Entidade" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{generationBean.getEntities()}" var="rep" itemLabel="#{rep.description}" itemValue="#{rep.entityID}"/>
+                                </h:selectOneMenu>
+                                &nbsp;
+
+                                <h:outputLabel for="domain" value="Domínio: "/>
+                                <h:selectOneMenu  id="domain" value="#{generationBean.domainFilter}" style="margin-right:10px;">
+                                    <f:selectItem itemLabel="Domínio" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{generationBean.getDomain()}"/>
+                                </h:selectOneMenu>
+                                &nbsp;
+                                <p:commandButton id="refresh" value="Pesquisar" action="#{generationBean.getGenerationLogs()}" update="myTable1" ajax="true" style="margin-left:-10px;margin-bottom: 8px; font-size:10px" styleClass="btnRefresh" />
+                                <p:poll widgetVar="tablePoll" interval="10" rendered="true" listener="#{generationBean.getGenerationLogs()}" autoStart="true" update="myTable1"/>
+
+                            </div> 
+                            <p:ajaxStatus style="display:block;margin-bottom:0px;height:24px;">
+                                <f:facet name="default">
+                                    <h:outputText value="" />
+                                </f:facet>
+                                <f:facet name="start">
+                                    <div style="padding-top: 5px;">
+                                        <h:graphicImage value="/images/ajaxloader.gif" />
+                                    </div>
+                                </f:facet>
+                                <f:facet name="complete">
+                                    <h:outputText value="" />
+                                </f:facet>
+                            </p:ajaxStatus>
+                            <div style="float:right;">
+                                <div style="float:left;padding:5px 5px 5px 5px;">
+                                    <h:commandLink>
+                                        <table>
+                                            <tr>
+                                                <td><img src="images/csvicon.jpg" />  </td>
+                                                <td> <h:outputText  value=" Download Logs" /></td>
+                                            </tr>
+
+                                        </table>
+                                        <p:dataExporter type="xls" target="myTable1"  fileName="XBRLGenerationLogs" />
+                                    </h:commandLink>
+                                </div>
+                            </div><br/><br/><br/>
+
+                            <p:dataTable var="md" value="#{generationBean.generateLogList}" id="myTable1" emptyMessage="Sem registos encontrados!"
+                                         rowKey="#{md.idGenerateLog}"      paginatorAlwaysVisible="false" paginator="true" rows="50">
+                                <p:column headerText="Módulo" style="text-align: center;width: 10%">
+                                    <f:facet name="header">
+                                        <h:outputText value="Módulo"/>
+                                    </f:facet>    
+                                    <h:outputText value="#{md.xbrlGenerates.moduleVersion.code}" />
+                                </p:column>
+                                <p:column headerText="Data referência" style="text-align: center;width: 10%">
+                                    <f:facet name="header">
+                                        <h:outputText value="Data referência"/>
+                                    </f:facet>
+                                    <h:outputText value="#{md.xbrlGenerates.refDate}" />
+                                </p:column>
+
+                                <p:column headerText="Entidade" style="text-align: center;width: 20%">
+                                    <f:facet name="header">
+                                        <h:outputText value="Entidade"/>
+                                    </f:facet>
+                                    <h:outputText value="#{md.xbrlGenerates.entity.description}"/>
+                                </p:column>
+
+                                <p:column headerText="Domínio" style="text-align: center;width: 20%">
+                                    <f:facet name="domain">
+                                        <h:outputText value="Domínio"/>
+                                    </f:facet>
+                                    <h:outputText value="#{md.xbrlGenerates.domain}"/>
+                                </p:column>
+
+                                <p:column headerText="Detalhe" styleClass="tblRow" style="width: 40%">
+                                    <f:facet name="header">
+                                        <h:outputText value="Detalhe"/>
+                                    </f:facet>
+                                    <h:outputText value="#{md.description}" />
+                                </p:column> 
+                                <p:column headerText="Data processamento" style="text-align: center;width: 15%">
+                                    <f:facet name="header">
+                                        <h:outputText value="Data processamento"/>
+                                    </f:facet>
+                                    <h:outputText value="#{md.timeStampCreated}" />
+                                </p:column>
+                                <p:column headerText="Utilizador" style="text-align: center;width: 10%">
+                                    <f:facet name="header">
+                                        <h:outputText value="Utilizador"/>
+                                    </f:facet>
+                                    <h:outputText value="#{md.xbrlGenerates.userId}" />
+                                </p:column>
+                            </p:dataTable>
+                        </h:form>
+                    </h:panelGrid>
+                    <br /><br /><br />
+
+
+
+                </div>
+            </div>
+
+            <!--++++++++++++ FOOTER +++++++++++-->
+            <div id="footer">
+                <ui:insert name="footer" >
+                    <ui:include src="../Layouts/footer.xhtml"/>
+                </ui:insert>
+            </div>
+            <!--++++++++++++++++++++++++++++-->
+        </f:view>
+    </h:body>
+</html>

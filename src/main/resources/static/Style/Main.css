@@ -1,0 +1,6 @@
+
+.scrollable-dropdown .ui-selectonemenu-list {
+    max-height: 100px; /* Set the maximum height for the options box */
+    overflow-y: auto; /* Enable vertical scrolling */
+    width: auto; /* Adjust width as needed */
+}

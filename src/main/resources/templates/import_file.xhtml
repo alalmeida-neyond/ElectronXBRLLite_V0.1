@@ -1,0 +1,328 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      >
+
+    <h:head>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="./Style/ReportGenStyles.css" rel="stylesheet" type="text/css"/>
+        <link rel="shortcut icon" th:href="@{/Images/favico.ico}" />
+        <link href="./Style/Headers.css" rel="stylesheet" type="text/css"/>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <div th:replace="~{Layouts/title}"></div>
+
+        <script lang="javascript">
+            var m = new Date();
+            //document.writeln("date: " + m);
+        </script>
+    </h:head>
+    
+        <body>
+        <f:view contentType="text/html">
+
+            <!--++++++++++ HEADER 1 ++++++++-->
+            <div id="header1">
+                <div th:replace="~{Layouts/xbrl2_header1}"></div>
+            </div>
+            <!--++++++++++++++++++++++++++++-->
+
+            <div id="mainContainer">
+                <!--++++++++++ HEADER 2 ++++++++-->
+                <div id="xml_header2">
+                    <div th:replace="~{Layouts/xbrl2_header2}"></div>
+                </div>
+                <!--++++++++++++++++++++++++++++-->
+                
+                <table style="width: 100%">
+                    <tr>
+                        <td style="width: 70%; padding: 0;">
+                            <ul style="margin:0; padding: 0px 0px 0px 0px; list-style: none;">
+                                <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/import_file}" target="_self" style="display: block; padding: 10px; background-color:#D9D9D9;">Executar Importação</a></li>
+                                <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/importFileDetail}" target="_self" style="display: block; padding: 10px;">Relatórios</a></li>
+                                <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/import_file}" target="_self" style="display: block; padding: 10px;">Resumo</a></li>
+                                <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/import_file}" target="_self" style="display: block; padding: 10px;">Regras</a></li>
+                            </ul>
+                        </td>
+                    </tr> 
+                </table>
+                <div class="Sep"> </div>
+                <br />
+                
+                <div id="dvPageTitle">Módulo Importação</div>
+                <br />
+
+                <div> 
+                    <strong>O processo carrega os ficheiros para a diretoria de importação.<br />
+
+                    </strong><br/>              
+                    <!-- inputFile  -->
+                    <p:growl id="msgs" showDetail="true" />
+                    <!-- inputFile tag to upload file -->
+                    Os ficheiro Excel a importar devem assumir a seguinte nomenclatura: <span title="Exemplo: 0991_coreplcr_con_201406.xlsx" style="cursor:help;color:blue;">[Entidade]_[Módulo]_[Domínio]_[YYYYMM]_[Informação_adicional].xlsx</span>. <br />
+                    O nome do Módulo não deve conter nenhum carateres especiais. Ex:. <strong>Mrel_Tlac</strong> fica <strong>MrelTlac</strong> e <strong>Corep Of</strong> torna-se <strong>CorepOf</strong>.
+                    <br />
+                    Selecione um ficheiro para importação 
+
+                    <strong>(tamanho máx. 3,5 Mb).</strong> 
+                    <br/>
+                    <br/>
+                    <form id="reports" method="post" th:action="@{/importFile/upload}" enctype="multipart/form-data">
+                        <!-- Toast container -->
+                        <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+                            <!-- Toasts will be inserted here by JS -->
+                        </div>
+
+
+                        <label for="file">Selecione um ficheiro:</label><br/>
+                        <input type="file" id="file" name="file" class="form-control" required />
+                        <!--Tentar ver como colocar as opções com "alwaysRun" true selecionadas e disabled-->
+                        <div class="dropdown">
+                            <button type="button">Select Rules</button>
+                            <div class="dropdown-content" id="rules-dropdown">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" onclick="uploadFile(event)">Submeter</button>
+                    </form>
+                    
+                    <div id="result"></div>
+                    <!--Ver o que mais manter deste form sem ser o botão de cancelar-->
+                    <h:form id="filenameForm" class="mt-0 pt-0 w-auto h-auto" >
+                            <h:outputLabel for="module" class="pl-1 pr-2" value="Módulo: "/>
+                            <p:inputText id="module" style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;" class="bg-grey" value="#{uploadModuleFile.module}" required="true" disabled="true"/>
+                            <h:outputLabel for="date" class="ml-3 pr-2" value="Data de referência: "/>
+                            <p:inputText id="date" style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;" class="mr-2 bg-gray-600" value="#{uploadModuleFile.year}" required="true" disabled="true"/>
+                            <p:inputText id="dateMonth" style="background-color: lightslategray !important;color: ivory;font-size: medium;font-weight: normal;" class="bg-gray-600" value="#{uploadModuleFile.month}" required="true" disabled="true"/>
+                            <h:outputLabel for="entity" class="ml-3 pl-1 pr-2" value="Entidade: "/>
+                            <p:inputText id="entity" style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;" value="#{uploadModuleFile.entity}" required="true" disabled="true"/>
+                            <h:outputLabel for="domain" class="ml-3 pl-1 pr-2" value="Domínio: "/>
+                            <p:inputText id="domain" style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;" value="#{uploadModuleFile.domain}" required="true" disabled="true"/>
+                            <h:inputHidden id="filename" value="#{uploadModuleFile.fileName}" />
+                            <h:inputHidden id="submitDisableInfo" value="#{uploadModuleFile.isSubmitDisable}" />                            
+                            <p:remoteCommand name="onFileSelectCommand" action="#{uploadModuleFile.OnFileChange()}" update="module date dateMonth entity filename domain submitDisableInfo cancelarImpo msgs" oncomplete="document.getElementById('uploadButton').disabled = (document.getElementById('filenameForm:submitDisableInfo').value === 'true') ;"/>
+                            <p:commandButton id="cancelarImpo" value="Cancelar" action="#{uploadModuleFile.cancelImport()}" update="filenameForm" ajax="true" style="margin-left:-10px;margin-bottom: 8px; font-size:10px" icon="pi pi-times" styleClass="btnRefresh" disabled="#{uploadModuleFile.isOperationOccuring}"/>  
+                    </h:form>
+                    <br/>
+
+
+                    <!-- inputFile  -->
+
+
+                </div>
+                <div class="Sep" style="width:100%"> </div>
+                <br/><br />
+                 
+                <div class="SepRed"> 
+                <div><h:outputText value="Registos de execução" style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px"/></div>
+                </div>
+                <div id="dvLogs">
+                    <h:panelGrid columns="1" border="0" style="border:1px solid #CFCFCF;"> 
+                        <br/>
+                        <h:form id="myForm2" prependId="false">
+                            <p:panel id="dropdowns" style="border: none; padding: 0; display: inline-block;">
+                                <p:panel style="border: none; padding: 0;">
+
+                                    <h:outputLabel for="modulo1" value="Modulo: " style="margin-left:-20px;"/>
+                                    <h:selectOneMenu  id="module1" value="#{uploadModuleFile.moduleLog}" required="false" style="margin-right:10px; vertical-align: middle;">
+                                        <f:selectItem itemLabel="Módulo" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{importFileBean.getModules()}" var="rep" itemLabel="#{rep[0]}" itemValue="#{rep[0]}" />
+                                    </h:selectOneMenu>
+                                    Data referência: <h:selectOneMenu  id="year1" value="#{uploadModuleFile.yearLog}" required="false" style="margin-right:10px; vertical-align: middle;" >
+                                        <f:selectItem itemLabel="Ano" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{importFileBean.getYears()}"/>
+                                    </h:selectOneMenu>
+                                    <h:selectOneMenu  id="month" value="#{uploadModuleFile.monthLog}" required="false" style="margin-right:5px; vertical-align: middle;">
+                                        <f:selectItem itemLabel="Mês" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{importFileBean.getMonths()}"  />
+                                    </h:selectOneMenu>
+                                    &nbsp;
+                                     <h:outputLabel for="entity1" value="Entidade: "/>
+                                     <h:selectOneMenu  id="entity1" value="#{uploadModuleFile.entityLog}">
+                                        <f:selectItem itemLabel="Entidade" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{importFileBean.getEntities()}" var="rep" itemLabel="#{rep.description}" itemValue="#{rep.entityID}"/>
+                                     </h:selectOneMenu>
+                                     &nbsp;
+                                     <h:outputLabel for="domain1" value="Domínio: "/>
+                                     <h:selectOneMenu  id="domain1" value="#{uploadModuleFile.domainLog}">
+                                        <f:selectItem itemLabel="Domínio" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{importFileBean.getDomain()}"/>
+                                     </h:selectOneMenu>
+                                     &nbsp;
+
+                                </p:panel>
+                            </p:panel>
+
+
+                            <p:commandButton id="refresh" value="Pesquisar" action="#{uploadModuleFile.getImportedLogs()}" update="myForm2" ajax="true" style="margin-left:-10px;margin-bottom: 8px; font-size:10px" styleClass="btnRefresh" />
+                            <p:poll widgetVar="tablePoll" interval="10" rendered="true" listener="#{uploadModuleFile.getImportedLogs()}" autoStart="true" update="myForm2"/>
+
+
+                            <p:ajaxStatus style="display:inline-block;margin-left: 5px;height:24px;">
+                                <f:facet name="default">
+                                    <h:outputText value="" />
+                                </f:facet>
+                                <f:facet name="start">
+                                    <div >
+                                        <h:graphicImage value="/images/ajaxloader.gif" />
+                                    </div>
+                                </f:facet>
+                                <f:facet name="complete">
+                                    <h:outputText value="" />
+                                </f:facet>
+                            </p:ajaxStatus>
+
+                            <br/>
+                            <div style="float:right;">
+                                <h:commandLink>
+                                    <table>
+                                        <tr>
+                                            <td><img src="../images/csvicon.jpg" />  </td>
+                                            <td> <h:outputText  value="Download Logs" /></td>
+                                        </tr>
+                                    </table>
+                                    <p:dataExporter type="xls" target="myTable1"  fileName="ImportLogs" />
+                                </h:commandLink>
+                            </div>
+                            <br/><br/><br/>
+                            <p:dataTable var="md" value="#{uploadModuleFile.importLogsList}" id="myTable1" paginator="true" rows="50" paginatorAlwaysVisible="false" emptyMessage="Sem registos encontrados!" >
+                                <p:column headerText="Módulo" style="text-align: center;width: 10%">
+                                    <h:outputText value="#{md.file.moduleVersion.code}" style="text-transform: uppercase" />
+                                </p:column>
+
+                                <p:column headerText="Data Ref." style="text-align: center; width:6%;">
+                                    <h:outputText value="#{md.file.refDate}" />
+                                </p:column>
+                                <p:column headerText="Ficheiro" style="width:20%">
+                                    <h:outputText value="#{md.file.filename}" />
+                                </p:column>
+                                <p:column headerText="Informação adicional" style="width:30%" styleClass="tblRowImp" >
+                                    <h:outputText value="#{md.description}" />
+                                </p:column>
+                                <p:column headerText="Data processamento" style="text-align:center; width:10%">
+                                    <h:outputText value="#{md.timeStampCreated}" />
+                                </p:column>
+                                <p:column headerText="Utilizador" style="text-align:center; width:6%">
+                                    <h:outputText value="#{md.file.userId}" />
+                                </p:column>
+                            </p:dataTable>
+                        </h:form>
+                    </h:panelGrid>
+                    <br /><br /> <br />
+
+                </div>
+                
+            </div>  
+
+
+            <!--++++++++++++ FOOTER +++++++++++-->
+                <div id="footer">
+                    <div th:replace="~{Layouts/footer}"></div>
+                </div>
+            <!--++++++++++++++++++++++++++++-->
+
+        </f:view>
+
+    </body>
+    <script type="text/javascript">
+        function validateFile(input) {
+            var file = input.files[0];
+            if (file) {
+                var fileName = file.name.toLowerCase();
+                if (!fileName.endsWith(".xlsx")) {
+                    alert("Tipo de ficheiro inválido. Por favor carrega um ficheiro Excel (.xlsx).");
+                    input.value = "";
+                }
+            }
+        }
+
+        function uploadFile(event) {
+            event.preventDefault();
+
+            var formData = new FormData(document.getElementById("reports"));
+
+            fetch("/importFile/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("result").innerHTML = data;
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        async function loadImportRules() {
+            const res = await fetch('/importFile/api/rules');
+            const rules = await res.json();
+
+            const container = document.getElementById('rules-dropdown');
+            container.innerHTML = '';
+
+            rules.forEach(rule => {
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.value = rule.importRuleID;
+                input.checked = rule.alwaysRun;
+                input.disabled = rule.alwaysRun;
+
+                const label = document.createElement('label');
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(' ' + rule.ruleName));
+                container.appendChild(label);
+            });
+        }
+
+        /*async function submitImportRules() {
+            const selected = Array.from(document.querySelectorAll('#rules-dropdown input[type="checkbox"]:checked'))
+                                .map(cb => parseInt(cb.value));
+
+            const res = await fetch('/api/rules/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(selected)
+            });
+
+            const result = await res.json();
+            const resultList = document.getElementById('result-list');
+            resultList.innerHTML = '';
+            result.forEach(id => {
+                const li = document.createElement('li');
+                li.textContent = `Rule ID: ${id}`;
+                resultList.appendChild(li);
+            });
+        }*/
+
+        // Load rules on page load
+        loadImportRules();
+
+        function showToast(message, type = 'success') {
+            // Create a toast element dynamically
+            const toastId = `toast-${Date.now()}`;
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+
+            const container = document.getElementById('toast-container');
+            container.insertAdjacentHTML('beforeend', toastHtml);
+
+            const toastEl = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+
+            // Auto-remove from DOM after it's hidden
+            toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        }
+
+    </script>
+</html>

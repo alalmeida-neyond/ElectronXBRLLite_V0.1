@@ -1,0 +1,180 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      >
+
+
+    <h:head>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link href="./Style/ReportGenStyles.css" rel="stylesheet" type="text/css"/>
+        <link rel="shortcut icon" th:href="@{Images/favico.ico}" />
+        <link href="./Style/Headers.css" rel="stylesheet" type="text/css"/>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <div th:replace="~{Layouts/title}"></div>
+
+        <script lang="javascript">
+            var m = new Date();
+            //document.writeln("date: " + m);
+        </script>
+    </h:head>
+    
+    <h:body>
+        <f:view contentType="text/html" >
+
+            <!--++++++++++ HEADER 1 ++++++++-->
+            <div id="header1">
+                <div th:replace="~{Layouts/xbrl2_header1}"></div>
+            </div>
+            <!--++++++++++++++++++++++++++++-->
+            
+            <div id="mainContainer">
+                <!--++++++++++ HEADER 2 ++++++++-->
+                <div id="xml_header2">
+                    <div th:replace="~{Layouts/xbrl2_header2}"></div>
+                </div>
+                <!--++++++++++++++++++++++++++++-->
+                                
+                <table style="width: 100%">
+                    <tr>
+                        <td style="width: 70%; padding: 0;">
+                            <ul style="margin:0; padding: 0px 0px 0px 0px; list-style: none;">
+                                <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/run_Validations}" target="_self" style="display: block; padding: 10px; background-color:#D9D9D9;">Executar Validação</a></li>
+                                <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/validations_detail}" target="_self" style="display: block; padding: 10px;">Resultados</a></li>
+                                <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/view_validations_rules}" target="_self" style="display: block; padding: 10px;">Regras</a></li>
+                            </ul>
+                        </td>
+                    </tr> 
+                </table>
+                <div class="Sep"> </div>
+                <br />
+                
+                <div id="dvPageTitle">Módulo Validação</div> 
+                <br />
+                <strong>O processo valida os relatórios de cada módulo de acordo com as regras do Validation Formulae.<br /></strong><br/> 
+                <div class="Sep"> </div>
+                
+                <div id="dvButtons">
+                    <br/><br/>
+                    <form id="filterform">
+                        <div id="pageContainer" style="padding-left: 10px;">
+                            <h:outputLabel for="date" value="Data de Referencia : " />
+                            <label for="date" th:text="'Data de Referencia : '"></label>
+                            <select class="form-control" th:field="${year}"  id="year">
+                                <option th:value="0">Selecione o Ano</option>
+                                <option th:each="option : ${getYears}" th:value="${option}" th:text="${option}"></option>
+                            </select>
+                            &nbsp;
+                            <select class="form-control"  id="month">
+                                <option th:value="0">Selecione o Mês</option>
+                                <option th:each="option : ${getMonths}" th:value="${getMonths.indexOf(option)}" th:text="${option}"></option>
+                            </select>
+                            <h:selectOneMenu id="month" value="#{validationbean.month}" styleClass="form-control scrollable-dropdown">
+                                <f:selectItem itemLabel="Selecione o Mês" itemValue="" noSelectionOption="true" />
+                                <f:selectItems value="#{validationbean.getMonths()}" />
+                            </h:selectOneMenu>
+                            &nbsp;
+                            <h:outputLabel for="module" value="Módulo : "/>
+                            <h:selectOneMenu id="module" value="#{validationbean.module}" styleClass="form-control scrollable-dropdown">
+                                <f:selectItem itemLabel="Selecione o Módulo" itemValue="" noSelectionOption="true" />
+                                <f:selectItems value="#{validationbean.getDistinctModulesAvailable()}" var="module" itemLabel="#{module.getCode()}" itemValue="#{module.getCode()}"  />
+                            </h:selectOneMenu>
+                            &nbsp;
+                             <p:commandButton value="Selecionar" action="#{validationbean.getImportedTables}" styleClass="btn" update="tableform:importedTables" ajax="true" style="margin-left:20px"/>
+                            </div>
+                    </h:form>  
+                 </div>
+                
+                
+                 <br /><br />
+
+                 <div class="Sep"> </div>
+
+                 <br />
+                 
+                  <p:messages id="msgs" autoUpdate="true" />
+
+                 <div class="SepRed"> 
+                    <div><h:outputText value="Mapas" style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px;"/></div>
+                 </div>
+                 
+                 
+                  <div id="dvLogs" >
+                      <h:panelGrid columns="1" border="0" style="border:1px solid #CFCFCF;">  
+                        <br/>
+                        <h:form id="tableform">
+                           <div id="dvButtons" >
+                            <p:commandButton value="Validar Mapas" styleClass="btn" 
+                                              update="tableform:importedTables" 
+                                              action="#{validationbean.startValidation}" style="float:right"
+                                              oncomplete="PF('pollWidget').start();"/>
+                            <br/><br/><br/>
+                            </div>
+                           
+                          <p:dataTable id="importedTables" var="tb" value="#{validationbean.imported_tables}" 
+                             paginator="true" rows="20" 
+                             paginatorAlwaysVisible="false" emptyMessage="Sem registos encontrados!">
+                                <p:column headerText="Mapa" style="text-align:center; width: 20%;">
+                                    <f:facet name="header">
+                                        <h:outputText value="Mapa" />
+                                    </f:facet>
+                                    <h:outputText value="#{tb[3]}" />
+                                </p:column>
+                                <p:column headerText="Última Data de Validação" style="text-align:center; width: 20%;">
+                                    <f:facet name="header">
+                                        <h:outputText value="Última Data de Validação" />
+                                    </f:facet>
+                                    <h:outputText value="#{tb[4]}" />
+                                </p:column>
+
+                                <p:column headerText="Utilizador" style="text-align:center; width: 20%;">
+                                    <f:facet name="header">
+                                        <h:outputText value="Utilizador" />
+                                    </f:facet>
+                                    <h:outputText value="#{tb[5]}" />
+                                </p:column>
+
+                                <p:column headerText="Validado" style="text-align:center; width: 20%;">
+                                    <f:facet name="header">
+                                        <h:outputText value="Validado" />
+                                    </f:facet>
+                                    <h:commandButton rendered="#{tb[6] == '1'}" image="../images/confirm.png" disabled="true" />
+                                    <h:commandButton rendered="#{tb[6] == '0'}" image="../images/Delete.png" disabled="true" />
+                                </p:column>
+
+                                <p:column headerText="Progresso" style="text-align:center; width: 20%; ">
+                                    <f:facet name="header">
+                                        <h:outputText value="Progresso" />
+                                    </f:facet>
+                                    <h:outputText value="#{tb[0]}" style="color:green" />
+                                </p:column>
+
+                            </p:dataTable>
+                                     
+                            
+                            <p:poll interval="10" 
+                                    listener="#{validationbean.refreshData}" 
+                                    update="tableform:importedTables" 
+                                    widgetVar="pollWidget" 
+                                    rendered="true"
+                                    autoStart="false"
+                                    /> 
+                        </h:form>
+                        </h:panelGrid>
+                      <br /><br /><br />
+                </div>
+                 
+                 
+            </div>
+
+            <br /><br />
+
+        </f:view>
+    </h:body>
+
+</html>

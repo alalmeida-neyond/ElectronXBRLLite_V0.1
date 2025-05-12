@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+                                 https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
+             version="3.1">
+
+    <persistence-unit name="UNMANAGEDPROCESS" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Add your entity classes -->
+        <class>com.example.demo.controller.Objects.Entities.Category</class>
+		<class>com.example.demo.controller.Objects.Entities.CompoundKey</class>
+		<class>com.example.demo.controller.Objects.Entities.Concept</class>
+		<class>com.example.demo.controller.Objects.Entities.Context</class>
+		<class>com.example.demo.controller.Objects.Entities.Category</class>
+		<class>com.example.demo.controller.Objects.Entities.DataType</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMClass</class>
+		<class>com.example.demo.controller.Objects.Entities.Framework</class>
+		<class>com.example.demo.controller.Objects.Entities.InFileHistory</class>
+		<class>com.example.demo.controller.Objects.Entities.IO</class>
+		<class>com.example.demo.controller.Objects.Entities.IOState</class>
+		<class>com.example.demo.controller.Objects.Entities.IOTypeState</class>
+		<class>com.example.demo.controller.Objects.Entities.Item</class>
+		<class>com.example.demo.controller.Objects.Entities.ItemCategory</class>
+		<class>com.example.demo.controller.Objects.Entities.KeyComposition</class>
+		<class>com.example.demo.controller.Objects.Entities.LogImportProcess</class>
+		<class>com.example.demo.controller.Objects.Entities.LogOperationTemp</class>
+		<class>com.example.demo.controller.Objects.Entities.ModuleDPM</class>
+		<class>com.example.demo.controller.Objects.Entities.ModuleVersion</class>
+		<class>com.example.demo.controller.Objects.Entities.OperationsRunning</class>
+		<class>com.example.demo.controller.Objects.Entities.Operator</class>
+		<class>com.example.demo.controller.Objects.Entities.OperatorArgument</class>
+		<class>com.example.demo.controller.Objects.Entities.Organisation</class>
+		<class>com.example.demo.controller.Objects.Entities.Property</class>
+		<class>com.example.demo.controller.Objects.Entities.Release</class>
+		<class>com.example.demo.controller.Objects.Entities.SubCategory</class>
+		<class>com.example.demo.controller.Objects.Entities.SubCategoryVersion</class>
+		<class>com.example.demo.controller.Objects.Entities.TableDPM</class>
+		<class>com.example.demo.controller.Objects.Entities.TableVersionDPM</class>
+		<class>com.example.demo.controller.Objects.Entities.Variable</class>
+		<class>com.example.demo.controller.Objects.Entities.VariableVersion</class>
+		<class>com.example.demo.controller.Objects.ConfAction</class>
+		<class>com.example.demo.controller.Objects.ConfAppConfigs</class>
+		<class>com.example.demo.controller.Objects.ConfEntities</class>
+		<class>com.example.demo.controller.Objects.ConfImportRules</class>
+		<class>com.example.demo.controller.Objects.Profiles_UserGroup</class>
+        <!-- or use classpath scanning with Hibernate config -->
+
+        <properties>
+            <!-- JDBC -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:sqlite:UNMANAGEDPROCESS.db"/>
+
+
+            <!-- Hibernate -->
+            <property name="hibernate.dialect" value="org.hibernate.community.dialect.SQLiteDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="none"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+
+            <!-- Optional: Logging and performance -->
+            <property name="hibernate.use_sql_comments" value="true"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>

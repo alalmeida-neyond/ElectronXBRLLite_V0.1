@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui"
+    xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<head>
+    <link href="./Style/Headers.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <ui:composition>
+
+
+        <div id="dvPageHeader">
+            <div id="dvlogo"><a th:href="@{/}" title="Homepage"><img th:src="@{/Images/logo-branco.png}"
+                        style="height:auto; width:45%" /></a></div>
+            <div id="dvheaderRight">
+                <table>
+                    <tr>
+                        <td></td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+
+        <div clas="overflow" style="margin-left:1.2%;padding-bottom: 0px">
+            <table style="width: 100%">
+                <tr>
+                    <td style="width: 70%; padding: 0;">
+                        <ul class="breadcrumb" style="margin:0; padding: 0px 0px 0px 0px; list-style: none;">
+                            <li><a th:href="@{/}"><img th:src="@{/Images/home.png}" width="14px" /></a></li>
+                            <li><a th:href="@{/index_Neyond}" style="font-size: 14px;">Reporting</a></li>
+                        </ul>
+                    </td>
+
+                    <td style="width: 30%; padding: 0;">
+                        <ul style="margin: 0; padding: 0px 0px 0px 0px; list-style: none;">
+                            <li class="nav_separator" style="float: right;"><a href="help.xhtml" target="_self"><img
+                                        style="width: 18px; padding: 8px; display: block;" th:src="@{Images/Help.png}"
+                                        title="Ajuda" /></a></li>
+                            <li style="float: right;"><a href="conf_logs.xhtml" target="_self"><img
+                                        style="width: 18px; padding: 8px; display: block;"
+                                        th:src="@{Images/config-icon.png}" title="Configurações e Logs" /></a></li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+    </ui:composition>
+
+</body>
+
+</html>
