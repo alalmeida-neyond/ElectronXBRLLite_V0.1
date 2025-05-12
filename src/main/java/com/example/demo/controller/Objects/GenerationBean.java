@@ -9,6 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
+
 import javax.annotation.PostConstruct;
 
 import com.example.demo.controller.Objects.DAL.*;
@@ -18,20 +26,19 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 
-import java.util.logging.Logger;
+import org.jboss.logging.Logger;
 
-@Named(value = "importFileBean")
+@Named(value = "generationBean")
 @ViewScoped
 public class GenerationBean extends DefaultBean {
 
     private final Logger LOG = Logger.getLogger(GenerationBean.class.getName());
-    //private List<IO> generationIOs;
+    // private List<IO> generationIOs;
 
-    //Log attributes
+    // Log attributes
     private boolean generationRunning;
 
     private List<IO> generationIOs;
-
 
     @PostConstruct
     public void init() {
@@ -47,38 +54,52 @@ public class GenerationBean extends DefaultBean {
         if (getYear() != null && getMonth() != null) {
             referenceDate = getDateAtLastDay(getMonth(), getYear());
         }
-        
-        //this.lazy = IODAL.getIOsByAction(mv == null ? null : mv.getModuleVID(), referenceDate, ent == null ? null : ent.getEntityID(), domain, Constants.actionGeneration, Constants.GENERATEID, session.getUser().getUserId(), session.getUser().getProfile().equals(Constants.Admin) ? true : false);
-        generationIOs= IODAL.getIOsByAction(mv == null ? null : mv.getModuleVID(), referenceDate, ent == null ? null : ent.getEntityID(), domain, Constants.actionGeneration, Constants.GENERATEID);
+
+        // this.lazy = IODAL.getIOsByAction(mv == null ? null : mv.getModuleVID(),
+        // referenceDate, ent == null ? null : ent.getEntityID(), domain,
+        // Constants.actionGeneration, Constants.GENERATEID,
+        // session.getUser().getUserId(),
+        // session.getUser().getProfile().equals(Constants.Admin) ? true : false);
+        generationIOs = IODAL.getIOsByAction(mv == null ? null : mv.getModuleVID(), referenceDate,
+                ent == null ? null : ent.getEntityID(), domain, Constants.actionGeneration, Constants.GENERATEID);
     }
 
-    public void startGeneration() {
-        String domain = "";
-        if (getModuleVersionExecution() == null || getEntityExecution() == null || getYearExecution() == null || getYearExecution() == null || getMonthExecution() == null || getMonthExecution() == null || getDomainExecution() == null || getDomainExecution() == null) {
-            throwFacesMessage(FacesMessage.SEVERITY_WARN, Constants.generationError, Constants.missingFilters);
-            return;
-        } else {
-            LocalDate referenceDate = getDateAtLastDay( getMonthExecution(),getYearExecution());
+    public static File getLastModified(String directoryFilePath) {
+        File directory = new File(directoryFilePath);
+        File[] files = directory.listFiles(File::isFile);
+        long lastModifiedTime = Long.MIN_VALUE;
+        File chosenFile = null;
 
-            domain = getDomainExecution().length() > Constants.DOMAINLENGTH ? getDomainExecution().substring(0, 3).toUpperCase() : getDomainExecution().toUpperCase();
-            List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(getModuleVersionExecution(), domain, getEntityExecution(), referenceDate.toString());
-            if (!operationsRunningFromIO.isEmpty()) {
-                throwFacesMessage(FacesMessage.SEVERITY_INFO, Constants.concurrentOperations, Constants.concurrentOperationsDesc);
-                return;
+        if (files != null) {
+            for (File file : files) {
+                if (file.lastModified() > lastModifiedTime) {
+                    chosenFile = file;
+                    lastModifiedTime = file.lastModified();
+                }
             }
-                
-            String threadName = Constants.GEN + "_" + getModuleVersionExecution().getCode() + "_" + domain + "_" + referenceDate.toString() + "_" + getEntityExecution().getBdpId();
-            try {
-                //Thread t = new Thread(new XBRLGenerationController(session.getUser(), threadName, getModuleVersionExecution(), domain, getEntityExecution(), referenceDate));
-                Thread t = new Thread(new XBRLGenerationController(threadName, getModuleVersionExecution(), domain, getEntityExecution(), referenceDate));
-                t.setName(threadName);
-                t.start();
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE,"Geração | Erro na pesquisa logs geração", e);
-                return;
-            }
-            throwFacesMessage(FacesMessage.SEVERITY_INFO, Constants.generationStarted, Constants.generationStartedDesc);
         }
+
+        return chosenFile;
+    }
+
+    public void startGeneration(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename) {
+        List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(moduleVersion, domain, entity, referenceDate.toString());
+        if (!operationsRunningFromIO.isEmpty()) {
+            LOG.info(Constants.concurrentOperations + Constants.concurrentOperationsDesc);
+            return;
+        }
+
+        String threadName = Constants.GEN + "_" + moduleVersion.getCode() + "_" + domain + "_"
+                + referenceDate.toString() + "_" + entity.getBdpId();
+        try {
+            XBRLGenerationController generationController = new XBRLGenerationController(threadName, moduleVersion, domain, entity, referenceDate);
+            generationController.xbrlGenerationMain();
+        } catch (Exception e) {
+            LOG.warn("Geração | Erro na pesquisa logs geração", e);
+            return;
+        }
+        LOG.info(Constants.generationStarted + Constants.generationStartedDesc);
+
     }
 
     public boolean isGenerationRunning() {

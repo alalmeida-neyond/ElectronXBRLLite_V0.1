@@ -29,6 +29,7 @@ import com.example.demo.Finrep.ImportExcelValues;
 import com.example.demo.controller.Objects.ConfAction;
 import com.example.demo.controller.Objects.ConfEntities;
 import com.example.demo.controller.Objects.Constants;
+import com.example.demo.controller.Objects.GenerationBean;
 import com.example.demo.controller.Objects.Info;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Utils;
@@ -660,7 +661,12 @@ public class ModuleFileImport implements Runnable{
             io.setEndTimestamp(LocalDateTime.now());
             Connection.merge(io);
         }
-        LOG.info("Main Thread End");
+        LOG.info("Import End");
+
+        LOG.info("Generation Start");
+        GenerationBean generationBean = new GenerationBean();
+
+        generationBean.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename);
     }
 
     /**

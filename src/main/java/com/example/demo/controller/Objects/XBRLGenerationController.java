@@ -66,7 +66,9 @@ public class XBRLGenerationController implements Runnable {
             em = new ConnectionManager();
             List<ConfAppConfigs> configs = Info.getInstance().refDataGet(Constants.AppConfigsAll);
                 
-            path = Utils.getFinalPathOfOS(configs.stream().filter(x -> x.getKey().equals(Constants.XBRLGENERATEDPATH)).findFirst().get().getValue(),configs.stream().filter(x -> x.getKey().equals(Constants.WINDOWSDISK)).findFirst().get().getValue());
+            //path = Utils.getFinalPathOfOS(configs.stream().filter(x -> x.getKey().equals(Constants.XBRLGENERATEDPATH)).findFirst().get().getValue(),configs.stream().filter(x -> x.getKey().equals(Constants.WINDOWSDISK)).findFirst().get().getValue());
+
+            path = Paths.get("XBRL_Lite","Run", "Reports", "XBRL_Generated").toString();
             
             folderName = getEntity().getLeiCode() + "." + getDomain() + "_PT_" + Utils.applyVersionString(getModule()) + "_" + getModule().getCode().replace("_", "") + "_" + getReferenceDate() + "_" + now.format(formater);
             //Create folder
