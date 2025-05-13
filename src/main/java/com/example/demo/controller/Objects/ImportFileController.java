@@ -6,6 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,7 +30,6 @@ import com.example.demo.controller.Objects.DAL.IODAL;
 import com.example.demo.controller.Objects.DAL.OperationRunningDAL;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.service.ModuleFileImport;
-
 
 @RestController
 @RequestMapping("/importFile")
@@ -51,23 +53,26 @@ public class ImportFileController extends DefaultBean {
      */
     @PostConstruct
     public void init() {
-        /*Info.getInstance().loadRefData();
-        List<ConfImportRules> rules = Info.getInstance().refDataGet(Constants.ConfImportRulesAll);
-        
-        if (rules == null) {
-            System.out.println("No import rules found during init()");
-            LOG.warn("No import rules found during init()");
-            this.listOfImportRules = new ArrayList<>();
-            this.listOfImportRulesToApply = new ArrayList<>();
-            this.listOfImportRulesToAlwaysApply = new ArrayList<>();
-            return;
-        }*/
+        /*
+         * Info.getInstance().loadRefData();
+         * List<ConfImportRules> rules =
+         * Info.getInstance().refDataGet(Constants.ConfImportRulesAll);
+         * 
+         * if (rules == null) {
+         * System.out.println("No import rules found during init()");
+         * LOG.warn("No import rules found during init()");
+         * this.listOfImportRules = new ArrayList<>();
+         * this.listOfImportRulesToApply = new ArrayList<>();
+         * this.listOfImportRulesToAlwaysApply = new ArrayList<>();
+         * return;
+         * }
+         */
 
         setListOfImportRules(Info.getInstance().refDataGet(Constants.ConfImportRulesAll));
         listOfImportRulesToApply = getListOfImportRules().stream()
                 .map(ConfImportRules::getImportRuleID)
                 .collect(Collectors.toList());
-                
+
         listOfImportRulesToAlwaysApply = getListOfImportRules().stream()
                 .filter(p -> p.isAlwaysRun() == true)
                 .map(ConfImportRules::getImportRuleID)
@@ -76,32 +81,34 @@ public class ImportFileController extends DefaultBean {
         getImportIOs(refData.getImportID(), true);
     }
 
-    public void getImportIOs(Integer privilege, boolean withView) {        
+    public void getImportIOs(Integer privilege, boolean withView) {
         if (getYear() != null && getMonth() != null) {
-            //CastMonth into number
+            // CastMonth into number
             setReferenceDate(getYear(), getMonth());
         } else {
             setReferenceDate(null, null);
         }
 
-        importIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(), getReferenceDate() == null ? null : getReferenceDate(), getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionImport, Constants.VALIDATEID);
+        importIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(),
+                getReferenceDate() == null ? null : getReferenceDate(),
+                getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionImport,
+                Constants.VALIDATEID);
 
     }
 
     @PostMapping("/upload")
     public void handleFileUpload(@RequestParam("file") MultipartFile file) {
         setFile(file);
-        //LOG.info("Successful\n" + file.getOriginalFilename() + " is uploaded.");
+        // LOG.info("Successful\n" + file.getOriginalFilename() + " is uploaded.");
         upload();
     }
 
-    
     public void upload() {
-        //LOG.warn("File Name:"+getFile().getOriginalFilename());
+        // LOG.warn("File Name:"+getFile().getOriginalFilename());
         if (file != null) {
-            //LOG.warn("Not Null");
+            // LOG.warn("Not Null");
             if (onFileChange(validateFileName(getFile().getOriginalFilename()))) {
-                //LOG.info("Ficheiro encontra-se pronto para ser importado");
+                // LOG.info("Ficheiro encontra-se pronto para ser importado");
 
                 try {
                     uploadFile(getFile());
@@ -144,8 +151,9 @@ public class ImportFileController extends DefaultBean {
      * a preview of the file to upload and lock/unlocks the button to upload and
      * to cancel)
      */
-    //fix Indefinido string
-    //fix result value -> validateFileName(String fileName) leave it in his place or take to UTILS
+    // fix Indefinido string
+    // fix result value -> validateFileName(String fileName) leave it in his place
+    // or take to UTILS
     public boolean onFileChange(boolean result) {
         if (!result) {
             LOG.warn(Constants.INCORRECTFILE + "\n" + Constants.INCORRECTFILEDESC);
@@ -153,22 +161,37 @@ public class ImportFileController extends DefaultBean {
             this.isOperationOccuring = true;
             return false;
         } else {
-            /*List<IO> operationsRunning = OperationRunningDAL.getOperationRunningFromIO(getModuleVersionExecution(), getDomainExecution(), getEntityExecution(), getReferenceDate().format(Constants.dateFormat));*/
-            /*List<IO> operationsRunning = OperationRunningDAL.getOperationRunningFromIO(getModuleVersionExecution(), getDomainExecution(), getReferenceDate().format(Constants.dateFormat));*/
-            /*if (!operationsRunning.isEmpty()) {
-                LOG.info("Operações a ser realizadas \n" + "Encontram-se a realizar operações relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operação a ser realizada");
-                this.isOperationOccuring = false;
-                this.isSubmitDisable = true;
-                return false;
-            }*/
-            //LOG.info("Ficheiro pronto\n" + "Ficheiro encontra-se pronto para ser importado");
+            /*
+             * List<IO> operationsRunning =
+             * OperationRunningDAL.getOperationRunningFromIO(getModuleVersionExecution(),
+             * getDomainExecution(), getEntityExecution(),
+             * getReferenceDate().format(Constants.dateFormat));
+             */
+            /*
+             * List<IO> operationsRunning =
+             * OperationRunningDAL.getOperationRunningFromIO(getModuleVersionExecution(),
+             * getDomainExecution(), getReferenceDate().format(Constants.dateFormat));
+             */
+            /*
+             * if (!operationsRunning.isEmpty()) {
+             * LOG.info("Operações a ser realizadas \n" +
+             * "Encontram-se a realizar operações relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operação a ser realizada"
+             * );
+             * this.isOperationOccuring = false;
+             * this.isSubmitDisable = true;
+             * return false;
+             * }
+             */
+            // LOG.info("Ficheiro pronto\n" + "Ficheiro encontra-se pronto para ser
+            // importado");
             this.isSubmitDisable = false;
             this.isOperationOccuring = true;
             return true;
         }
     }
 
-    // Validate if the filename respects the format ENTITY_MODULE_DOMAIN_DATE.xlsx/csv
+    // Validate if the filename respects the format
+    // ENTITY_MODULE_DOMAIN_DATE.xlsx/csv
     public boolean validateFileName(String fileName) {
         LOG.info("Filename:" + fileName);
         if (fileName == null || fileName.equals("") || !fileName.matches(Constants.IMPORT_REGEX)) {
@@ -183,7 +206,9 @@ public class ImportFileController extends DefaultBean {
                 return false;
             }
 
-            LocalDate referenceDate = Utils.stringToDate(Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_5), Constants.dateFormat);
+            LocalDate referenceDate = Utils.stringToDate(
+                    Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_5),
+                    Constants.dateFormat);
             LOG.info("Reference Date:" + referenceDate);
             if (referenceDate == null) {
                 setStatusMessage(Constants.dataInvalida);
@@ -193,9 +218,11 @@ public class ImportFileController extends DefaultBean {
             LOG.info("Year:" + year);
             String month = Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_7);
             LOG.info("Month:" + month);
-            ModuleVersion moduleVersion = getModuleByFilenameInfo(referenceDate, Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_3));
+            ModuleVersion moduleVersion = getModuleByFilenameInfo(referenceDate,
+                    Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_3));
             LOG.info("Module Version:" + moduleVersion.getName());
-            ConfEntities entity = getEntityByFilenameInfo(Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_2));
+            ConfEntities entity = getEntityByFilenameInfo(
+                    Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_2));
             LOG.info("Entity:" + entity);
             String domain = Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_4);
             LOG.info("Domain:" + domain);
@@ -203,10 +230,12 @@ public class ImportFileController extends DefaultBean {
             if (moduleVersion == null) {
                 setStatusMessage(Constants.moduloInvalido);
                 return false;
-             } /*else if (entity == null) {
-                setStatusMessage(Constants.entidadeInvalida);
-                return false;
-            }*/ else if (domain.equals("")) {
+            } /*
+               * else if (entity == null) {
+               * setStatusMessage(Constants.entidadeInvalida);
+               * return false;
+               * }
+               */ else if (domain.equals("")) {
                 setStatusMessage(Constants.dominioInvalido);
                 return false;
             } else {
@@ -231,35 +260,47 @@ public class ImportFileController extends DefaultBean {
         InputStream inputStream = null;
         OutputStream outputStream = null;
         File inputFile = null;
-        String path = null;
+        Path path = null;
         int read = 0;
 
-        // Copy uploaded file to destination path
         try {
             configs = Info.getInstance().refDataGet(Constants.AppConfigsAll);
-            //path = configs.stream().filter(x -> x.getKey().equals(Constants.IMPORTFILESPATH)).findFirst().get().getValue();
-            path = Paths.get("XBRL_Lite","Run", "Reports", "DataPoints").toString();
-            //LOG.info("Path:" + path);
+            // path = configs.stream().filter(x ->
+            // x.getKey().equals(Constants.IMPORTFILESPATH)).findFirst().get().getValue();
+            path = Paths.get("XBRL_Lite", "Run", "Reports", "DataPoints");
+            // LOG.info("Path:" + path);
             String uniqueFileName = getNewFileName(uploadedFile.getOriginalFilename());
             inputFile = new File(path + Utils.getSeparator() + uniqueFileName);
-            if (inputFile.exists())
-            {
-                inputFile.delete();
+
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
+                for (Path file : stream) {
+                    if (Files.isRegularFile(file)) {
+                        Files.delete(file);
+                        LOG.info("Deleted: " + file.getFileName());
+                    }
+                }
+            } catch (IOException e) {
+                LOG.error("Error deleting files: " + e.getMessage());
             }
+
             inputStream = uploadedFile.getInputStream();
             outputStream = new FileOutputStream(inputFile);
             final byte[] bytes = new byte[1024];
             while ((read = inputStream.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
             }
-            setStatusMessage("Ficheiro " + uploadedFile.getOriginalFilename() + " carregado com sucesso para a diretoria de importação.");
-            /*LOG.info("InputFile:" + inputFile);
-            LOG.info("OriginalFilename:" + uploadedFile.getOriginalFilename());
-            LOG.info("uniqueFileName:" + uniqueFileName);*/
+            setStatusMessage("Ficheiro " + uploadedFile.getOriginalFilename()
+                    + " carregado com sucesso para a diretoria de importação.");
+            /*
+             * LOG.info("InputFile:" + inputFile);
+             * LOG.info("OriginalFilename:" + uploadedFile.getOriginalFilename());
+             * LOG.info("uniqueFileName:" + uniqueFileName);
+             */
             startImportOperation(inputFile, uploadedFile.getOriginalFilename(), uniqueFileName);
         } catch (Exception e) {
             LOG.error("Erro uploadFile " + uploadedFile.getOriginalFilename() + ".", e);
-            LOG.error("Upload de Ficheiro falhou.\n" + "Falha na importação do ficheiro para a diretoria de importação!");
+            LOG.error(
+                    "Upload de Ficheiro falhou.\n" + "Falha na importação do ficheiro para a diretoria de importação!");
             setStatusMessage("Falha na importação do ficheiro para a diretoria de importação!");
         } finally {
             try {
@@ -277,16 +318,22 @@ public class ImportFileController extends DefaultBean {
 
     public void startImportOperation(File file, String originalFileName, String filenameOnServer) {
 
-        List<Integer> aux = Stream.concat(getListOfImportRulesToApply().stream(), listOfImportRulesToAlwaysApply.stream())
+        List<Integer> aux = Stream
+                .concat(getListOfImportRulesToApply().stream(), listOfImportRulesToAlwaysApply.stream())
                 .collect(Collectors.toList());
-        Thread t = new Thread(new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(), getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux));
-        //Thread t = new Thread(new ModuleFileImport(file, originalFileName, getDomainExecution(), getReferenceDate().format(Constants.dateFormat), getModuleVersionExecution(), filenameOnServer, aux));
+        Thread t = new Thread(new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(),
+                getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux));
+        // Thread t = new Thread(new ModuleFileImport(file, originalFileName,
+        // getDomainExecution(), getReferenceDate().format(Constants.dateFormat),
+        // getModuleVersionExecution(), filenameOnServer, aux));
         t.setName(Constants.IMPORT + filenameOnServer);
-        /*LOG.info("Size:" + aux.size());
-        //LOG.info("Entity:" + getEntityExecution().getDescription());
-        LOG.info("DomainExecution:" + getDomainExecution());
-        LOG.info("ReferenceDate:" + getReferenceDate().format(Constants.dateFormat));
-        LOG.info("ModuleVersion:" + getModuleVersionExecution().getName());*/
+        /*
+         * LOG.info("Size:" + aux.size());
+         * //LOG.info("Entity:" + getEntityExecution().getDescription());
+         * LOG.info("DomainExecution:" + getDomainExecution());
+         * LOG.info("ReferenceDate:" + getReferenceDate().format(Constants.dateFormat));
+         * LOG.info("ModuleVersion:" + getModuleVersionExecution().getName());
+         */
         t.start();
     }
 
@@ -357,7 +404,8 @@ public class ImportFileController extends DefaultBean {
         File inputFile = null;
         try {
             configs = Info.getInstance().refDataGet(Constants.AppConfigsAll);
-            path = configs.stream().filter(x -> x.getKey().equals(Constants.IMPORTFILESPATH)).findFirst().get().getValue();
+            path = configs.stream().filter(x -> x.getKey().equals(Constants.IMPORTFILESPATH)).findFirst().get()
+                    .getValue();
             inputFile = new File(path + Utils.getSeparator() + filename);
             if (inputFile.exists()) {
                 inputStream = new FileInputStream(inputFile);
@@ -366,18 +414,18 @@ public class ImportFileController extends DefaultBean {
 
             if (inputStream != null) {
                 return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
-                    .body(resource);
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                        .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                        .body(resource);
             } else {
                 return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Ficheiro não se encontra no servidor.");
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Ficheiro não se encontra no servidor.");
             }
         } catch (IOException e) {
             return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Erro ao preparar o ficheiro.");
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao preparar o ficheiro.");
         }
     }
 }

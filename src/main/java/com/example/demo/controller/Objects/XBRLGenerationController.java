@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.jboss.logging.Logger;
+
 import com.example.demo.Data.*;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
@@ -37,6 +39,9 @@ public class XBRLGenerationController implements Runnable {
     private String domain;
     private ConfEntities entity;
     private LocalDate referenceDate;
+
+    private final Logger LOG = Logger.getLogger(XBRLGenerationController.class);
+
 
     //public XBRLGenerationController(ActiveUser user, String threadName, ModuleVersion module, String domain, ConfEntities entity, LocalDate referenceDate) {
     public XBRLGenerationController(String threadName, ModuleVersion module, String domain, ConfEntities entity, LocalDate referenceDate) {
@@ -114,6 +119,7 @@ public class XBRLGenerationController implements Runnable {
 
             Connection.persist(em, outXBRLGenerated);
             GenerateLogDAL.createNewGenerationLog("Geração Iniciada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
+            //Get Object from NULL
             boolean altGeneration = Info.getInstance().checkIfUsesAltGeneration(module.getModuleVID(),Constants.GENERATIONBASEDONCOLLUMN);
             List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain);
             //Create Map
@@ -175,6 +181,7 @@ public class XBRLGenerationController implements Runnable {
             //remove Operation Table
 
         } catch (Exception e) {
+            LOG.error("Erro na geracao:" + e.getMessage());
             e.printStackTrace();
             generationIo.setEndTimestamp(LocalDateTime.now());
             generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
