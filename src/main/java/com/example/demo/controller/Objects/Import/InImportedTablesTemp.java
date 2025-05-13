@@ -33,15 +33,18 @@ public class InImportedTablesTemp implements Serializable {
     @JoinColumn(name = "IOID", referencedColumnName = "IOID", nullable = false)
     private IO io;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    //@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TABLEVID", referencedColumnName = "TABLEVID", nullable = false)
     private TableVersionDPM tableVersion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "VARIABLEVID", referencedColumnName = "VARIABLEVID")
     private VariableVersion variableVersion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID")
     private InImportKey importKey;
 

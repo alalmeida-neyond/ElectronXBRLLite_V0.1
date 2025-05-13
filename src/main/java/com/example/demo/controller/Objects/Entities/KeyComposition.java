@@ -16,12 +16,14 @@ public class KeyComposition implements Serializable{
     private KeyCompositionID keyCompositionID;
     
     @MapsId("keyID")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    //@ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(referencedColumnName = "KEYID", name = "KEYID", insertable = false, updatable = false)
     private CompoundKey compoundKey;
     
     @MapsId("variableVID")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    //@ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(referencedColumnName = "VARIABLEVID", name = "VARIABLEVID", insertable = false, updatable = false)
     private VariableVersion variable;
     

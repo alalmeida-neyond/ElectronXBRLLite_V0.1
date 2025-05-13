@@ -23,15 +23,18 @@ public class SubCategoryVersion implements Serializable{
     private SubCategory subCategory;
     
     @JoinColumn(referencedColumnName = "RELEASEID", name = "STARTRELEASEID", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Release startRelease;
     
     @JoinColumn(referencedColumnName = "RELEASEID", name = "ENDRELEASEID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Release endRelease;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
+    //@OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Concept concept;
 
     public int getSubCategoryVID() {

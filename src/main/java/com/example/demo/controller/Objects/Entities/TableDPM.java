@@ -37,7 +37,8 @@ public class TableDPM implements Serializable{
     private boolean isFlat;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
+    //@OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Concept concept;
 
     public int getTableId() {

@@ -82,7 +82,7 @@ public class GenerationBean extends DefaultBean {
         return chosenFile;
     }
 
-    public void startGeneration(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename) {
+    public void startGeneration(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io) {
         List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(moduleVersion, domain, entity, referenceDate.toString());
         if (!operationsRunningFromIO.isEmpty()) {
             LOG.info(Constants.concurrentOperations + Constants.concurrentOperationsDesc);
@@ -93,7 +93,7 @@ public class GenerationBean extends DefaultBean {
                 + referenceDate.toString() + "_" + entity.getBdpId();
         try {
             XBRLGenerationController generationController = new XBRLGenerationController(threadName, moduleVersion, domain, entity, referenceDate);
-            generationController.xbrlGenerationMain();
+            generationController.xbrlGenerationMain(io);
         } catch (Exception e) {
             LOG.warn("Geração | Erro na pesquisa logs geração", e);
             return;

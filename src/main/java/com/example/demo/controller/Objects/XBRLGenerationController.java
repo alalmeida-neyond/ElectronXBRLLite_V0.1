@@ -55,10 +55,10 @@ public class XBRLGenerationController implements Runnable {
 
     @Override
     public void run() {
-        xbrlGenerationMain();
+        //xbrlGenerationMain();
     }
 
-    public void xbrlGenerationMain() {
+    public void xbrlGenerationMain(IO io) {
         IO generationIo = null;
         ConnectionManager em = null;
         String path = "";
@@ -98,7 +98,7 @@ public class XBRLGenerationController implements Runnable {
                     folderName
             );*/
 
-            generationIo = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
+            /*generationIo = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
                     Info.getInstance().getIOStateByID(Constants.processoPending),
                     getReferenceDate(),
                     getModule(),
@@ -111,23 +111,42 @@ public class XBRLGenerationController implements Runnable {
                     folderName,
                     threadName,
                     folderName
-            );
-            Connection.persist(em, generationIo);
+            );*/
+            io.setIoState(Info.getInstance().getIOStateByID(Constants.processoPending));
+            io.setReferenceDate(getReferenceDate());
+            io.setModule(getModule());
+            io.setDomain(domain);
+            io.setEntity(getEntity());
+            io.setInitTimestamp(LocalDateTime.now());
+            io.setEndTimestamp(null);
+            io.setAction(Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionGeneration)));
+            io.setUserId("Generation");
+            io.setFilename(folderName);
+            io.setThreadFilename(threadName);
+            io.setFilenameserver(folderName);
+
+            Connection.persist(em, io);
 
             //OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated(user.getUserId(), folderName, getModule(), now, getEntity(), domain, getReferenceDate(), generationIo);
-            OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("ABC", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), generationIo);
+            OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("ABC", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), io);
 
             Connection.persist(em, outXBRLGenerated);
             GenerateLogDAL.createNewGenerationLog("Geração Iniciada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
             //Get Object from NULL
             boolean altGeneration = Info.getInstance().checkIfUsesAltGeneration(module.getModuleVID(),Constants.GENERATIONBASEDONCOLLUMN);
-            List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain);
+            List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain, io);
+
+            for (InImportedTablesTemp inImportedTablesTemp : tempList) {
+                LOG.info("GetTableCode:" + inImportedTablesTemp.getTableVersion());
+            }
             //Create Map
             Map<String, List<InImportedTablesTemp>> listOfTableGroupedByTheTableVID = tempList.stream()
                     .collect(Collectors.groupingBy(item -> item.getTableVersion().getCode()));
             Queue<Thread> threadList = new LinkedList<>();
+            //HERE
             for (Map.Entry<String, List<InImportedTablesTemp>> entry : listOfTableGroupedByTheTableVID.entrySet()) {
-                Thread t = new Thread(new XBRLGeneratorMap(finalFolder, entry.getValue(), generationIo.getReferenceDate(), altGeneration));
+
+                Thread t = new Thread(new XBRLGeneratorMap(finalFolder, entry.getValue(), io.getReferenceDate(), altGeneration));
                 threadList.add(t);
                 t.start();
             }
@@ -166,16 +185,16 @@ public class XBRLGenerationController implements Runnable {
                 }
                 //Add to the Log Generation Canceled
                 GenerateLogDAL.createNewGenerationLog("Geração Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
-                generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));//new IOState(Constants.processoCanceled, new IOTypeState(Constants.tipoStateCanceled)));
-                Connection.merge(generationIo);    
+                io.setEndTimestamp(LocalDateTime.now());
+                io.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));//new IOState(Constants.processoCanceled, new IOTypeState(Constants.tipoStateCanceled)));
+                Connection.merge(io);    
 
             } else {
                 //Add to the Log Generation Conclude sucesufully
                 GenerateLogDAL.createNewGenerationLog("Geração Concluída com sucesso", outXBRLGenerated.getIdXBRLGenerate());
-                generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
-                Connection.merge(generationIo);                
+                io.setEndTimestamp(LocalDateTime.now());
+                io.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+                Connection.merge(io);                
             }
             //OperationRunningDAL.deleteOperationRun(threadName);
             //remove Operation Table
@@ -183,9 +202,9 @@ public class XBRLGenerationController implements Runnable {
         } catch (Exception e) {
             LOG.error("Erro na geracao:" + e.getMessage());
             e.printStackTrace();
-            generationIo.setEndTimestamp(LocalDateTime.now());
-            generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
-            Connection.merge(generationIo); 
+            io.setEndTimestamp(LocalDateTime.now());
+            io.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
+            Connection.merge(io); 
         }
     }
 

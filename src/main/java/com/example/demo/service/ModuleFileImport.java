@@ -666,8 +666,8 @@ public class ModuleFileImport implements Runnable{
         LOG.info("Generation Start");
         GenerationBean generationBean = new GenerationBean();
 
-        generationBean.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename);
-        
+        generationBean.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
+
     }
 
     /**

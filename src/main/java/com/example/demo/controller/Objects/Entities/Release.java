@@ -1,6 +1,7 @@
 package com.example.demo.controller.Objects.Entities;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
@@ -25,8 +26,8 @@ public class Release implements Serializable{
     private String code;
     
     @Column(name = "\"Date\"")
-    @Convert(converter = LocalDateTimePersistenceConverter.class)
-    private LocalDateTime date;
+    @Convert(converter = LocalDatePersistenceConverter.class)
+    private LocalDate date;
     
     @Column(name = "DESCRIPTION")
     @Size(max = 255)
@@ -40,7 +41,8 @@ public class Release implements Serializable{
     private boolean isCurrent;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
+    //@OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Concept concept;
     
     @Column(name = "LATESTVARIABLEGENTIME")
@@ -63,11 +65,11 @@ public class Release implements Serializable{
         this.code = code;
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

@@ -22,7 +22,8 @@ public class Context implements Serializable{
     private String signature;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
-    @OneToOne(fetch = FetchType.LAZY)
+    //@OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Concept concept;
 
     public int getContextID() {

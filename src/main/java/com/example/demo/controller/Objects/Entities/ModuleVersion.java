@@ -24,19 +24,23 @@ public class ModuleVersion implements Serializable {
     private int moduleVID;
 
     @JoinColumn(referencedColumnName = "MODULEID", name = "MODULEID", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private ModuleDPM moduleDPM;
 
     @JoinColumn(referencedColumnName = "KEYID", name = "GLOBALKEYID", insertable = false, updatable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private CompoundKey globalKey;
 
     @JoinColumn(referencedColumnName = "RELEASEID", name = "STARTRELEASEID", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Release startRelease;
 
     @JoinColumn(referencedColumnName = "RELEASEID", name = "ENDRELEASEID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Release endRelease;
 
     @Column(name = "CODE")
@@ -67,7 +71,8 @@ public class ModuleVersion implements Serializable {
     private LocalDate toReferenceDate;
 
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
-    @OneToOne(fetch = FetchType.LAZY)
+    //@OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Concept concept;
     
     //@Column(name = "ISREPORTED", columnDefinition = "CHAR(1)")

@@ -38,7 +38,8 @@ public class DataType implements Serializable {
     private String name;
     
     @JoinColumn(referencedColumnName = "DATATYPEID", name = "PARENTDATATYPEID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private DataType parentDataType;
     
     @Column(name = "ISACTIVE", columnDefinition = "CHAR(1)")

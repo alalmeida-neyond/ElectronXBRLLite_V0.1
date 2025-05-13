@@ -70,7 +70,7 @@ public class InImportedTablesDAL {
         }
     }
 
-    public static List<InImportedTablesTemp> getListOfImportedMaps(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain) {
+    public static List<InImportedTablesTemp> getListOfImportedMaps(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain, IO io) {
         JPA<InImportedTablesTemp> jpa = new JPA<>(InImportedTablesTemp.class);
         domain = domain != null ? (domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain) : null;
         String queryStr = Utils.getResource("GetImportedTablesForGeneration.sql");
@@ -78,7 +78,7 @@ public class InImportedTablesDAL {
         
         List<InImportedTablesTemp> listOfMaps = new ArrayList<>();
         try {
-            listOfMaps = jpa.getTypedNativeResultList(queryStr,
+            /*listOfMaps = jpa.getTypedNativeResultList(queryStr,
                     "processOkDeleted", String.valueOf(Constants.processoOkDeleted),
                     "actionId", String.valueOf(Constants.actionImport),
                     "actionGenerateId", String.valueOf(Constants.actionGeneration),
@@ -86,10 +86,13 @@ public class InImportedTablesDAL {
                     "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE),
                     "desagregationCodeFixedType", String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE),
                     "referenceDate", referenceDate != null ? referenceDate.format(Constants.dateFormat): null,
-                    "format",Constants.ISOBASEFORMAT,
+                    "format",Constants.ISOBASEFORMATSQlite,
                     "domain", domain != null ? domain.toUpperCase() : null,
                     "moduleVID", module != null ? String.valueOf(module.getModuleVID()) : null,
-                    "entityId", entity != null ? String.valueOf(entity.getEntityID()) : null);
+                    "entityId", entity != null ? String.valueOf(entity.getEntityID()) : null);*/
+            listOfMaps = jpa.getTypedNativeResultList(queryStr,
+                    "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE),
+                    "ioId", io.getIoId());
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

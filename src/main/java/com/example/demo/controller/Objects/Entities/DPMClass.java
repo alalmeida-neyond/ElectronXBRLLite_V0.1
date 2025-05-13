@@ -26,7 +26,8 @@ public class DPMClass implements Serializable{
     private String type;
     
     @JoinColumn(referencedColumnName = "CLASSID", name = "OWNERCLASSID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private DPMClass ownerClass;
     
     @Column(name = "HASREFERENCES", columnDefinition = "NUMBER(*,0)")

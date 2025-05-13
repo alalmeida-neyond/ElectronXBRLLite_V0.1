@@ -41,7 +41,8 @@ public class GenerateLog {
     @Convert(converter = LocalDateTimePersistenceConverter.class)
     private LocalDateTime timeStampCreated;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "XBRL_ID", referencedColumnName = "XBRL_ID", nullable = false)
     private OutXBRLGenerated xbrlGenerates;
 

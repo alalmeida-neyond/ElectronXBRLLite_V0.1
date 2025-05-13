@@ -16,11 +16,13 @@ public class Concept implements Serializable{
     private byte[] conceptGUID;
     
     @JoinColumn(referencedColumnName = "CLASSID", name = "CLASSID", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private DPMClass dpmClass;
     
     @JoinColumn(referencedColumnName = "ORGID", name = "OWNERID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Organisation owner;
 
     public byte[] getConceptGUID() {
