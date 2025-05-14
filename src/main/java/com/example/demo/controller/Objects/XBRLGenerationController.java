@@ -58,7 +58,7 @@ public class XBRLGenerationController implements Runnable {
         //xbrlGenerationMain();
     }
 
-    public void xbrlGenerationMain(IO io) {
+    public void xbrlGenerationMain(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity,IO io) {
         IO generationIo = null;
         ConnectionManager em = null;
         String path = "";

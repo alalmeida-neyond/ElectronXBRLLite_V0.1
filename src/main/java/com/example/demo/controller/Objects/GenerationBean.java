@@ -5,24 +5,13 @@
 package com.example.demo.controller.Objects;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
-
 import javax.annotation.PostConstruct;
 
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
 
-import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 
@@ -93,7 +82,7 @@ public class GenerationBean extends DefaultBean {
                 + referenceDate.toString() + "_" + entity.getBdpId();
         try {
             XBRLGenerationController generationController = new XBRLGenerationController(threadName, moduleVersion, domain, entity, referenceDate);
-            generationController.xbrlGenerationMain(io);
+            generationController.xbrlGenerationMain(referenceDate,moduleVersion,domain,entity,io);
         } catch (Exception e) {
             LOG.warn("Geracao | Erro na pesquisa logs geracao", e);
             return;

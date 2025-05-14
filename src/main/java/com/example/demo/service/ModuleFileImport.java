@@ -19,33 +19,14 @@ import org.jboss.logging.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.example.demo.DTOs.CellVariableDTO;
-import com.example.demo.DTOs.DatapointItensDTO;
-import com.example.demo.DTOs.HeaderDTO;
-import com.example.demo.Data.Connection;
-import com.example.demo.Data.ConnectionManager;
-import com.example.demo.Finrep.ExcelPoints;
-import com.example.demo.Finrep.ImportExcelValues;
-import com.example.demo.controller.Objects.ConfAction;
-import com.example.demo.controller.Objects.ConfEntities;
-import com.example.demo.controller.Objects.Constants;
-import com.example.demo.controller.Objects.GenerationBean;
-import com.example.demo.controller.Objects.Info;
-import com.example.demo.controller.Objects.Entities.*;
-import com.example.demo.controller.Objects.Utils;
-import com.example.demo.controller.Objects.DAL.CellDAL;
-import com.example.demo.controller.Objects.DAL.IODAL;
-import com.example.demo.controller.Objects.DAL.ItemCategoryDAL;
-import com.example.demo.controller.Objects.DAL.PropertyDAL;
-import com.example.demo.controller.Objects.DAL.TableVersionDAL;
-import com.example.demo.controller.Objects.DAL.TableVersionHeaderDAL;
-import com.example.demo.controller.Objects.DAL.VariableVersionDAL;
+import com.example.demo.DTOs.*;
+import com.example.demo.Data.*;
+import com.example.demo.Finrep.*;
+import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.DPMOrigin.Cell;
-import com.example.demo.controller.Objects.Import.InImportKey;
-import com.example.demo.controller.Objects.Import.InImportedTablesTemp;
-import com.example.demo.controller.Objects.Import.InImportedValuesTemp;
-import com.example.demo.controller.Objects.Import.InKeyAssociation;
-import com.example.demo.controller.Objects.Import.InKeyType;
+import com.example.demo.controller.Objects.Entities.*;
+import com.example.demo.controller.Objects.Import.*;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ConstraintViolationException;
 
@@ -663,11 +644,10 @@ public class ModuleFileImport implements Runnable{
         }
         LOG.info("Import End");
 
-        LOG.info("Generation Start");
-        GenerationBean generationBean = new GenerationBean();
+        LOG.info("Validation Start");
+        ValidationBean validationBean = new ValidationBean();
 
-        generationBean.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
-
+        validationBean.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
     }
 
     /**

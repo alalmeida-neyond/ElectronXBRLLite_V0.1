@@ -10,6 +10,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
+import org.jboss.logging.Logger;
+
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Import.*;
@@ -22,15 +24,17 @@ import jakarta.faces.view.ViewScoped;
  *
  * @author tbatista
  */
-@Named(value = "importFileBean")
+@Named(value = "validationBean")
 @ViewScoped
 public class ValidationBean extends DefaultBean {
     
     private List<InImportedTablesTemp> importedTables;
-    private List<Integer> selectedMapsToValidate;
+    //private List<Integer> selectedMapsToValidate;
     private List<IO> validateIOs;
     private List<IO> validationIOs;
     
+    private final Logger LOG = Logger.getLogger(ValidationBean.class.getName());
+
     public ValidationBean(){
     }
 
@@ -69,34 +73,36 @@ public class ValidationBean extends DefaultBean {
         return importedTables;
     }
 
-    public void startValidation() {
-        LocalDate referenceDate = null;
+    public void startValidation(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io) {
+        /*LocalDate referenceDate = null;
         if (getYearExecution()!= null && getMonthExecution()!= null) {
             //CastMonth into number
             referenceDate = getDateAtLastDay(getMonthExecution(), getYearExecution());
-        }
+        }*/
         
-        if (getModuleVersionExecution() == null || getEntityExecution() == null || getDomainExecution() == null || getYearExecution() == null || getMonthExecution() == null) {
+        /*if (getModuleVersionExecution() == null || getEntityExecution() == null || getDomainExecution() == null || getYearExecution() == null || getMonthExecution() == null) {
             throwFacesMessage(FacesMessage.SEVERITY_ERROR, Constants.validationError, Constants.missingFilters);
             return;
         }
         String domain = getDomainExecution()!= null ? getDomainExecution().length() > Constants.DOMAINLENGTH ? getDomainExecution().substring(0, 3).toUpperCase() : getDomainExecution().toUpperCase() : null;
-        
-        if(selectedMapsToValidate.isEmpty()){
+        */
+        /*if(selectedMapsToValidate.isEmpty()){
             throwFacesMessage(FacesMessage.SEVERITY_ERROR, Constants.validationError, Constants.NOMAPSSELECTED);
+            LOG.error(Constants.validationError + " | " + Constants.NOMAPSSELECTED);
             return;
-        }
+        }*/
         
-        List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(getModuleVersionExecution(), domain, getEntityExecution(), referenceDate.format(Constants.DATEFORMATISO8601));
+        //List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(getModuleVersionExecution(), domain, getEntityExecution(), referenceDate.format(Constants.DATEFORMATISO8601));
+        List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(moduleVersion, domain, entity, referenceDate.toString());
         if (!operationsRunningFromIO.isEmpty()) {
             throwFacesMessage(FacesMessage.SEVERITY_INFO, Constants.concurrentOperations, Constants.concurrentOperationsDesc);
+            LOG.info(Constants.concurrentOperations + " | " + Constants.concurrentOperationsDesc);
             return;
         }
         
         List<InImportedTablesTemp> tablesToValidate = new ArrayList<>();
         for (InImportedTablesTemp importedTable : importedTables) {
-            if(selectedMapsToValidate.contains(importedTable.getImportedTableId()))
-                tablesToValidate.add(importedTable);
+            tablesToValidate.add(importedTable);
         }
         
         Set<TableVersionDPM> sortedTables = tablesToValidate.stream()
@@ -104,13 +110,13 @@ public class ValidationBean extends DefaultBean {
                                                 .collect(Collectors.toCollection(() -> 
                                                     new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
                                                 ));
-
-        throwFacesMessage(FacesMessage.SEVERITY_INFO, "Validacao Iniciada", "Processo de validacao iniciada.");
+        LOG.info("Validacao Iniciada | " + "Processo de validacao iniciada.");
+        //throwFacesMessage(FacesMessage.SEVERITY_INFO, "Validacao Iniciada", "Processo de validacao iniciada.");
         
         try {
             //Validator_2_0 validator = new Validator_2_0(getModuleVersionExecution(), referenceDate, getEntityExecution(), domain, session.getUser().getUserId().toUpperCase(), sortedTables);
-            Validator_2_0 validator = new Validator_2_0(getModuleVersionExecution(), referenceDate, getEntityExecution(), domain, sortedTables);
-            validator.validateOperations();
+            Validator_2_0 validator = new Validator_2_0(moduleVersion, referenceDate, entity, domain, sortedTables);
+            validator.validateOperations(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
         } catch (Exception e) {
             
         }
@@ -158,12 +164,12 @@ public class ValidationBean extends DefaultBean {
         this.validateIOs = validateIOs;
     }
 
-    public List<Integer> getSelectedMapsToValidate() {
+    /*public List<Integer> getSelectedMapsToValidate() {
         return selectedMapsToValidate;
     }
 
     public void setSelectedMapsToValidate(List<Integer> selectedMapsToValidate) {
         this.selectedMapsToValidate = selectedMapsToValidate;
-    }
+    }*/
 
 }
