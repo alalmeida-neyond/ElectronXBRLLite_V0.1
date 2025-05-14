@@ -1,0 +1,594 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.example.demo.controller.Objects;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+
+import com.example.demo.Data.*;
+import com.example.demo.Data.Access.*;
+import com.example.demo.controller.Objects.Entities.*;
+
+import java.util.logging.Logger;
+
+
+public class Validator_2_0 implements Runnable {
+    
+    private final Logger LOG = Logger.getLogger(Validator_2_0.class.getName());
+    
+    private ModuleVersion moduleVersion;
+    private ConfEntities entity;
+    private LocalDate refDate;
+    private String domain;
+    private String userID;
+    private Set<TableVersionDPM> tables;
+    
+    public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, String userID, Set<TableVersionDPM> tables){
+        this.moduleVersion = moduleVersion;
+        this.entity = entity;
+        this.refDate = refDate;
+        this.domain = domain;
+        this.userID = userID;
+        this.tables = tables;
+    }
+
+    private Map<Integer, Map<Integer, List<ValNode>>> getNodes(int tableVId) {
+        JPA<Object[]> jpa = new JPA<>(Object[].class);
+        List<Object[]> results = new ArrayList<>();
+        try {
+            results = jpa.getMappedFileQueryResultList("XBRLArvore.sql", "OperationNodeMapping",
+                    "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
+                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601,
+                    "tableVId", String.valueOf(tableVId)
+            );
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query getNodes", e);
+        } finally {
+            Connection.close(jpa.getEm().em);
+        }
+
+        return mapNodesFromDatabase(results);
+    }
+    
+    private Map<Integer, Map<Integer, List<ValNode>>> getNodesForPreconditions(){
+        JPA<Object[]> jpa = new JPA<>(Object[].class);
+        List<Object[]> results = new ArrayList<>();
+        try {
+            results = jpa.getMappedFileQueryResultList("XBRLArvorePreconditions.sql", "OperationNodeMapping",
+                    "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
+                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601
+            );
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query getNodes", e);
+        } finally {
+            Connection.close(jpa.getEm().em);
+        }
+
+        return mapNodesFromDatabase(results);
+    } 
+
+    /**
+     * Mapeamento dos resultados em Nós por nível.
+     *
+     * @param results Resultados da Query "XBRLArvore.sql"
+     * @return Lista de nós mapeados por níves
+     */
+    private Map<Integer, Map<Integer, List<ValNode>>> mapNodesFromDatabase(List<Object[]> results) {
+        Map<Integer, Map<Integer, List<ValNode>>> nodesFromDatabse = new HashMap<>();
+
+        try {
+            for (Object[] result : results) {
+                OperationNode node = (OperationNode) result[0];
+                Integer level = Integer.valueOf(result[1].toString());
+                Integer operationVID = node.getOperationVersion().getOperationVID();
+                
+                ValNode nodeResult = new ValNode();
+                nodeResult.setNode(node);
+                nodeResult.setLevel(level);
+
+                if (!nodesFromDatabse.containsKey(operationVID)) {
+                    nodesFromDatabse.put(operationVID, new HashMap<>());
+                }
+
+                if (!nodesFromDatabse.get(operationVID).containsKey(level)) {
+                    nodesFromDatabse.get(operationVID).put(level, new ArrayList<>());
+                }
+
+                nodesFromDatabse.get(operationVID).get(level).add(nodeResult);
+            }
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query getResultsByNode", e);
+        }
+
+        return nodesFromDatabse;
+    }
+
+    private Map<Integer, List<ValResult>> getResultsByNode(int operationVID) {
+        JPA<Object[]> jpa = new JPA<>(Object[].class);
+        List<Object[]> results = new ArrayList<>();
+        try {
+            results = jpa.getMappedFileQueryResultList("GetValuesUpdate.sql", "ValuesForOperationMapping",
+                    "operationVId", String.valueOf(operationVID),
+                    "entityId", String.valueOf(entity.getEntityID()),
+                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601,
+                    "domain", domain,
+                    "actionId", String.valueOf(Constants.actionImport),
+                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
+                    "desagregationTypeFixed", String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE),
+                    "directionZ", String.valueOf(Constants.SheetCoordinate),
+                    "dataTypeDate", String.valueOf(Constants.DATE),
+                    "refPeriodString", String.valueOf(Constants.REFPERIOD),
+                    "dataTypeEnumeration", String.valueOf(Constants.ENUMERATION),
+                    "referenceRow", String.valueOf(Constants.PROPERTYROW),
+                    "referenceColumn", String.valueOf(Constants.PROPERTYCOLUMN),
+                    "referenceSheet", String.valueOf(Constants.PROPERTYSHEET),
+                    "stateOk", String.valueOf(Constants.processoOk),
+                    "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE)
+            );
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query getResultsByNode", e);
+        } finally {
+            Connection.close(jpa.getEm().em);
+        }
+
+        return OperationsUtils.mapResultsFromDatabase(results, refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
+    }
+    
+    private Map<Integer, List<ValResult>> getResultsByNodeForPreconditions(int precondtionVId) {
+        JPA<Object[]> jpa = new JPA<>(Object[].class);
+        List<Object[]> results = new ArrayList<>();
+        try {
+            results = jpa.getMappedFileQueryResultList("GetValuesForPreconditionsUpdate.sql", "ValuesForOperationMapping",
+                    "preconditionVId", String.valueOf(precondtionVId),
+                    "entityId", String.valueOf(entity.getEntityID()),
+                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601,
+                    "domain", domain,
+                    "actionId", String.valueOf(Constants.actionImport),
+                    "typeStateOk", String.valueOf(Constants.tipoStateOK)
+            );
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query getResultsByNodeForPreconditions", e);
+        } finally {
+            Connection.close(jpa.getEm().em);
+        }
+
+        return OperationsUtils.mapResultsFromDatabase(results, refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
+    }
+    
+    public void validateOperations() {
+        boolean hasErrors = false;
+        OutValidationResult commonDatapointValidationResult = null;
+
+        Map<Integer, ValResult> resultPerPrecondition = new HashMap<>();
+        Map<Integer, OutValidationResult> operationsResultsIds = new HashMap<>();
+        
+        ConnectionManager em = null;
+        IO ioValidation = null;
+        
+//        List<Integer> operationVIDs = Arrays.asList(10684);
+
+        try {
+            em = new ConnectionManager();
+            long initAllProcess = System.nanoTime();
+                    
+            ioValidation = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
+                    Info.getInstance().getIOStateByID(Constants.processoPending),
+                    refDate, moduleVersion, domain, entity, 
+                    LocalDateTime.now(), Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionValidation))
+                    , userID);
+            Connection.persist(em, ioValidation);
+            
+            LogValidationProcess logValProcessInit = new LogValidationProcess(ioValidation, "Processo de validação iniciado.", LocalDateTime.now());
+            Connection.persist(em, logValProcessInit);
+            
+            //Obtenção dos nós da árvore por operação
+            Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
+            
+                    
+            for (TableVersionDPM table : getTables()) {
+                Integer tableVId = table.getTableVID();
+                
+                //temp
+//                if(tableVId != 2170){
+//                    continue;
+//                }  
+                                
+                //Map<String, Integer> properties = getPropertiesKeyTypes(tableVId);
+                                
+                long initPerMap = System.nanoTime();
+                LOG.info("Começo da avaliação do mapa: " + table.getCode());
+                
+                OutValidationTable outValTable = new OutValidationTable(table, ioValidation,Info.getInstance().getIOStateByID(Constants.processoPending)
+                );
+                Connection.persist(em, outValTable);
+                
+                Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = getNodes(tableVId);
+                
+                List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity);
+                commonDatapointValidationResult = validateCommonDatapoints(possibleDatapointsConflicts, em);
+                if (commonDatapointValidationResult != null) {
+                    OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, commonDatapointValidationResult);
+                    Connection.persist(em, outValTableResult);
+                }
+
+                if (nodesMappedByOperationVIdByLevel.isEmpty() && possibleDatapointsConflicts.isEmpty()) {
+                    LogValidationProcess logValProcessMapEnd = new LogValidationProcess(ioValidation, "Validação - " + table.getCode() + " - Concluído | Não encontrou operações para este mapa.", LocalDateTime.now());
+                    Connection.persist(em, logValProcessMapEnd);
+                    
+                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+                    continue;
+                }
+
+                for (Integer operationVId : nodesMappedByOperationVIdByLevel.keySet()) {
+
+                    //temp
+//                    if(!operationVIDs.contains(operationVId)){
+//                        continue;
+//                    }
+                    //Verifica se a regra já foi validada
+                    if (operationsResultsIds.containsKey(operationVId)) {
+                        OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
+                        Connection.persist(em, outValTableResult);
+                    } else {
+                        //Cria o Out_ValidationResult
+                        OperationVersion operation = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getOperationVersion();
+                        OutValidationResult outValResult = new OutValidationResult(operation, Info.getInstance().getIOStateByID(Constants.processoPending));//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)));
+                    
+                        //Valida a precondição caso ainda não tenha sido validada
+                        Integer preConditionVId = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getPreconditonOperationVId();
+                        if (!resultPerPrecondition.containsKey(preConditionVId)) {
+                            Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByPreconditionVIdByLevel.get(preConditionVId);
+                            validatePrecondition(preConditionVId, nodesMappedByLevel, resultPerPrecondition);
+                        }
+
+                        ValResult preConditionResult = resultPerPrecondition.get(preConditionVId);
+
+                        //caso a precondição
+                        if(preConditionResult.valueIsNull() || !Boolean.parseBoolean(preConditionResult.getRawValue())){
+                            outValResult.setIoState(Info.getInstance().getIOStateByID(Constants.RULEDONOTRUNPREREQUISITE.getKey()));
+                            
+                            operationsResultsIds.put(operationVId, outValResult);
+                            Connection.persist(em, outValResult);
+
+                            OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
+                            Connection.persist(em, outValTableResult);
+                        } else if (Boolean.parseBoolean(preConditionResult.getRawValue())) {
+                            //Obtenção dos valores importados nos nós
+                            LOG.info("Avaliação da regra: " + operationVId);
+
+                            //obtém os dados para validar
+                            Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId);
+                            Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
+
+                            //valida a operação
+                            List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, operationVId);
+
+                            if (results != null && !results.isEmpty()) {
+                                List<OutValidationResultDetails> resultDetails = OutValidationResultDetails.createResultDetails(results, outValResult);
+                                outValResult.setIoState(resultDetails);
+
+                                operationsResultsIds.put(operationVId, outValResult);
+                                Connection.persist(em, outValResult);
+
+                                OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
+                                Connection.persist(em, outValTableResult);
+
+                                Connection.persistList(em, resultDetails);
+                            } else {
+                                //ALGO CORREU MAL
+                                outValResult.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
+                                
+                                operationsResultsIds.put(operationVId, outValResult);
+                                Connection.persist(em, outValResult);
+
+                                OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
+                                Connection.persist(em, outValTableResult);
+
+                                insertOperationLogs(ioValidation);
+                                Info.getInstance().getValidationsLogs().clear();
+                            }
+
+                            LOG.info("Fim da avaliação da regra: " + operationVId);
+                        }
+                    }
+                }
+
+                long endPerMap = System.nanoTime();
+                float durationPerMap = ((float) (endPerMap - initPerMap) / 1000000000);
+                String durationFormatted = String.format("%.2f", durationPerMap);
+                LOG.info("Término da avaliação do mapa: " + table.getCode() + " | Duração: " + durationFormatted + " segundos");
+                
+                if(operationsResultsIds.isEmpty()){
+                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));//new IOState(Constants.processoOkEmpty, new IOTypeState(Constants.tipoStateOK)));
+                } else {
+                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+                }
+                Connection.merge(em, outValTable);
+
+                LogValidationProcess logValProcessMapEnd = new LogValidationProcess(ioValidation, "Validação - " + table.getCode() + " - Concluída", LocalDateTime.now());
+                Connection.persist(em, logValProcessMapEnd);
+            }
+
+            //if(commonDatapointValidationResult != null){
+            //    commonDatapointValidationResult.setIoState(new IOState(Constants.RULENOTOK.getKey(), new IOTypeState(Constants.RULENOTOK.getValue())));
+            //    Connection.merge(em, commonDatapointValidationResult);
+            //}
+            
+            long endAllProcess = System.nanoTime();
+            float durationAllProcess = ((float) (endAllProcess - initAllProcess) / 1000000000);
+            String durationFormatted = String.format("%.2f", durationAllProcess);
+
+            LOG.info("Término da validação | Duração: " + durationFormatted + " segundos");
+            
+            LogValidationProcess logValProcessEnd = new LogValidationProcess(ioValidation, "Processo de validação foi concluido.", LocalDateTime.now());
+            Connection.persist(em, logValProcessEnd); 
+                
+            ioValidation.setEndTimestamp(LocalDateTime.now());
+            ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+            Connection.merge(em, ioValidation);
+            
+            int persistResult = persistIntoValidationsDashboard(em);
+            if(persistResult != 1){
+                LogValidationProcess logValProcessErrorInsertDashboard = new LogValidationProcess(ioValidation, "Ocorreu um erro na inserção dos dados para consulta no Dashboard de Validações.", LocalDateTime.now());
+                Connection.persist(em, logValProcessErrorInsertDashboard); 
+                ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
+                Connection.merge(em, ioValidation);
+            }
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Ocorreu um erro no processo de validação | ", e);
+            
+            LogValidationProcess logValProcessEnd = new LogValidationProcess(ioValidation, "Processo de validação ocorreu com erros inesperados.", LocalDateTime.now());
+            Connection.persist(em, logValProcessEnd);
+
+            ioValidation.setEndTimestamp(LocalDateTime.now());
+            ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
+            Connection.merge(em, ioValidation);
+        }
+    }
+
+    private List<ValResult> validateOperation(Map<Integer, List<ValNode>> nodesMappedByLevel, Map<Integer, List<ValResult>> resultsMappedByNode, Integer operationVId) {
+        Map<Integer, List<ValNode>> nodesMappedByParent = new HashMap<>();
+        boolean hasError = false;
+
+        try {
+            if (!nodesMappedByLevel.isEmpty() && !resultsMappedByNode.isEmpty()) {
+                nodesMappedByParent = prepareOperation(resultsMappedByNode, nodesMappedByLevel);
+
+                List<Integer> levels = nodesMappedByLevel.keySet().stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+                //Executa a árvore de baixo para cima
+                treeLoop:
+                for (Integer level : levels) {
+                    for (ValNode node : nodesMappedByLevel.get(level)) {
+                        if (node.getNode().getOperator() != null) {
+                            List<ValNode> childs = nodesMappedByParent.get(node.getNode().getNodeID());
+                            Boolean valid = ValidationOperators.evaluate(node, childs, String.valueOf(entity.getEntityID()), getDomain());
+                            if (valid == null || valid == false) {
+//                                Utils.addLogOfOperations(operationVId, node.getNode().getNodeID(), "Aconteceu algo de errado na operação", null, null, "Erro");
+                                hasError = true;
+                                break treeLoop;
+                            }
+                        }
+                    }
+                }
+
+                if (!hasError) {
+                    return nodesMappedByLevel.get(1).get(Constants.FIRSTRESULT).getResults();
+                } else {
+                    return null;
+                }
+            }
+        } catch (AssertionError e) {
+//            Utils.addLogOfOperations(operationVId, nodesMappedByLevel.get(1).get(Constants.FIRSTRESULT).getNode().getNodeID(), "Operador por implementar na operação", null, null,  "Erro");
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na validação da operação "+operationVId, e);
+        }
+
+        return null;
+    }
+
+    private static Boolean insertOperationLogs(IO validationIo) {
+        JPA<LogValidationProcess> jpa = new JPA<>(LogValidationProcess.class);
+        List<LogValidationProcess> logsList = Info.getInstance().getValidationsLogs();
+        boolean result = false;
+
+        try {
+            if (!logsList.isEmpty()) {
+                for (LogValidationProcess log : logsList) {
+                    log.setIo(validationIo);
+                }
+                result = Connection.persistList(jpa.getEm(), logsList);
+            }
+        } catch (Exception e) {
+            //TODO - Incluir Logs
+            e.printStackTrace();
+        } finally {
+            jpa.close();
+        }
+
+        return result;
+    }
+
+    private Map<Integer, List<ValNode>> prepareOperation(Map<Integer, List<ValResult>> resultsMappedByNode, Map<Integer, List<ValNode>> nodesMappedByLevel) {
+        Map<Integer, List<ValNode>> nodesMappedByParent = new HashMap<>();
+
+        try {
+            if (nodesMappedByLevel != null && !nodesMappedByLevel.isEmpty() && resultsMappedByNode != null && !resultsMappedByNode.isEmpty()) {
+                //Associação dos valores aos respetivos nós folhas
+                for (Integer key : nodesMappedByLevel.keySet()) {
+                    for (ValNode node : nodesMappedByLevel.get(key)) {
+                        List<ValResult> results = resultsMappedByNode.get(node.getNode().getNodeID());
+                        node.setResults(results);
+
+                        if (node.getNode().getParentNode() != null) {
+                            Integer parentID = node.getNode().getParentNode().getNodeID();
+                            nodesMappedByParent.computeIfAbsent(parentID, k -> new ArrayList<>()).add(node);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro no prepareOperation.", e);
+        }
+        return nodesMappedByParent;
+    }
+
+    /*private void insertResultsLogs(Integer operationVId, Integer nodeId, List<ValResult> results, int code) {
+        if(results != null && !results.isEmpty()){
+            for (ValResult result : results) {
+                StringBuilder sb = new StringBuilder();
+                sb.append((result.getRawValue() != null) ? result.getRawValue() : "null");
+                sb.append(" | Expressão: ").append(result.getExpression());
+                
+                Utils.addLogOfOperations(operationVId, nodeId, 
+                                            sb.toString(), 
+                                            null, (result.getKey() != null) ? result.getKey().toString() : null, 
+                                            (code == 1) ? "Resultado" : (code == 2) ? "PreCondição" : "null");
+            }
+        }
+    }*/
+    private void validatePrecondition(Integer preConditionVId, Map<Integer, List<ValNode>> nodesMappedByLevel, Map<Integer, ValResult> resultPerPrecondition) {
+        //Obtenção dos valores importados nos nós
+        LOG.info("Avaliação da précondição: " + preConditionVId);
+
+        //obtém os dados para validar
+        Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNodeForPreconditions(preConditionVId);
+
+        //valida a operação
+        List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, preConditionVId);
+
+        if (results != null && !results.isEmpty()) {
+            //Integer nodeId = nodesMappedByLevel.get(1).get(Constants.FIRSTRESULT).getNode().getNodeID();
+            //insertResultsLogs(preConditionVId, nodeId, results, 2);
+            resultPerPrecondition.put(preConditionVId, results.get(Constants.FIRSTRESULT));
+        }
+
+        LOG.info("Fim da avaliação da précondição: " + preConditionVId);
+
+        //insertOperationLogs();
+        //Info.getInstance().clearLogOperationsList();
+    }
+
+    public ModuleVersion getModuleVersion() {
+        return moduleVersion;
+    }
+
+    public void setModuleVersion(ModuleVersion moduleVersion) {
+        this.moduleVersion = moduleVersion;
+    }
+
+    public ConfEntities getEntity() {
+        return entity;
+    }
+
+    public void setEntity(ConfEntities entity) {
+        this.entity = entity;
+    }
+
+    public LocalDate getRefDate() {
+        return refDate;
+    }
+
+    public void setRefDate(LocalDate refDate) {
+        this.refDate = refDate;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    public Set<TableVersionDPM> getTables() {
+        return tables;
+    }
+
+    public void setTables(Set<TableVersionDPM> tables) {
+        this.tables = tables;
+    }
+
+    @Override
+    public void run() {
+        try {
+            validateOperations();
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro. Falha ao lançar thread de validação. ", e);
+        }
+    }
+
+    private OutValidationResult validateCommonDatapoints(List<CommonDatapointValidationDTO> possibleDatapointsConflicts, ConnectionManager em) {
+        if (!possibleDatapointsConflicts.isEmpty()) {
+            //create the OutValidationResult
+            OutValidationResult commonDatapointValidationResult = new OutValidationResult(null, Info.getInstance().getIOStateByID(Constants.processoPending));
+            Connection.persist(em,commonDatapointValidationResult);
+            for(CommonDatapointValidationDTO validation : possibleDatapointsConflicts){
+                //insert the Results
+                OutValidationResultDetails resultDetails = new OutValidationResultDetails();
+                resultDetails.setIoState(Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey()));//new IOState(Constants.RULENOTOK.getKey(), new IOTypeState(Constants.RULENOTOK.getValue())));
+                resultDetails.setUsedMargin(false);
+                resultDetails.setDifference(null);
+                resultDetails.setTimeStampCreated(LocalDateTime.now());
+                resultDetails.setExpression(validation.getDetails());
+                resultDetails.setDomain(validation.getDomain());
+                resultDetails.setValidationResult(commonDatapointValidationResult);
+                Connection.persist(em, resultDetails);
+            }
+            commonDatapointValidationResult.setIoState(Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey()));//new IOState(Constants.RULENOTOK.getKey(), new IOTypeState(Constants.RULENOTOK.getValue())));                
+            Connection.merge(em,commonDatapointValidationResult);
+            return commonDatapointValidationResult;
+        }
+        return null;
+    }
+
+    private int persistIntoValidationsDashboard(ConnectionManager cm) {
+        int result = -1;
+        JPA<Object[]> jpa = new JPA<>(cm, Object[].class);
+ 
+        try {
+            result = jpa.executeFileQuery("InsertIntoValidationsDashboard.sql",
+                    "referenceDate", this.refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
+                    "actionValidateId", String.valueOf(Constants.actionValidation),
+                    "entityId", String.valueOf(this.entity.getEntityID()),
+                    "modulevid", String.valueOf(this.moduleVersion.getModuleVID()),
+                    "domain", this.domain,
+                    "actionImportId", String.valueOf(Constants.actionImport),
+                    "processoOk", String.valueOf(Constants.processoOk),
+                    "stateRuleOk", String.valueOf(Constants.RULEOK.getKey()),
+                    "stateRuleDNRR",String.valueOf(Constants.RULEDONOTRUN.getKey()),
+                    "stateRuleDNRRPrequisite", String.valueOf(Constants.RULEDONOTRUNPREREQUISITE.getKey()),
+                    "stateRuleNotOk", String.valueOf(Constants.RULENOTOK.getKey()),
+                    "stateRuleOkWithNotOk", String.valueOf(Constants.RULEOKWITHNOTOK.getKey()),
+                    "warningSeverity", Constants.SEVERITYWARNING,
+                    "errorSeverity", Constants.SEVERITYERROR,
+                    "stateProcessNotOk", String.valueOf(Constants.processoNotOk),
+                    "processOkDeleted", String.valueOf(Constants.processoOkDeleted),
+                    "processOkEmpty", String.valueOf(Constants.processoOkEmpty),
+                    "format",Constants.ISOBASEFORMAT8601
+                );
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Ocorreu um erro ao realizar ao inserir os dados no Dashboard de Validações",e);
+            result = -1;
+        }
+        
+        return result;
+    }
+
+}
