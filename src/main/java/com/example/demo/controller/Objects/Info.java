@@ -83,7 +83,7 @@ public class Info {
         try {
             this.refData.put(Constants.ModuleVersionAll.toLowerCase(), em.createNamedQuery("ModuleVersion.findAll", ModuleVersion.class).getResultList());
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos ModuleVersion:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos ModuleVersion:" + e.getMessage());
         }
     }
 
@@ -94,7 +94,7 @@ public class Info {
             ioStateByID = auxList.stream().collect(Collectors.toMap(IOState::getIoStateId, ioState -> ioState));
             
         } catch (Exception e) {
-             LOG.error("Erro na obtenção dos objetos IOState:" + e.getMessage());
+             LOG.error("Erro na obtencao dos objetos IOState:" + e.getMessage());
         }
     }
 

@@ -39,8 +39,8 @@ public class RefDataBean {
         webPageMap.put("xbrl2_header1|Reporting Bdp 2.0", HEADER1_REPORTING_BDP);
 
         webPageMap.put("xbrl2_header2|Templates", HEADER2_BdP_TEMPLATES);
-        webPageMap.put("xbrl2_header2|Importação", HEADER2_BdP_IMPORTACAO_RELATORIOS);
-        webPageMap.put("xbrl2_header2|Validação", HEADER2_BdP_VALIDACOES);
+        webPageMap.put("xbrl2_header2|Importacao", HEADER2_BdP_IMPORTACAO_RELATORIOS);
+        webPageMap.put("xbrl2_header2|Validacao", HEADER2_BdP_VALIDACOES);
         webPageMap.put("xbrl2_header2|Geração", HEADER2_BdP_GERACAO_XBRL);
         webPageMap.put("xbrl2_header2|Dashboard Geral", HEADER2_BdP_DASHBOARD_GERAL);
         webPageMap.put("xbrl2_header2|Parametrizações", HEADER2_BdP_PARAMETRIZACOES);

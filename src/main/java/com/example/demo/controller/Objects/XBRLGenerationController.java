@@ -131,7 +131,7 @@ public class XBRLGenerationController implements Runnable {
             OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("ABC", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), io);
 
             Connection.persist(em, outXBRLGenerated);
-            GenerateLogDAL.createNewGenerationLog("Geração Iniciada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
+            GenerateLogDAL.createNewGenerationLog("Geracao Iniciada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
             //Get Object from NULL
             boolean altGeneration = Info.getInstance().checkIfUsesAltGeneration(module.getModuleVID(),Constants.GENERATIONBASEDONCOLLUMN);
             List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain, io);
@@ -191,7 +191,7 @@ public class XBRLGenerationController implements Runnable {
 
             } else {
                 //Add to the Log Generation Conclude sucesufully
-                GenerateLogDAL.createNewGenerationLog("Geração Concluída com sucesso", outXBRLGenerated.getIdXBRLGenerate());
+                GenerateLogDAL.createNewGenerationLog("Geracao Concluída com sucesso", outXBRLGenerated.getIdXBRLGenerate());
                 io.setEndTimestamp(LocalDateTime.now());
                 io.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
                 Connection.merge(io);                

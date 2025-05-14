@@ -62,7 +62,7 @@ public class ImportFileDetailController extends DefaultBean {
         } else {
             if (ioImport == null) {
             //if (triggeredByUser) {
-                LOG.info("Detalhes importação:" + Constants.missingRefDate);
+                LOG.info("Detalhes importacao:" + Constants.missingRefDate);
                 return impDetails;
             }
         }
@@ -71,7 +71,7 @@ public class ImportFileDetailController extends DefaultBean {
         tempReports = getImportDetails(getModuleVersion(), referenceDate.format(Constants.DATEFORMATISO8601), getEntity(), domain);
 
         if (tempReports.isEmpty() || tempReports == null) {
-            LOG.info("Detalhes importação:" + Constants.emptyMessage);
+            LOG.info("Detalhes importacao:" + Constants.emptyMessage);
             return impDetails;
         }
 

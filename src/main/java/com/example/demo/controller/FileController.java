@@ -50,7 +50,7 @@ public class FileController {
             }
             /*
                 Ver quantas colunas tem o documento e fazer a mesma quantidade de arrays que tem de linhas
-                Depois em cada array colocar a informação das colunas
+                Depois em cada array colocar a informacao das colunas
                 Depois colocar esses arrays num array global
                 Depois iteramos o array global
             */ 

@@ -512,7 +512,7 @@ public class JPA<T> {
                     orderList.add(cb.desc(f.get(key)));
                 }
             }
-            //aplicar ordenação
+            //aplicar ordenacao
             if (orderList != null && !orderList.isEmpty()) {
                 query.orderBy(orderList);
             }

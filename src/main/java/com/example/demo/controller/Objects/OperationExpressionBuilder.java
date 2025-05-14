@@ -61,7 +61,7 @@ public class OperationExpressionBuilder {
 
             sb.append(symbol).append(" (").append(operandString).append(") ").append(groupingString);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Erro a construir expressão de agregação. | ", e);
+            LOG.log(Level.SEVERE,"Erro a construir expressão de agregacao. | ", e);
         }
         
         return sb.toString();
@@ -75,7 +75,7 @@ public class OperationExpressionBuilder {
 
             sb.append(symbol).append(" (").append(operandString).append(")");
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Erro a construir expressão de agregação numérica. | ", e);
+            LOG.log(Level.SEVERE,"Erro a construir expressão de agregacao numérica. | ", e);
         }
         
         return sb.toString();

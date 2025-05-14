@@ -175,7 +175,7 @@ public class ImportFileController extends DefaultBean {
             /*
              * if (!operationsRunning.isEmpty()) {
              * LOG.info("Operações a ser realizadas \n" +
-             * "Encontram-se a realizar operações relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operação a ser realizada"
+             * "Encontram-se a realizar operações relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operacao a ser realizada"
              * );
              * this.isOperationOccuring = false;
              * this.isSubmitDisable = true;
@@ -248,7 +248,7 @@ public class ImportFileController extends DefaultBean {
             }
             return true;
         } catch (Exception e) {
-            LOG.error("Importação | Erro no processo de validação do nome do ficheiro.", e);
+            LOG.error("Importacao | Erro no processo de validação do nome do ficheiro.", e);
             return false;
         }
     }

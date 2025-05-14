@@ -205,7 +205,7 @@ public class ImportFileBean extends DefaultBean {
             }
             return true;
         } catch (Exception e) {
-            LOG.error("Importação | Erro no processo de validação do nome do ficheiro.", e);
+            LOG.error("Importacao | Erro no processo de validacao do nome do ficheiro.", e);
             return false;
         }
     }

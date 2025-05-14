@@ -218,7 +218,7 @@ public class ModuleFileImport implements Runnable{
                     //LOG.info("Here");
                     continue;
                 }
-                //ImportLogManager.createNewImportLog("Importação do mapa - " + sheetName + " iniciado", io.getIoId());
+                //ImportLogManager.createNewImportLog("Importacao do mapa - " + sheetName + " iniciado", io.getIoId());
                 LOG.info("Importacao do mapa - " + sheetName + " iniciado");
                 headerDTOList = TableVersionHeaderDAL.getListOfHeaderForATableVid(singleFillingIndicatorAsTableVersion.getTableVID());
                 LOG.info("headerDTOListSize:" + headerDTOList.size());
@@ -260,7 +260,7 @@ public class ModuleFileImport implements Runnable{
                 importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));                
                 Connection.persist(cm, importedTableTemp);
                 
-                LogImportProcess logMapImportInit = new LogImportProcess(io.getIoId(),importedTableTemp.getImportedTableId(), "Importação do mapa - " + sheetName + " iniciado");
+                LogImportProcess logMapImportInit = new LogImportProcess(io.getIoId(),importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " iniciado");
                 Connection.persist(cm, logMapImportInit);
                 
                 Map<String, Integer> properties = TableVersionDAL.getPropertiesKeyTypes(singleFillingIndicatorAsTableVersion.getTableVID(), io.getReferenceDate());
@@ -276,7 +276,7 @@ public class ModuleFileImport implements Runnable{
                     } catch (Exception e) {
                         //e.printStackTrace();
                         //Erro nº da linha
-                        errorMsgPerTables.add("Erro na obtenção da linha.");
+                        errorMsgPerTables.add("Erro na obtencao da linha.");
                         continue;
                     }
                     List<DatapointItensDTO> ListItems = null;
@@ -309,7 +309,7 @@ public class ModuleFileImport implements Runnable{
                                     //e.printStackTrace();
                                     //Erro nº da coluna
 
-                                    errorMsgPerTables.add("Erro na obtenção da coluna, na linha " + rowValue + ".");
+                                    errorMsgPerTables.add("Erro na obtencao da coluna, na linha " + rowValue + ".");
                                     //Skipped to the next row (Error occur)
                                     //insertIntoTableBySheet.setIoState(new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
                                     //em.persist(insertIntoTableBySheet);
@@ -328,7 +328,7 @@ public class ModuleFileImport implements Runnable{
                                 } catch (Exception e) {
                                     //e.printStackTrace();
                                     //Erro a obter valor
-                                    errorMsgPerTables.add("Erro na obtenção do valor, na linha " + rowValue + " e na coluna " + columnValue + ".");
+                                    errorMsgPerTables.add("Erro na obtencao do valor, na linha " + rowValue + " e na coluna " + columnValue + ".");
                                     continue;
                                 }
 
@@ -384,7 +384,7 @@ public class ModuleFileImport implements Runnable{
                                     
                                     if (cellType == Constants.ENUMERATION || (cellType == Constants.NOTAPPLICABLE && isOpenRow)) {
                                         String valueTemp = value; //WHY JAVA THIS IS SO DUMB
-                                        /* A abordagem original não funcionava porque a inserção de informação da variável "value" só 
+                                        /* A abordagem original não funcionava porque a insercao de informacao da variável "value" só 
                                         acontecia num Try Catch, logo tentar chamar essa variável não daria o valor ou daria o valor 
                                         inicial (NULL)*/
                                         //Error
@@ -559,9 +559,9 @@ public class ModuleFileImport implements Runnable{
                 cm.em.flush();
                 cm.em.clear();
                 
-                //ImportLogManager.createNewImportLog("Importação do mapa - " + sheetName + " concluido", io.getIoId());
+                //ImportLogManager.createNewImportLog("Importacao do mapa - " + sheetName + " concluido", io.getIoId());
                 
-                LogImportProcess logMapImportEnd = new LogImportProcess(importedTableTemp.getImportedTableId(), "Importação do mapa - " + sheetName + " concluido");
+                LogImportProcess logMapImportEnd = new LogImportProcess(importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " concluido");
                 Connection.persist(cm, logMapImportEnd);
             }
             

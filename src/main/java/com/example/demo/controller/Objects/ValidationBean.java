@@ -105,7 +105,7 @@ public class ValidationBean extends DefaultBean {
                                                     new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
                                                 ));
 
-        throwFacesMessage(FacesMessage.SEVERITY_INFO, "Validação Iniciada", "Processo de validação iniciada.");
+        throwFacesMessage(FacesMessage.SEVERITY_INFO, "Validacao Iniciada", "Processo de validacao iniciada.");
         
         try {
             //Validator_2_0 validator = new Validator_2_0(getModuleVersionExecution(), referenceDate, getEntityExecution(), domain, session.getUser().getUserId().toUpperCase(), sortedTables);

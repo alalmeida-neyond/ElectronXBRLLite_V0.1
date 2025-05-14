@@ -197,7 +197,7 @@ public class XBRLGeneratorMap implements Runnable {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Erro na população do CSV: " + e.getMessage());
+            LOG.error("Erro na populacao do CSV: " + e.getMessage());
             e.printStackTrace();
         }
     }

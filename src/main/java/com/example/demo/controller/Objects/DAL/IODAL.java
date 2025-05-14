@@ -97,7 +97,7 @@ public class IODAL {
                     "domain", domain);
 
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos IOs relativos à importação do módulo: " + moduleID + ", entity: " + entityID + ", referenceDate: " + referenceDate + ", domain: " + domain + ".", e);
+            LOG.error("Erro na obtencao dos IOs relativos à importacao do módulo: " + moduleID + ", entity: " + entityID + ", referenceDate: " + referenceDate + ", domain: " + domain + ".", e);
         } finally {
             jpa.close();
         }

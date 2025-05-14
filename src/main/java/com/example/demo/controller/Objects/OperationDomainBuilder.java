@@ -53,7 +53,7 @@ public class OperationDomainBuilder {
                 domain.addAll(operandDomain);
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Erro a construir domínio de uma expressão de agregação. | ", e);
+            LOG.log(Level.SEVERE,"Erro a construir domínio de uma expressão de agregacao. | ", e);
         }
         
         return domain;
@@ -68,7 +68,7 @@ public class OperationDomainBuilder {
                 domain.addAll(operandDomain);
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Erro a construir domínio de uma expressão de agregação numérica. | ", e);
+            LOG.log(Level.SEVERE,"Erro a construir domínio de uma expressão de agregacao numérica. | ", e);
         }
         
         return domain;

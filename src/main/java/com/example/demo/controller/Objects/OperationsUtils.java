@@ -82,11 +82,11 @@ public class OperationsUtils {
 
                                 ValKey key = new ValKey();
                                 ValMLKey mLKey = new ValMLKey();
-                                //Result[5] -> Valor do Indíce X na operação
+                                //Result[5] -> Valor do Indíce X na operacao
                                 if (result[5] != null) {
                                     mLKey.setxIndex(Integer.valueOf(result[5].toString()));
                                 }
-                                //Result[6] -> Valor do Indíce Y na operação
+                                //Result[6] -> Valor do Indíce Y na operacao
                                 if (result[6] != null) {
                                     mLKey.setyIndex(Integer.valueOf(result[6].toString()));
                                 }

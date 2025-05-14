@@ -95,7 +95,7 @@ public class GenerationBean extends DefaultBean {
             XBRLGenerationController generationController = new XBRLGenerationController(threadName, moduleVersion, domain, entity, referenceDate);
             generationController.xbrlGenerationMain(io);
         } catch (Exception e) {
-            LOG.warn("Geração | Erro na pesquisa logs geração", e);
+            LOG.warn("Geracao | Erro na pesquisa logs geracao", e);
             return;
         }
         LOG.info(Constants.generationStarted + Constants.generationStartedDesc);

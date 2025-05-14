@@ -328,7 +328,7 @@ public class ImportExcelValues {
             Double extractedDouble = cell.getNumericCellValue();
             DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols();
             otherSymbols.setDecimalSeparator('.');
-            DecimalFormat df = new DecimalFormat("#.################", otherSymbols); // número décimal e não notação científica (utilizam-se até 16 casas decimais, valor acima das 15 máximas permitidas pelo excel)
+            DecimalFormat df = new DecimalFormat("#.################", otherSymbols); // número décimal e não notacao científica (utilizam-se até 16 casas decimais, valor acima das 15 máximas permitidas pelo excel)
             return df.format(extractedDouble);
         }
         else if(type == CellType.STRING.ordinal())

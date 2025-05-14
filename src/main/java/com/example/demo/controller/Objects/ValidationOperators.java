@@ -53,7 +53,7 @@ public class ValidationOperators {
             case Constants.SQUAREROOT: //10
                 return evaluateIndividualOperations(parent, OperationsUtils.getChildNode(childs, Constants.ARGUMENTOPERAND), Constants.INDIVIDUALNUMERICSUBGROUP);
 
-            //operadores de comparação
+            //operadores de comparacao
             case Constants.EQUALSTO: //13
             case Constants.LESSTHANEQUALTO: //14
             case Constants.GREATERTHANEQUALTO: //15
@@ -73,7 +73,7 @@ public class ValidationOperators {
             case Constants.ISNULL: //24
                 return evaluateIndividualOperations(parent, OperationsUtils.getChildNode(childs, Constants.ARGUMENTOPERAND), Constants.INDIVIDUALBOOLEANSUBGROUP);
 
-            //operadores de agregação
+            //operadores de agregacao
             case Constants.AGGREGATEMAXIMUM: //11
             case Constants.AGGREGATEMINIMUM: //12
             case Constants.SUM: //26

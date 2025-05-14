@@ -21,7 +21,7 @@ import jakarta.persistence.*;
 public class ItemCategoryDAL {
  
     
-    /** Método para obter todos os códigos (Utilizados em determinadas Celulas e no código de desagregação), EX: portugal - PT**/
+    /** Método para obter todos os códigos (Utilizados em determinadas Celulas e no código de desagregacao), EX: portugal - PT**/
     public static List<ItemCategory> getListItemCategory(){
         EntityManager entityManager = Connection.getEm();
         List<ItemCategory> listOfModules = new ArrayList<>();

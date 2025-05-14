@@ -26,7 +26,7 @@ public class LockBean implements Serializable {
     private String lockXBRL;
     private String lockDPM;
     private String importStatus="images/IconGreenSmall.gif";
-    private String importStatusMessage= "Processo Terminado/Desbloqueado, clique nos botões acima para iniciar a operação.";
+    private String importStatusMessage= "Processo Terminado/Desbloqueado, clique nos botões acima para iniciar a operacao.";
     private String validationStatus;
     private String validationStatusMessage;
     private String xbrlStatus;
@@ -152,7 +152,7 @@ public class LockBean implements Serializable {
         try {
             lockXBRLBtn = false;
             unlockXBRLBtn = false;
-            //xbrlStatusMessage = "Selecione o módulo e data a gerar XBRL e clique no botão acima para iniciar a operação.";
+            //xbrlStatusMessage = "Selecione o módulo e data a gerar XBRL e clique no botão acima para iniciar a operacao.";
             //xbrlStatus = "images/IconGreenSmall.gif";
             lockXBRL = "Terminado/Desbloqueado";
 
