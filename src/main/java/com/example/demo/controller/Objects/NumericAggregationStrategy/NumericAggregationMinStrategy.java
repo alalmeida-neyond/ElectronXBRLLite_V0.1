@@ -1,0 +1,61 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.example.demo.controller.Objects.NumericAggregationStrategy;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+import com.example.demo.controller.Objects.*;
+
+import java.util.AbstractMap;
+
+/**
+ *
+ * @author njesus
+ */
+public class NumericAggregationMinStrategy implements NumericAggregationStrategy {
+
+    @Override
+    public ValResult evaluate(ValNode parent, List<Map.Entry<ValNode, ValResult>> resultsGrouped) {
+        boolean isToUseIntervals = false;
+        BigDecimal valueMargin = BigDecimal.ZERO;
+        BigDecimal minResult = null; 
+        BigDecimal marginResult = BigDecimal.ZERO; 
+        ValValue valueParentResult = new ValValue();
+        
+        try {
+            if(resultsGrouped != null && !resultsGrouped.isEmpty()){
+                for(Map.Entry<ValNode, ValResult> pair : resultsGrouped){
+                    valueMargin = BigDecimal.ZERO;
+                    isToUseIntervals = OperationsUtils.isToUseMargin(pair.getKey(), pair.getValue());
+                    if(isToUseIntervals){
+                        valueMargin = OperationsUtils.setMarginValue(pair.getKey(), pair.getValue());
+                    }
+                    
+                    ValResult resultTemp = (pair.getValue() == null || pair.getValue().getRawValue() == null)? OperationsUtils.applyDefaultValue(pair.getKey(), pair.getValue(), pair.getValue() != null ? pair.getValue().getDomain() : null) : pair.getValue();
+                    BigDecimal value = (resultTemp == null || resultTemp.getRawValue() == null) ? null : new BigDecimal(resultTemp.getRawValue());
+
+                    if ((value != null) && (minResult == null || value.compareTo(minResult) < 0)) {
+                        minResult = value;
+                        marginResult = valueMargin;
+                    }
+                }
+                
+                if(minResult != null){
+                    valueParentResult.setValue(minResult.toPlainString());
+                }
+                
+                valueParentResult.setDatatype(OperationsUtils.getDataTypeByID(Constants.DECIMAL));
+                return new ValResult(valueParentResult, marginResult);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+    
+}

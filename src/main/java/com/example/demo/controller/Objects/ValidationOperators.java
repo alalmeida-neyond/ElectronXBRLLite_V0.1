@@ -13,9 +13,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.example.demo.controller.Objects.Aggregation.*;
-import com.example.demo.controller.Objects.Comparison.ComparisonStrategy;
+import com.example.demo.controller.Objects.Comparison.*;
 import com.example.demo.controller.Objects.DPMOrigin.*;
 import com.example.demo.controller.Objects.Entities.*;
+import com.example.demo.controller.Objects.IndividualBoolean.*;
+import com.example.demo.controller.Objects.Logical.*;
+import com.example.demo.controller.Objects.NumericAggregationStrategy.*;
+import com.example.demo.controller.Objects.Where.WhereStrategy;
 
 import java.math.RoundingMode;
 import java.time.LocalDate;
