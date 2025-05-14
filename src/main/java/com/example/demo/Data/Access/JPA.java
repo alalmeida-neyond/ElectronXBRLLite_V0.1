@@ -557,9 +557,9 @@ public class JPA<T> {
                 } catch (Exception e) {
                 }
             }
-
             return query.getResultList();
         } catch (Exception e) {
+            LOG.error("Erro  GetNatve: " + e.getMessage());
         }
         return null;
     }

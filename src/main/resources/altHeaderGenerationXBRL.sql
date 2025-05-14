@@ -18,7 +18,7 @@ with tableColumns as (
     left join release er on er.releaseid = ic.endreleaseid
     where h.direction = 'X'
         and i.isactive = 1
-        and (sr."Date" <= strftime(:format, :referencedate) and (er."Date" >= strftime(:format, :referencedate) or er.releaseid is null))
+        and (sr."Date" <= strftime(:format, :referenceDate) and (er."Date" >= strftime(:format, :referenceDate) or er.releaseid is null))
 )
 select *
 from keyColumns pv

@@ -21,7 +21,8 @@ public class InImportKey implements Serializable {
     @ManyToOne
     private InKeyType keyType;
     
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "importedKey")
+    //@OneToMany(cascade = CascadeType.ALL, mappedBy = "importedKey")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "importedKey")
     private List<InKeyAssociation> listPropertyValues;
 
     public InImportKey() {

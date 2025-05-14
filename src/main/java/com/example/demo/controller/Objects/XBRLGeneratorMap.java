@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.jboss.logging.Logger;
+
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Import.*;
 
@@ -26,6 +28,8 @@ public class XBRLGeneratorMap implements Runnable {
     private List<InImportedTablesTemp> listOfImportedTables;
     private LocalDate referenceDate;
     private Boolean altXBRLGeneration;
+    private final Logger LOG = Logger.getLogger(XBRLGeneratorMap.class);
+
 
     public XBRLGeneratorMap(String path, List<InImportedTablesTemp> listOfImportedTables, LocalDate referenceDate, Boolean altXBRLGeneration) {
         this.path = path;
@@ -193,6 +197,7 @@ public class XBRLGeneratorMap implements Runnable {
                 }
             }
         } catch (IOException e) {
+            LOG.error("Erro na população do CSV: " + e.getMessage());
             e.printStackTrace();
         }
     }

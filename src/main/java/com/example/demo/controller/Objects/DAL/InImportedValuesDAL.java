@@ -47,7 +47,7 @@ public class InImportedValuesDAL {
         JPA<InImportedValuesTemp> jpa = new JPA<>(InImportedValuesTemp.class);
         List<InImportedValuesTemp> resultList = new ArrayList<>();
         try {
-            resultList = jpa.getTypedNativeResultList("Select * from DPM_ED.in_importedvaluestemp where importedTableId = ?importedTableId",
+            resultList = jpa.getTypedNativeResultList("Select * from in_importedvaluestemp where importedTableId = :importedTableId",
                     "importedTableId", impTab.getImportedTableId());
         } catch (Exception ex) {
             ex.printStackTrace();

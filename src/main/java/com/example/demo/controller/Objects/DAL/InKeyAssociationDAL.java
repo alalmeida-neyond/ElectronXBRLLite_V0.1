@@ -31,14 +31,37 @@ public class InKeyAssociationDAL {
         }
 
         //REMODELAR ESTA QUERY PARA SQLITE (NAO EXISTE A TABELA DUAL)
-        StringBuilder queryString = new StringBuilder("With listKeysAssoc as (");
-        queryString.append(" select regexp_substr(?listKeys,'[^,]+', 1, level) IMPORTKEYID");
-        queryString.append(" from dual connect by regexp_substr(?listKeys, '[^,]+', 1, level) is not null");
+        /*StringBuilder queryString = new StringBuilder("With listKeysAssoc as (");
+        queryString.append(" select regexp_substr(:listKeys,'[^,]+', 1, level) IMPORTKEYID");
+        queryString.append(" from dual connect by regexp_substr(:listKeys, '[^,]+', 1, level) is not null");
         queryString.append(")");
-        queryString.append(" Select IN_KEYASSOCIATION.* from DPM_ED.IN_KEYASSOCIATION ");
+        queryString.append(" Select IN_KEYASSOCIATION.* from IN_KEYASSOCIATION ");
         queryString.append(" inner join listKeysAssoc ");
-        queryString.append(" on IN_KEYASSOCIATION.IMPORTKEYID = listKeysAssoc.IMPORTKEYID ");
-
+        queryString.append(" on IN_KEYASSOCIATION.IMPORTKEYID = listKeysAssoc.IMPORTKEYID ");*/
+        StringBuilder queryString = new StringBuilder("WITH RECURSIVE split(level, start_pos, end_pos) AS (");
+        queryString.append("SELECT 1 as level, 1 as start_pos, ");
+        queryString.append("CASE ");
+        queryString.append("WHEN instr(:listKeys, ',') = 0 THEN length(:listKeys) + 1 ");
+        queryString.append("ELSE instr(:listKeys, ',') ");
+        queryString.append("END as end_pos ");
+        queryString.append("UNION ALL ");
+        queryString.append("SELECT level + 1, end_pos + 1, ");
+        queryString.append("CASE ");
+        queryString.append("WHEN instr(substr(:listKeys, end_pos + 1), ',') = 0 THEN length(:listKeys) + 1 ");
+        queryString.append("ELSE end_pos + 1 + instr(substr(:listKeys, end_pos + 1), ',') - 1 ");
+        queryString.append("END ");
+        queryString.append("FROM split ");
+        queryString.append("WHERE end_pos < length(:listKeys) ");
+        queryString.append("),");
+        queryString.append("listKeysAssoc as (");
+        queryString.append("SELECT substr(:listKeys, start_pos, end_pos - start_pos) AS IMPORTKEYID ");
+        queryString.append("FROM split ");
+        queryString.append("WHERE substr(:listKeys, start_pos, end_pos - start_pos) IS NOT NULL");
+        queryString.append(")");
+        queryString.append("SELECT IN_KEYASSOCIATION.* ");
+        queryString.append("FROM IN_KEYASSOCIATION ");
+        queryString.append("INNER JOIN listKeysAssoc ");
+        queryString.append("ON IN_KEYASSOCIATION.IMPORTKEYID = listKeysAssoc.IMPORTKEYID");
         try {
             queryResult = jpa.getTypedNativeResultList(queryString.toString(), "listKeys", params.toString());
         } catch (NoResultException nrex) {

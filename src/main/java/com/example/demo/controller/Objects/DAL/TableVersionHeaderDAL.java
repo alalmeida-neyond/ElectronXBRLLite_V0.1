@@ -55,7 +55,7 @@ public class TableVersionHeaderDAL {
         try {
             resultList = jpa.getNativeResultList(Utils.getResource("altHeaderGenerationXBRL.sql"),
                     "tableVId", tableVID,
-                    "referenceDate", referenceDate.format(Constants.dateFormat),
+                    "referenceDate", referenceDate.format(Constants.DATEFORMATISO8601),
                     "format",Constants.ISOBASEFORMAT8601SQLite);
 
         } catch (Exception ex) {
