@@ -108,9 +108,9 @@ public class ValidationBean extends DefaultBean {
         throwFacesMessage(FacesMessage.SEVERITY_INFO, "Validação Iniciada", "Processo de validação iniciada.");
         
         try {
-            Validator_2_0 validator = new Validator_2_0(getModuleVersionExecution(), referenceDate, getEntityExecution(), domain, session.getUser().getUserId().toUpperCase(), sortedTables);
-            Thread validationThread = new Thread(validator);
-            validationThread.start();
+            //Validator_2_0 validator = new Validator_2_0(getModuleVersionExecution(), referenceDate, getEntityExecution(), domain, session.getUser().getUserId().toUpperCase(), sortedTables);
+            Validator_2_0 validator = new Validator_2_0(getModuleVersionExecution(), referenceDate, getEntityExecution(), domain, sortedTables);
+            validator.validateOperations();
         } catch (Exception e) {
             
         }

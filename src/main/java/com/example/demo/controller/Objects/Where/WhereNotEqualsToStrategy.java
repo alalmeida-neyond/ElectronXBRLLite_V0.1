@@ -7,19 +7,20 @@ package com.example.demo.controller.Objects.Where;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.jboss.logging.Logger;
 
 import com.example.demo.controller.Objects.*;
 
-public class WhereEqualsToStrategy implements WhereStrategy {
+public class WhereNotEqualsToStrategy implements WhereStrategy {
 
     @Override
     public boolean filterResultsUsingWhere(ValResult result, List<Map.Entry<String, String>> allConditions) {
         Map<String, String> propertiesValues = new HashMap<>();
         ValKey keyFromResult = new ValKey();
         boolean respectFilter = true;
-        final Logger LOG = Logger.getLogger(WhereEqualsToStrategy.class);
+
+        final Logger LOG = Logger.getLogger(WhereNotEqualsToStrategy.class);
+        
         try {
             if (result != null && result.getKey() != null && !result.getKey().hasKeysPropertiesIndexsNull()) {
                 keyFromResult = result.getKey();
@@ -30,7 +31,7 @@ public class WhereEqualsToStrategy implements WhereStrategy {
                 if(propertiesValues != null && !propertiesValues.isEmpty()){
                     for(Map.Entry<String, String> condition : allConditions){
                         String propertyValue = propertiesValues.get(condition.getKey());
-                        if (propertyValue == null || !propertyValue.equals(condition.getValue())) {
+                        if (propertyValue == null || propertyValue.equals(condition.getValue())) {
                             respectFilter = false;
                             break;
                         }
@@ -42,8 +43,9 @@ public class WhereEqualsToStrategy implements WhereStrategy {
         } catch (Exception e) {
             e.printStackTrace();
             //TODO: INCLUIR LOGS
-            LOG.error("Erro no filterResultsUsingWhere: " + e.getMessage());
+            LOG.error("Erro em filterResultsUsingWhere: " + e.getMessage());
         }
         return false;
     }
+    
 }

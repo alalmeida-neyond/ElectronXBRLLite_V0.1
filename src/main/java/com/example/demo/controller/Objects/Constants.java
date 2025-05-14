@@ -64,7 +64,8 @@ public class Constants {
     public static final String ModuleVersionAll = "ModuleVersionAll";
     public static final String IOStateAll = "IOStateAll";
     public static final String ConfActionAll = "ConfActionAll";
-    public static final String SeverityWarning = "Warning";
+    public static final String SEVERITYWARNING = "Warning";
+    public static final String SEVERITYERROR = "Error";
     public static final String ConfImportRulesAll = "ConfImportRulesAll";
 
     //File Extensions

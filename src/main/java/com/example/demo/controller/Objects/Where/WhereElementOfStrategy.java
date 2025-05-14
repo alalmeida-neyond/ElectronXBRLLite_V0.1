@@ -12,14 +12,14 @@ import org.jboss.logging.Logger;
 
 import com.example.demo.controller.Objects.*;
 
-public class WhereEqualsToStrategy implements WhereStrategy {
+public class WhereElementOfStrategy implements WhereStrategy{
 
     @Override
     public boolean filterResultsUsingWhere(ValResult result, List<Map.Entry<String, String>> allConditions) {
         Map<String, String> propertiesValues = new HashMap<>();
         ValKey keyFromResult = new ValKey();
-        boolean respectFilter = true;
-        final Logger LOG = Logger.getLogger(WhereEqualsToStrategy.class);
+        boolean respectFilter = false;
+        final Logger LOG = Logger.getLogger(WhereElementOfStrategy.class);
         try {
             if (result != null && result.getKey() != null && !result.getKey().hasKeysPropertiesIndexsNull()) {
                 keyFromResult = result.getKey();
@@ -28,11 +28,16 @@ public class WhereEqualsToStrategy implements WhereStrategy {
                 }
                 
                 if(propertiesValues != null && !propertiesValues.isEmpty()){
-                    for(Map.Entry<String, String> condition : allConditions){
-                        String propertyValue = propertiesValues.get(condition.getKey());
-                        if (propertyValue == null || !propertyValue.equals(condition.getValue())) {
-                            respectFilter = false;
-                            break;
+                    for(Map.Entry<String, String> propertyEntry : propertiesValues.entrySet()){
+                        String propertyValue = propertyEntry.getValue();
+                        
+                        if(propertyValue != null){
+                            for(Map.Entry<String, String> conditionEntry : allConditions){
+                                if(conditionEntry.getKey().equals(propertyEntry.getKey()) && conditionEntry.getValue().equals(propertyValue)){
+                                    respectFilter = true;
+                                    break;
+                                }
+                            }
                         }
                     }
                     return respectFilter;
@@ -46,4 +51,5 @@ public class WhereEqualsToStrategy implements WhereStrategy {
         }
         return false;
     }
+    
 }

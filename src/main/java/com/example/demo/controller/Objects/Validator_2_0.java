@@ -16,9 +16,12 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.*;
+import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
+import com.example.demo.controller.Objects.Logs.*;
 
 import java.util.logging.Logger;
 
@@ -34,12 +37,13 @@ public class Validator_2_0 implements Runnable {
     private String userID;
     private Set<TableVersionDPM> tables;
     
-    public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, String userID, Set<TableVersionDPM> tables){
+    //public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, String userID, Set<TableVersionDPM> tables){
+    public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, Set<TableVersionDPM> tables){
         this.moduleVersion = moduleVersion;
         this.entity = entity;
         this.refDate = refDate;
         this.domain = domain;
-        this.userID = userID;
+        //this.userID = userID;
         this.tables = tables;
     }
 
