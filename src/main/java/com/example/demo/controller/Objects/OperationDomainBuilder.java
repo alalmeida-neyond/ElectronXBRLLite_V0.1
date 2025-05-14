@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.Map;
-import java.util.AbstractMap;
 import java.util.logging.Logger;
 
 public class OperationDomainBuilder {
@@ -16,7 +15,7 @@ public class OperationDomainBuilder {
     private final static Logger LOG = Logger.getLogger(OperationDomainBuilder.class.getName());
 
     public List<String> binaryOperationDomainBuilder(ValResult leftResult, ValResult rightResult) {
-        List<String> domain = new ArrayList();
+        List<String> domain = new ArrayList<String>();
 
         try {
             List<String> leftDomain = getDomain(leftResult);
@@ -32,7 +31,7 @@ public class OperationDomainBuilder {
     }
     
     public List<String> individualResultDomainBuilder(ValResult operandResult){
-        List<String> domain = new ArrayList();
+        List<String> domain = new ArrayList<String>();
 
         try {
             List<String> operandDomain = getDomain(operandResult);
@@ -45,7 +44,7 @@ public class OperationDomainBuilder {
     }
     
     public List<String> groupOfResultsDomainBuilder(List<ValResult> operandResults){
-        List<String> domain = new ArrayList();
+        List<String> domain = new ArrayList<String>();
 
         try {
             for(ValResult operand : operandResults){
@@ -60,7 +59,7 @@ public class OperationDomainBuilder {
     }
     
     public List<String> aggregateNumericDomainBuilder(List<Map.Entry<ValNode, ValResult>> operands){
-        List<String> domain = new ArrayList();
+        List<String> domain = new ArrayList<String>();
         
         try {
             for(Map.Entry<ValNode, ValResult> operand : operands){
@@ -88,7 +87,7 @@ public class OperationDomainBuilder {
     }*/
     
     public List<String> childWhereDomainBuilder(ValNode leftNode, ValNode rightNode){
-        List<String> domain = new ArrayList();
+        List<String> domain = new ArrayList<String>();
 
         List<ValResult> left = new ArrayList<>();
         List<ValResult> right = new ArrayList<>();

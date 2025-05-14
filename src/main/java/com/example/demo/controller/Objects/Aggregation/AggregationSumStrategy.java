@@ -15,7 +15,6 @@ public class AggregationSumStrategy implements AggregationStrategy {
     @Override
     public ValResult evaluate(ValNode operandChild, List<ValResult> resultsGrouped) {
         boolean isToUseIntervals = false;
-        BigDecimal fixMargin = BigDecimal.ZERO;
         BigDecimal valueMargin = BigDecimal.ZERO;
         BigDecimal sumResult = BigDecimal.ZERO;
         BigDecimal marginResult = BigDecimal.ZERO;

@@ -14,7 +14,6 @@ public class AggregationMinStrategy implements AggregationStrategy {
     @Override
     public ValResult evaluate(ValNode operandChild, List<ValResult> resultsGrouped) {
         boolean isToUseIntervals = false;
-        BigDecimal fixMargin = BigDecimal.ZERO;
         BigDecimal valueMargin = BigDecimal.ZERO;
         BigDecimal minResult = null; 
         BigDecimal marginResult = BigDecimal.ZERO; 

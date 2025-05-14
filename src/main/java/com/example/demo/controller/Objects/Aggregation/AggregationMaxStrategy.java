@@ -6,8 +6,6 @@ package com.example.demo.controller.Objects.Aggregation;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
-
 import com.example.demo.controller.Objects.*;
 
 
@@ -16,7 +14,6 @@ public class AggregationMaxStrategy implements AggregationStrategy {
     @Override
     public ValResult evaluate(ValNode operandChild, List<ValResult> resultsGrouped) {
         boolean isToUseIntervals = false;
-        BigDecimal fixMargin = BigDecimal.ZERO;
         BigDecimal valueMargin = BigDecimal.ZERO;
         BigDecimal maxResult = null; 
         BigDecimal marginResult = BigDecimal.ZERO; 

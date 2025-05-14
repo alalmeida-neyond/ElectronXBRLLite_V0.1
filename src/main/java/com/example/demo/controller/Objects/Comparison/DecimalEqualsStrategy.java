@@ -32,11 +32,15 @@ public class DecimalEqualsStrategy implements ComparisonStrategy{
         
         if (result != null) {
             if (!result) { 
-                difference = ((BigDecimal) left).subtract((BigDecimal) right).abs(); 
-                usedMargin = false; 
+                if (left != null && right != null) {
+                    difference = ((BigDecimal) left).subtract((BigDecimal) right).abs(); 
+                    usedMargin = false; 
+                }
             } else {
                 if (usedMargin) {
-                    difference = ((BigDecimal) left).subtract((BigDecimal) right).abs(); 
+                    if (left != null && right != null) {
+                        difference = ((BigDecimal) left).subtract((BigDecimal) right).abs(); 
+                    }
                 } else {
                     usedMargin = false;
                     difference = null; 
