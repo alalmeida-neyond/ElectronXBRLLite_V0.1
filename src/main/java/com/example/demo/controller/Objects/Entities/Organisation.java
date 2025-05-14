@@ -32,8 +32,7 @@ public class Organisation implements Serializable{
     private int idPrefix;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "CONCEPTGUID", columnDefinition = "RAW(50)")
-    //@OneToOne(fetch = FetchType.LAZY)
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
 
     public int getOrganisationID() {

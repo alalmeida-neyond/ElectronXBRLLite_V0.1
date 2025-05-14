@@ -53,13 +53,11 @@ public class Category implements Serializable {
     
     //@JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID")
-    //@OneToOne(fetch = FetchType.LAZY)
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
     
     @JoinColumn(referencedColumnName = "RELEASEID", name = "CREATEDRELEASE")
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Release createdRelease;
 
     public int getCategoryId() {

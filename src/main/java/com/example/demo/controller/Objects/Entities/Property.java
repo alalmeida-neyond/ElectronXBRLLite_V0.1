@@ -38,8 +38,7 @@ public class Property implements Serializable {
     private String periodType;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
-    //@OneToOne(fetch = FetchType.LAZY)
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
 
     public boolean isIsComposite() {

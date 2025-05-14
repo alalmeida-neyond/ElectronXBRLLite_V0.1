@@ -107,13 +107,11 @@ public class InImportedValuesTemp implements Serializable {
     @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID", nullable = false)
     private InImportKey importKey;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "VARIABLEVID", referencedColumnName = "VARIABLEVID", nullable = false)
     private VariableVersion variableVersion;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CELLID", referencedColumnName = "CELLID")
     private Cell cell;
     

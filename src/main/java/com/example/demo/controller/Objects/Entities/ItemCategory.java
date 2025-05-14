@@ -30,20 +30,17 @@ public class ItemCategory implements Serializable{
     
     @MapsId("itemId")
     @JoinColumn(referencedColumnName = "ITEMID", name = "ITEMID", nullable = false, insertable = false, updatable = false)
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
     
     @MapsId("startReleaseId")
     @JoinColumn(referencedColumnName = "RELEASEID", name = "STARTRELEASEID", nullable = false, insertable = false, updatable = false)
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Release startRelease;
     
     @MapsId("categoryId")
     @JoinColumn(referencedColumnName = "CATEGORYID", name = "CATEGORYID", nullable = false, insertable = false, updatable = false)
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
     
     @Column(name = "CODE")
@@ -62,8 +59,7 @@ public class ItemCategory implements Serializable{
     private String signature;
     
     @JoinColumn(referencedColumnName = "RELEASEID", name = "ENDRELEASEID")
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Release endRelease;
     
     @Column(name = "ROWGUID", columnDefinition = "RAW(50)")

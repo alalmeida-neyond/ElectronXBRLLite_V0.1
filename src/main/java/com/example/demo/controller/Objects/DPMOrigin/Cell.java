@@ -45,8 +45,7 @@ public class Cell implements Serializable {
     private Header sheet;
 
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
-    //@OneToOne(fetch = FetchType.LAZY)
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
 
     public int getCellId() {

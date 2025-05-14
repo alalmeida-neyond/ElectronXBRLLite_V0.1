@@ -20,13 +20,11 @@ public class ModuleDPM implements Serializable{
     private int moduleId;
     
     @JoinColumn(referencedColumnName = "FRAMEWORKID", name = "FRAMEWORKID", nullable = false)
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Framework framework;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
-    //@OneToOne(fetch = FetchType.LAZY)
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
     
     //@Column(name = "ISDOCUMENT", columnDefinition = "CHAR(1)")

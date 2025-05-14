@@ -29,13 +29,11 @@ public class OperationsRunning {
     @Column(name = "THREADNAME", unique = true)
     private String threadName;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modulovid", referencedColumnName = "MODULEVID", nullable = false)
     private ModuleVersion moduleVersion;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ENTITY", referencedColumnName = "ENTITYID", nullable = false)
     private ConfEntities entity;
 
