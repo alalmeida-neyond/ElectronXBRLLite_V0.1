@@ -477,7 +477,7 @@ public class Validator_2_0 implements Runnable {
     }*/
     private void validatePrecondition(Integer preConditionVId, Map<Integer, List<ValNode>> nodesMappedByLevel, Map<Integer, ValResult> resultPerPrecondition) {
         //Obtenção dos valores importados nos nós
-        LOG.info("Avaliação da précondição: " + preConditionVId);
+        LOG.info("Avaliacao da precondicao: " + preConditionVId);
 
         //obtém os dados para validar
         Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNodeForPreconditions(preConditionVId);
