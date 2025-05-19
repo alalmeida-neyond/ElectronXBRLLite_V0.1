@@ -1,4 +1,4 @@
-package com.example.demo.controller.Objects;
+package com.example.demo.controller.Objects.ActionPhases;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -8,39 +8,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-
 import org.jboss.logging.Logger;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.example.demo.controller.Objects.*;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Import.*;
 
-import jakarta.faces.annotation.ManagedProperty;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Named;
-
-@Named(value = "validationBean")
-@ViewScoped
-public class ValidationBean extends DefaultBean {
+public class ValidationAction {
     
     private List<InImportedTablesTemp> importedTables;
     private List<Integer> selectedMapsToValidate;
     private List<IO> validateIOs;
     private List<IO> validationIOs;
     
-    private final Logger LOG = Logger.getLogger(ValidationBean.class.getName());
+    private final Logger LOG = Logger.getLogger(ValidationAction.class.getName());
 
-    @PostConstruct
-    public void init() {
-        LOG.info(refData.getValidateID());
-        getValidationIOs(refData.getValidateID(), false, false);
-    }
+    private RefDataBean refDataBean;
     
-    public void getValidationIOs(Integer privilege, boolean withView, boolean triggeredFromUser) {
+    //public void getValidationIOs(Integer privilege, boolean withView, boolean triggeredFromUser) {
         /*LocalDate referenceDate = null;
         if (getYear() != null && getMonth() != null) {
             referenceDate = getDateAtLastDay(getMonth(),getYear());
@@ -52,10 +37,10 @@ public class ValidationBean extends DefaultBean {
         //this.lazy = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(), referenceDate, getEntity() == null ? null : getEntity().getEntityID(), domain, Constants.actionValidation, Constants.VALIDATEID, session.getUser().getUserId(), session.getUser().getProfile().equals(Constants.Admin) ? true : false);
         
 
-        validationIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(), getReferenceDate(), getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionValidation, Constants.VALIDATEID);
-    }
+       /* validationIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(), getReferenceDate(), getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionValidation, Constants.VALIDATEID);
+    }*/
     
-    public List<InImportedTablesTemp> getImportedMaps(Integer privilege, boolean withView, boolean triggeredByUser, IO io){
+    public List<InImportedTablesTemp> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
         /*LocalDate referenceDate = null;
         if (getYearExecution()!= null && getMonthExecution()!= null) {
             //CastMonth into number
@@ -64,8 +49,8 @@ public class ValidationBean extends DefaultBean {
             return new ArrayList<>();
         }*/
         
-        if(getModuleVersionExecution() != null && getDomainExecution() != null && getEntityExecution() != null)
-            importedTables = InImportedTablesDAL.getListOfImportedMapsToValidate(getModuleVersionExecution(), getReferenceDate(), getEntityExecution(), getDomainExecution(), io);
+        if(moduleVersion != null && domain != null && entity != null)
+            importedTables = InImportedTablesDAL.getListOfImportedMapsToValidate(moduleVersion, referenceDate, entity, domain, io);
         else
             importedTables = new ArrayList<>();
         
@@ -95,12 +80,10 @@ public class ValidationBean extends DefaultBean {
         //List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(getModuleVersionExecution(), domain, getEntityExecution(), referenceDate.format(Constants.DATEFORMATISO8601));
         List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(moduleVersion, domain, entity, referenceDate.toString());
         if (!operationsRunningFromIO.isEmpty()) {
-            throwFacesMessage(FacesMessage.SEVERITY_INFO, Constants.concurrentOperations, Constants.concurrentOperationsDesc);
             LOG.info(Constants.concurrentOperations + " | " + Constants.concurrentOperationsDesc);
             return;
         }
-        LOG.info("RefData:" + refData.getValidateID());
-        getImportedMaps(refData.getValidateID(), false, false, io);
+        importedTables = getImportedMaps(referenceDate, moduleVersion, domain, entity, filename, io);
         
         List<InImportedTablesTemp> tablesToValidate = new ArrayList<>();
         for (InImportedTablesTemp importedTable : importedTables) {
@@ -172,6 +155,16 @@ public class ValidationBean extends DefaultBean {
 
     public void setSelectedMapsToValidate(List<Integer> selectedMapsToValidate) {
         this.selectedMapsToValidate = selectedMapsToValidate;
+    }
+
+    public RefDataBean getRefDataBean()
+    {
+        return refDataBean;
+    }
+
+    public void setRefData(RefDataBean refDataBean)
+    {
+        this.refDataBean = refDataBean;
     }
 
 }

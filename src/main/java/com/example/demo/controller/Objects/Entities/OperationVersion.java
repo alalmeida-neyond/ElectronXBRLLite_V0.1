@@ -5,6 +5,8 @@
 package com.example.demo.controller.Objects.Entities;
 
 import java.io.Serializable;
+
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,23 +30,27 @@ public class OperationVersion implements Serializable{
     private int operationVID;
     
     @JoinColumn(referencedColumnName = "OPERATIONID", name = "OPERATIONID", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Operation operation;
     
     @JoinColumn(referencedColumnName = "OPERATIONVID", name = "PRECONDITIONOPERATIONVID", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private OperationVersion preConditionOperationVersion;
     
     @JoinColumn(referencedColumnName = "OPERATIONVID", name = "SEVERITYOPERATIONVID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private OperationVersion severityOperationVersion;
     
     @JoinColumn(referencedColumnName = "RELEASEID", name = "STARTRELEASEID", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Release startRelease;
     
     @JoinColumn(referencedColumnName = "RELEASEID", name = "ENDRELEASEID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Release endRelease;
     
     @Column(name = "EXPRESSION")
@@ -57,7 +63,8 @@ public class OperationVersion implements Serializable{
     private String description;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
-    @OneToOne(fetch = FetchType.LAZY)
+    //@OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private Concept concept;
     
     @Column(name = "ENDORSEMENT")
@@ -65,8 +72,7 @@ public class OperationVersion implements Serializable{
     private String endorsment;
     
     @Column(name = "ISVARIANTAPPROVED", columnDefinition = "CHAR(1)")
-    @NotNull
-    private boolean isVariantApproved;
+    private Boolean isVariantApproved;
 
     public int getOperationVID() {
         return operationVID;

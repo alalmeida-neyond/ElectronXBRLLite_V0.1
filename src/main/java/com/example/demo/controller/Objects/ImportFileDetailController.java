@@ -68,7 +68,7 @@ public class ImportFileDetailController extends DefaultBean {
         }
         String domain = getDomain() != null ? getDomain().length() > Constants.DOMAINLENGTH ? getDomain().substring(0, 3).toUpperCase() : getDomain().toUpperCase() : null;
         
-        tempReports = getImportDetails(getModuleVersion(), referenceDate.format(Constants.DATEFORMATISO8601), getEntity(), domain);
+        tempReports = getImportDetails(getModuleVersion(), referenceDate.format(Constants.DATEFORMATISO8601), getEntity(), domain, getIoImport());
 
         if (tempReports.isEmpty() || tempReports == null) {
             LOG.info("Detalhes importacao:" + Constants.emptyMessage);
@@ -78,12 +78,6 @@ public class ImportFileDetailController extends DefaultBean {
         LOG.info("TempReports" + tempReports.size());
         
         for (Object obj[] : tempReports) {
-            LOG.info("Obj1:" + (obj[0] != null ? obj[0].toString() : "null"));
-            LOG.info("Obj2:" + (obj[1] != null ? obj[1].toString() : "null"));
-            LOG.info("Obj3:" + (obj[2] != null ? obj[2].toString() : "null"));
-            LOG.info("Obj4:" + (obj[3] != null ? obj[3].toString() : "null"));
-            LOG.info("Obj5:" + (obj[4] != null ? obj[4].toString() : "null"));
-            LOG.info("Obj6:" + (obj[5] != null ? obj[5].toString() : "null"));
             ImportedDetailsDTO impDetail = new ImportedDetailsDTO(
                 obj[0] != null ? obj[0].toString() : null,
                 obj[1] != null ? obj[1].toString() : null,
@@ -112,7 +106,7 @@ public class ImportFileDetailController extends DefaultBean {
         this.impDetails = impDetails;
     }
 
-    private List<Object[]> getImportDetails(ModuleVersion module, String referenceDate, ConfEntities entity, String domain) {
+    private List<Object[]> getImportDetails(ModuleVersion module, String referenceDate, ConfEntities entity, String domain, IO io) {
         JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
         List<Object[]> tempReports = new ArrayList<>();
         
@@ -125,13 +119,19 @@ public class ImportFileDetailController extends DefaultBean {
                     "moduleVID", module == null ? null : module.getModuleVID(),
                     "ioid", ioImport == null ? null : ioImport.getIoId());*/
 
-            tempReports = jpa.getNativeResultList(Utils.getResource("GetImportedDetails.sql"),
+            //Com a pesquisa de IO
+            /*tempReports = jpa.getNativeResultList(Utils.getResource("GetImportedDetails.sql"),
                     "actionImportId", String.valueOf(Constants.actionImport),
                     "referenceDate", referenceDate,
                     "format",Constants.ISOBASEFORMAT8601SQLite,
                     "domain", domain,
                     "entityID", entity == null ? null : entity.getEntityID(),
-                    "moduleVID", module == null ? null : module.getModuleVID());
+                    "moduleVID", module == null ? null : module.getModuleVID());*/
+
+            //Sem a pesquisa IO
+            tempReports = jpa.getNativeResultList(Utils.getResource("GetImportedDetails.sql"),
+                    "format",Constants.ISOBASEFORMAT8601SQLite,
+                    "ioId", io.getIoId());
         } catch (Exception e) {
             LOG.error("Detalhes importação | Erro no processo de obtenção da query GetImportedDetails.sql. ", e);
         }

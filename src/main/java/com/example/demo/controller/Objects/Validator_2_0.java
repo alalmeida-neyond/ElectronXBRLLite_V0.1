@@ -52,7 +52,7 @@ public class Validator_2_0 implements Runnable {
             results = jpa.getMappedFileQueryResultList("XBRLArvore.sql", "OperationNodeMapping",
                     "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601,
+                    "format",Constants.ISOBASEFORMAT8601SQLite,
                     "tableVId", String.valueOf(tableVId)
             );
         } catch (Exception e) {
@@ -187,12 +187,20 @@ public class Validator_2_0 implements Runnable {
         try {
             em = new ConnectionManager();
             long initAllProcess = System.nanoTime();
-                    
-            ioValidation = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
+            ioValidation = io;
+            ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoPending));
+            ioValidation.setReferenceDate(referenceDate);
+            ioValidation.setModule(moduleVersion);
+            ioValidation.setDomain(domain);
+            ioValidation.setEntity(entity);
+            ioValidation.setInitTimestamp(LocalDateTime.now());
+            ioValidation.setAction(Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionValidation)));
+            ioValidation.setUserId("Validation");
+            /*ioValidation = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
                     Info.getInstance().getIOStateByID(Constants.processoPending),
                     refDate, moduleVersion, domain, entity, 
                     LocalDateTime.now(), Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionValidation))
-                    , userID);
+                    , userID);*/
             Connection.persist(em, ioValidation);
 
             LOG.info("Processo de validacao iniciado: " + LocalDateTime.now());
@@ -215,7 +223,7 @@ public class Validator_2_0 implements Runnable {
                 
                 Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = getNodes(tableVId);
                 
-                List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity);
+                List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity, io);
                 commonDatapointValidationResult = validateCommonDatapoints(possibleDatapointsConflicts, em);
                 if (commonDatapointValidationResult != null) {
                     OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, commonDatapointValidationResult);
@@ -242,6 +250,7 @@ public class Validator_2_0 implements Runnable {
                         OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
                         Connection.persist(em, outValTableResult);
                     } else {
+                        LOG.info(nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0));
                         //Cria o Out_ValidationResult
                         OperationVersion operation = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getOperationVersion();
                         OutValidationResult outValResult = new OutValidationResult(operation, Info.getInstance().getIOStateByID(Constants.processoPending));//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)));
@@ -353,6 +362,7 @@ public class Validator_2_0 implements Runnable {
             generationBean.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
         } catch (Exception e) {
             LOG.error("Ocorreu um erro no processo de validacao: " + e.getMessage());
+            e.printStackTrace();
             
             LogValidationProcess logValProcessEnd = new LogValidationProcess(ioValidation, "Processo de validação ocorreu com erros inesperados.", LocalDateTime.now());
             Connection.persist(em, logValProcessEnd);

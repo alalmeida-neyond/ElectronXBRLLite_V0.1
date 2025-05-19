@@ -28,10 +28,6 @@ import java.nio.file.StandardCopyOption;
 public class DemoController {
     private String directory;
 
-    private final String AZURE_URL = "jdbc:sqlserver://xbrllite.database.windows.net:1433;database=xbrliteDB;encrypt=true;trustServerCertificate=false;";
-    private final String AZURE_USERNAME = "adminXBRL@xbrllite";
-    private final String AZURE_PASSWORD = "passwordXBRL!";
-
     private final String fileUrl = "https://blobstoragexbrl.blob.core.windows.net/xbrldatabaseblob/UNMANAGEDPROCESS.db";
     private final String localFilePath = System.getProperty("user.dir") + File.separator + "/src/UNMANAGEDPROCESS.db"; 
     
@@ -175,16 +171,16 @@ public class DemoController {
         String sqlQuery = "INSERT INTO tabelaTeste (Name, Description) VALUES (?, ?);";
         try (
             // Connect to Azure SQL Server
-            Connection azureConn = DriverManager.getConnection(AZURE_URL, AZURE_USERNAME, AZURE_PASSWORD);
+            /*Connection azureConn = DriverManager.getConnection(AZURE_URL, AZURE_USERNAME, AZURE_PASSWORD);
             Statement stmt = azureConn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT Name, Description FROM Category");
+            ResultSet rs = stmt.executeQuery("SELECT Name, Description FROM Category");*/
 
             // Connect to SQLite
             Connection sqliteConn = DriverManager.getConnection(directory);
             PreparedStatement pstmt = sqliteConn.prepareStatement(sqlQuery)
         ) {
             // Fetch column values from Azure SQL Server
-            while (rs.next()) {
+            /*while (rs.next()) {
                 String value1 = rs.getString(1);
                 String value2 = rs.getString(2);
                 columnValues.add(new String[]{value1, value2});
@@ -193,7 +189,7 @@ public class DemoController {
                 pstmt.setString(1, value1);
                 pstmt.setString(2, value2);
                 pstmt.executeUpdate();
-            }
+            }*/
 
         } catch (SQLException e) {
             e.printStackTrace();

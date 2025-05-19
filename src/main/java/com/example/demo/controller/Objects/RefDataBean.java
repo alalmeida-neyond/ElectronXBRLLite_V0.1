@@ -48,9 +48,9 @@ public class RefDataBean {
 
     @PostConstruct
     public void init() {
-        setPrivileges();
+        //setPrivileges();
         //user.init();    
-        setBooleansPrivegios();    
+        //setBooleansPrivegios();    
         loadRefData(false);
     }
 
@@ -215,8 +215,8 @@ public class RefDataBean {
 
     public void loadRefData(Boolean isReaload) {
         if(isReaload){
-            setPrivileges();
-            setBooleansPrivegios();
+            //setPrivileges();
+            //setBooleansPrivegios();
         }
         Info.getInstance().loadRefData(isReaload);
     }

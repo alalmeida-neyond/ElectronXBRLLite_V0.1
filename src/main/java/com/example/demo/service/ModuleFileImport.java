@@ -22,6 +22,7 @@ import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Finrep.*;
 import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.ActionPhases.ValidationAction;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.DPMOrigin.Cell;
 import com.example.demo.controller.Objects.Entities.*;
@@ -642,11 +643,11 @@ public class ModuleFileImport implements Runnable{
             Connection.merge(io);
         }
         LOG.info("Import End");
-
+        
         LOG.info("Validation Start");
-        ValidationBean validationBean = new ValidationBean();
+        ValidationAction validationAction = new ValidationAction();
 
-        validationBean.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
+        validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
     }
 
     /**

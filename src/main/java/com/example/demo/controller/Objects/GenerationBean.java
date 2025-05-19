@@ -28,6 +28,7 @@ public class GenerationBean extends DefaultBean {
     private boolean generationRunning;
 
     private List<IO> generationIOs;
+    
 
     @PostConstruct
     public void init() {

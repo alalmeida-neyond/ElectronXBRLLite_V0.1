@@ -764,12 +764,14 @@ public class JPA<T> {
         if (parameters != null && (parameters.length & 1) == 0) // número par de parâmetros
         {
             for (int i = 0; i < parameters.length; i = i + 2) {
-                if (parameters[i + 1] != null)
-					try {
-                    query.setParameter((String) parameters[i], parameters[i + 1]);
-                } catch (Exception e) {
-                    
-                }
+                //if (parameters[i + 1] != null){
+                    try {
+                        query.setParameter((String) parameters[i], parameters[i + 1]);
+                    } 
+                    catch (Exception e) {
+                        
+                    }
+                //}	
             }
         }
 

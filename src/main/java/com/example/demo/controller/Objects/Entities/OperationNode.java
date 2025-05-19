@@ -39,26 +39,30 @@ public class OperationNode implements Serializable{
     private int nodeID;
     
     @JoinColumn(name = "OPERATIONVID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private OperationVersion operationVersion;
     
     @JoinColumn(referencedColumnName = "NODEID", name = "PARENTNODEID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private OperationNode parentNode;
     
     @JoinColumn(name = "OPERATORID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Operator operator;
     
     @JoinColumn(name = "ARGUMENTID")
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private OperatorArgument argument;
     
     @Column(name = "ABSOLUTETOLERANCE")
-    private double absoluteTolerance;
+    private Double absoluteTolerance;
     
     @Column(name = "RELATIVETOLERANCE")
-    private double relativeTolerance;
+    private Double relativeTolerance;
     
     @Column(name = "FALLBACKVALUE")
     @Size(max = 50)

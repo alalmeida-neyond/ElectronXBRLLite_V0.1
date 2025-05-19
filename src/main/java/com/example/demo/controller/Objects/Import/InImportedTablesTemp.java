@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.example.demo.Converter.LocalDateTimePersistenceConverter;
+import com.example.demo.DTOs.CommonDatapointValidationDTO;
+import com.example.demo.DTOs.ImportedFilesResumeDTO;
 import com.example.demo.controller.Objects.Entities.*;
 
 import jakarta.persistence.*;
@@ -13,13 +15,45 @@ import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "IN_IMPORTEDTABLESTEMP")
-@SqlResultSetMapping(
-        name = "TablesWithLock",
-        entities = {
-            @EntityResult(entityClass = InImportedTablesTemp.class),},
-        columns = {
-            @ColumnResult(name = "locked", type = Boolean.class),}
-)
+@SqlResultSetMappings({
+    @SqlResultSetMapping(
+            name = "TablesWithLock",
+            entities = {
+                @EntityResult(entityClass = InImportedTablesTemp.class),},
+            columns = {
+                @ColumnResult(name = "locked", type = Boolean.class),}
+    ),
+    @SqlResultSetMapping(
+            name="CommonDatapointValidation",
+            classes = {
+                @ConstructorResult(
+                        targetClass = CommonDatapointValidationDTO.class,
+                        columns = {
+                            @ColumnResult(name = "details", type = String.class),
+                            @ColumnResult(name = "domain", type = String.class)
+                        }
+                )
+            }
+    ),
+    @SqlResultSetMapping(
+            name = "ImportedFilesResumeRow",
+            classes = {
+                @ConstructorResult(
+                        targetClass = ImportedFilesResumeDTO.class,
+                        columns = {
+                            @ColumnResult(name = "module", type = String.class),
+                            @ColumnResult(name = "entity", type = String.class),
+                            @ColumnResult(name = "domain", type = String.class),
+                            @ColumnResult(name = "referenceDate", type = String.class),
+                            @ColumnResult(name = "table", type = String.class),
+                            @ColumnResult(name = "desagCode", type = String.class),
+                            @ColumnResult(name = "user", type = String.class),
+                            @ColumnResult(name = "isMandatory", type = Boolean.class),
+                            @ColumnResult(name = "isImported", type = Boolean.class)
+                        }
+                )
+            })
+})
 public class InImportedTablesTemp implements Serializable {
 
     @Id

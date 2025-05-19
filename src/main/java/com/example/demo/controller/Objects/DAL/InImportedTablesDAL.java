@@ -12,6 +12,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jboss.logging.Logger;
+
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.Connection;
 import com.example.demo.Data.Access.*;
@@ -19,17 +21,13 @@ import com.example.demo.controller.Objects.ConfEntities;
 import com.example.demo.controller.Objects.Constants;
 import com.example.demo.controller.Objects.Info;
 import com.example.demo.controller.Objects.Utils;
+import com.example.demo.controller.Objects.ActionPhases.ValidationAction;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Import.*;
 
 import jakarta.persistence.EntityManager;
 
-/**
- *
- * @author brferreira
- */
 public class InImportedTablesDAL {
-
     public static void createEmptyMap(List<ImportedTablesWithLockDTO> importedTables, String userId) {
         JPA<InImportedTablesTemp> jpa = new JPA<>(InImportedTablesTemp.class);
         IO io = null;
@@ -101,14 +99,14 @@ public class InImportedTablesDAL {
         return listOfMaps;
     }
     
-    public static List<InImportedTablesTemp> getListOfImportedMapsToValidate(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain) {
+    public static List<InImportedTablesTemp> getListOfImportedMapsToValidate(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain, IO io) {
         JPA<InImportedTablesTemp> jpa = new JPA<>(InImportedTablesTemp.class);
         domain = domain != null ? (domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain) : null;
         String queryStr = Utils.getResource("GetImportedTables.sql");
         
         List<InImportedTablesTemp> listOfMaps = new ArrayList<>();
         try {
-            listOfMaps = jpa.getTypedNativeResultList(queryStr,
+            /*listOfMaps = jpa.getTypedNativeResultList(queryStr,
                     "actionId", String.valueOf(Constants.actionImport),
                     "typeStateOk", String.valueOf(Constants.tipoStateOK),
                     "referenceDate", referenceDate.format(Constants.DATEFORMATISO8601),
@@ -116,6 +114,10 @@ public class InImportedTablesDAL {
                     "domain", domain.toUpperCase(),
                     "moduleVID", String.valueOf(module.getModuleVID()),
                     "entityId", String.valueOf(entity.getEntityID()),
+                    "stateOk", String.valueOf(Constants.processoOk),
+                    "processOkDeleted", String.valueOf(Constants.processoOkDeleted));*/
+            listOfMaps = jpa.getTypedNativeResultList(queryStr,
+                    "ioId", io.getIoId(),
                     "stateOk", String.valueOf(Constants.processoOk),
                     "processOkDeleted", String.valueOf(Constants.processoOkDeleted));
         } catch (Exception ex) {
@@ -211,9 +213,9 @@ public class InImportedTablesDAL {
             if (importedTableId == -1) {
                 return;
             } else {
-                String deleteFromInImportedValues = "Delete from DPM_ED.IN_IMPORTEDVALUESTEMP where importedtableid = " + String.valueOf(importedTableId);
+                String deleteFromInImportedValues = "Delete from IN_IMPORTEDVALUESTEMP where importedtableid = " + String.valueOf(importedTableId);
                 
-                String deleteFromInImportedTable = "Delete from DPM_ED.IN_IMPORTEDTABLESTEMP where importedtableid = " + String.valueOf(importedTableId);
+                String deleteFromInImportedTable = "Delete from IN_IMPORTEDTABLESTEMP where importedtableid = " + String.valueOf(importedTableId);
 
                 //LogImportProcess smashLog = new LogImportProcess(importedTableId, Constants.IMPORTSMASHLOGMESSAGE);
                                 
@@ -238,8 +240,8 @@ public class InImportedTablesDAL {
         try {
             StringBuilder queryString = new StringBuilder("SELECT CASE WHEN EXISTS ( ");
             queryString.append(" SELECT 1 ");
-            queryString.append(" FROM DPM_ED.IN_IMPORTEDVALUESTEMP a ");
-            queryString.append(" INNER JOIN DPM_ED.IN_IMPORTEDTABLESTEMP b ");
+            queryString.append(" FROM IN_IMPORTEDVALUESTEMP a ");
+            queryString.append(" INNER JOIN IN_IMPORTEDTABLESTEMP b ");
             queryString.append(" on b.importedtableid = a.importedtableid ");
             queryString.append(" WHERE b.ioid = ?ioId ");
             queryString.append(" GROUP BY a.IMPORTEDTABLEID, a.IMPORTEDVALUE, a.IMPORTKEYID, a.VARIABLEVID ");
@@ -303,23 +305,21 @@ public class InImportedTablesDAL {
         return listOfMaps;
     }
     
-    public static List<CommonDatapointValidationDTO> getPossibleDataPointsConflicts(TableVersionDPM table, LocalDate referenceDate, String domain, ConfEntities entity){
+    public static List<CommonDatapointValidationDTO> getPossibleDataPointsConflicts(TableVersionDPM table, LocalDate referenceDate, String domain, ConfEntities entity, IO io){
+        final Logger LOG = Logger.getLogger(InImportedTablesDAL.class.getName());
+
         JPA<CommonDatapointValidationDTO> jpa = new JPA<CommonDatapointValidationDTO>(CommonDatapointValidationDTO.class);
         List<CommonDatapointValidationDTO> possibleDatapointsConflictsList = new ArrayList<>();
         domain = domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain;
         String queryStr = Utils.getResource("GetCommonDatapoints20.sql");
         try {
             possibleDatapointsConflictsList = jpa.getNativeResultListWithMapping(queryStr, "CommonDatapointValidation", 
-                    "actionId", String.valueOf(Constants.actionImport),
-                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
-                    "referenceDate", referenceDate.format(Constants.DATEFORMATISO8601),
-                    "format",Constants.ISOBASEFORMAT8601,
-                    "domain", domain.toUpperCase(),
-                    "entityId", String.valueOf(entity.getEntityID()),
+                    "ioId", io.getIoId(),
                     "tableVID", table.getTableVID(),
                     "tableID",table.getTable().getTableId());
             
         } catch (Exception e) {
+            LOG.error("Erro na query GetCommonDatapoints20.sql:" + e.getMessage());
             e.printStackTrace();
         }finally{
             jpa.close();
