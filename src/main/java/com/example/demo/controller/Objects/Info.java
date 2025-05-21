@@ -105,7 +105,7 @@ public class Info {
             confActionByID = auxList.stream().collect(Collectors.toMap(ConfAction::getActionId, confAction -> confAction));
             
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos ConfAction:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos ConfAction:" + e.getMessage());
         }
     }
 
@@ -116,7 +116,7 @@ public class Info {
             List<Operator> operators = new ArrayList<>(refDataGet(Constants.OperatorAll.toLowerCase()));
             operatorById = operators.stream().collect(Collectors.toMap(Operator::getOperatorID, operator -> operator));
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos Operator:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos Operator:" + e.getMessage());
         }
 
     }
@@ -128,7 +128,7 @@ public class Info {
             List<OperatorArgument> operatorArguments = new ArrayList<>(refDataGet(Constants.OperatorArgumentAll.toLowerCase()));
             operatorArgumentById = operatorArguments.stream().collect(Collectors.toMap(OperatorArgument::getArgumentID, operatorArgument -> operatorArgument));
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos OperatorArgument:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos OperatorArgument:" + e.getMessage());
         }
     }
 
@@ -138,7 +138,7 @@ public class Info {
             this.refData.put(Constants.AppConfigsAll.toLowerCase(), auxList);
             
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos ConfAppConfig:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos ConfAppConfig:" + e.getMessage());
         }
     }
 
@@ -155,10 +155,10 @@ public class Info {
                                                 ));
             
             if(altGenerationMaps == null || altGenerationMaps.isEmpty()){
-                LOG.error("Erro ao definir os Modulos da Geração Alternativa");
+                LOG.error("Erro ao definir os Modulos da Geracao Alternativa");
             }
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos Geração alternativa:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos Geracao alternativa:" + e.getMessage());
         }
     }
 
@@ -170,10 +170,10 @@ public class Info {
             dataTypeById = dataTypes.stream().collect(Collectors.toMap(DataType::getDataTypeId, dataType -> dataType));
             
             if(dataTypeById == null || dataTypeById.isEmpty()){
-                LOG.error("Erro na obtenção dos objetos DataType.");
+                LOG.error("Erro na obtencao dos objetos DataType.");
             }
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos DataType:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos DataType:" + e.getMessage());
         }
     }
 
@@ -185,7 +185,7 @@ public class Info {
             domainsList.add(Constants.Individual);
             this.refData.put(Constants.DomainsAll.toLowerCase(), domainsList);
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos Domain:" + e.getMessage());
+            LOG.error("Erro na obtencao dos Domain:" + e.getMessage());
         }
     }
 
@@ -193,7 +193,7 @@ public class Info {
         try {
             this.refData.put(Constants.EntitiesAll.toLowerCase(), em.createNamedQuery("ConfEntities.findAll", ConfEntities.class).getResultList());
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos ConfEntities:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos ConfEntities:" + e.getMessage());
         }
     }
     
@@ -206,7 +206,7 @@ public class Info {
                                                                                             "TO_NUMBER(COALESCE(REGEXP_SUBSTR(e.versionNumber, '[0-9]+', 1, 2), '0')) DESC, " +
                                                                                             "TO_NUMBER(COALESCE(REGEXP_SUBSTR(e.versionNumber, '[0-9]+', 1, 3), '0')) DESC").getResultList());
         } catch (Exception e) {
-            LOG.error("Erro na obtenção da lista de versões:" + e.getMessage());
+            LOG.error("Erro na obtencao da lista de versões:" + e.getMessage());
         }
     }
     
@@ -214,7 +214,7 @@ public class Info {
         try {
             this.refData.put(Constants.ConfImportRulesAll.toLowerCase(), em.createNamedQuery("ConfImportRules.findAll", ConfImportRules.class).getResultList());
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos ConfEntities:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos ConfEntities:" + e.getMessage());
         }
     }
 
@@ -236,7 +236,7 @@ public class Info {
             }
 
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos mapas por módulo:" + e.getMessage());
+            LOG.error("Erro na obtencao dos mapas por módulo:" + e.getMessage());
         }
 
     }
@@ -245,7 +245,7 @@ public class Info {
         try {
             this.refData.put(Constants.PERIODICITYAll.toLowerCase(), em.createNamedQuery("ConfPeriodicity.findAll", ConfPeriodicity.class).getResultList());
         } catch (Exception e) {
-            LOG.error("Erro na obtenção dos objetos CONF_PERIODICITY:" + e.getMessage());
+            LOG.error("Erro na obtencao dos objetos CONF_PERIODICITY:" + e.getMessage());
         }
      }
 

@@ -184,7 +184,7 @@ public class XBRLGenerationController implements Runnable {
                     auxVariableToCheck.interrupt();
                 }
                 //Add to the Log Generation Canceled
-                GenerateLogDAL.createNewGenerationLog("Geração Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
+                GenerateLogDAL.createNewGenerationLog("Geracao Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
                 io.setEndTimestamp(LocalDateTime.now());
                 io.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));//new IOState(Constants.processoCanceled, new IOTypeState(Constants.tipoStateCanceled)));
                 Connection.merge(io);    

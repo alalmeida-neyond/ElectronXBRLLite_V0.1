@@ -18,17 +18,17 @@
                                     <li class="menu_item #{refDataBean.canSelectButton(view.viewId, 'xbrl2_header2', 'Templates') ? 'menu_itemOn' : 'menu_item'}" style="float: left;"><a th:href="@{/download_template}" target="_self" style="display: block; padding: 10px;">Templates</a></li>
                                     <c:choose>
                                         <c:when test="#{profiles_headerxbrlbean.importBoolean}">
-                                            <li class="menu_item nav_separator #{refDataBean.canSelectButton(view.viewId, 'xbrl2_header2', 'Importação') ? 'menu_itemOn' : 'menu_item'}" style="float: left;"><a th:href="@{/import_file}" target="_self" style="display: block; padding: 10px;">Importação</a></li>
+                                            <li class="menu_item nav_separator #{refDataBean.canSelectButton(view.viewId, 'xbrl2_header2', 'Importacao') ? 'menu_itemOn' : 'menu_item'}" style="float: left;"><a th:href="@{/import_file}" target="_self" style="display: block; padding: 10px;">Importacao</a></li>
                                         </c:when>
                                     </c:choose>
                                     <c:choose>
                                         <c:when test="#{profiles_headerxbrlbean.validate}">
-                                            <li class="menu_item nav_separator #{refDataBean.canSelectButton(view.viewId, 'xbrl2_header2', 'Validação') ? 'menu_itemOn' : 'menu_item'}" style="float: left;"><a th:href="@{/run_validations}" target="_self" style="display: block; padding: 10px;">Validações</a></li>
+                                            <li class="menu_item nav_separator #{refDataBean.canSelectButton(view.viewId, 'xbrl2_header2', 'Validacao') ? 'menu_itemOn' : 'menu_item'}" style="float: left;"><a th:href="@{/run_validations}" target="_self" style="display: block; padding: 10px;">Validacoes</a></li>
                                         </c:when>
                                     </c:choose>
                                     <c:choose>
                                         <c:when test="#{profiles_headerxbrlbean.generate}">
-                                            <li class="menu_item nav_separator #{refDataBean.canSelectButton(view.viewId, 'xbrl2_header2', 'Geração') ? 'menu_itemOn' : 'menu_item'}" style="float: left;"><a th:href="@{/generate_xbrl}" target="_self" style="display: block; padding: 10px;">Geração XBRL</a></li>
+                                            <li class="menu_item nav_separator #{refDataBean.canSelectButton(view.viewId, 'xbrl2_header2', 'Geracao') ? 'menu_itemOn' : 'menu_item'}" style="float: left;"><a th:href="@{/generate_xbrl}" target="_self" style="display: block; padding: 10px;">Geracao XBRL</a></li>
                                         </c:when>
                                     </c:choose>                                        
                                 </ul>

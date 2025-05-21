@@ -164,7 +164,7 @@ with modulesApplicable as (
 )
 
 , valuesWithRef as (
-    select ROWNUM as ValueID, valuesToOperation.*
+    select ROW_NUMBER() OVER () AS ValueID, valuesToOperation.*
     from (
         select 
             ar."OperandReferenceID" "RefID",  
@@ -198,51 +198,47 @@ with modulesApplicable as (
     order by "NodeID", "X" , "Y", "Z"
 )
 --select * from valuesWithRef;
-, rowKeyValues as (
-    select 
+, rowKeyValues AS (
+    SELECT 
         vr.ValueID,
-        case 
-            when vr.RowKeyID <> -1 then 'r('
-            else null 
-        end || 
-        LISTAGG(
-            case 
-                when vr.RowKeyID <> -1 then keyA.propertyvalue
-                else null 
-            end
-        , ',') WITHIN GROUP (order by keyA.propertyvalue) ||
-        case 
-            when vr.RowKeyID <> -1 then ')'
-            else null 
-        end RowKeyValue
-    from valuesWithRef vr
-    left join in_importkey impK on impK.importkeyid = vr.RowKeyID
-    left join in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
-    group by vr.ValueID, vr.RowKeyID
+        CASE 
+            WHEN vr.RowKeyID <> -1 THEN 'r('
+            ELSE NULL 
+        END || (
+            SELECT GROUP_CONCAT(keyA.propertyvalue, ',')
+            FROM in_keyassociation keyA
+            INNER JOIN in_importkey impK2 ON keyA.importkeyid = impK2.importkeyid
+            WHERE impK2.importkeyid = vr.RowKeyID
+            ORDER BY keyA.propertyvalue
+        ) || CASE 
+            WHEN vr.RowKeyID <> -1 THEN ')'
+            ELSE NULL 
+        END AS RowKeyValue
+    FROM valuesWithRef vr
 )
+
 --select * from rowKeyValues;
-, desagregationCodesValues as (
-    select 
-        vr.ValueID, vr.DesagregationCodeID, 
-        case 
-            when vr.DesagregationCodeTypeID = :desagregationCodeType then '('
-            else null 
-        end || 
-        LISTAGG(
-            case 
-                when vr.DesagregationCodeTypeID = :desagregationCodeType then (keyA.propertyname || '=' || keyA.propertyvalue)
-                else null 
-            end
-        , ',') WITHIN GROUP (order by keyA.propertyvalue) ||
-        case 
-            when vr.DesagregationCodeTypeID = :desagregationCodeType then ')'
-            else null 
-        end DesagregationCodeValue
-    from valuesWithRef vr
-    left join in_importkey impK on impK.importkeyid = vr.DesagregationCodeID
-    left join in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
-    group by vr.ValueID, vr.DesagregationCodeID, vr.DesagregationCodeTypeID
+, desagregationCodesValues AS (
+    SELECT 
+        vr.ValueID,
+        vr.DesagregationCodeID,
+        CASE 
+            WHEN vr.DesagregationCodeTypeID = :desagregationCodeType THEN '('
+            ELSE NULL 
+        END || (
+            SELECT GROUP_CONCAT(keyA.propertyname || '=' || keyA.propertyvalue, ',')
+            FROM in_keyassociation keyA
+            INNER JOIN in_importkey impK2 ON keyA.importkeyid = impK2.importkeyid
+            WHERE impK2.importkeyid = vr.DesagregationCodeID
+              AND vr.DesagregationCodeTypeID = :desagregationCodeType
+            ORDER BY keyA.propertyvalue
+        ) || CASE 
+            WHEN vr.DesagregationCodeTypeID = :desagregationCodeType THEN ')'
+            ELSE NULL 
+        END AS DesagregationCodeValue
+    FROM valuesWithRef vr
 )
+
 --select * from desagregationCodesValues;
 select 
     vr.*,

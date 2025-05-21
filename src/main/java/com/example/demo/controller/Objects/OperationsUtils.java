@@ -88,7 +88,7 @@ public class OperationsUtils {
                                 if (result[6] != null) {
                                     mLKey.setyIndex(Integer.valueOf(result[6].toString()));
                                 }
-                                //Result[7] -> Valor do Indíce Z na operação
+                                //Result[7] -> Valor do Indíce Z na operacao
                                 if (result[7] != null) {
                                     mLKey.setzIndex(Integer.valueOf(result[7].toString()));
                                 }
@@ -278,7 +278,7 @@ public class OperationsUtils {
         return (node.getParentOperator() != null) ? node.getParentOperator().getOperatorID() == Constants.WHERE : false;
     }
 
-    //Verificação se existem chaves num dos valores
+    //Verificacao se existem chaves num dos valores
     protected static Boolean isToUseKeys(ValNode leftChild, ValNode rightChild) {
         List<ValResult> leftValues = new ArrayList<>();
         List<ValResult> rightValues = new ArrayList<>();
@@ -441,7 +441,7 @@ public class OperationsUtils {
         return null;
     }
 
-    //Construção da "InnerJoin" com base nos valores
+    //Construcao da "InnerJoin" com base nos valores
     protected static ValKey defineInnerJoinKeys(List<ValResult> leftValues, List<ValResult> rightValues) {
         ValResult leftValue = new ValResult();
         ValResult rightValue = new ValResult();
@@ -838,13 +838,13 @@ public class OperationsUtils {
             }
 
             if (!leftResults.isEmpty() && !rightResults.isEmpty()) {
-                //vai criar as combinações de propriedades com os único/vários valores possíveis
+                //vai criar as combinacoes de propriedades com os único/vários valores possíveis
                 String expression = expressionBuilder.childWhereOperationBuilder(parent, leftNode, rightNode);
                 List<String> domain = domainBuilder.childWhereDomainBuilder(leftNode, rightNode);
                 for (ValResult left : leftResults) {
                     for (ValResult right : rightResults) {
                         //resultLog = "Filho de Where: " + left.getRawValue() + " " + parent.getNode().getOperator().getSymbol() + " " + right.getRawValue();
-                        //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, null, "Operação");
+                        //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, null, "Operacao");
                         
                         ValKey keyFromCombination = new ValKey();
                         keyFromCombination.addPropertyValue(left.getRawValue(), right.getRawValue());

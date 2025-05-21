@@ -133,7 +133,7 @@ public class ImportFileDetailController extends DefaultBean {
                     "format",Constants.ISOBASEFORMAT8601SQLite,
                     "ioId", io.getIoId());
         } catch (Exception e) {
-            LOG.error("Detalhes importação | Erro no processo de obtenção da query GetImportedDetails.sql. ", e);
+            LOG.error("Detalhes importacao | Erro no processo de obtencao da query GetImportedDetails.sql. ", e);
         }
         
         return tempReports;

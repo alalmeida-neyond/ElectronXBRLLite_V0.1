@@ -132,7 +132,7 @@ public abstract class DefaultBean {
             List<Object[]> listOfDashboard;
             String filename = "DashboardValidacoes.xlsx";
             XSSFWorkbook workbook = new XSSFWorkbook();
-            XSSFSheet spreadsheet = workbook.createSheet("Dashboard de Validações");
+            XSSFSheet spreadsheet = workbook.createSheet("Dashboard de Validacoes");
             XSSFRow row;
 
 

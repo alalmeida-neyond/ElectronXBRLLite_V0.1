@@ -158,7 +158,7 @@ public class LockBean implements Serializable {
 
             //initializeStatusEmpty();
             //initializeStatus();
-            setValidationStatusMessage("Selecione o módulo, data e entidade a validar e clique no botão acima para iniciar a operação.");
+            setValidationStatusMessage("Selecione o módulo, data e entidade a validar e clique no botão acima para iniciar a operacao.");
             //setValidationStatus("images/IconGreenSmall.gif");
 
         } catch (Exception ex) {
@@ -264,21 +264,21 @@ public class LockBean implements Serializable {
         if (statusLst.size() > 0) {
             if (operation.equals("ExportXBRL")) {
                 String userOwner = getUserOwner(module, date, operation, entityID);
-                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Processo atualmente em execução pelo utilizador: " + userOwner, "Módulo: " + module + " | Data: " + date);
+                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Processo atualmente em execucao pelo utilizador: " + userOwner, "Módulo: " + module + " | Data: " + date);
                 running = true;
             }
             if (operation.equals(ValidationTypeBean.ValidationType.ValidationFormulae.name()) || operation.equals(ValidationTypeBean.ValidationType.ValidationCNIICorp.name())) {
                 String userOwner = getUserOwner(module, date, operation, entityID);
-                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Processo atualmente em execução pelo utilizador: " + userOwner, "Módulo: " + module + " | Data: " + date);
+                msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Processo atualmente em execucao pelo utilizador: " + userOwner, "Módulo: " + module + " | Data: " + date);
                 running = true;
             }
         } else {
             if (operation.equals("ExportXBRL")) {
-                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Processo de geração de XBRL iniciado para:", "Módulo: " + module + " | Data: " + date);
+                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Processo de geracao de XBRL iniciado para:", "Módulo: " + module + " | Data: " + date);
                 running = false;
             }
             if (operation.equals(ValidationTypeBean.ValidationType.ValidationFormulae.name()) || operation.equals(ValidationTypeBean.ValidationType.ValidationCNIILocal.name()) || operation.equals(ValidationTypeBean.ValidationType.ValidationCNIICorp.name())) {
-                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Processo de validação iniciado para:", "Módulo: " + module + " | Data: " + date);
+                msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Processo de validacao iniciado para:", "Módulo: " + module + " | Data: " + date);
                 running = false;
             }
         }
@@ -304,20 +304,20 @@ public class LockBean implements Serializable {
             FacesMessage msg = null;
         
             if(operation.equals("ExportXBRL")){
-                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Processo Geração de XBRL:", "O processo geração de XBRL para o módulo: " + module + " Data: " + date + ", não se encontra em execução!");
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Processo Geracao de XBRL:", "O processo geracao de XBRL para o módulo: " + module + " Data: " + date + ", não se encontra em execucao!");
             }
             else if (operation.equals(ValidationTypeBean.ValidationType.ValidationFormulae.name()) || operation.equals(ValidationTypeBean.ValidationType.ValidationCNIICorp.name())) {
-                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Processo ValidationFormulae:", "O processo validação para o módulo: " + module + " Data: " + date + ", não se encontra em execução!");
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Processo ValidationFormulae:", "O processo validacao para o módulo: " + module + " Data: " + date + ", não se encontra em execucao!");
             }
             FacesContext.getCurrentInstance().addMessage(null, msg);
                 
         } catch (Exception ex) {
             FacesMessage msg = null;
             if(operation.equals("ExportXBRL")){
-                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Processo Geração de XBRL:", "O processo geração de XBRL para o módulo: " + module + " Data: " + date + ", não se encontra em execução!");
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Processo Geracao de XBRL:", "O processo geracao de XBRL para o módulo: " + module + " Data: " + date + ", não se encontra em execucao!");
             }
             else if (operation.equals(ValidationTypeBean.ValidationType.ValidationFormulae.name()) || operation.equals(ValidationTypeBean.ValidationType.ValidationCNIICorp.name())) {
-                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Processo ValidationFormulae:", "O processo validação para o módulo: " + module + " Data: " + date + ", não se encontra em execução!");
+                msg = new FacesMessage(FacesMessage.SEVERITY_WARN, "Processo ValidationFormulae:", "O processo validacao para o módulo: " + module + " Data: " + date + ", não se encontra em execucao!");
             }
             FacesContext.getCurrentInstance().addMessage(null, msg);
         }
@@ -362,7 +362,7 @@ public class LockBean implements Serializable {
         for(Thread thread : threadSet) {
             if(thread.getName().matches("\\s*tImport(NonStandard(FTP)?)?Excel_"+userID+"\\s*")) {
                 if(!running) {
-                    importStatusMessage = "Processo em Execução/Bloqueado, por favor aguarde ou contacte o administrador.";
+                    importStatusMessage = "Processo em Execucao/Bloqueado, por favor aguarde ou contacte o administrador.";
                     importStatus = "images/IconRed.gif";
                     running = true;
                 }
@@ -371,7 +371,7 @@ public class LockBean implements Serializable {
         }
         if(running) {
             
-            importStatusMessage = "Processo Terminado/Desbloqueado, clique nos botões acima para iniciar a operação.";
+            importStatusMessage = "Processo Terminado/Desbloqueado, clique nos botões acima para iniciar a operacao.";
             importStatus = "images/IconGreenSmall.gif";
             running = false;
         }

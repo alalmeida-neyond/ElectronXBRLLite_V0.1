@@ -148,7 +148,7 @@ public class ImportFileBean extends DefaultBean {
             List<IO> operationsRunning = OperationRunningDAL.getOperationRunningFromIO(getModuleVersionExecution(), getDomainExecution(), getEntityExecution(), getReferenceDate().format(Constants.dateFormat));
             /*List<IO> operationsRunning = OperationRunningDAL.getOperationRunningFromIO(getModuleVersionExecution(), getDomainExecution(), getReferenceDate().format(Constants.dateFormat));*/
             if (!operationsRunning.isEmpty()) {
-                FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Operações a ser realizadas ", "Encontram-se a realizar operações relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operação a ser realizada");
+                FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Operacoes a ser realizadas ", "Encontram-se a realizar operacoes relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operacao a ser realizada");
                 FacesContext.getCurrentInstance().addMessage(null, msg);
                 this.isOperationOccuring = false;
                 this.isSubmitDisable = true;
@@ -232,13 +232,13 @@ public class ImportFileBean extends DefaultBean {
             while ((read = inputStream.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
             }
-            setStatusMessage("Ficheiro " + uploadedFile.getOriginalFilename() + " carregado com sucesso para a diretoria de importação.");
+            setStatusMessage("Ficheiro " + uploadedFile.getOriginalFilename() + " carregado com sucesso para a diretoria de importacao.");
             startImportOperation(inputFile, uploadedFile.getOriginalFilename(), uniqueFileName);
         } catch (Exception e) {
             LOG.error("Erro uploadFile " + uploadedFile.getOriginalFilename() + ".", e);
-            FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Upload de Ficheiro falho", "Falha na importação do ficheiro para a diretoria de importação!");
+            FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Upload de Ficheiro falho", "Falha na importacao do ficheiro para a diretoria de importacao!");
             FacesContext.getCurrentInstance().addMessage(null, msg);
-            setStatusMessage("Falha na importação do ficheiro para a diretoria de importação!");
+            setStatusMessage("Falha na importacao do ficheiro para a diretoria de importacao!");
         } finally {
             try {
                 if (outputStream != null) {

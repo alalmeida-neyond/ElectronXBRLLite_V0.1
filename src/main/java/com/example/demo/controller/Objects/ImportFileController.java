@@ -174,8 +174,8 @@ public class ImportFileController extends DefaultBean {
              */
             /*
              * if (!operationsRunning.isEmpty()) {
-             * LOG.info("Operações a ser realizadas \n" +
-             * "Encontram-se a realizar operações relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operacao a ser realizada"
+             * LOG.info("Operacoes a ser realizadas \n" +
+             * "Encontram-se a realizar operacoes relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operacao a ser realizada"
              * );
              * this.isOperationOccuring = false;
              * this.isSubmitDisable = true;
@@ -248,7 +248,7 @@ public class ImportFileController extends DefaultBean {
             }
             return true;
         } catch (Exception e) {
-            LOG.error("Importacao | Erro no processo de validação do nome do ficheiro.", e);
+            LOG.error("Importacao | Erro no processo de validacao do nome do ficheiro.", e);
             return false;
         }
     }
@@ -290,7 +290,7 @@ public class ImportFileController extends DefaultBean {
                 outputStream.write(bytes, 0, read);
             }
             setStatusMessage("Ficheiro " + uploadedFile.getOriginalFilename()
-                    + " carregado com sucesso para a diretoria de importação.");
+                    + " carregado com sucesso para a diretoria de importacao.");
             /*
              * LOG.info("InputFile:" + inputFile);
              * LOG.info("OriginalFilename:" + uploadedFile.getOriginalFilename());
@@ -300,8 +300,8 @@ public class ImportFileController extends DefaultBean {
         } catch (Exception e) {
             LOG.error("Erro uploadFile " + uploadedFile.getOriginalFilename() + ".", e);
             LOG.error(
-                    "Upload de Ficheiro falhou.\n" + "Falha na importação do ficheiro para a diretoria de importação!");
-            setStatusMessage("Falha na importação do ficheiro para a diretoria de importação!");
+                    "Upload de Ficheiro falhou.\n" + "Falha na importacao do ficheiro para a diretoria de importacao!");
+            setStatusMessage("Falha na importacao do ficheiro para a diretoria de importacao!");
         } finally {
             try {
                 if (outputStream != null) {

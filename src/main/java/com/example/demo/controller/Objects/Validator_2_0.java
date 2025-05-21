@@ -121,6 +121,21 @@ public class Validator_2_0 implements Runnable {
     private Map<Integer, List<ValResult>> getResultsByNode(int operationVID, IO io) {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
+        LOG.info("OperationVID:" + String.valueOf(operationVID));
+        LOG.info("ioId:" + refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
+        LOG.info("refdate:" + io.getIoId());
+        LOG.info("format:" + Constants.ISOBASEFORMAT8601SQLite);
+        LOG.info("desagregationTypeFixed:" + String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE));
+        LOG.info("directionZ:" + String.valueOf(Constants.SheetCoordinate));
+        LOG.info("dataTypeDate:" + String.valueOf(Constants.DATE));
+        LOG.info("refPeriodString:" + String.valueOf(Constants.REFPERIOD));
+        LOG.info("dataTypeEnumeration:" + String.valueOf(Constants.ENUMERATION));
+        LOG.info("referenceRow:" + String.valueOf(Constants.PROPERTYROW));
+        LOG.info("OperationVID:" + String.valueOf(Constants.PROPERTYCOLUMN));
+        LOG.info("OperationVID:" + String.valueOf(Constants.PROPERTYSHEET));
+        LOG.info("OperationVID:" + String.valueOf(Constants.processoOk));
+        LOG.info("OperationVID:" + String.valueOf(Constants.DESAGREGATIONCODETYPE));
+
         try {
             results = jpa.getMappedFileQueryResultList("GetValuesUpdate.sql", "ValuesForOperationMapping",
                     "operationVId", String.valueOf(operationVID),
@@ -140,6 +155,7 @@ public class Validator_2_0 implements Runnable {
             );
         } catch (Exception e) {
             LOG.error("Erro na query getResultsByNode: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             Connection.close(jpa.getEm().em);
         }
@@ -199,7 +215,7 @@ public class Validator_2_0 implements Runnable {
             LogValidationProcess logValProcessInit = new LogValidationProcess(ioValidation, "Processo de validacao iniciado.", LocalDateTime.now());
             Connection.persist(em, logValProcessInit);
             
-            //Obtenção dos nós da árvore por operação
+            //Obtencao dos nós da árvore por operacao
             Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
             
                     
@@ -246,7 +262,7 @@ public class Validator_2_0 implements Runnable {
                         OperationVersion operation = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getOperationVersion();
                         OutValidationResult outValResult = new OutValidationResult(operation, Info.getInstance().getIOStateByID(Constants.processoPending));//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)));
                     
-                        //Valida a precondição caso ainda não tenha sido validada
+                        //Valida a precondicao caso ainda não tenha sido validada
                         Integer preConditionVId = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getPreconditonOperationVId();
                         if (!resultPerPrecondition.containsKey(preConditionVId)) {
                             Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByPreconditionVIdByLevel.get(preConditionVId);
@@ -255,7 +271,7 @@ public class Validator_2_0 implements Runnable {
 
                         ValResult preConditionResult = resultPerPrecondition.get(preConditionVId);
 
-                        //caso a precondição
+                        //caso a precondicao
                         if(preConditionResult.valueIsNull() || !Boolean.parseBoolean(preConditionResult.getRawValue())){
                             outValResult.setIoState(Info.getInstance().getIOStateByID(Constants.RULEDONOTRUNPREREQUISITE.getKey()));
                             
@@ -265,14 +281,14 @@ public class Validator_2_0 implements Runnable {
                             OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
                             Connection.persist(em, outValTableResult);
                         } else if (Boolean.parseBoolean(preConditionResult.getRawValue())) {
-                            //Obtenção dos valores importados nos nós
-                            LOG.info("Avaliação da regra: " + operationVId);
+                            //Obtencao dos valores importados nos nós
+                            LOG.info("Avaliacao da regra: " + operationVId);
 
                             //obtém os dados para validar
                             Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId, io);
                             Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
 
-                            //valida a operação
+                            //valida a operacao
                             List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, operationVId);
 
                             if (results != null && !results.isEmpty()) {
@@ -317,7 +333,7 @@ public class Validator_2_0 implements Runnable {
                 }
                 Connection.merge(em, outValTable);
 
-                LogValidationProcess logValProcessMapEnd = new LogValidationProcess(ioValidation, "Validação - " + table.getCode() + " - Concluída", LocalDateTime.now());
+                LogValidationProcess logValProcessMapEnd = new LogValidationProcess(ioValidation, "Validacao - " + table.getCode() + " - Concluída", LocalDateTime.now());
                 Connection.persist(em, logValProcessMapEnd);
             }
 
@@ -341,7 +357,7 @@ public class Validator_2_0 implements Runnable {
             
             int persistResult = persistIntoValidationsDashboard(em);
             if(persistResult != 1){
-                LogValidationProcess logValProcessErrorInsertDashboard = new LogValidationProcess(ioValidation, "Ocorreu um erro na inserção dos dados para consulta no Dashboard de Validações.", LocalDateTime.now());
+                LogValidationProcess logValProcessErrorInsertDashboard = new LogValidationProcess(ioValidation, "Ocorreu um erro na insercao dos dados para consulta no Dashboard de Validacoes.", LocalDateTime.now());
                 Connection.persist(em, logValProcessErrorInsertDashboard); 
                 ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
                 Connection.merge(em, ioValidation);
@@ -355,7 +371,7 @@ public class Validator_2_0 implements Runnable {
             LOG.error("Ocorreu um erro no processo de validacao: " + e.getMessage());
             e.printStackTrace();
             
-            LogValidationProcess logValProcessEnd = new LogValidationProcess(ioValidation, "Processo de validação ocorreu com erros inesperados.", LocalDateTime.now());
+            LogValidationProcess logValProcessEnd = new LogValidationProcess(ioValidation, "Processo de validacao ocorreu com erros inesperados.", LocalDateTime.now());
             Connection.persist(em, logValProcessEnd);
 
             ioValidation.setEndTimestamp(LocalDateTime.now());
@@ -382,7 +398,7 @@ public class Validator_2_0 implements Runnable {
                             List<ValNode> childs = nodesMappedByParent.get(node.getNode().getNodeID());
                             Boolean valid = ValidationOperators.evaluate(node, childs, String.valueOf(entity.getEntityID()), getDomain());
                             if (valid == null || valid == false) {
-                                //Utils.addLogOfOperations(operationVId, node.getNode().getNodeID(), "Aconteceu algo de errado na operação", null, null, "Erro");
+                                //Utils.addLogOfOperations(operationVId, node.getNode().getNodeID(), "Aconteceu algo de errado na operacao", null, null, "Erro");
                                 hasError = true;
                                 break treeLoop;
                             }
@@ -397,7 +413,7 @@ public class Validator_2_0 implements Runnable {
                 }
             }
         } catch (AssertionError e) {
-//            Utils.addLogOfOperations(operationVId, nodesMappedByLevel.get(1).get(Constants.FIRSTRESULT).getNode().getNodeID(), "Operador por implementar na operação", null, null,  "Erro");
+//            Utils.addLogOfOperations(operationVId, nodesMappedByLevel.get(1).get(Constants.FIRSTRESULT).getNode().getNodeID(), "Operador por implementar na operacao", null, null,  "Erro");
         } catch (Exception e) {
             LOG.error("Erro na validacao da operacao" + operationVId + ": " + e.getMessage());
             e.printStackTrace();
@@ -434,7 +450,7 @@ public class Validator_2_0 implements Runnable {
 
         try {
             if (nodesMappedByLevel != null && !nodesMappedByLevel.isEmpty() && resultsMappedByNode != null && !resultsMappedByNode.isEmpty()) {
-                //Associação dos valores aos respetivos nós folhas
+                //Associacao dos valores aos respetivos nós folhas
                 for (Integer key : nodesMappedByLevel.keySet()) {
                     for (ValNode node : nodesMappedByLevel.get(key)) {
                         List<ValResult> results = resultsMappedByNode.get(node.getNode().getNodeID());
@@ -463,18 +479,18 @@ public class Validator_2_0 implements Runnable {
                 Utils.addLogOfOperations(operationVId, nodeId, 
                                             sb.toString(), 
                                             null, (result.getKey() != null) ? result.getKey().toString() : null, 
-                                            (code == 1) ? "Resultado" : (code == 2) ? "PreCondição" : "null");
+                                            (code == 1) ? "Resultado" : (code == 2) ? "PreCondicao" : "null");
             }
         }
     }*/
     private void validatePrecondition(Integer preConditionVId, Map<Integer, List<ValNode>> nodesMappedByLevel, Map<Integer, ValResult> resultPerPrecondition, IO io) {
-        //Obtenção dos valores importados nos nós
+        //Obtencao dos valores importados nos nós
         LOG.info("Avaliacao da precondicao: " + preConditionVId);
 
         //obtém os dados para validar
         Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNodeForPreconditions(preConditionVId, io);
 
-        //valida a operação
+        //valida a operacao
         List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, preConditionVId);
 
         if (results != null && !results.isEmpty()) {
@@ -483,7 +499,7 @@ public class Validator_2_0 implements Runnable {
             resultPerPrecondition.put(preConditionVId, results.get(Constants.FIRSTRESULT));
         }
 
-        LOG.info("Fim da avaliação da précondição: " + preConditionVId);
+        LOG.info("Fim da avaliacao da précondicao: " + preConditionVId);
 
         //insertOperationLogs();
         //Info.getInstance().clearLogOperationsList();
@@ -534,7 +550,7 @@ public class Validator_2_0 implements Runnable {
         try {
             //validateOperations();
         } catch (Exception e) {
-            LOG.error("Erro. Falha ao lançar thread de validação: " + e.getMessage());
+            LOG.error("Erro. Falha ao lançar thread de validacao: " + e.getMessage());
         }
     }
 

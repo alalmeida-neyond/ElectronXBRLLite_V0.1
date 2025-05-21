@@ -45,7 +45,7 @@
                             <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/import_file}"
                                     target="_self"
                                     style="display: block; padding: 10px; background-color:#D9D9D9;">Executar
-                                    Importação</a></li>
+                                    Importacao</a></li>
                             <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/importFileDetail}"
                                     target="_self" style="display: block; padding: 10px;">Relatórios</a></li>
                             <li class="menu_item" style="float: left;font-size:12px;"><a th:href="@{/import_file}"
@@ -59,11 +59,11 @@
             <div class="Sep"> </div>
             <br />
 
-            <div id="dvPageTitle">Módulo Importação</div>
+            <div id="dvPageTitle">Módulo Importacao</div>
             <br />
 
             <div>
-                <strong>O processo carrega os ficheiros para a diretoria de importação.<br />
+                <strong>O processo carrega os ficheiros para a diretoria de importacao.<br />
 
                 </strong><br />
                 <!-- inputFile  -->
@@ -71,12 +71,12 @@
                 <!-- inputFile tag to upload file -->
                 Os ficheiro Excel a importar devem assumir a seguinte nomenclatura: <span
                     title="Exemplo: 0991_coreplcr_con_201406.xlsx"
-                    style="cursor:help;color:blue;">[Entidade]_[Módulo]_[Domínio]_[YYYYMM]_[Informação_adicional].xlsx</span>.
+                    style="cursor:help;color:blue;">[Entidade]_[Módulo]_[Domínio]_[YYYYMM]_[Informacao_adicional].xlsx</span>.
                 <br />
                 O nome do Módulo não deve conter nenhum carateres especiais. Ex:. <strong>Mrel_Tlac</strong> fica
                 <strong>MrelTlac</strong> e <strong>Corep Of</strong> torna-se <strong>CorepOf</strong>.
                 <br />
-                Selecione um ficheiro para importação
+                Selecione um ficheiro para importacao
 
                 <strong>(tamanho máx. 3,5 Mb).</strong>
                 <br />
@@ -91,7 +91,7 @@
 
                     <label for="file">Selecione um ficheiro:</label><br />
                     <input type="file" id="file" name="file" class="form-control" required />
-                    <!--Tentar ver como colocar as opções com "alwaysRun" true selecionadas e disabled-->
+                    <!--Tentar ver como colocar as opcoes com "alwaysRun" true selecionadas e disabled-->
                     <div class="dropdown">
                         <button type="button">Select Rules</button>
                         <div class="dropdown-content" id="rules-dropdown">
@@ -140,7 +140,7 @@
 
                 <div class="Sep"> </div>
                 <br />
-                <div id="dvPageTitle">Módulo Importação</div>
+                <div id="dvPageTitle">Módulo Importacao</div>
                 <br />
                 <strong>Aqui pode consultar os logs associados a cada relatório importado.</strong>
                 <br>
@@ -150,7 +150,7 @@
                 <div>
                     <div class="SepRed">
                         <div>
-                            <h:outputText value="Logs de importação"
+                            <h:outputText value="Logs de importacao"
                                 style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px;" />
                         </div>
                     </div>
@@ -171,7 +171,7 @@
                                 <p:column headerText="Data referência" style="text-align: center; width: 5%">
                                     <h:outputText value="#{impDetails.referenceDate}" />
                                 </p:column>
-                                <p:column headerText="Descrição" style="text-align: center;">
+                                <p:column headerText="Descricao" style="text-align: center;">
                                     <h:outputText value="#{impDetails.description}" />
                                 </p:column>
                                 <p:column headerText="Data" style="text-align: center; width: 10%">
