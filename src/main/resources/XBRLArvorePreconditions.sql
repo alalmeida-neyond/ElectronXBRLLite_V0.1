@@ -38,7 +38,19 @@ with operationVersionByModule as (
 
 
 , arvore as (
-    select op.*, t.nodeLevel
+    select op.nodeid,
+    op.operationvid,
+    op.parentnodeid,
+    op.operatorid,
+    op.argumentid,
+    op.absolutetolerance,
+    op.relativetolerance,
+    op.fallbackvalue,
+    op.useintervalarithmetics,
+    op.operandtype,
+    op.isleaf,
+    op.scalar,
+    t.nodeLevel
     from hierarquia t
     left join operationnode op on op.nodeid = t.nodeid
 )

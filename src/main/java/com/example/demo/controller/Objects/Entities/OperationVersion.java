@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -34,8 +35,8 @@ public class OperationVersion implements Serializable{
     @ManyToOne
     private Operation operation;
     
-    @JoinColumn(referencedColumnName = "OPERATIONVID", name = "PRECONDITIONOPERATIONVID", nullable = false)
-    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(referencedColumnName = "OPERATIONVID", name = "PRECONDITIONOPERATIONVID")
+    @ManyToOne
     private OperationVersion preConditionOperationVersion;
     
     @JoinColumn(referencedColumnName = "OPERATIONVID", name = "SEVERITYOPERATIONVID")

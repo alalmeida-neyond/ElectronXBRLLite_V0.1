@@ -71,7 +71,7 @@ public class Validator_2_0 implements Runnable {
             results = jpa.getMappedFileQueryResultList("XBRLArvorePreconditions.sql", "OperationNodeMapping",
                     "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601
+                    "format",Constants.ISOBASEFORMAT8601SQLite
             );
         } catch (Exception e) {
             LOG.error("Erro na query getNodes: " + e.getMessage());
@@ -118,18 +118,15 @@ public class Validator_2_0 implements Runnable {
         return nodesFromDatabse;
     }
 
-    private Map<Integer, List<ValResult>> getResultsByNode(int operationVID) {
+    private Map<Integer, List<ValResult>> getResultsByNode(int operationVID, IO io) {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
         try {
             results = jpa.getMappedFileQueryResultList("GetValuesUpdate.sql", "ValuesForOperationMapping",
                     "operationVId", String.valueOf(operationVID),
-                    "entityId", String.valueOf(entity.getEntityID()),
+                    "ioId", io.getIoId(),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601,
-                    "domain", domain,
-                    "actionId", String.valueOf(Constants.actionImport),
-                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
+                    "format",Constants.ISOBASEFORMAT8601SQLite,
                     "desagregationTypeFixed", String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE),
                     "directionZ", String.valueOf(Constants.SheetCoordinate),
                     "dataTypeDate", String.valueOf(Constants.DATE),
@@ -150,19 +147,13 @@ public class Validator_2_0 implements Runnable {
         return OperationsUtils.mapResultsFromDatabase(results, refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
     }
     
-    private Map<Integer, List<ValResult>> getResultsByNodeForPreconditions(int precondtionVId) {
+    private Map<Integer, List<ValResult>> getResultsByNodeForPreconditions(int precondtionVId, IO io) {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
         try {
             results = jpa.getMappedFileQueryResultList("GetValuesForPreconditionsUpdate.sql", "ValuesForOperationMapping",
                     "preconditionVId", String.valueOf(precondtionVId),
-                    "entityId", String.valueOf(entity.getEntityID()),
-                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601,
-                    "domain", domain,
-                    "actionId", String.valueOf(Constants.actionImport),
-                    "typeStateOk", String.valueOf(Constants.tipoStateOK)
-            );
+                    "ioId", io.getIoId());
         } catch (Exception e) {
             LOG.error("Erro na query getResultsByNodeForPreconditions: " + e.getMessage());
         } finally {
@@ -259,7 +250,7 @@ public class Validator_2_0 implements Runnable {
                         Integer preConditionVId = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getPreconditonOperationVId();
                         if (!resultPerPrecondition.containsKey(preConditionVId)) {
                             Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByPreconditionVIdByLevel.get(preConditionVId);
-                            validatePrecondition(preConditionVId, nodesMappedByLevel, resultPerPrecondition);
+                            validatePrecondition(preConditionVId, nodesMappedByLevel, resultPerPrecondition, io);
                         }
 
                         ValResult preConditionResult = resultPerPrecondition.get(preConditionVId);
@@ -278,7 +269,7 @@ public class Validator_2_0 implements Runnable {
                             LOG.info("Avaliação da regra: " + operationVId);
 
                             //obtém os dados para validar
-                            Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId);
+                            Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId, io);
                             Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
 
                             //valida a operação
@@ -409,6 +400,7 @@ public class Validator_2_0 implements Runnable {
 //            Utils.addLogOfOperations(operationVId, nodesMappedByLevel.get(1).get(Constants.FIRSTRESULT).getNode().getNodeID(), "Operador por implementar na operação", null, null,  "Erro");
         } catch (Exception e) {
             LOG.error("Erro na validacao da operacao" + operationVId + ": " + e.getMessage());
+            e.printStackTrace();
 
         }
 
@@ -475,12 +467,12 @@ public class Validator_2_0 implements Runnable {
             }
         }
     }*/
-    private void validatePrecondition(Integer preConditionVId, Map<Integer, List<ValNode>> nodesMappedByLevel, Map<Integer, ValResult> resultPerPrecondition) {
+    private void validatePrecondition(Integer preConditionVId, Map<Integer, List<ValNode>> nodesMappedByLevel, Map<Integer, ValResult> resultPerPrecondition, IO io) {
         //Obtenção dos valores importados nos nós
         LOG.info("Avaliacao da precondicao: " + preConditionVId);
 
         //obtém os dados para validar
-        Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNodeForPreconditions(preConditionVId);
+        Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNodeForPreconditions(preConditionVId, io);
 
         //valida a operação
         List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, preConditionVId);

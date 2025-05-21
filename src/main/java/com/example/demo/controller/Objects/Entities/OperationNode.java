@@ -10,6 +10,7 @@ import jakarta.persistence.ColumnResult;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityResult;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.FieldResult;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -31,6 +32,19 @@ import jakarta.validation.constraints.Size;
             @ColumnResult(name = "nodeLevel", type = Integer.class)
         }
 )
+/*@SqlResultSetMapping(
+    name = "OperationNodeMapping",
+    entities = {
+        @EntityResult(
+            entityClass = OperationNode.class,
+            fields = {
+                @FieldResult(name = "nodeID", column = "NODEID"),
+                @FieldResult(name = "operationVersion.operationVID", column = "OPERATIONVID")
+            }
+        )
+    }
+)*/
+
 public class OperationNode implements Serializable{
     
     @Id

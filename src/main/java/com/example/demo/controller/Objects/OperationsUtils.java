@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import com.example.demo.Data.Connection;
@@ -20,7 +19,7 @@ import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Import.*;
 
 import java.util.AbstractMap;
-import java.util.logging.Logger;
+import org.jboss.logging.Logger;
 
 
 public class OperationsUtils {
@@ -49,7 +48,7 @@ public class OperationsUtils {
                     "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE)
             );
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Erro na query getResultsByNodeForTimeShift", e);
+            LOG.error("Erro na query getResultsByNodeForTimeShift:" + e.getMessage());
         } finally {
             Connection.close(jpa.getEm().em);
         }
@@ -66,7 +65,6 @@ public class OperationsUtils {
      */
     protected static Map<Integer, List<ValResult>> mapResultsFromDatabase(List<Object[]> results, String refDate) {
         Map<Integer, List<ValResult>> valuesOfNodes = new HashMap<>();
-
         try {
             valuesOfNodes = results.stream().collect(Collectors.groupingBy(
                     //Result[3] -> ID do Nó
@@ -146,7 +144,7 @@ public class OperationsUtils {
                             Collectors.toList())
             ));
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Erro no mapeamento dos dados da query getResultsByNodeForTimeShift", e);
+            LOG.error("Erro no mapeamento dos dados da query getResultsByNodeForTimeShift:" + e.getMessage());
         }
 
         return valuesOfNodes;
@@ -772,12 +770,12 @@ public class OperationsUtils {
                 default:
                     //TODO:
 //                    Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro porque não encontrou o id do datatype", null, null, "Erro");
-                    LOG.log(Level.SEVERE,"DetermineDataType a dar erro");
+                    LOG.error("DetermineDataType a dar erro");
                     return null;
             }
 
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"DetermineDataType a dar erro", e);
+            LOG.error("DetermineDataType a dar erro" + e.getMessage());
 //            Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro", null, null,  "Erro");
         }
         return null;
@@ -811,11 +809,11 @@ public class OperationsUtils {
                 default:
                     //TODO:
 //                    Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "TransformValue a dar erro porque não encontrou o id do datatype", null, null, "Erro");
-                    LOG.log(Level.SEVERE,"TransformValue a dar erro");
+                    LOG.error("TransformValue a dar erro");
                     return null;
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"TransformValue a dar erro", e);
+            LOG.error("TransformValue a dar erro" + e.getMessage());
 //            Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "TransformValue a dar erro", null, null, "Erro");
         }
         return null;
@@ -886,14 +884,14 @@ public class OperationsUtils {
                 if (rightResult != null && rightResult.getResult() != null){
                     if(!rightResult.isItem()) return false;
                 } else {
-                    LOG.log(Level.SEVERE,"Ocorreu um erro no método isToCompareWithItem. O resultado veio a null.");
+                    LOG.error("Ocorreu um erro no método isToCompareWithItem. O resultado veio a null.");
                     return false;
                 }
 
                 return true;
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no método isToCompareWithItem.");
+            LOG.error("Ocorreu um erro no método isToCompareWithItem.");
         }
         return false;
     }
