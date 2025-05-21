@@ -470,7 +470,7 @@ public class ValidationOperators {
                     return false;
                 }
 
-                //Começa a percorrer os valores agrupados
+                //Comeca a percorrer os valores agrupados
                 for (Map.Entry<ValResult, List<ValResult>> entry : groupedValues.entrySet()) {
                     //Se o da esquerda for null, usar o valor default
                     leftValue = entry.getKey();
@@ -1237,7 +1237,7 @@ public class ValidationOperators {
                     return false;
                 }
                 
-                //Começa a percorrer os valores agrupados
+                //Comeca a percorrer os valores agrupados
                 for (Map.Entry<ValResult, List<ValResult>> entry : groupedValues.entrySet()) {
                     //Se o da esquerda for null, usar o valor default
                     selectionResult = entry.getKey();

@@ -297,7 +297,7 @@ public class ImportExcelValues {
     }
 
     // Function that receives a worksheet, row index i and column index j and returns the correspondant cell value
-    //verificar impacto nas importaçoes 
+    //verificar impacto nas importacoes 
     public static String getCellValue(XSSFSheet workSheet, int i, int j) throws InvalidCellValueException {
 
         String value = null;

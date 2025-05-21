@@ -113,7 +113,7 @@ public class ValKey {
             sb.append("Propriedades -> ");
             dpmKeys.forEach((key, value) -> sb.append(key).append(": ").append(value).append(", "));
             
-            //Remove a última vírgula e espaço adicionados
+            //Remove a última vírgula e espaco adicionados
             sb.setLength(sb.length() - 2);
         } else {
             sb.append("Propriedades -> null");

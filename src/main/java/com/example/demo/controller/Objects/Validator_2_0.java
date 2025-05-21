@@ -223,7 +223,7 @@ public class Validator_2_0 implements Runnable {
                 Integer tableVId = table.getTableVID();
                                 
                 long initPerMap = System.nanoTime();
-                LOG.info("Começo da avaliacao do mapa: " + table.getCode());
+                LOG.info("Comeco da avaliacao do mapa: " + table.getCode());
                 
                 OutValidationTable outValTable = new OutValidationTable(table, ioValidation,Info.getInstance().getIOStateByID(Constants.processoPending));
                 Connection.persist(em, outValTable);
@@ -355,14 +355,18 @@ public class Validator_2_0 implements Runnable {
             ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
             Connection.merge(em, ioValidation);
             
-            int persistResult = persistIntoValidationsDashboard(em);
+            int persistResult = persistIntoValidationsDashboard(em, io);
             if(persistResult != 1){
                 LogValidationProcess logValProcessErrorInsertDashboard = new LogValidationProcess(ioValidation, "Ocorreu um erro na insercao dos dados para consulta no Dashboard de Validacoes.", LocalDateTime.now());
+                LOG.error("Ocorreu um erro na insercao dos dados para consulta no Dashboard de Validacoes.");
                 Connection.persist(em, logValProcessErrorInsertDashboard); 
                 ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
                 Connection.merge(em, ioValidation);
             }
-
+            else{
+                LOG.info("Validacao com sucesso");
+            }
+            
             LOG.info("Generation Start");
             GenerationBean generationBean = new GenerationBean();
 
@@ -550,7 +554,7 @@ public class Validator_2_0 implements Runnable {
         try {
             //validateOperations();
         } catch (Exception e) {
-            LOG.error("Erro. Falha ao lançar thread de validacao: " + e.getMessage());
+            LOG.error("Erro. Falha ao lancar thread de validacao: " + e.getMessage());
         }
     }
 
@@ -578,7 +582,7 @@ public class Validator_2_0 implements Runnable {
         return null;
     }
 
-    private int persistIntoValidationsDashboard(ConnectionManager cm) {
+    private int persistIntoValidationsDashboard(ConnectionManager cm, IO io) {
         int result = -1;
         JPA<Object[]> jpa = new JPA<>(cm, Object[].class);
  
@@ -586,11 +590,7 @@ public class Validator_2_0 implements Runnable {
             result = jpa.executeFileQuery("InsertIntoValidationsDashboard.sql",
                     "referenceDate", this.refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
                     "typeStateOk", String.valueOf(Constants.tipoStateOK),
-                    "actionValidateId", String.valueOf(Constants.actionValidation),
-                    "entityId", String.valueOf(this.entity.getEntityID()),
-                    "modulevid", String.valueOf(this.moduleVersion.getModuleVID()),
-                    "domain", this.domain,
-                    "actionImportId", String.valueOf(Constants.actionImport),
+                    "ioId", String.valueOf(io.getIoId()),
                     "processoOk", String.valueOf(Constants.processoOk),
                     "stateRuleOk", String.valueOf(Constants.RULEOK.getKey()),
                     "stateRuleDNRR",String.valueOf(Constants.RULEDONOTRUN.getKey()),
@@ -601,8 +601,7 @@ public class Validator_2_0 implements Runnable {
                     "errorSeverity", Constants.SEVERITYERROR,
                     "stateProcessNotOk", String.valueOf(Constants.processoNotOk),
                     "processOkDeleted", String.valueOf(Constants.processoOkDeleted),
-                    "processOkEmpty", String.valueOf(Constants.processoOkEmpty),
-                    "format",Constants.ISOBASEFORMAT8601
+                    "format",Constants.ISOBASEFORMAT8601SQLite
                 );
         } catch (Exception e) {
             LOG.error("Ocorreu um erro ao realizar ao inserir os dados no Dashboard de Validacoes: " + e.getMessage());

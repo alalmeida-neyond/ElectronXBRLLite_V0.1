@@ -129,7 +129,7 @@ public final class Utils {
 
 //    /**
 //     * method used to get the corresponding number of the month based on the
-//     * long form of the month (Dezembro -> 12 Março -> 03) Add a 0 when the moth
+//     * long form of the month (Dezembro -> 12 Marco -> 03) Add a 0 when the moth
 //     * is inferior to 10
 //     *
 //     * @param MonthName name of the month as Long form (Janeiro)
