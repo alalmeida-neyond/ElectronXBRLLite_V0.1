@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.*;
+import com.example.demo.controller.Objects.ActionPhases.GenerationAction;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Logs.*;
@@ -368,9 +369,9 @@ public class Validator_2_0 implements Runnable {
             }
             
             LOG.info("Generation Start");
-            GenerationBean generationBean = new GenerationBean();
+            GenerationAction generationAction = new GenerationAction();
 
-            generationBean.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
+            generationAction.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
         } catch (Exception e) {
             LOG.error("Ocorreu um erro no processo de validacao: " + e.getMessage());
             e.printStackTrace();
