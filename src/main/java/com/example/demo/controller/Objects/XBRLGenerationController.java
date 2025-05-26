@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 
 import com.example.demo.Data.*;
+import com.example.demo.controller.Objects.ActionPhases.DownloadAction;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Generation.OutXBRLGenerated;
@@ -206,6 +207,9 @@ public class XBRLGenerationController implements Runnable {
             io.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
             Connection.merge(io); 
         }
+        DownloadAction downloadAction = new DownloadAction();
+
+        downloadAction.startDownload(finalFolder, io);
     }
 
     public void createFillingIndicatorCSV(String path, Set<String> maps) {

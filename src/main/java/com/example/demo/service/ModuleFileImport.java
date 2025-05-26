@@ -148,11 +148,8 @@ public class ModuleFileImport implements Runnable{
             }
             //for each sheet in the imported file;
 
-            LOG.info("ModuleVersionVID:" + moduleVersion.getModuleVID());
-            LOG.info("Reference Date:" + referenceDate);
             List<VariableVersion> varVersionMapList = VariableVersionDAL.getListOfVariableVersionOfModuleSheets(moduleVersion.getModuleVID());
             List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(moduleVersion,referenceDate);
-            LOG.info("Filling Indicator Size:" + fillingIndicatorModuleList.size());
             TableVersionDPM singleFillingIndicatorAsTableVersion = null;
             List<HeaderDTO> headerDTOList;
             List<CellVariableDTO> cellVariablesList;
@@ -171,6 +168,7 @@ public class ModuleFileImport implements Runnable{
             boolean hasInsertedValue;
             List<String> errorMsgPerTables = new ArrayList<>();
             for (int sheet = 0; sheet < workBook.getNumberOfSheets(); sheet++) {
+                hasInsertedValue = false;
                 //In case of Error, only required to upload sheets missing
                 if (!em.getTransaction().isActive()) {
                     em.getTransaction().begin();
@@ -506,14 +504,14 @@ public class ModuleFileImport implements Runnable{
                 LOG.info("GetIOStateID:" + importedTableTemp.getIoState().getIoStateId());
                 LOG.info("Is Error MSG Empty:" + errorMsgPerTables.isEmpty());
                 if(importedTableTemp.getIoState().getIoStateId() == Constants.processoOkEmpty){
-                    if (errorMsgPerTables.isEmpty()) {
+                    if (errorMsgPerTables.isEmpty() && hasInsertedValue) {
                         LOG.info("Before IO");
-                        importedTableTemp.setIoState(new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+                        importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
                         hasOk = true;
                         LOG.info("After IO");
-                    } else if (!errorMsgPerTables.isEmpty()) {
+                    } else if (!errorMsgPerTables.isEmpty() && !hasInsertedValue) {
                         
-                        importedTableTemp.setIoState(new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
+                        importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
                         
                         //Criar lista de logs com base na lista de erros
                         List<LogImportProcess> errorLogs = new ArrayList<>();
