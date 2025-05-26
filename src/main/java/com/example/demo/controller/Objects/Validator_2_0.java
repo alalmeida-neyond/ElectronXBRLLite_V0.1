@@ -122,20 +122,6 @@ public class Validator_2_0 implements Runnable {
     private Map<Integer, List<ValResult>> getResultsByNode(int operationVID, IO io) {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
-        LOG.info("OperationVID:" + String.valueOf(operationVID));
-        LOG.info("ioId:" + refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
-        LOG.info("refdate:" + io.getIoId());
-        LOG.info("format:" + Constants.ISOBASEFORMAT8601SQLite);
-        LOG.info("desagregationTypeFixed:" + String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE));
-        LOG.info("directionZ:" + String.valueOf(Constants.SheetCoordinate));
-        LOG.info("dataTypeDate:" + String.valueOf(Constants.DATE));
-        LOG.info("refPeriodString:" + String.valueOf(Constants.REFPERIOD));
-        LOG.info("dataTypeEnumeration:" + String.valueOf(Constants.ENUMERATION));
-        LOG.info("referenceRow:" + String.valueOf(Constants.PROPERTYROW));
-        LOG.info("OperationVID:" + String.valueOf(Constants.PROPERTYCOLUMN));
-        LOG.info("OperationVID:" + String.valueOf(Constants.PROPERTYSHEET));
-        LOG.info("OperationVID:" + String.valueOf(Constants.processoOk));
-        LOG.info("OperationVID:" + String.valueOf(Constants.DESAGREGATIONCODETYPE));
 
         try {
             results = jpa.getMappedFileQueryResultList("GetValuesUpdate.sql", "ValuesForOperationMapping",

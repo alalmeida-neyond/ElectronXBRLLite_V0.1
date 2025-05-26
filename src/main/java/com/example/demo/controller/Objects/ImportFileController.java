@@ -53,21 +53,6 @@ public class ImportFileController extends DefaultBean {
      */
     @PostConstruct
     public void init() {
-        /*
-         * Info.getInstance().loadRefData();
-         * List<ConfImportRules> rules =
-         * Info.getInstance().refDataGet(Constants.ConfImportRulesAll);
-         * 
-         * if (rules == null) {
-         * System.out.println("No import rules found during init()");
-         * LOG.warn("No import rules found during init()");
-         * this.listOfImportRules = new ArrayList<>();
-         * this.listOfImportRulesToApply = new ArrayList<>();
-         * this.listOfImportRulesToAlwaysApply = new ArrayList<>();
-         * return;
-         * }
-         */
-
         setListOfImportRules(Info.getInstance().refDataGet(Constants.ConfImportRulesAll));
         listOfImportRulesToApply = getListOfImportRules().stream()
                 .map(ConfImportRules::getImportRuleID)
@@ -82,15 +67,17 @@ public class ImportFileController extends DefaultBean {
     }
 
     public void getImportIOs(Integer privilege, boolean withView) {
+        LocalDate referenceDate = null;
         if (getYear() != null && getMonth() != null) {
             // CastMonth into number
-            setReferenceDate(getYear(), getMonth());
+            //setReferenceDate(getYear(), getMonth());
+            referenceDate = getDateAtLastDay(getMonth(),getYear());
         } else {
-            setReferenceDate(null, null);
+            referenceDate = null;
         }
 
         importIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(),
-                getReferenceDate() == null ? null : getReferenceDate(),
+                referenceDate,
                 getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionImport,
                 Constants.VALIDATEID);
 
@@ -161,29 +148,6 @@ public class ImportFileController extends DefaultBean {
             this.isOperationOccuring = true;
             return false;
         } else {
-            /*
-             * List<IO> operationsRunning =
-             * OperationRunningDAL.getOperationRunningFromIO(getModuleVersionExecution(),
-             * getDomainExecution(), getEntityExecution(),
-             * getReferenceDate().format(Constants.dateFormat));
-             */
-            /*
-             * List<IO> operationsRunning =
-             * OperationRunningDAL.getOperationRunningFromIO(getModuleVersionExecution(),
-             * getDomainExecution(), getReferenceDate().format(Constants.dateFormat));
-             */
-            /*
-             * if (!operationsRunning.isEmpty()) {
-             * LOG.info("Operacoes a ser realizadas \n" +
-             * "Encontram-se a realizar operacoes relacionadas com o ficheiro escolhido. Tente mais tarde, contacte um administrador ou cancele a operacao a ser realizada"
-             * );
-             * this.isOperationOccuring = false;
-             * this.isSubmitDisable = true;
-             * return false;
-             * }
-             */
-            // LOG.info("Ficheiro pronto\n" + "Ficheiro encontra-se pronto para ser
-            // importado");
             this.isSubmitDisable = false;
             this.isOperationOccuring = true;
             return true;
@@ -215,27 +179,19 @@ public class ImportFileController extends DefaultBean {
                 return false;
             }
             String year = Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_6);
-            LOG.info("Year:" + year);
             String month = Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_7);
-            LOG.info("Month:" + month);
             ModuleVersion moduleVersion = getModuleByFilenameInfo(referenceDate,
                     Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_3));
-            LOG.info("Module Version:" + moduleVersion.getName());
             ConfEntities entity = getEntityByFilenameInfo(
                     Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_2));
-            LOG.info("Entity:" + entity);
             String domain = Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_4);
-            LOG.info("Domain:" + domain);
-            LOG.info("Entity ID:" + Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_2));
             if (moduleVersion == null) {
                 setStatusMessage(Constants.moduloInvalido);
                 return false;
-            } /*
-               * else if (entity == null) {
-               * setStatusMessage(Constants.entidadeInvalida);
-               * return false;
-               * }
-               */ else if (domain.equals("")) {
+            } else if (entity == null) {
+                setStatusMessage(Constants.entidadeInvalida);
+                return false;
+            } else if (domain.equals("")) {
                 setStatusMessage(Constants.dominioInvalido);
                 return false;
             } else {

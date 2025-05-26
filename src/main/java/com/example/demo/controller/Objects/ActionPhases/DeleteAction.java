@@ -26,15 +26,6 @@ public class DeleteAction {
             jpa.rollback();
         } 
 
-        query = new StringBuilder(" DELETE FROM IN_IMPORTKEY ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
         query = new StringBuilder(" DELETE FROM IN_KEYASSOCIATION ");
         
         try {
@@ -42,16 +33,7 @@ public class DeleteAction {
         } catch (Exception ex) {
             ex.printStackTrace();
             jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM IN_KEYTYPE ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
+        }  
 
         query = new StringBuilder(" DELETE FROM IO ");
         

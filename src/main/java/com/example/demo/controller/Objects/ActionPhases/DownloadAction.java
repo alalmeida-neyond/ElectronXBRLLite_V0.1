@@ -1,5 +1,6 @@
 package com.example.demo.controller.Objects.ActionPhases;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.util.Comparator;
+
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -29,7 +32,6 @@ import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.Utils;
 import com.example.demo.controller.Objects.Entities.IO;
 import com.example.demo.controller.Objects.Entities.ModuleVersion;
-import com.example.demo.controller.Objects.Import.InImportedTablesTemp;
 
 public class DownloadAction {
     private final Logger LOG = Logger.getLogger(DownloadAction.class);
@@ -188,7 +190,32 @@ public class DownloadAction {
 
             workbook.close();
 
+            cleanUp();
+
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void cleanUp()
+    {
+        Path pathDirectory = Paths.get("XBRL_Lite", "Run", "Reports", "XBRL_Generated");
+
+        try {
+            Files.walk(pathDirectory)
+                 .sorted(Comparator.reverseOrder())
+                 .forEach(path -> {
+                     try {
+                         // Skip files or directories containing "_FinalPackage.zip"
+                         if (!path.getFileName().toString().contains("_FinalPackage.zip")) {
+                             Files.delete(path);
+                         } 
+                     } catch (IOException e) {
+                         System.err.println("Problema a apagar: " + path + " (" + e.getMessage() + ")");
+                     }
+                 });
+        } catch (IOException e) {
+            LOG.error("Erro na limpeza de ficheiros");
             e.printStackTrace();
         }
     }
@@ -263,120 +290,5 @@ public class DownloadAction {
                     });
         }
 
-    }
-
-    private void deleteRecords()
-    {
-        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
-        
-        StringBuilder query = new StringBuilder(" DELETE FROM IN_IMPORTEDTABLESTEMP ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM IN_IMPORTEDVALUESTEMP ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM IN_IMPORTKEY ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM IN_KEYASSOCIATION ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM IN_KEYTYPE ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM IO ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        }
-
-        query = new StringBuilder(" DELETE FROM OUT_VALIDATIONRESULT ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        }
-
-        query = new StringBuilder(" DELETE FROM OUT_VALIDATIONRESULTDETAILS ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        }
-
-        query = new StringBuilder(" DELETE FROM OUT_VALIDATIONSDASHBOARD ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM OUT_VALIDATIONTABLE ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM OUT_VALIDATIONTABLERESULT ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } 
-
-        query = new StringBuilder(" DELETE FROM OUT_XBRLGENERATED ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        } finally {
-            jpa.close();
-        }
     }
 }
