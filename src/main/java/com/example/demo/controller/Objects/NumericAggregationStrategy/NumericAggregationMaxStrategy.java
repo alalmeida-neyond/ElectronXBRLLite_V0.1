@@ -10,8 +10,6 @@ import java.util.Map;
 
 import com.example.demo.controller.Objects.*;
 
-import java.util.AbstractMap;
-
 public class NumericAggregationMaxStrategy implements NumericAggregationStrategy {
 
     @Override

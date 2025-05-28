@@ -15,8 +15,6 @@ import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Generation.OutXBRLGenerated;
 import com.example.demo.controller.Objects.Import.*;
 
-import jakarta.persistence.NoResultException;
-
 
 public class InImportedValuesDAL {
 

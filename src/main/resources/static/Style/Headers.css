@@ -1,228 +1,42 @@
-
-.bg-grey:disabled{
-    background-color: lightslategray !important;
+#dvPageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  background-color: #033d51; /* or your preferred dark color */
+  color: white;
 }
 
-.bg-grey{
-    background-color: lightslategray !important;
-}
-.bg-grey:hover{
-    background-color: lightslategray !important;
+#dvlogo img {
+  width: 150px;
+  height: auto;
 }
 
-.nav {
-    background-color: white;
-    margin-left:0;
+#dvheaderGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: white;
 }
 
-.nav_separator {
-	border-left: 1px solid #cdcdcd;
+#dvheaderRight {
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: white;
 }
 
-.nav_selected {
-	background-color: #0ea9e5 !important;
-	color: #fff;
-	text-decoration: underline;
-	padding-bottom: 6px !important;
+#dvheaderRightDown {
+  display: flex;
+  gap: 16px;
+  padding: 10px 0;
 }
 
-.nav_main {
-	background-color: #ec0000;
-	height: 77px;
+#dvheaderRightDown a {
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
 }
 
-.nav_main_user {
-	font-size: 14px;
-	font-weight: 700;
-	color: #fff;
+#dvheaderRightDown a:hover {
+  text-decoration: underline;
 }
-
-.overflow {
-    margin-left: 2%;
-}
-
-.menu_item {
-	font-size: 16px;
-	font-weight: 700;
-}
-
-
-.menu_itemOn {
-    font-size: 16px;
-    font-weight: 700;
-    background-color: #D9D9D9;
-}
-
-a, ul.breadcrumb a {
-    color: #4c4c4c;
-    font-weight: 700;
-    text-decoration: none;
-    cursor:pointer;
-}
-
-a:hover{
-    color: #033d51;
-    text-decoration: underline;
-}
-
-a.nav_selected:hover {
-	color: #fff;
-	text-decoration: underline;
-}
-
-ul.breadcrumb {
-	padding: 0px 0px;
-	list-style: none;
-}
-
-/* Display list items side by side */
-ul.breadcrumb li {
-	display: inline;
-}
-
-/* Add a slash symbol (/) before/behind each list item */
-ul.breadcrumb li+li:before {
-	padding: 8px;
-	content: url("../images/red_arrow_breadcrumb.png");
-}
-
-
-.tab_View {
-	border: none;
-}
-
-.ui-widget {
-	font-size: 12px;
-}
-
-.ui-tabs {
-	padding: 0px;
-        cursor:pointer;
-}
-
-.ui-tabs .ui-tabs-panel {
-	padding: 20px 0px 0px 0px;
-        cursor:pointer;
-}
-
-.ui-tabs .ui-tabs-nav {
-	background: none;
-	margin-bottom: -1px;
-	padding: 0 !important;
-        cursor:pointer;
-        
-}
-
-.ui-tabs .ui-tabs-panels {
-	border-top: 1px solid #BCC7CF;
-        cursor:pointer;
-}
-
-.ui-state-default, .ui-widget-content .ui-state-default,
-	.ui-widget-header .ui-state-default {
-	background: #f7f7f7;
-}
-
-.ui-widget-header {
-	background: #f7f7f7;
-}
-
-.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover,
-	.ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus
-	{
-	border: 1px solid #a8a8a8;
-	background: #f7f7f7;
-	-moz-box-shadow: none;
-	-webkit-box-shadow: none;
-	color: #4c4c4c;
-	-moz-box-shadow: none;
-	-webkit-box-shadow: none;
-	box-shadow: none;
-}
-
-.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active
-	{
-	border: 1px solid #a8a8a8;
-	background: #f7f7f7;
-	color: #4c4c4c;
-	text-shadow: none;
-}
-
-.ui-selectonemenu .ui-selectonemenu-trigger {
-	border-right: 0;
-	border-top: 0;
-	border-bottom: 0;
-}
-
-.ui-selectonemenu-panel .ui-selectonemenu-list-item {
-	border: 0 none;
-}
-
-.ui-state-default {
-	-moz-box-shadow: none;
-	-webkit-box-shadow: none;
-	box-shadow: none;
-}
-
-.ui-datatable-odd {
-	background: none;
-}
-
-.ui-panelgrid .ui-panelgrid-cell {
-	padding: 4px 5px;
-}
-
-.ui-inputfield, .ui-widget-content .ui-inputfield, .ui-widget-header .ui-inputfield
-	{
-	background: #fff !important;
-	-moz-box-shadow: none;
-	-webkit-box-shadow: none;
-	box-shadow: none;
-	color: #4c4c4c;
-	box-shadow: none;
-}
-
-.ui-inputfield, .ui-widget-content .ui-inputfield, .ui-widget-header .ui-inputfield :disabled
-	{
-	background: lightslategray !important;
-	-moz-box-shadow: none;
-	-webkit-box-shadow: none;
-	box-shadow: none;
-	color: white;
-	box-shadow: none;
-}
-
-.ui-datatable.borderless thead th, .ui-datatable.borderless tbody,
-	.ui-datatable.borderless tbody tr, .ui-datatable.borderless tbody td {
-	border-style: none;
-}
-
-.ui-datatable.whiteHeader thead th {
-	background: none;
-}
-
-
-.dropdown {
-	position: relative;
-	display: inline-block;
-}
-
-.dropdown-content {
-	display: none;
-	position: absolute;
-	background-color: #fff;
-	border: 1px solid #ccc;
-	padding: 10px;
-	min-width: 250px;
-	z-index: 1;
-}
-
-.dropdown:hover .dropdown-content {
-	display: block;
-}
-
-.dropdown-content label {
-	display: block;
-}
-
-

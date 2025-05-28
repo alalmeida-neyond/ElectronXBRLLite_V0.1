@@ -10,12 +10,6 @@ import java.util.Map;
 
 import com.example.demo.controller.Objects.*;
 
-import java.util.AbstractMap;
-
-/**
- *
- * @author njesus
- */
 public class NumericAggregationMinStrategy implements NumericAggregationStrategy {
 
     @Override

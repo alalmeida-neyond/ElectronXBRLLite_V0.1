@@ -1,11 +1,21 @@
 package com.example.demo.controller;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.demo.controller.Objects.ConfImportRules;
+import com.example.demo.controller.Objects.Constants;
+import com.example.demo.controller.Objects.DefaultBean;
+import com.example.demo.controller.Objects.ImportFileController;
+import com.example.demo.controller.Objects.Info;
 import com.example.demo.controller.Objects.Month;
 import com.example.demo.controller.Objects.Template;
 import com.example.demo.controller.Objects.Year;
+import com.example.demo.controller.Objects.DAL.IODAL;
+import com.example.demo.controller.Objects.Entities.IO;
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.persistence.EntityManagerFactory;
@@ -13,10 +23,13 @@ import jakarta.persistence.PersistenceUnit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.jboss.logging.Logger;
 import org.springframework.ui.Model;
 
 import java.sql.*;
-
+import java.time.LocalDate;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
@@ -25,15 +38,61 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 @RestController
-public class DemoController {
+public class DemoController extends DefaultBean{
     private String directory;
 
     private final String fileUrl = "https://blobstoragexbrl.blob.core.windows.net/xbrldatabaseblob/UNMANAGEDPROCESS.db";
     private final String localFilePath = System.getProperty("user.dir") + File.separator + "/src/UNMANAGEDPROCESS.db"; 
-    
+    private final Logger LOG = Logger.getLogger(ImportFileController.class);
+
+    private List<IO> importIOs;
+
+    private String fileName;
+    private Boolean isSubmitDisable = true;
+    private Boolean isOperationOccuring = true;
+    private List<Integer> listOfImportRulesToApply = new ArrayList<Integer>();
+    private List<Integer> listOfImportRulesToAlwaysApply = new ArrayList<Integer>();
+    private List<ConfImportRules> listOfImportRules;
+    private MultipartFile file;
+
+    /**
+     * method called when the page to list the imported files open, making sure
+     * the reported List is filled when the page loads
+     */
     @PostConstruct
-    public void initializeDatabase() {
+    public void init() {
+        setListOfImportRules(Info.getInstance().refDataGet(Constants.ConfImportRulesAll));
+        listOfImportRulesToApply = getListOfImportRules().stream()
+                .map(ConfImportRules::getImportRuleID)
+                .collect(Collectors.toList());
+
+        listOfImportRulesToAlwaysApply = getListOfImportRules().stream()
+                .filter(p -> p.isAlwaysRun() == true)
+                .map(ConfImportRules::getImportRuleID)
+                .collect(Collectors.toList());
+
+        getImportIOs(refData.getImportID(), true);
+
+        LOG.info("What");
+
         createTables();
+    }
+
+    public void getImportIOs(Integer privilege, boolean withView) {
+        LocalDate referenceDate = null;
+        if (getYear() != null && getMonth() != null) {
+            // CastMonth into number
+            //setReferenceDate(getYear(), getMonth());
+            referenceDate = getDateAtLastDay(getMonth(),getYear());
+        } else {
+            referenceDate = null;
+        }
+
+        importIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(),
+                referenceDate,
+                getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionImport,
+                Constants.VALIDATEID);
+
     }
 
     // Create tables if they don't exist
@@ -72,6 +131,8 @@ public class DemoController {
     @GetMapping("/")
     public ModelAndView greeting() {
         ModelAndView modelAndView = new ModelAndView();
+
+        init();
 
         modelAndView.setViewName("index");
         modelAndView.addObject("username", "Marcus Tremor"); // Dynamic username
@@ -234,5 +295,31 @@ public class DemoController {
             e.printStackTrace();
             System.err.println("Error replacing file: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/api/rules")
+    public List<ConfImportRules> getListOfImportRules() {
+        System.out.println("Número de regras:" + listOfImportRules.size());
+        return listOfImportRules;
+    }
+
+    public void setListOfImportRules(List<ConfImportRules> listOfImportRules) {
+        this.listOfImportRules = listOfImportRules;
+    }
+
+    public List<Integer> getListOfImportRulesToAlwaysApply() {
+        return listOfImportRulesToAlwaysApply;
+    }
+
+    public void setListOfImportRulesToAlwaysApply(List<Integer> listOfImportRulesToAlwaysApply) {
+        this.listOfImportRulesToAlwaysApply = listOfImportRulesToAlwaysApply;
+    }
+
+    public List<Integer> getListOfImportRulesToApply() {
+        return listOfImportRulesToApply;
+    }
+
+    public void setListOfImportRulesToApply(List<Integer> listOfImportRulesToApply) {
+        this.listOfImportRulesToApply = listOfImportRulesToApply;
     }
 }

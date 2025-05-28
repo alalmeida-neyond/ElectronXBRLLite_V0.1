@@ -13,7 +13,6 @@ import jakarta.el.ELException;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.application.FacesMessage.Severity;
 import jakarta.faces.FacesException;
-import jakarta.faces.annotation.ManagedProperty;
 import jakarta.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
 import org.jboss.logging.Logger;

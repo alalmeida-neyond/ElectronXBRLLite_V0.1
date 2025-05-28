@@ -244,7 +244,6 @@ public class Validator_2_0 implements Runnable {
                         OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
                         Connection.persist(em, outValTableResult);
                     } else {
-                        LOG.info(nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0));
                         //Cria o Out_ValidationResult
                         OperationVersion operation = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getOperationVersion();
                         OutValidationResult outValResult = new OutValidationResult(operation, Info.getInstance().getIOStateByID(Constants.processoPending));//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)));
@@ -278,8 +277,16 @@ public class Validator_2_0 implements Runnable {
                             //valida a operacao
                             List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, operationVId);
 
+                            //Estes clears sao atualizacoes do XBRL 2.0
+                            resultsMappedByNode.clear();
+                            nodesMappedByLevel.clear();
+
                             if (results != null && !results.isEmpty()) {
                                 List<OutValidationResultDetails> resultDetails = OutValidationResultDetails.createResultDetails(results, outValResult);
+                                
+                                //Este clear e atualizacao do XBRL 2.0
+                                results.clear();
+                                
                                 outValResult.setIoState(resultDetails);
 
                                 operationsResultsIds.put(operationVId, outValResult);
@@ -403,9 +410,7 @@ public class Validator_2_0 implements Runnable {
                     return null;
                 }
             }
-        } catch (AssertionError e) {
-//            Utils.addLogOfOperations(operationVId, nodesMappedByLevel.get(1).get(Constants.FIRSTRESULT).getNode().getNodeID(), "Operador por implementar na operacao", null, null,  "Erro");
-        } catch (Exception e) {
+        } catch (AssertionError | Exception e) {
             LOG.error("Erro na validacao da operacao" + operationVId + ": " + e.getMessage());
             e.printStackTrace();
 
@@ -427,7 +432,6 @@ public class Validator_2_0 implements Runnable {
                 result = Connection.persistList(jpa.getEm(), logsList);
             }
         } catch (Exception e) {
-            //TODO - Incluir Logs
             e.printStackTrace();
         } finally {
             jpa.close();

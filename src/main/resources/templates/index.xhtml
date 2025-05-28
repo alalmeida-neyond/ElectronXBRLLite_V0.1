@@ -1,66 +1,262 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html
-  xmlns="http://www.w3.org/1999/xhtml"
-  xmlns:h="http://xmlns.jcp.org/jsf/html"
-  xmlns:p="http://primefaces.org/ui"
-  xmlns:f="http://xmlns.jcp.org/jsf/core"
-  xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
->
-  <h:head>
-    <meta
-      http-equiv="Content-Type"
-      content="application/xhtml+xml; charset=UTF-8"
-    />
-    <link href="./Style/ReportGenStyles.css" rel="stylesheet" type="text/css" />
-    <link rel="shortcut icon" type="image/ico" th:href="@{Images/favico.ico}"/>
-    <link href="./Style/Headers.css" rel="stylesheet" type="text/css" />
-    <div th:replace="~{Layouts/title}"></div>
-  </h:head>
-  <h:body>
-    <f:view contentType="application/xhtml+xml">
-      <!--++++++++++ HEADER 1 ++++++++-->
-      <div id="header1">
-        <div th:replace="~{Layouts/header1}"></div>
-      </div>
-      <!--++++++++++++++++++++++++++++-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui"
+  xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+  xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href="./Style/ReportGenStyles.css" rel="stylesheet" type="text/css" />
+  <link href="./Style/mainPageUpload.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" th:href="@{/Images/favico.ico}" />
+  <link href="./Style/Headers.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <div th:replace="~{Layouts/title}"></div>
+
+  <script lang="javascript">
+    var m = new Date();
+    //document.writeln("date: " + m);
+  </script>
+</h:head>
+
+<body>
+  <f:view contentType="text/html">
+
+    <!--++++++++++ HEADER 1 ++++++++-->
+    <div id="header1">
+      <div th:replace="~{Layouts/xbrl2_header1}"></div>
+    </div>
+    <!--++++++++++++++++++++++++++++-->
+    <div id="mainContainer">
+
+      <div class="Sep"> </div>
       <br />
-      <div id="mainContainer">
-        <div class="Sep"></div>
+
+      <div id="dvPageTitle">Módulo Importacao</div>
+      <br />
+
+      <div>
+        <strong>O processo carrega os ficheiros para a diretoria de importacao.<br />
+
+        </strong><br />
+        <!-- inputFile  -->
+        <p:growl id="msgs" showDetail="true" />
+        <!-- inputFile tag to upload file -->
+        Os ficheiro Excel a importar devem assumir a seguinte nomenclatura: <span
+          title="Exemplo: 0991_coreplcr_con_201406.xlsx"
+          style="cursor:help;color:blue;">[Entidade]_[Módulo]_[Domínio]_[YYYYMM]_[Informacao_adicional].xlsx</span>.
+        <br />
+        O nome do Módulo não deve conter nenhum carateres especiais. Ex:. <strong>Mrel_Tlac</strong> fica
+        <strong>MrelTlac</strong> e <strong>Corep Of</strong> torna-se <strong>CorepOf</strong>.
+        <br />
+        Selecione um ficheiro para importacao
+
+        <strong>(tamanho máx. 3,5 Mb).</strong>
+        <br />
+        <br />
+        <form id="uploadForm" method="post" th:action="@{/importFile/upload}" enctype="multipart/form-data">
+          <div class="dropdown">
+            <button type="button">Select Rules</button>
+            <div class="dropdown-content" id="rules-dropdown">
+            </div>
+          </div>
+          <div class="upload-area" id="upload-area">
+            <img src="./Images/upload_icon.png" alt="Upload Icon" />
+            <div class="upload-text">
+              Upload Ficheiros ou <span class="underline" style="color: blue; text-decoration: underline;">escolhe
+                aqui</span>
+            </div>
+            <input type="file" id="file" name="file" class="upload-hidden-input" required accept=".xls,.xlsx" />
+          </div>
+        </form>
+
+        <div id="result"></div>
+        <!--Ver o que mais manter deste form sem ser o botão de cancelar-->
+        <h:form id="filenameForm" class="mt-0 pt-0 w-auto h-auto">
+          <h:outputLabel for="module" class="pl-1 pr-2" value="Módulo: " />
+          <p:inputText id="module"
+            style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;"
+            class="bg-grey" value="#{uploadModuleFile.module}" required="true" disabled="true" />
+          <h:outputLabel for="date" class="ml-3 pr-2" value="Data de referência: " />
+          <p:inputText id="date"
+            style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;"
+            class="mr-2 bg-gray-600" value="#{uploadModuleFile.year}" required="true" disabled="true" />
+          <p:inputText id="dateMonth"
+            style="background-color: lightslategray !important;color: ivory;font-size: medium;font-weight: normal;"
+            class="bg-gray-600" value="#{uploadModuleFile.month}" required="true" disabled="true" />
+          <h:outputLabel for="entity" class="ml-3 pl-1 pr-2" value="Entidade: " />
+          <p:inputText id="entity"
+            style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;"
+            value="#{uploadModuleFile.entity}" required="true" disabled="true" />
+          <h:outputLabel for="domain" class="ml-3 pl-1 pr-2" value="Domínio: " />
+          <p:inputText id="domain"
+            style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;"
+            value="#{uploadModuleFile.domain}" required="true" disabled="true" />
+          <h:inputHidden id="filename" value="#{uploadModuleFile.fileName}" />
+          <h:inputHidden id="submitDisableInfo" value="#{uploadModuleFile.isSubmitDisable}" />
+          <p:remoteCommand name="onFileSelectCommand" action="#{uploadModuleFile.OnFileChange()}"
+            update="module date dateMonth entity filename domain submitDisableInfo cancelarImpo msgs"
+            oncomplete="document.getElementById('uploadButton').disabled = (document.getElementById('filenameForm:submitDisableInfo').value === 'true') ;" />
+          <p:commandButton id="cancelarImpo" value="Cancelar" action="#{uploadModuleFile.cancelImport()}"
+            update="filenameForm" ajax="true" style="margin-left:-10px;margin-bottom: 8px; font-size:10px"
+            icon="pi pi-times" styleClass="btnRefresh" disabled="#{uploadModuleFile.isOperationOccuring}" />
+        </h:form>
         <br />
 
-        <div id="dvPageTitle">Bem-vindo(a)</div>
 
-        <h:messages style="color: blue" showDetail="true" />
+        <!-- inputFile  -->
 
-        <div style="height: 400px">
+
+        <div id="logContainer" style="display: none;">
+          <div class="Sep"> </div>
           <br />
-          <strong
-            >&nbsp;&nbsp;A aplicacao disponibiliza dois processos: <br /><br />
-            &nbsp;&nbsp;&nbsp;&nbsp; - Validacao de relatórios Corep e Finrep de
-            acordo com o Validation Formulae, e geracao dos relatórios em
-            formato XBRL para submissão ao Banco de Portugal;
-            <br /><br /> &nbsp;&nbsp;&nbsp;&nbsp; - Validacao dos Controlos de
-            Consistência de Nível II Locais;</strong
-          >
+          <div id="dvPageTitle">Módulo Importacao</div>
+          <br />
+          <strong>Aqui pode consultar os logs associados a cada relatório importado.</strong>
           <br /><br />
+          <div class="Sep"> </div>
+          <br />
+          <div>
+            <div class="SepRed">
+              <div>
+                <h:outputText value="Logs de importacao"
+                  style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px;" />
+              </div>
+            </div>
+            <div id="dvLogs">
+              <p:panel style="border: none; padding: 0;">
+                <p:dataTable var="impDetails" value="#{importFileDetailBean.impDetails}" id="myTable1" paginator="true"
+                  rows="25" paginatorAlwaysVisible="false" emptyMessage="Sem registos encontrados!">
+                  <p:column headerText="Módulo" style="text-align: center; width: 5%">
+                    <h:outputText value="#{impDetails.code}" />
+                  </p:column>
+                  <p:column headerText="Entidade" style="text-align: center; width: 10%">
+                    <h:outputText value="#{impDetails.entity}" />
+                  </p:column>
+                  <p:column headerText="Domínio" style="text-align: center; width: 3%">
+                    <h:outputText value="#{impDetails.domain}" />
+                  </p:column>
+                  <p:column headerText="Data referência" style="text-align: center; width: 5%">
+                    <h:outputText value="#{impDetails.referenceDate}" />
+                  </p:column>
+                  <p:column headerText="Descricao" style="text-align: center;">
+                    <h:outputText value="#{impDetails.description}" />
+                  </p:column>
+                  <p:column headerText="Data" style="text-align: center; width: 10%">
+                    <h:outputText value="#{impDetails.timestamp}" />
+                  </p:column>
+                </p:dataTable>
+              </p:panel>
+            </div>
+          </div>
         </div>
+
       </div>
 
-      <script
-        type="text/javascript"
-        src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"
-      ></script>
-      <script
-        type="text/javascript"
-        src="http://arrow.scrolltotop.com/arrow88.js"
-      ></script>
+
+
 
       <!--++++++++++++ FOOTER +++++++++++-->
       <div id="footer">
         <div th:replace="~{Layouts/footer}"></div>
       </div>
       <!--++++++++++++++++++++++++++++-->
-    </f:view>
-  </h:body>
+
+  </f:view>
+
+</body>
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    const uploadArea = document.getElementById("upload-area");
+    const excelFileInput = document.getElementById("file");
+
+    uploadArea.addEventListener("click", () => excelFileInput.click());
+
+    excelFileInput.addEventListener("change", () => {
+      if (excelFileInput.files.length > 0) {
+        uploadFile(excelFileInput.files[0]);
+      }
+    });
+
+    uploadArea.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      uploadArea.classList.add("dragover");
+    });
+
+    uploadArea.addEventListener("dragleave", () => {
+      uploadArea.classList.remove("dragover");
+    });
+
+    uploadArea.addEventListener("drop", (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove("dragover");
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        uploadFile(file);
+      }
+    });
+
+    function validateFile(input) {
+      var file = input.files[0];
+      if (file) {
+        var fileName = file.name.toLowerCase();
+        if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls")) {
+          alert("Tipo de ficheiro inválido. Por favor carrega um ficheiro Excel (.xls ou .xlsx).");
+          input.value = "";
+        }
+      }
+    }
+
+    function uploadFile(file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      fetch("/importFile/upload", {
+        method: "POST",
+        body: formData
+      })
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("result").innerHTML = data;
+          document.getElementById("logContainer").style.display = "block";
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    async function loadImportRules() {
+      try {
+        const res = await fetch('/api/rules');
+        const rules = await res.json();
+
+        console.log("Fetched rules:", rules);
+
+        const container = document.getElementById('rules-dropdown');
+        container.innerHTML = '';
+
+        rules.forEach(rule => {
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.value = rule.importRuleID;
+          input.checked = rule.alwaysRun;
+          input.disabled = rule.alwaysRun;
+
+          const label = document.createElement('label');
+          label.style.display = "block";
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(' ' + rule.ruleName));
+          container.appendChild(label);
+        });
+      } catch (err) {
+        console.error("Failed to load rules:", err);
+      }
+    }
+
+    loadImportRules();
+  });
+</script>
+
 </html>

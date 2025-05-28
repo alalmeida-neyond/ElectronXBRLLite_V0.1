@@ -1,6 +1,5 @@
 package com.example.demo.controller.Objects.ActionPhases;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -206,7 +205,6 @@ public class DownloadAction {
                  .sorted(Comparator.reverseOrder())
                  .forEach(path -> {
                      try {
-                         // Skip files or directories containing "_FinalPackage.zip"
                          if (!path.getFileName().toString().contains("_FinalPackage.zip")) {
                              Files.delete(path);
                          } 
