@@ -60,7 +60,7 @@
         <br />
         <form id="uploadForm" method="post" th:action="@{/importFile/upload}" enctype="multipart/form-data">
           <div class="upload-area" id="upload-area">
-            <img src="./Images/upload_icon.png" alt="Upload Icon"/>
+            <img src="./Images/upload_icon.png" alt="Upload Icon" class="upload-icon" />
             <div class="upload-text" id="upload-text">
               Upload Ficheiros ou <span class="underline" style="color: blue; text-decoration: underline;">escolhe
                 aqui</span>
@@ -72,7 +72,7 @@
           </div>
         </form>
 
-        <div class="logContainer" >
+        <div class="logContainer">
           <div class="Sep"> </div>
           <br />
           <div id="dvPageTitle">Módulo Importacao</div>
@@ -88,24 +88,24 @@
                   style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px;" />
               </div>
             </div>
-            <!--<div id="dvLogs">
-              <table>
-                  <thead>
-                      <tr>
-                          <th> Title </th>
-                          <th> Author </th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                <tr th:if="${books.empty}">
-                          <td colspan="14"> Sem registos encontrados! </td>
-                      </tr>
-                      <tr th:each="book : ${books}">
-                          <td><span th:text="${book.title}"> Title </span></td>
-                          <td><span th:text="${book.author}"> Author </span></td>
-                      </tr>
-                  </tbody>
-              </table>-->
+            <div id="dvLogs">
+              <table id="validationTable" border="1">
+                <thead>
+                  <tr>
+                    <th>Reference Date</th>
+                    <th>Module</th>
+                    <th>Entity</th>
+                    <th>Domain</th>
+                    <th>Rule</th>
+                    <th>Result</th>
+                    <th>Processed Date</th>
+                    <!-- Add more headers as needed -->
+                  </tr>
+                </thead>
+                <tbody id="validationTableBody">
+                  <!-- Rows will be injected here by JS -->
+                </tbody>
+              </table>
               <p:panel style="border: none; padding: 0;">
                 <p:dataTable var="impDetails" value="#{importFileDetailBean.impDetails}" id="myTable1" paginator="true"
                   rows="25" paginatorAlwaysVisible="false" emptyMessage="Sem registos encontrados!">
@@ -147,12 +147,10 @@
   </f:view>
 
 </body>
-<script type="text/javascript">
-  document.addEventListener("DOMContentLoaded", function () {
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
     const uploadArea = document.getElementById("upload-area");
     const excelFileInput = document.getElementById("file");
-
-    uploadArea.addEventListener("click", () => excelFileInput.click());
 
     excelFileInput.addEventListener("change", () => {
       if (excelFileInput.files.length > 0) {
@@ -241,5 +239,7 @@
     loadImportRules();
   });
 </script>
+
+
 
 </html>

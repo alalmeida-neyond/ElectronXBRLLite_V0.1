@@ -4,8 +4,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.example.demo.DTOs.OutValidationsDashboardDTO;
-import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.ConfImportRules;
 import com.example.demo.controller.Objects.Constants;
@@ -14,10 +12,11 @@ import com.example.demo.controller.Objects.ImportFileController;
 import com.example.demo.controller.Objects.Info;
 import com.example.demo.controller.Objects.Month;
 import com.example.demo.controller.Objects.Template;
+import com.example.demo.controller.Objects.Utils;
 import com.example.demo.controller.Objects.Year;
 import com.example.demo.controller.Objects.DAL.IODAL;
 import com.example.demo.controller.Objects.Entities.IO;
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
+import com.example.demo.service.ValidationService;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -75,9 +74,6 @@ public class DemoController extends DefaultBean{
                 .collect(Collectors.toList());
 
         getImportIOs(refData.getImportID(), true);
-
-        LOG.info("What");
-
         createTables();
     }
 
@@ -136,18 +132,7 @@ public class DemoController extends DefaultBean{
         ModelAndView modelAndView = new ModelAndView();
 
         init();
-        /*JPA<Object[]> jpa = new JPA<>(Object[].class);
-        List<Object[]> results = new ArrayList<>();
-
-        try {
-            results = jpa.getTypedNativeResultList("DetalhesValidacoes.sql");
-            modelAndView.addObject("results", results);
-        } catch (Exception e) {
-            LOG.error("Erro na query ValidationResults no Download XBRL:" + e.getMessage());
-            e.printStackTrace();
-        }*/
         
-
         modelAndView.setViewName("index");
         modelAndView.addObject("username", "Marcus Tremor"); // Dynamic username
         return modelAndView; // Thymeleaf template name (greeting.html)
@@ -232,6 +217,15 @@ public class DemoController extends DefaultBean{
         modelAndView.setViewName("import_file");
         return modelAndView;
     }
+
+    @GetMapping("/importFile/results")
+    @ResponseBody
+    public List<Object[]> getValidationResults() {
+        LOG.info("WHYYYYYY");
+        ValidationService validationService = new ValidationService();
+        return validationService.getValidationResults();
+    }
+
 
     @GetMapping("/importFileDetail")
     public ModelAndView importFileDetail() {
