@@ -4,6 +4,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.demo.DTOs.OutValidationsDashboardDTO;
+import com.example.demo.DTOs.ValidationResultsDetailsDTO;
+import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.ConfImportRules;
 import com.example.demo.controller.Objects.Constants;
 import com.example.demo.controller.Objects.DefaultBean;
@@ -133,6 +136,17 @@ public class DemoController extends DefaultBean{
         ModelAndView modelAndView = new ModelAndView();
 
         init();
+        /*JPA<Object[]> jpa = new JPA<>(Object[].class);
+        List<Object[]> results = new ArrayList<>();
+
+        try {
+            results = jpa.getTypedNativeResultList("DetalhesValidacoes.sql");
+            modelAndView.addObject("results", results);
+        } catch (Exception e) {
+            LOG.error("Erro na query ValidationResults no Download XBRL:" + e.getMessage());
+            e.printStackTrace();
+        }*/
+        
 
         modelAndView.setViewName("index");
         modelAndView.addObject("username", "Marcus Tremor"); // Dynamic username
@@ -209,6 +223,8 @@ public class DemoController extends DefaultBean{
         modelAndView.setViewName("download_template");
         return modelAndView;
     }
+
+    
 
     @GetMapping("/import_file")
     public ModelAndView importFile() {

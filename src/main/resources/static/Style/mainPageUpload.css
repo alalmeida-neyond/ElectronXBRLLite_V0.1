@@ -35,12 +35,19 @@
 .upload-icon {
   width: 60px;
   height: 60px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  object-fit: contain;
 }
 
 .upload-text {
   font-size: 16px;
   color: #333;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #333;
+  display: none;
 }
 
 .upload-link {
@@ -56,4 +63,10 @@
   height: 100%;
   opacity: 0;
   cursor: pointer;
+}
+
+.logContainer
+{
+  display: none;
+  overflow:scroll;
 }

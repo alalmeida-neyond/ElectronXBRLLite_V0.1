@@ -60,7 +60,7 @@ public class GenerationAction {
         return chosenFile;
     }
 
-    public void startGeneration(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io) {
+    public void startGeneration(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO ioImport, IO ioValidation) {
         List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(moduleVersion, domain, entity, referenceDate.toString());
         if (!operationsRunningFromIO.isEmpty()) {
             LOG.info(Constants.concurrentOperations + Constants.concurrentOperationsDesc);
@@ -71,7 +71,7 @@ public class GenerationAction {
                 + referenceDate.toString() + "_" + entity.getBdpId();
         try {
             XBRLGenerationController generationController = new XBRLGenerationController(threadName, moduleVersion, domain, entity, referenceDate);
-            generationController.xbrlGenerationMain(referenceDate,moduleVersion,domain,entity,io);
+            generationController.xbrlGenerationMain(referenceDate,moduleVersion,domain,entity,ioImport, ioValidation);
         } catch (Exception e) {
             LOG.warn("Geracao | Erro na pesquisa logs geracao", e);
             return;

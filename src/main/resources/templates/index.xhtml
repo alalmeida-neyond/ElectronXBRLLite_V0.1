@@ -36,7 +36,7 @@
       <div class="Sep"> </div>
       <br />
 
-      <div id="dvPageTitle">Módulo Importacao</div>
+      <div id="dvPageTitle">Carregar Ficheiro</div>
       <br />
 
       <div>
@@ -59,59 +59,20 @@
         <br />
         <br />
         <form id="uploadForm" method="post" th:action="@{/importFile/upload}" enctype="multipart/form-data">
-          <div class="dropdown">
-            <button type="button">Select Rules</button>
-            <div class="dropdown-content" id="rules-dropdown">
-            </div>
-          </div>
           <div class="upload-area" id="upload-area">
-            <img src="./Images/upload_icon.png" alt="Upload Icon" />
-            <div class="upload-text">
+            <img src="./Images/upload_icon.png" alt="Upload Icon"/>
+            <div class="upload-text" id="upload-text">
               Upload Ficheiros ou <span class="underline" style="color: blue; text-decoration: underline;">escolhe
                 aqui</span>
+            </div>
+            <div class="loading-text" id="loading-text">
+              A carregar...
             </div>
             <input type="file" id="file" name="file" class="upload-hidden-input" required accept=".xls,.xlsx" />
           </div>
         </form>
 
-        <div id="result"></div>
-        <!--Ver o que mais manter deste form sem ser o botão de cancelar-->
-        <h:form id="filenameForm" class="mt-0 pt-0 w-auto h-auto">
-          <h:outputLabel for="module" class="pl-1 pr-2" value="Módulo: " />
-          <p:inputText id="module"
-            style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;"
-            class="bg-grey" value="#{uploadModuleFile.module}" required="true" disabled="true" />
-          <h:outputLabel for="date" class="ml-3 pr-2" value="Data de referência: " />
-          <p:inputText id="date"
-            style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;"
-            class="mr-2 bg-gray-600" value="#{uploadModuleFile.year}" required="true" disabled="true" />
-          <p:inputText id="dateMonth"
-            style="background-color: lightslategray !important;color: ivory;font-size: medium;font-weight: normal;"
-            class="bg-gray-600" value="#{uploadModuleFile.month}" required="true" disabled="true" />
-          <h:outputLabel for="entity" class="ml-3 pl-1 pr-2" value="Entidade: " />
-          <p:inputText id="entity"
-            style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;"
-            value="#{uploadModuleFile.entity}" required="true" disabled="true" />
-          <h:outputLabel for="domain" class="ml-3 pl-1 pr-2" value="Domínio: " />
-          <p:inputText id="domain"
-            style="background-color: #033d51 !important;color: ivory;font-size: medium;font-weight: normal;"
-            value="#{uploadModuleFile.domain}" required="true" disabled="true" />
-          <h:inputHidden id="filename" value="#{uploadModuleFile.fileName}" />
-          <h:inputHidden id="submitDisableInfo" value="#{uploadModuleFile.isSubmitDisable}" />
-          <p:remoteCommand name="onFileSelectCommand" action="#{uploadModuleFile.OnFileChange()}"
-            update="module date dateMonth entity filename domain submitDisableInfo cancelarImpo msgs"
-            oncomplete="document.getElementById('uploadButton').disabled = (document.getElementById('filenameForm:submitDisableInfo').value === 'true') ;" />
-          <p:commandButton id="cancelarImpo" value="Cancelar" action="#{uploadModuleFile.cancelImport()}"
-            update="filenameForm" ajax="true" style="margin-left:-10px;margin-bottom: 8px; font-size:10px"
-            icon="pi pi-times" styleClass="btnRefresh" disabled="#{uploadModuleFile.isOperationOccuring}" />
-        </h:form>
-        <br />
-
-
-        <!-- inputFile  -->
-
-
-        <div id="logContainer" style="display: none;">
+        <div class="logContainer" >
           <div class="Sep"> </div>
           <br />
           <div id="dvPageTitle">Módulo Importacao</div>
@@ -127,7 +88,24 @@
                   style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px;" />
               </div>
             </div>
-            <div id="dvLogs">
+            <!--<div id="dvLogs">
+              <table>
+                  <thead>
+                      <tr>
+                          <th> Title </th>
+                          <th> Author </th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                <tr th:if="${books.empty}">
+                          <td colspan="14"> Sem registos encontrados! </td>
+                      </tr>
+                      <tr th:each="book : ${books}">
+                          <td><span th:text="${book.title}"> Title </span></td>
+                          <td><span th:text="${book.author}"> Author </span></td>
+                      </tr>
+                  </tbody>
+              </table>-->
               <p:panel style="border: none; padding: 0;">
                 <p:dataTable var="impDetails" value="#{importFileDetailBean.impDetails}" id="myTable1" paginator="true"
                   rows="25" paginatorAlwaysVisible="false" emptyMessage="Sem registos encontrados!">
@@ -215,6 +193,9 @@
       const formData = new FormData();
       formData.append("file", file);
 
+      document.getElementById("upload-text").style.display = "none";
+      document.getElementById("loading-text").style.display = "block";
+
       fetch("/importFile/upload", {
         method: "POST",
         body: formData
@@ -223,6 +204,8 @@
         .then(data => {
           document.getElementById("result").innerHTML = data;
           document.getElementById("logContainer").style.display = "block";
+          document.getElementById("upload-text").style.display = "block";
+          document.getElementById("loading-text").style.display = "none";
         })
         .catch(error => console.error("Error:", error));
     }

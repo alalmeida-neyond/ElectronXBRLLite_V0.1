@@ -76,7 +76,19 @@ A.logout:hover{text-decoration: underline;color:#FFF;}
 
 
 /* FOOTER *****************************************************************************************************************************/
-#dvFooterContainer{position: absolute; background-color: #F5F5F5; height: auto;width: 100%; border-top:1px solid #CFCFCF; padding-top:15px;font-size: 10px;}
+#dvFooterContainer{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background-color: #F5F5F5; 
+    height: auto;
+    width: 100%; 
+    border-top:1px solid #CFCFCF; 
+    padding-top:15px;
+    font-size: 10px;
+}
+
+/*#dvFooterContainer{position: absolute; background-color: #F5F5F5; height: auto;width: 100%; border-top:1px solid #CFCFCF; padding-top:15px;font-size: 10px;}*/
 
 /* END FOOTER *****************************************************************************************************************************/
 

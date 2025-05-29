@@ -6,7 +6,6 @@ package com.example.demo.controller.Objects.DAL;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -15,11 +14,9 @@ import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 
 import com.example.demo.DTOs.*;
-import com.example.demo.Data.Connection;
 import com.example.demo.Data.Access.*;
 import com.example.demo.controller.Objects.ConfEntities;
 import com.example.demo.controller.Objects.Constants;
-import com.example.demo.controller.Objects.Info;
 import com.example.demo.controller.Objects.Utils;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Import.*;
@@ -27,45 +24,6 @@ import com.example.demo.controller.Objects.Import.*;
 import jakarta.persistence.EntityManager;
 
 public class InImportedTablesDAL {
-    public static void createEmptyMap(List<ImportedTablesWithLockDTO> importedTables, String userId) {
-        JPA<InImportedTablesTemp> jpa = new JPA<>(InImportedTablesTemp.class);
-        IO io = null;
-        List<InImportedTablesTemp> importedTablesEmpty = new ArrayList<>();
-        try {
-            for (ImportedTablesWithLockDTO impTable : importedTables) {
-                io = new IO(Info.getInstance().getIOStateByID(Constants.processoOkDeleted),
-                        //new IOState(Constants.processoOkDeleted, new IOTypeState(Constants.tipoStateOK)),
-                        impTable.getImportedTable().getIo().getReferenceDate(),
-                        impTable.getImportedTable().getIo().getModule(),
-                        impTable.getImportedTable().getIo().getDomain(),
-                        impTable.getImportedTable().getIo().getEntity(),
-                        LocalDateTime.now(), LocalDateTime.now(),
-                        Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionImport)),//new ConfAction(Constants.actionImport),
-                        userId,
-                        impTable.getImportedTable().getIo().getFilename(),
-                        impTable.getImportedTable().getIo().getThreadFilename(),
-                        impTable.getImportedTable().getIo().getFilenameserver()
-                );
-                Connection.persist(jpa.getEm(), io);
-                
-                InImportedTablesTemp impTableAux = impTable.getImportedTable();
-                InImportedTablesTemp importedTableEmpty = new InImportedTablesTemp(
-                        io, 
-                        impTableAux.getTableVersion(), 
-                        impTableAux.getVariableVersion(), 
-                        impTableAux.getImportKey() , 
-                        impTableAux.getInitTimestamp(), 
-                        impTableAux.getEndTimestamp(), 
-                        impTableAux.getIoState(), 
-                        impTableAux.getDesagregationCode());
-                Connection.persist(jpa.getEm(), importedTableEmpty);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-    }
 
     public static List<InImportedTablesTemp> getListOfImportedMaps(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain, IO io) {
         JPA<InImportedTablesTemp> jpa = new JPA<>(InImportedTablesTemp.class);
@@ -125,39 +83,6 @@ public class InImportedTablesDAL {
             jpa.close();
         }
         return listOfMaps;
-    }
-
-    public static List<ImportedTablesWithLockDTO> getListOfImportedMapsWithLock(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain) {
-        JPA<Object[]> jpa = new JPA<>(Object[].class);
-        domain = domain != null ? (domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain) : null;
-        List<ImportedTablesWithLockDTO> importedTablesWithLock = new ArrayList<>();
-        List<Object[]> listOfMaps = new ArrayList<>();
-        String queryStr = Utils.getResource("GetImportedTablesWithLock.sql");
-        //queryStr = queryStr.concat(!triggeredByUser ? " FETCH FIRST 25 ROWS ONLY " : "");
-        try {
-
-            listOfMaps = jpa.getNativeResultListWithMapping(queryStr, "TablesWithLock",
-                    "processOkDeleted", String.valueOf(Constants.processoOkDeleted),
-                    "actionId", String.valueOf(Constants.actionImport),
-                    "actionGenerateId", String.valueOf(Constants.actionGeneration),
-                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
-                    "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE),
-                    "desagregationCodeFixedType", String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE),
-                    "referenceDate", referenceDate != null ? referenceDate.format(Constants.dateFormat) : null,
-                    "format",Constants.ISOBASEFORMAT,
-                    "domain", domain != null ? domain.toUpperCase() : null,
-                    "moduleVID", module != null ? String.valueOf(module.getModuleVID()) : null,
-                    "entityId", entity != null ? String.valueOf(entity.getEntityID()) : null);
-
-            for (Object[] obj : listOfMaps) {
-                importedTablesWithLock.add(new ImportedTablesWithLockDTO((InImportedTablesTemp) obj[0], obj[1] == null ? false : true));
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-        return importedTablesWithLock;
     }
 
     public static List<Object[]> getImportedTableByTableVIDAndDesagregationCode(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain) {

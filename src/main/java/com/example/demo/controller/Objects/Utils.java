@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.sql.Clob;
 import java.sql.Timestamp;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
@@ -34,6 +35,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import java.io.BufferedReader;
+import java.io.Reader;
+
+
 
 import com.example.demo.controller.Objects.Entities.*;
 
@@ -396,6 +401,19 @@ public final class Utils {
                     objString = objBigDecimal.toString();
                 } else if (obj == null) {
                     objString = "null";
+                } else if (obj instanceof Clob) {
+                    StringBuilder sb = new StringBuilder();
+                    try (Reader reader = ((Clob) obj).getCharacterStream();
+                        BufferedReader br = new BufferedReader(reader)) {
+                        
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line).append(System.lineSeparator());
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to convert CLOB to String", e);
+                    }
+                    objString = sb.toString().trim();
                 } else {
                     objString = obj.toString();
                 }

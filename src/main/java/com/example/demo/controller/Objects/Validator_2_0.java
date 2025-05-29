@@ -166,7 +166,7 @@ public class Validator_2_0 implements Runnable {
         return OperationsUtils.mapResultsFromDatabase(results, refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
     }
     
-    public void validateOperations(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io) {
+    public void validateOperations(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO ioImport) {
         boolean hasErrors = false;
         OutValidationResult commonDatapointValidationResult = null;
 
@@ -181,20 +181,11 @@ public class Validator_2_0 implements Runnable {
         try {
             em = new ConnectionManager();
             long initAllProcess = System.nanoTime();
-            ioValidation = io;
-            ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoPending));
-            ioValidation.setReferenceDate(referenceDate);
-            ioValidation.setModule(moduleVersion);
-            ioValidation.setDomain(domain);
-            ioValidation.setEntity(entity);
-            ioValidation.setInitTimestamp(LocalDateTime.now());
-            ioValidation.setAction(Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionValidation)));
-            ioValidation.setUserId("Validation");
-            /*ioValidation = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
+            ioValidation = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
                     Info.getInstance().getIOStateByID(Constants.processoPending),
                     refDate, moduleVersion, domain, entity, 
                     LocalDateTime.now(), Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionValidation))
-                    , userID);*/
+                    , "Validation");
             Connection.persist(em, ioValidation);
 
             LOG.info("Processo de validacao iniciado: " + LocalDateTime.now());
@@ -217,7 +208,7 @@ public class Validator_2_0 implements Runnable {
                 
                 Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = getNodes(tableVId);
                 
-                List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity, io);
+                List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity, ioImport);
                 commonDatapointValidationResult = validateCommonDatapoints(possibleDatapointsConflicts, em);
                 if (commonDatapointValidationResult != null) {
                     OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, commonDatapointValidationResult);
@@ -252,7 +243,7 @@ public class Validator_2_0 implements Runnable {
                         Integer preConditionVId = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getPreconditonOperationVId();
                         if (!resultPerPrecondition.containsKey(preConditionVId)) {
                             Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByPreconditionVIdByLevel.get(preConditionVId);
-                            validatePrecondition(preConditionVId, nodesMappedByLevel, resultPerPrecondition, io);
+                            validatePrecondition(preConditionVId, nodesMappedByLevel, resultPerPrecondition, ioImport);
                         }
 
                         ValResult preConditionResult = resultPerPrecondition.get(preConditionVId);
@@ -271,7 +262,7 @@ public class Validator_2_0 implements Runnable {
                             LOG.info("Avaliacao da regra: " + operationVId);
 
                             //obtém os dados para validar
-                            Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId, io);
+                            Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId, ioImport);
                             Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
 
                             //valida a operacao
@@ -349,7 +340,7 @@ public class Validator_2_0 implements Runnable {
             ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
             Connection.merge(em, ioValidation);
             
-            int persistResult = persistIntoValidationsDashboard(em, io);
+            int persistResult = persistIntoValidationsDashboard(em, ioImport);
             if(persistResult != 1){
                 LogValidationProcess logValProcessErrorInsertDashboard = new LogValidationProcess(ioValidation, "Ocorreu um erro na insercao dos dados para consulta no Dashboard de Validacoes.", LocalDateTime.now());
                 LOG.error("Ocorreu um erro na insercao dos dados para consulta no Dashboard de Validacoes.");
@@ -364,7 +355,7 @@ public class Validator_2_0 implements Runnable {
             LOG.info("Generation Start");
             GenerationAction generationAction = new GenerationAction();
 
-            generationAction.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
+            generationAction.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, ioImport, ioValidation);
         } catch (Exception e) {
             LOG.error("Ocorreu um erro no processo de validacao: " + e.getMessage());
             e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.example.demo.controller.Objects.ActionPhases;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import java.util.Comparator;
@@ -23,14 +25,18 @@ import java.util.Comparator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jboss.logging.Logger;
 
 import com.example.demo.DTOs.OutValidationsDashboardDTO;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.Utils;
+import com.example.demo.controller.Objects.DAL.LockAssociationDAL;
+import com.example.demo.controller.Objects.DAL.OutValidationResultDAL;
 import com.example.demo.controller.Objects.Entities.IO;
 import com.example.demo.controller.Objects.Entities.ModuleVersion;
+import com.example.demo.controller.Objects.Lock.LockAssociation;
 
 public class DownloadAction {
     private final Logger LOG = Logger.getLogger(DownloadAction.class);
@@ -110,7 +116,9 @@ public class DownloadAction {
         }
     }
 
-    public void startDownload(String finalFolder, IO io) {
+    public void startDownload(String finalFolder, IO ioValidation) {
+        SXSSFWorkbook validationsWorkbook = null;
+        ByteArrayOutputStream bos_validations = null;
         try {
 
             List<OutValidationsDashboardDTO> lastValidationResult = getLastValidationResult();
@@ -121,42 +129,23 @@ public class DownloadAction {
 
             OutValidationsDashboardDTO lastValidation = lastValidationResult.get(0);
 
-            Workbook workbook = new XSSFWorkbook();
+            List<Object[]> validationData = new ArrayList<>();
+            
+            validationData = OutValidationResultDAL.getValidationResultsDetailsForGeneration(ioValidation);
+            
+            
+            Object[] validationHeader = new Object[]{"Ref. Date", "Módulo", "Entidade", "Domínio", "Relatório", "Regra Código","Severidade", "Domínio Regra",
+                 "Origem Regra", "Regra com valores", "Origem",	"Resultado", "Data processamento", "Diferença", "Margem"};
+            Map<Integer, Object[]> validationHashmap = Utils.createHashMapForExcel(validationData, validationHeader);
 
-            Sheet sheet = workbook.createSheet("Results");
+            validationsWorkbook = new SXSSFWorkbook();
+            validationsWorkbook = Utils.createSpreadSheet("Validações", validationHashmap, validationsWorkbook);
 
-            Row headerRow = sheet.createRow(0);
+            String filenameValidations = "Validations_" + ioValidation.getEntity().getBdpId() + "_" + ioValidation.getModule().getCode().replace("_", "") + "_" + ioValidation.getDomain() + "_" + ioValidation.getReferenceDate() + ".xlsx";
 
-            headerRow.createCell(0).setCellValue("Reference Date");
-            headerRow.createCell(1).setCellValue("Module");
-            headerRow.createCell(2).setCellValue("Domain");
-            headerRow.createCell(3).setCellValue("Entity");
-            headerRow.createCell(4).setCellValue("Mandatory Reports Imported");
-            headerRow.createCell(5).setCellValue("Rules OK");
-            headerRow.createCell(6).setCellValue("Do Not Run Rules");
-            headerRow.createCell(7).setCellValue("Rules Error");
-            headerRow.createCell(8).setCellValue("Rules Not OK");
-            headerRow.createCell(9).setCellValue("Total Rules");
-            headerRow.createCell(10).setCellValue("Rules Expected to Run");
-            headerRow.createCell(11).setCellValue("Timestamp");
-
-            Row valueRow = sheet.createRow(1);
-
-            valueRow.createCell(0).setCellValue(lastValidation.getRefDate().toString());
-            valueRow.createCell(1).setCellValue(lastValidation.getModule());
-            valueRow.createCell(2).setCellValue(lastValidation.getDomain());
-            valueRow.createCell(3).setCellValue(lastValidation.getEntity());
-            valueRow.createCell(4).setCellValue(lastValidation.getMandatoryReportsImported());
-            valueRow.createCell(5).setCellValue(lastValidation.getNOk());
-            valueRow.createCell(6).setCellValue(lastValidation.getNDNRR());
-            valueRow.createCell(7).setCellValue(lastValidation.getNError());
-            valueRow.createCell(8).setCellValue(lastValidation.getNProcessNotOk());
-            valueRow.createCell(9).setCellValue(lastValidation.getNTotal());
-            valueRow.createCell(10).setCellValue(lastValidation.getNExpectedToRun());
-            valueRow.createCell(11).setCellValue(lastValidation.getTimestamp());
-
+            excelFilePath = Paths.get(finalFolder + Utils.getSeparator(), filenameValidations);
             try (FileOutputStream out = new FileOutputStream(excelFilePath.toString())) {
-                workbook.write(out);
+                validationsWorkbook.write(out);
             }
 
             Path zipFile = Paths.get(finalFolder + Utils.getSeparator(), finalFolder + ".zip");
@@ -164,12 +153,12 @@ public class DownloadAction {
             Path finalPackage = Paths.get(finalFolder + "_FinalPackage");
             Files.createDirectories(finalPackage);
             Path finalFolderPath = Paths.get(finalFolder);
-            Path excelFileFinalPath = finalFolderPath.resolve("ResultsValidation.csv");
+            Path excelFileFinalPath = finalFolderPath.resolve(filenameValidations);
             Files.copy(excelFileFinalPath, finalPackage.resolve(excelFileFinalPath.getFileName()),
                     StandardCopyOption.REPLACE_EXISTING);
             Files.delete(excelFileFinalPath);
             
-            copyJSONs(finalFolder, io.getModule());
+            copyJSONs(finalFolder, ioValidation.getModule());
 
             organizeFiles(finalFolder);
 
@@ -187,7 +176,7 @@ public class DownloadAction {
 
             zipFolder(finalPackage);
 
-            workbook.close();
+            validationsWorkbook.close();
 
             cleanUp();
 
