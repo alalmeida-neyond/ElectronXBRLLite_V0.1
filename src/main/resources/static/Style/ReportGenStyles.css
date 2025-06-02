@@ -7,7 +7,7 @@
 .bg-grey:hover{
     background-color: lightslategray !important;
 }
-body{font-size: 12px; font-family: arial;margin: 0px;}
+body{font-size: 12px; font-family: 'Muli';margin: 0px;}
 
 image {border:0px;  }
 a{color:#000000;text-decoration:none;cursor:pointer}
@@ -21,9 +21,9 @@ a:hover{color:#eb2a2d;}
     #footer{bottom: 0;}
 }
 #dvFooter{font-size: 10px;position: absolute;width: 100%;}
-#dvPageTitle {font-family: arial; font-size: 20px;font-weight: bold; background-color:#F5F5F5; border: 1px solid #CFCFCF; padding:5px}
+#dvPageTitle {font-family: 'Muli'; font-size: 20px;font-weight: bold; background-color:#F5F5F5; border: 1px solid #CFCFCF; padding:5px}
 .Sep {border-bottom: 1px solid #CFCFCF;}
-.SepRed {display: flex; background-color: #033d51; font-family: arial; height: 25px; width:100%; align-items: center}
+.SepRed {display: flex; background-color: #033d51; font-family: 'Muli'; height: 25px; width:100%; align-items: center}
 .tblRow {width: 500px; text-align: left;}
 .tblRowImp {text-align: left;}
 .btnRefresh{font-size:9px;margin:5px auto; text-align: center; vertical-align: middle;}
@@ -49,26 +49,6 @@ padding-right: 9px;
 .tblHeader{color:#fff;}
 
 /*END HEADER *****************************************************************************************************************************/
-
-/*MENU*****************************************************************************************************************************/
-#dvMenu{background-color:#FFF;margin-bottom: 3px; height: 35px;}
-.dvMenuItem  {display:inline-table;font-size:14px; width:160px;text-align: center ;background-color: #F5F5F5;margin-right: 3px;height: 20px;padding:10px 5px 5px 5px ;color:#000;border: 1px solid #CFCFCF;border-top-left-radius: 5px;border-top-right-radius: 5px; float: left;}
-.dvMenuItemOn{display:inline-table;font-size:14px; width:160px;text-align: center ;background-color: #CFCFCF;margin-right: 3px;height: 20px;padding:10px 5px 5px 5px ;color:#000;border: 1px solid #2E2E2E;border-top-left-radius: 5px;border-top-right-radius: 5px;font-weight: bold; float: left;}
-.dvMenuLog  {display:inline-table;font-size:14px; width:40px;text-align: center ;background-color: #F5F5F5;margin-right: 3px;height: 20px;padding:10px 5px 5px 5px ;color:#000;border: 1px solid #CFCFCF;border-top-left-radius: 5px;border-top-right-radius: 5px; float: right;}
-.dvMenuLogOn{display:inline-table;font-size:14px; width:40px;text-align: center ;background-color: #CFCFCF;margin-right: 3px;height: 20px;padding:10px 5px 5px 5px ;color:#000;border: 1px solid #2E2E2E;border-top-left-radius: 5px;border-top-right-radius: 5px;font-weight: bold; float: right;}
-
-#dvSubMenu{background-color:#FFF;margin-bottom: 3px; height: 20px;}
-.dvSubMenuItem{display:inline-table;font-size:12px; width:100px;text-align: center ;background-color: #F5F5F5;margin-right: 3px;height: 14px;padding:5px 2px 2px 2px ;color:#000;border: 1px solid #CFCFCF;border-top-left-radius: 5px;border-top-right-radius: 5px; float : left;}
-.dvSubMenuItemOn{display:inline-table;font-size:12px; font-weight: bold;width:100px;text-align: center ;background-color: #CFCFCF;margin-right: 3px;height: 14px;padding:5px 2px 2px 2px ;color:#000;border: 1px solid #2E2E2E;border-top-left-radius: 5px;border-top-right-radius: 5px; float:left;}
-#dvSubMenu2{background-color:#FFF;margin-bottom: 3px; height: 20px;}
-.dvSubMenuItem2{display:inline-table;font-size:11px; width:80px;text-align: center ;background-color: #F5F5F5;margin-right: 3px;height: 14px;padding:5px 2px 2px 2px ;color:#000;border: 1px solid #CFCFCF;border-top-left-radius: 5px;border-top-right-radius: 5px; float : left;}
-.dvSubMenuItem2On{display:inline-table;font-size:11px; font-weight: bold;width:80px;text-align: center ;background-color: #CFCFCF;margin-right: 3px;height: 14px;padding:5px 2px 2px 2px ;color:#000;border: 1px solid #2E2E2E;border-top-left-radius: 5px;border-top-right-radius: 5px; float:left;}
-#dvSubMenu3{background-color:#FFF;margin-bottom: 3px; height: 20px; width: 100px}
-.dvSubMenuItem3{display:inline-table;font-size:11px; width:100px;text-align: center ; vertical-align: central;background-color: #F5F5F5;margin-right: 3px;height: 14px;padding:3px 1px 1px 1px ;color:#000;border: 1px solid #CFCFCF;border-top-left-radius: 5px;border-top-right-radius: 5px; float : left;}
-.dvSubMenuItem3On{display:inline-table;font-size:11px; font-weight: bold;width:100px;text-align: center ;background-color: #CFCFCF;margin-right: 3px; vertical-align: central; height: 14px;padding:3px 1px 1px 1px ;color:#000;border: 1px solid #2E2E2E;border-top-left-radius: 5px;border-top-right-radius: 5px; float:left;}
-
-/*END MENU*/
-
 
 #mainContainer{margin: 10px 10px 0px 10px;min-height:100%; position:relative;}
 .logout{color:#FFF;}

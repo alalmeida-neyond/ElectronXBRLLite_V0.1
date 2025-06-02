@@ -15,6 +15,7 @@
   align-items: center;
   transition: background-color 0.3s ease;
   box-sizing: border-box;
+  font-family: 'Muli';
 }
 
 .upload-hidden-input {
@@ -26,6 +27,7 @@
   opacity: 0;
   cursor: pointer;
   z-index: 2;
+  font-family: 'Muli';
 }
 
 
@@ -46,17 +48,20 @@
   text-align: center;
   max-width: 90%;
   word-wrap: break-word;
+  font-family: 'Muli';
 }
 
 .loading-text {
   font-size: 16px;
   color: #333;
   display: none;
+  font-family: 'Muli';
 }
 
 .upload-link {
   color: blue;
   text-decoration: underline;
+  font-family: 'Muli';
 }
 
 .upload-input {
@@ -67,10 +72,53 @@
   height: 100%;
   opacity: 0;
   cursor: pointer;
+  font-family: 'Muli';
 }
 
-.logContainer
+#logContainer
 {
   display: none;
   overflow:scroll;
 }
+
+.table-wrapper {
+  max-width: 95%;
+  margin: 0 auto;
+  border: none;
+  overflow-y: auto;
+  max-height: 400px;
+  position: sticky;
+}
+
+.fixed-header-table {
+  width: 100%;
+  border-spacing: 0 !important;
+  border-collapse: separate !important;
+  table-layout: fixed; 
+  background-color: lightgrey;
+}
+
+.fixed-header-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: lightgrey;
+  z-index: 1;
+  padding: 10px;
+  text-align: center;
+  width: 14.28%; 
+  font-family: 'Muli';
+  border: none !important;
+}
+
+.fixed-header-table td {
+  border: none !important;
+  padding: 10px;
+  text-align: center;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  width: 14.28%; 
+  font-family: 'Muli';
+  background-color: lightgrey;
+}
+

@@ -1,9 +1,8 @@
 WITH lastIo AS (
     SELECT io.ioid
     FROM io
-    WHERE io.actionid = 2
-    ORDER BY io.ioid DESC
-    LIMIT 1
+    WHERE io.actionid = 2 and io.ioid= :ioId
+    
 ),
 ruleDetailIo AS (
     SELECT io.ioid, io.modulevid, io.entityid, io.domain, io.referenceDate
@@ -47,7 +46,7 @@ operationsWithSeverity AS (
     GROUP BY maxV.validationresultid, maxV.operationvid
 ),
 resultsPerOperation AS (
-    SELECT owv.validationresultid, owv.operationvid, op.code AS ruleCode, opv.expression AS rule, owv.severity, 'EBA' AS source
+    SELECT owv.validationresultid, owv.operationvid, op.code AS regraCode, opv.expression AS regra, owv.severity, 'EBA' AS source
     FROM operationsWithSeverity owv
     LEFT JOIN operationVersion opv ON opv.operationVid = owv.operationVid
     LEFT JOIN operation op ON op.operationId = opv.operationId
@@ -60,12 +59,12 @@ validationResults AS (
 resultsDetailsRunnedRules AS (
     SELECT rv.module, rv.entity, rv.domain, 
            STRFTIME('%Y-%m-%d', rv.referenceDate) AS referenceDate,
-           rv.ruleCode, rv.rule, rv.severity, 'EBA' AS source,
-           vrd.domain AS ruleDomain, vrd.expression AS executedRule, 
-           sd.description AS result,
-           datetime(vrd.timestamp / 1000.0, 'unixepoch') AS processedDate,
+           rv.regraCode, rv.regra, rv.severity, 'EBA' AS origem,
+           vrd.domain AS regraDomain, vrd.expression AS regraExecutada, 
+           sd.description AS resultado,
+           datetime(vrd.timestamp / 1000.0, 'unixepoch') AS dataProcessamento,
            COALESCE(CAST(vrd.difference AS TEXT), '-') AS difference,
-           vrd.usedmargin
+           vrd.usedmargin as usedMargin
     FROM out_validationresultdetails vrd
     INNER JOIN validationResults rv ON vrd.validationresultid = rv.validationresultid
     INNER JOIN io_state sd ON vrd.stateid = sd.io_stateid
@@ -73,10 +72,10 @@ resultsDetailsRunnedRules AS (
 resultsDetailsNotRunnedRules AS (
     SELECT rv.module, rv.entity, rv.domain, 
            STRFTIME('%Y-%m-%d', rv.referenceDate) AS referenceDate,
-           rv.ruleCode, rv.rule, rv.severity, 'EBA' AS source,
-           NULL AS ruleDomain, NULL AS executedRule, 
-           sr.description AS result,
-           NULL AS processedDate, NULL AS difference, '0' AS usedmargin
+           rv.regraCode, rv.regra, rv.severity, 'EBA' AS origem,
+           NULL AS regraDomain, NULL AS regraExecutada, 
+           sr.description AS resultado,
+           NULL AS dataProcessamento, NULL AS difference, '0' AS usedMargin
     FROM validationResults rv
     INNER JOIN out_validationresult vr ON vr.validationresultid = rv.validationresultid
     LEFT JOIN out_validationresultdetails vrd ON vrd.validationresultid = vr.validationresultid

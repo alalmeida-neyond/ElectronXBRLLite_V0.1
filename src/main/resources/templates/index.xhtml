@@ -72,15 +72,10 @@
           </div>
         </form>
 
-        <div class="logContainer">
+        <div class="logContainer" id="logContainer">
           <div class="Sep"> </div>
           <br />
-          <div id="dvPageTitle">Módulo Importacao</div>
-          <br />
-          <strong>Aqui pode consultar os logs associados a cada relatório importado.</strong>
-          <br /><br />
-          <div class="Sep"> </div>
-          <br />
+          <div id="dvPageTitle">Resultado das Validações</div>
           <div>
             <div class="SepRed">
               <div>
@@ -88,67 +83,40 @@
                   style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px;" />
               </div>
             </div>
-            <div id="dvLogs">
-              <table id="validationTable" border="1">
+
+            <div class="table-wrapper">
+              <table id="validationTable" class="fixed-header-table">
                 <thead>
                   <tr>
-                    <th>Reference Date</th>
-                    <th>Module</th>
-                    <th>Entity</th>
-                    <th>Domain</th>
-                    <th>Rule</th>
-                    <th>Result</th>
-                    <th>Processed Date</th>
-                    <!-- Add more headers as needed -->
+                    <th>IOID</th>
+                    <th>Módulo</th>
+                    <th>Entidade</th>
+                    <th>Domínio</th>
+                    <th>Data de Referência</th>
+                    <th>Detalhes</th>
                   </tr>
                 </thead>
-                <tbody id="validationTableBody">
-                  <!-- Rows will be injected here by JS -->
-                </tbody>
+                <tbody id="validationTableBody"></tbody>
               </table>
-              <p:panel style="border: none; padding: 0;">
-                <p:dataTable var="impDetails" value="#{importFileDetailBean.impDetails}" id="myTable1" paginator="true"
-                  rows="25" paginatorAlwaysVisible="false" emptyMessage="Sem registos encontrados!">
-                  <p:column headerText="Módulo" style="text-align: center; width: 5%">
-                    <h:outputText value="#{impDetails.code}" />
-                  </p:column>
-                  <p:column headerText="Entidade" style="text-align: center; width: 10%">
-                    <h:outputText value="#{impDetails.entity}" />
-                  </p:column>
-                  <p:column headerText="Domínio" style="text-align: center; width: 3%">
-                    <h:outputText value="#{impDetails.domain}" />
-                  </p:column>
-                  <p:column headerText="Data referência" style="text-align: center; width: 5%">
-                    <h:outputText value="#{impDetails.referenceDate}" />
-                  </p:column>
-                  <p:column headerText="Descricao" style="text-align: center;">
-                    <h:outputText value="#{impDetails.description}" />
-                  </p:column>
-                  <p:column headerText="Data" style="text-align: center; width: 10%">
-                    <h:outputText value="#{impDetails.timestamp}" />
-                  </p:column>
-                </p:dataTable>
-              </p:panel>
             </div>
+
           </div>
         </div>
 
-      </div>
 
 
 
-
-      <!--++++++++++++ FOOTER +++++++++++-->
-      <div id="footer">
-        <div th:replace="~{Layouts/footer}"></div>
-      </div>
-      <!--++++++++++++++++++++++++++++-->
+        <!--++++++++++++ FOOTER +++++++++++-->
+        <div id="footer">
+          <div th:replace="~{Layouts/footer}"></div>
+        </div>
+        <!--++++++++++++++++++++++++++++-->
 
   </f:view>
 
 </body>
 <script>
- document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
     const uploadArea = document.getElementById("upload-area");
     const excelFileInput = document.getElementById("file");
 
@@ -176,17 +144,6 @@
       }
     });
 
-    function validateFile(input) {
-      var file = input.files[0];
-      if (file) {
-        var fileName = file.name.toLowerCase();
-        if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls")) {
-          alert("Tipo de ficheiro inválido. Por favor carrega um ficheiro Excel (.xls ou .xlsx).");
-          input.value = "";
-        }
-      }
-    }
-
     function uploadFile(file) {
       const formData = new FormData();
       formData.append("file", file);
@@ -200,45 +157,149 @@
       })
         .then(response => response.text())
         .then(data => {
-          document.getElementById("result").innerHTML = data;
           document.getElementById("logContainer").style.display = "block";
           document.getElementById("upload-text").style.display = "block";
           document.getElementById("loading-text").style.display = "none";
+          fetchIOs(); // fetch and show the updated list of IOs
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+          console.error("Erro no upload:", error);
+          document.getElementById("upload-text").style.display = "block";
+          document.getElementById("loading-text").style.display = "none";
+        });
     }
 
-    async function loadImportRules() {
-      try {
-        const res = await fetch('/api/rules');
-        const rules = await res.json();
-
-        console.log("Fetched rules:", rules);
-
-        const container = document.getElementById('rules-dropdown');
-        container.innerHTML = '';
-
-        rules.forEach(rule => {
-          const input = document.createElement('input');
-          input.type = 'checkbox';
-          input.value = rule.importRuleID;
-          input.checked = rule.alwaysRun;
-          input.disabled = rule.alwaysRun;
-
-          const label = document.createElement('label');
-          label.style.display = "block";
-          label.appendChild(input);
-          label.appendChild(document.createTextNode(' ' + rule.ruleName));
-          container.appendChild(label);
+    function fetchIOs() {
+      fetch("/importFile/results")
+        .then(res => {
+          console.log("Start");
+          if (res.ok != true) {
+            throw new Error("Erro ao obter os IOs");
+          }
+          console.log(res);
+          console.log(res.ok);
+          return res.json();
+        })
+        .then(data => {
+          console.log("Going to Populate Table")
+          populateMainTable(data);
+        })
+        .catch(err => {
+          console.error("Erro ao buscar os IOs:", err);
         });
-      } catch (err) {
-        console.error("Failed to load rules:", err);
+    }
+
+    function populateMainTable(ioList) {
+      const tableBody = document.getElementById("validationTableBody");
+      tableBody.innerHTML = "";
+
+      ioList.forEach(io => {
+        const tr = document.createElement("tr");
+        console.log("IO" + io);
+        console.log(io[0]);
+        tr.appendChild(createCell(io[0]));
+        tr.appendChild(createCell(io[1]));
+        tr.appendChild(createCell(io[2]));
+        tr.appendChild(createCell(io[3]));
+        tr.appendChild(createCell(io[4]));
+
+        const detailBtnTd = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.textContent = "Expandir";
+        btn.classList.add("expand-btn");
+        btn.onclick = () => toggleDetails(io[0], btn);
+        detailBtnTd.appendChild(btn);
+        tr.appendChild(detailBtnTd);
+
+        tableBody.appendChild(tr);
+
+        const detailRow = document.createElement("tr");
+        detailRow.style.display = "none";
+        detailRow.className = "detail-row";
+
+        const detailTd = document.createElement("td");
+        detailTd.colSpan = 6;
+        detailTd.innerHTML = `<div id="detail-${io[0]}">A carregar...</div>`;
+        detailRow.appendChild(detailTd);
+
+        tableBody.appendChild(detailRow);
+      });
+    }
+
+    function toggleDetails(ioid, button) {
+      const row = button.closest("tr").nextElementSibling;
+      const container = document.getElementById(`detail-${ioid}`);
+
+      if (row.style.display === "none") {
+        row.style.display = "table-row";
+        button.textContent = "Recolher";
+
+        if (!container.dataset.loaded) {
+          fetch(`/importFile/results/${ioid}`)
+            .then(res => res.json())
+            .then(details => {
+              const table = document.createElement("table");
+              table.className = "fixed-header-table";
+              table.innerHTML = `
+                <thead>
+                  <tr>
+                    <th>Regra</th>
+                    <th>Severidade</th>
+                    <th>Resultado</th>
+                    <th>Data Processamento</th>
+                  </tr>
+                </thead>
+                <tbody>
+              ${details.map(d => {
+                const resultado = d.resultado ?? "-";
+                console.log("Resultado Regra:" + resultado);
+                let color = "";
+
+                if (resultado === "Rule Ok") {
+                  color = "green";
+                } else if (resultado === "Rule Do Not Run") {
+                  color = "orange";
+                } else if (resultado === "Rule Not Ok") {
+                  color = "red";
+                }
+
+                return `
+                  <tr>
+                    <td>${d.regra ?? "-"}</td>
+                    <td>${d.severity ?? "-"}</td>
+                    <td style="color:${color}; font-weight: bold;">${resultado}</td>
+                    <td>${d.dataProcessamento ?? "-"}</td>
+                  </tr>`;
+              }).join("")}
+            </tbody>
+              `;
+              container.innerHTML = "";
+              container.appendChild(table);
+              container.dataset.loaded = "true";
+            })
+            .catch(err => {
+              container.innerHTML = "Erro ao carregar detalhes.";
+              console.error(err);
+            });
+        }
+      } else {
+        row.style.display = "none";
+        button.textContent = "Expandir";
       }
     }
 
-    loadImportRules();
+    function createCell(value) {
+      const td = document.createElement("td");
+      td.textContent = value ?? "-";
+      return td;
+    }
+
+    // On page load, optionally fetch existing IOs
+    fetchIOs();
   });
 </script>
+
+
 
 
 

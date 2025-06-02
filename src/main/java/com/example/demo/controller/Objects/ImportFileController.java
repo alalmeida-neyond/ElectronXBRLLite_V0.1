@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.*;
@@ -83,10 +84,17 @@ public class ImportFileController extends DefaultBean {
     }
 
     @PostMapping("/upload")
-    public void handleFileUpload(@RequestParam("file") MultipartFile file) {
-        setFile(file);
-        // LOG.info("Successful\n" + file.getOriginalFilename() + " is uploaded.");
-        upload();
+    @ResponseBody
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        try {
+            setFile(file);
+            // LOG.info("Successful\n" + file.getOriginalFilename() + " is uploaded.");
+            upload();
+            return ResponseEntity.ok("File uploaded successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed: " + e.getMessage());
+        }
+        
     }
 
     public void upload() {
@@ -276,12 +284,18 @@ public class ImportFileController extends DefaultBean {
         List<Integer> aux = Stream
                 .concat(getListOfImportRulesToApply().stream(), listOfImportRulesToAlwaysApply.stream())
                 .collect(Collectors.toList());
-        Thread t = new Thread(new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(),
+
+        ModuleFileImport importExecution = new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(),
+                getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux);
+
+        importExecution.run();
+
+        /*Thread t = new Thread(new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(),
                 getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux));
         // Thread t = new Thread(new ModuleFileImport(file, originalFileName,
         // getDomainExecution(), getReferenceDate().format(Constants.dateFormat),
         // getModuleVersionExecution(), filenameOnServer, aux));
-        t.setName(Constants.IMPORT + filenameOnServer);
+        t.setName(Constants.IMPORT + filenameOnServer);*/
         /*
          * LOG.info("Size:" + aux.size());
          * //LOG.info("Entity:" + getEntityExecution().getDescription());
@@ -289,7 +303,7 @@ public class ImportFileController extends DefaultBean {
          * LOG.info("ReferenceDate:" + getReferenceDate().format(Constants.dateFormat));
          * LOG.info("ModuleVersion:" + getModuleVersionExecution().getName());
          */
-        t.start();
+        /*t.start();*/
     }
 
     public String getFileName() {

@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.ConfImportRules;
 import com.example.demo.controller.Objects.Constants;
@@ -218,12 +219,22 @@ public class DemoController extends DefaultBean{
         return modelAndView;
     }
 
+    @GetMapping("/importFile/results/{id}")
+    @ResponseBody
+    public List<ValidationResultsDetailsDTO> getValidationResults(@PathVariable("id") Integer ioId) {
+        LOG.info("Validation");
+        ValidationService validationService = new ValidationService();
+        return validationService.getValidationResults(ioId);
+    }
+
     @GetMapping("/importFile/results")
     @ResponseBody
-    public List<Object[]> getValidationResults() {
-        LOG.info("WHYYYYYY");
+    public List<Object[]> getIOResults() {
+        LOG.info("IO");
         ValidationService validationService = new ValidationService();
-        return validationService.getValidationResults();
+        List<Object[]> validationResults = new ArrayList<Object[]>();
+        validationResults = validationService.getIOResults();
+        return validationResults;
     }
 
 

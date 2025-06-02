@@ -186,6 +186,10 @@ public class Validator_2_0 implements Runnable {
                     refDate, moduleVersion, domain, entity, 
                     LocalDateTime.now(), Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionValidation))
                     , "Validation");
+
+            ioValidation.setFilename(ioImport.getFilename());
+            ioValidation.setFilenameserver(ioImport.getFilenameserver());
+            ioValidation.setThreadFilename(ioImport.getThreadFilename());
             Connection.persist(em, ioValidation);
 
             LOG.info("Processo de validacao iniciado: " + LocalDateTime.now());
