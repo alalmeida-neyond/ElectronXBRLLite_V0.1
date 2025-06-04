@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.JPA;
-import com.example.demo.controller.Objects.*;
-import com.example.demo.controller.Objects.Entities.IO;
 public class ValidationService {
 
     public List<ValidationResultsDetailsDTO> getValidationResults(Integer ioId) {
@@ -32,8 +30,8 @@ public class ValidationService {
         List<Object[]> result = new ArrayList<Object[]>();
 
         try {
-            StringBuilder queryString = new StringBuilder("Select io.ioid as ioid, io.modulevid as module, io.entityid as entity");
-            queryString.append(", io.domain as domain, date(io.referencedate) as referenceDate, io.actionid");
+            StringBuilder queryString = new StringBuilder("Select io.ioid as ioid, io.io_stateid as stateid,io.modulevid as module");
+            queryString.append(", io.entityid as entity, io.domain as domain, date(io.referencedate) as referenceDate, io.actionid");
             queryString.append(" from IO io");
             queryString.append(" where io.ACTIONID = 2;");
             result = jpa.getTypedNativeResultList(queryString.toString());

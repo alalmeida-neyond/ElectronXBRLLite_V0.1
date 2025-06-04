@@ -34,7 +34,6 @@ public class TableVersionDPM implements Serializable {
     private String name;
 
     @Column(name = "DESCRIPTION")
-    //@Lob
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

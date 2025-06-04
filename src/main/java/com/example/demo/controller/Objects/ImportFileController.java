@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.*;
 
+import com.example.demo.Data.Access.Info;
+import com.example.demo.controller.Objects.Conf.*;
 import com.example.demo.controller.Objects.DAL.IODAL;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.service.ModuleFileImport;
@@ -47,10 +49,6 @@ public class ImportFileController extends DefaultBean {
     private List<ConfImportRules> listOfImportRules;
     private MultipartFile file;
 
-    /**
-     * method called when the page to list the imported files open, making sure
-     * the reported List is filled when the page loads
-     */
     @PostConstruct
     public void init() {
         setListOfImportRules(Info.getInstance().refDataGet(Constants.ConfImportRulesAll));

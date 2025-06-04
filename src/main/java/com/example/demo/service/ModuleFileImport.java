@@ -6,23 +6,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jboss.logging.Logger;
-import org.xml.sax.Attributes;
-import org.xml.sax.helpers.DefaultHandler;
-
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
+import com.example.demo.Data.Access.Info;
 import com.example.demo.Finrep.*;
 import com.example.demo.controller.Objects.*;
 import com.example.demo.controller.Objects.ActionPhases.ValidationAction;
+import com.example.demo.controller.Objects.Conf.*;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.DPMOrigin.Cell;
 import com.example.demo.controller.Objects.Entities.*;
@@ -32,14 +29,12 @@ import jakarta.validation.ConstraintViolationException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 
 
 public class ModuleFileImport implements Runnable{
     
     //main constructor to use in Import
     public ModuleFileImport(File inputFile, String filename, ConfEntities entity, String domain,LocalDate referenceDate,ModuleVersion moduleVersion, String filenameWithTimestamp, List<Integer> ruleIdsToApply) {
-    //public ModuleFileImport(File inputFile, String filename, String domain,String referenceDate,ModuleVersion moduleVersion, String filenameWithTimestamp, List<Integer> ruleIdsToApply) {
         this.inputFile = inputFile;
         this.filename = filename;
         this.entity = entity;
@@ -125,11 +120,9 @@ public class ModuleFileImport implements Runnable{
      * return NOK, OK, CANCEL, depending if it conclude with success, without success or have been canceled
      */
     private IOState mainImport(IO io, List<Integer> listOfIDImportRules){
-    //private IOState mainImport(List<Integer> listOfIDImportRules){
         EntityManager em = Connection.getEm();
         ConnectionManager cm = null;
         IOState ioState = null;
-        List<Object[]> importedTablesForModuleAndDateAndEntityAndDomain = new ArrayList<>();
         
         boolean hasOk = false;
         boolean hasNotOk = false;
@@ -163,8 +156,6 @@ public class ModuleFileImport implements Runnable{
             String value = null;
             String valueEdited = null;
             List<InImportedValuesTemp> openRowAuxListForPersiste = new ArrayList<>();
-            //importedTablesForModuleAndDateAndEntityAndDomain = InImportedTablesDAL.getImportedTableByTableVIDAndDesagregationCode(getModuleVersion(), getReferenceDate(), getEntity(), getDomain());
-            //importedTablesForModuleAndDateAndEntityAndDomain = InImportedTablesDAL.getImportedTableByTableVIDAndDesagregationCode(getModuleVersion(), getReferenceDate(), getDomain());
             boolean hasInsertedValue;
             List<String> errorMsgPerTables = new ArrayList<>();
             for (int sheet = 0; sheet < workBook.getNumberOfSheets(); sheet++) {
@@ -190,14 +181,12 @@ public class ModuleFileImport implements Runnable{
                 String fillingIndicatorWithUnderScores = fillingIndicator.replaceAll(" ", "_").trim();
 
                 LOG.info("FillinSize:" + fillingIndicatorModuleList.size());
-                //LOG.info("fillingIndicatorWithUnderScores" + fillingIndicatorWithUnderScores);
                 //Check if the filling indicator is possible
                 singleFillingIndicatorAsTableVersion = FillingIndicatorModuleService.getTableVersionFromList(fillingIndicatorModuleList,fillingIndicatorWithUnderScores);
                 if(singleFillingIndicatorAsTableVersion == null){
                     //LOG.info("Here");
                     continue;
                 }
-                //ImportLogManager.createNewImportLog("Importacao do mapa - " + sheetName + " iniciado", io.getIoId());
                 LOG.info("Importacao do mapa - " + sheetName + " iniciado");
                 headerDTOList = TableVersionHeaderDAL.getListOfHeaderForATableVid(singleFillingIndicatorAsTableVersion.getTableVID());
                 LOG.info("headerDTOListSize:" + headerDTOList.size());
@@ -226,9 +215,6 @@ public class ModuleFileImport implements Runnable{
                     variableVersionOfMap = varVersionMapList.stream().filter(varVersion -> varVersion.getCode().equals(codeTemp)).findFirst().orElse(null);
                 }
                 
-                
-                //InImportedTablesDAL.smashPrevious(importedTablesForModuleAndDateAndEntityAndDomain, singleFillingIndicatorAsTableVersion, desagregationCodeKey);
-                //smashManager.smashPrevious(singleFillingIndicatorAsTableVersion.getTableVID(), referenceDate, desagregationCodeAssociation, domain, entity, moduleVersion.getModuleVID());
                 InImportedTablesTemp importedTableTemp = new InImportedTablesTemp();
                 importedTableTemp.setIo(io);
                 importedTableTemp.setTableVersion(singleFillingIndicatorAsTableVersion);
@@ -253,7 +239,6 @@ public class ModuleFileImport implements Runnable{
                     try {
                         rowValue = ImportExcelValues.getCellValue(workSheet, i, excelPointStruct.getFirstColumn() - 2);
                     } catch (Exception e) {
-                        //e.printStackTrace();
                         //Erro nº da linha
                         errorMsgPerTables.add("Erro na obtencao da linha.");
                         continue;
@@ -285,13 +270,10 @@ public class ModuleFileImport implements Runnable{
                                 try {
                                     columnValue = ImportExcelValues.getCellValue(workSheet, excelPointStruct.getColumnLabelsRow() - 1, j);
                                 } catch (Exception e){
-                                    //e.printStackTrace();
                                     //Erro nº da coluna
 
                                     errorMsgPerTables.add("Erro na obtencao da coluna, na linha " + rowValue + ".");
-                                    //Skipped to the next row (Error occur)
-                                    //insertIntoTableBySheet.setIoState(new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
-                                    //em.persist(insertIntoTableBySheet);
+                                    
                                     continue;
                                 }
 
@@ -305,7 +287,6 @@ public class ModuleFileImport implements Runnable{
                                     value = ImportExcelValues.getCellValue(workSheet, i, j);
                                     valueEdited = value;
                                 } catch (Exception e) {
-                                    //e.printStackTrace();
                                     //Erro a obter valor
                                     errorMsgPerTables.add("Erro na obtencao do valor, na linha " + rowValue + " e na coluna " + columnValue + ".");
                                     continue;
@@ -362,10 +343,7 @@ public class ModuleFileImport implements Runnable{
                                     }
                                     
                                     if (cellType == Constants.ENUMERATION || (cellType == Constants.NOTAPPLICABLE && isOpenRow)) {
-                                        String valueTemp = value; //WHY JAVA THIS IS SO DUMB
-                                        /* A abordagem original não funcionava porque a insercao de informacao da variável "value" só 
-                                        acontecia num Try Catch, logo tentar chamar essa variável não daria o valor ou daria o valor 
-                                        inicial (NULL)*/
+                                        String valueTemp = value; 
                                         //Error
                                         if (!ListItemsMapped.get(columnValue).isEmpty()) {
                                             List<DatapointItensDTO> auxDatapointDTOListOfColumn = new ArrayList<>();
@@ -450,8 +428,7 @@ public class ModuleFileImport implements Runnable{
                                 if(notInsertedInImportedValuesPerSheet){
                                     notInsertedInImportedValuesPerSheet=false;
                                     Connection.persist(cm, importedTableTemp);
-                                    //em.getTransaction().commit();
-                                    //em.getTransaction().begin();
+                                    
                                 }
                                 InImportedValuesTemp newValue = new InImportedValuesTemp();
                                 newValue.setImportedTableId(importedTableTemp);
@@ -477,8 +454,7 @@ public class ModuleFileImport implements Runnable{
                     }
                     long countRowKeys = properties.values().stream().filter(propertyType -> propertyType == Constants.ROWKEYTYPE).count();
                     if(isOpenRow && (rowKeyImportKey == null || (rowKeyImportKey.getListPropertyValues() != null && rowKeyImportKey.getListPropertyValues().size() != countRowKeys)) && !openRowAuxListForPersiste.isEmpty()){
-//                        errorMsgPerTables.add(Constants.MESSAGEINVALIDROWKEY);
-//                        break; //para deixar de ver os valores e passar logo para o fim do mapa.
+
                     } else {
                     //Loop to Set Rowkey
                         for(InImportedValuesTemp importedValue:openRowAuxListForPersiste){
@@ -501,14 +477,11 @@ public class ModuleFileImport implements Runnable{
                 }
                 
                 importedTableTemp.setEndTimestamp(LocalDateTime.now());
-                LOG.info("GetIOStateID:" + importedTableTemp.getIoState().getIoStateId());
-                LOG.info("Is Error MSG Empty:" + errorMsgPerTables.isEmpty());
+                
                 if(importedTableTemp.getIoState().getIoStateId() == Constants.processoOkEmpty){
                     if (errorMsgPerTables.isEmpty() && hasInsertedValue) {
-                        LOG.info("Before IO");
                         importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
                         hasOk = true;
-                        LOG.info("After IO");
                     } else if (!errorMsgPerTables.isEmpty() && !hasInsertedValue) {
                         
                         importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
@@ -531,14 +504,12 @@ public class ModuleFileImport implements Runnable{
                 
                 Connection.merge(cm, importedTableTemp);
                        
-                LOG.info("Is Active Session:" + cm.em.getTransaction().isActive());
                 if (!cm.em.getTransaction().isActive()) {
                     cm.em.getTransaction().begin();
                 }
                 cm.em.flush();
                 cm.em.clear();
                 
-                //ImportLogManager.createNewImportLog("Importacao do mapa - " + sheetName + " concluido", io.getIoId());
                 
                 LogImportProcess logMapImportEnd = new LogImportProcess(importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " concluido");
                 Connection.persist(cm, logMapImportEnd);
@@ -557,8 +528,7 @@ public class ModuleFileImport implements Runnable{
                 }
             }
         }
-        LOG.info("HasNotOk? " + hasNotOk);
-        LOG.info("HasOk? " + hasOk);
+        
         if(hasNotOk && !hasOk){
             ioState = new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk));
         } else if (hasNotOk && hasOk) {
@@ -568,50 +538,10 @@ public class ModuleFileImport implements Runnable{
         } 
         
         ioState = new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK));
-        LOG.info("Main Import End");
         return ioState;
         
     }
     
-    
-    
-    private Queue<String> buildHeader(String[] rawArrayOfString){
-        Queue<String> resultQueue = new LinkedList<>();
-        for(String value : rawArrayOfString){
-            if(value.toUpperCase().contains(Constants.HEADERTEMPLATE)){
-                resultQueue.add(Constants.SASTEMPLATE);
-            }else if(value.toUpperCase().contains(Constants.HEADERCOLUMN)){
-                resultQueue.add(Constants.SASCOLUMN);
-            }else if(value.toUpperCase().contains(Constants.HEADERROW)){
-                resultQueue.add(Constants.SASROW);
-            }else if(value.toUpperCase().contains(Constants.HEADERSHEET)){
-                resultQueue.add(Constants.SASSHEET);
-            }else if(value.toUpperCase().contains(Constants.HEADERVALUE) || value.toUpperCase().endsWith(Constants.HEADERVAL) || value.toUpperCase().endsWith(Constants.HEADERCELL)){
-                resultQueue.add(Constants.SASVALUE);
-            }else{
-                resultQueue.add(Constants.SASIGNORE);
-            }
-        }
-        return resultQueue;
-    }
-    
-    private static class RowCountHandler extends DefaultHandler{
-        private final SharedStrings sst;
-        private int rowCount = 0;
-        public RowCountHandler(SharedStrings sst){
-            this.sst = sst;
-        }
-        public int getRowCount(){
-            return rowCount;
-        }
-        
-        @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes){
-            if("row".equals(qName)){
-                rowCount++;
-            }
-        }
-    }
     // main method that is being called
     public void run() {
         List<Integer> listOfIDImportRules = listOfImportRulesToApply != null ? listOfImportRulesToApply : new ArrayList<>();
@@ -630,19 +560,15 @@ public class ModuleFileImport implements Runnable{
             ex.printStackTrace();
         }
         IOState result = null;       
-        if(alterFilename.toUpperCase().contains("SAS")){
-            //result = sasImport(io, listOfIDImportRules);
-        }else{
-            result = mainImport(io,listOfIDImportRules);
-        }
+        
+        result = mainImport(io,listOfIDImportRules);
+        
         if(result != null){
             io.setIoState(result);
             io.setEndTimestamp(LocalDateTime.now());
             Connection.merge(io);
         }
-        LOG.info("Import End");
-        
-        LOG.info("Validation Start");
+
         ValidationAction validationAction = new ValidationAction();
 
         validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
@@ -793,7 +719,6 @@ public class ModuleFileImport implements Runnable{
             case Constants.URI:
                 return Utils.validateFromARegex(value,Constants.URIPATTERN);
             case Constants.ORDINALS:
-                //Validate ORDINALS (No Ideia what it is)
                 break;
             case Constants.STRINGINCLUDINGEMPTY:
             case Constants.ENUMERATION: //Enumeration Validates Later to check if exists in List

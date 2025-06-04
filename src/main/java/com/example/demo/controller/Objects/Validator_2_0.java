@@ -18,6 +18,7 @@ import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.*;
 import com.example.demo.controller.Objects.ActionPhases.GenerationAction;
+import com.example.demo.controller.Objects.Conf.*;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Logs.*;
@@ -36,13 +37,11 @@ public class Validator_2_0 implements Runnable {
     private String userID;
     private Set<TableVersionDPM> tables;
     
-    //public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, String userID, Set<TableVersionDPM> tables){
     public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, Set<TableVersionDPM> tables){
         this.moduleVersion = moduleVersion;
         this.entity = entity;
         this.refDate = refDate;
         this.domain = domain;
-        //this.userID = userID;
         this.tables = tables;
     }
 
@@ -459,20 +458,7 @@ public class Validator_2_0 implements Runnable {
         return nodesMappedByParent;
     }
 
-    /*private void insertResultsLogs(Integer operationVId, Integer nodeId, List<ValResult> results, int code) {
-        if(results != null && !results.isEmpty()){
-            for (ValResult result : results) {
-                StringBuilder sb = new StringBuilder();
-                sb.append((result.getRawValue() != null) ? result.getRawValue() : "null");
-                sb.append(" | Expressão: ").append(result.getExpression());
-                
-                Utils.addLogOfOperations(operationVId, nodeId, 
-                                            sb.toString(), 
-                                            null, (result.getKey() != null) ? result.getKey().toString() : null, 
-                                            (code == 1) ? "Resultado" : (code == 2) ? "PreCondicao" : "null");
-            }
-        }
-    }*/
+    
     private void validatePrecondition(Integer preConditionVId, Map<Integer, List<ValNode>> nodesMappedByLevel, Map<Integer, ValResult> resultPerPrecondition, IO io) {
         //Obtencao dos valores importados nos nós
         LOG.info("Avaliacao da precondicao: " + preConditionVId);
@@ -484,15 +470,10 @@ public class Validator_2_0 implements Runnable {
         List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, preConditionVId);
 
         if (results != null && !results.isEmpty()) {
-            //Integer nodeId = nodesMappedByLevel.get(1).get(Constants.FIRSTRESULT).getNode().getNodeID();
-            //insertResultsLogs(preConditionVId, nodeId, results, 2);
             resultPerPrecondition.put(preConditionVId, results.get(Constants.FIRSTRESULT));
         }
 
         LOG.info("Fim da avaliacao da précondicao: " + preConditionVId);
-
-        //insertOperationLogs();
-        //Info.getInstance().clearLogOperationsList();
     }
 
     public ModuleVersion getModuleVersion() {

@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.Data.Access.Info;
 import com.example.demo.Data.Access.JPA;
 
 

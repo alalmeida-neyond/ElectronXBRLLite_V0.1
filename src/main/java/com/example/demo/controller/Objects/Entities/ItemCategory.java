@@ -48,7 +48,6 @@ public class ItemCategory implements Serializable{
     @Size(max = 20)
     private String code;
     
-    //@Column(name = "ISDEFAULTITEM", columnDefinition = "CHAR(1)")
     @Column(name = "ISDEFAULTITEM", columnDefinition = "CHAR(1)")
     @NotNull
     private boolean isDefaultItem;

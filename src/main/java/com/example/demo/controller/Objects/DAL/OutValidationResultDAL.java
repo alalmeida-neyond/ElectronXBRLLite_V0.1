@@ -11,6 +11,7 @@ import java.util.List;
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.*;
 
 public class OutValidationResultDAL {
@@ -105,16 +106,4 @@ public class OutValidationResultDAL {
         return listOfResultstemp;
     }
     
-    public static OutValidationResult getValidationResultById(String id) {
-        JPA<OutValidationResult> jpa = new JPA<OutValidationResult>(OutValidationResult.class);
-        OutValidationResult validationResult = null;
-        try {
-            validationResult = jpa.getSimpleResult("validationResultId", id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally{
-             jpa.close();
-        }
-        return validationResult;
-    }
 }

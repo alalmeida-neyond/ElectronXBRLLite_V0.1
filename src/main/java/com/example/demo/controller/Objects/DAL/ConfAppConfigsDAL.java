@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.example.demo.Data.ConnectionManager;
+import com.example.demo.Data.Access.Info;
 import com.example.demo.Data.Access.JPA;
-import com.example.demo.controller.Objects.ConfAppConfigs;
+import com.example.demo.controller.Objects.Conf.*;
 import com.example.demo.controller.Objects.Constants;
-import com.example.demo.controller.Objects.Info;
 
 
 public class ConfAppConfigsDAL {

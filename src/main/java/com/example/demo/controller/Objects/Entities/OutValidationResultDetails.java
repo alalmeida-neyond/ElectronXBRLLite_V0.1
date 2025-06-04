@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Entities;
 
 import java.io.Serializable;
@@ -14,6 +10,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.example.demo.Converter.*;
+import com.example.demo.Data.Access.Info;
 import com.example.demo.controller.Objects.*;
 
 import jakarta.persistence.Column;
@@ -34,7 +31,6 @@ public class OutValidationResultDetails implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "OUT_VALIDATIONRESULTDETAILS_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONRESULTDETAILS_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONRESULTDETAILSID")
     @NotNull
     private Integer validationResultDetailsId;

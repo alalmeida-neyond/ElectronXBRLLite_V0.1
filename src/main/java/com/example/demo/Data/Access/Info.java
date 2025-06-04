@@ -1,8 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.example.demo.controller.Objects;
+package com.example.demo.Data.Access;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,8 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.example.demo.Data.*;
-import com.example.demo.Data.Access.JPA;
-import com.example.demo.controller.Objects.Conf.ConfPeriodicity;
+import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.Conf.*;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Logs.LogValidationProcess;
 

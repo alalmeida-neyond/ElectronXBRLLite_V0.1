@@ -1,7 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui"
-  xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-  xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<html>
 
 <h:head>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -17,10 +15,6 @@
     crossorigin="anonymous"></script>
   <div th:replace="~{Layouts/title}"></div>
 
-  <script lang="javascript">
-    var m = new Date();
-    //document.writeln("date: " + m);
-  </script>
 </h:head>
 
 <body>
@@ -89,6 +83,7 @@
                 <thead>
                   <tr>
                     <th>IOID</th>
+                    <th>IO State ID</th>
                     <th>Módulo</th>
                     <th>Entidade</th>
                     <th>Domínio</th>
@@ -202,6 +197,7 @@
         tr.appendChild(createCell(io[2]));
         tr.appendChild(createCell(io[3]));
         tr.appendChild(createCell(io[4]));
+        tr.appendChild(createCell(io[5]));
 
         const detailBtnTd = document.createElement("td");
         const btn = document.createElement("button");
@@ -210,10 +206,23 @@
         btn.onclick = () => toggleDetails(io[0], btn);
         detailBtnTd.appendChild(btn);
         tr.appendChild(detailBtnTd);
-
+        console.log("IO State ID:" + io[1]);
+        if(io[1] == 1)
+        {
+          detailBtnTd.style.backgroundColor = "#d4edda";
+        }
+        else if (io[1] == 2)
+        {
+          detailBtnTd.style.backgroundColor = "#fff3cd";
+        } 
+        else if(io[1] == 3)
+        {
+          detailBtnTd.style.backgroundColor = "#f8d7da";
+        }
         tableBody.appendChild(tr);
 
         const detailRow = document.createElement("tr");
+        
         detailRow.style.display = "none";
         detailRow.className = "detail-row";
 
@@ -253,21 +262,21 @@
               ${details.map(d => {
                 const resultado = d.resultado ?? "-";
                 console.log("Resultado Regra:" + resultado);
-                let color = "";
+                let rowStyle = "";
 
-                if (resultado === "Rule Ok") {
-                  color = "green";
-                } else if (resultado === "Rule Do Not Run") {
-                  color = "orange";
-                } else if (resultado === "Rule Not Ok") {
-                  color = "red";
+                if (resultado === "RULE OK") {
+                  rowStyle = "style='background-color: #d4edda;'";
+                } else if (resultado === "RULE DO NOT RUN") {
+                  rowStyle = "style='background-color: #fff3cd;'";
+                } else if (resultado === "RULE NOT OK") {
+                  rowStyle = "style='background-color: #f8d7da;'";
                 }
 
                 return `
-                  <tr>
+                  <tr ${rowStyle}>
                     <td>${d.regra ?? "-"}</td>
                     <td>${d.severity ?? "-"}</td>
-                    <td style="color:${color}; font-weight: bold;">${resultado}</td>
+                    <td>${resultado}</td>
                     <td>${d.dataProcessamento ?? "-"}</td>
                   </tr>`;
               }).join("")}

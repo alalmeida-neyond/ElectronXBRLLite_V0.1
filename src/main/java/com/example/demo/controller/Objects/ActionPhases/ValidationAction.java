@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.Conf.ConfEntities;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Import.*;
@@ -24,31 +25,9 @@ public class ValidationAction {
     private final Logger LOG = Logger.getLogger(ValidationAction.class.getName());
 
     private RefDataBean refDataBean;
-    
-    //public void getValidationIOs(Integer privilege, boolean withView, boolean triggeredFromUser) {
-        /*LocalDate referenceDate = null;
-        if (getYear() != null && getMonth() != null) {
-            referenceDate = getDateAtLastDay(getMonth(),getYear());
-        } else {
-            referenceDate = null;
-        }
-        String domain = getDomain()!= null ? getDomain().length() > Constants.DOMAINLENGTH ? getDomain().substring(0, 3).toUpperCase() : getDomain().toUpperCase() : null;
-        */
-        //this.lazy = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(), referenceDate, getEntity() == null ? null : getEntity().getEntityID(), domain, Constants.actionValidation, Constants.VALIDATEID, session.getUser().getUserId(), session.getUser().getProfile().equals(Constants.Admin) ? true : false);
-        
 
-       /* validationIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(), getReferenceDate(), getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionValidation, Constants.VALIDATEID);
-    }*/
     
     public List<InImportedTablesTemp> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
-        /*LocalDate referenceDate = null;
-        if (getYearExecution()!= null && getMonthExecution()!= null) {
-            //CastMonth into number
-            referenceDate = getDateAtLastDay(getMonthExecution(), getYearExecution());
-        } else {
-            return new ArrayList<>();
-        }*/
-        
         if(moduleVersion != null && domain != null && entity != null)
             importedTables = InImportedTablesDAL.getListOfImportedMapsToValidate(moduleVersion, referenceDate, entity, domain, io);
         else
@@ -58,26 +37,6 @@ public class ValidationAction {
     }
 
     public void startValidation(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io) {
-
-        /*LocalDate referenceDate = null;
-        if (getYearExecution()!= null && getMonthExecution()!= null) {
-            //CastMonth into number
-            referenceDate = getDateAtLastDay(getMonthExecution(), getYearExecution());
-        }*/
-        
-        /*if (getModuleVersionExecution() == null || getEntityExecution() == null || getDomainExecution() == null || getYearExecution() == null || getMonthExecution() == null) {
-            throwFacesMessage(FacesMessage.SEVERITY_ERROR, Constants.validationError, Constants.missingFilters);
-            return;
-        }
-        String domain = getDomainExecution()!= null ? getDomainExecution().length() > Constants.DOMAINLENGTH ? getDomainExecution().substring(0, 3).toUpperCase() : getDomainExecution().toUpperCase() : null;
-        */
-        /*if(selectedMapsToValidate.isEmpty()){
-            throwFacesMessage(FacesMessage.SEVERITY_ERROR, Constants.validationError, Constants.NOMAPSSELECTED);
-            LOG.error(Constants.validationError + " | " + Constants.NOMAPSSELECTED);
-            return;
-        }*/
-        
-        //List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(getModuleVersionExecution(), domain, getEntityExecution(), referenceDate.format(Constants.DATEFORMATISO8601));
         List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(moduleVersion, domain, entity, referenceDate.toString());
         if (!operationsRunningFromIO.isEmpty()) {
             LOG.info(Constants.concurrentOperations + " | " + Constants.concurrentOperationsDesc);
@@ -96,10 +55,8 @@ public class ValidationAction {
                                                     new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
                                                 ));
         LOG.info("Validacao Iniciada | " + "Processo de validacao iniciada.");
-        //throwFacesMessage(FacesMessage.SEVERITY_INFO, "Validacao Iniciada", "Processo de validacao iniciada.");
         
         try {
-            //Validator_2_0 validator = new Validator_2_0(getModuleVersionExecution(), referenceDate, getEntityExecution(), domain, session.getUser().getUserId().toUpperCase(), sortedTables);
             Validator_2_0 validator = new Validator_2_0(moduleVersion, referenceDate, entity, domain, sortedTables);
             validator.validateOperations(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
         } catch (Exception e) {

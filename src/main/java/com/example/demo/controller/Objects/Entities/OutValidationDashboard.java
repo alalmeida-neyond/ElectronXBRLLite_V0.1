@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 import com.example.demo.Converter.*;
 import com.example.demo.DTOs.OutValidationsDashboardDTO;
-import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.Conf.ConfEntities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstructorResult;
@@ -60,7 +60,6 @@ public class OutValidationDashboard implements Serializable{
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "OUT_VALIDATIONSDASHBOARD_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONSDASHBOARD_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONSDASHBOARDID")
     private int validationsDashboardId;
     

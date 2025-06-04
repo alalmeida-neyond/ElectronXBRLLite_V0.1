@@ -5,16 +5,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.DTOs.ValidationResultsDetailsDTO;
-import com.example.demo.Data.Access.JPA;
-import com.example.demo.controller.Objects.ConfImportRules;
+import com.example.demo.Data.Access.Info;
+import com.example.demo.controller.Objects.Conf.ConfImportRules;
 import com.example.demo.controller.Objects.Constants;
 import com.example.demo.controller.Objects.DefaultBean;
 import com.example.demo.controller.Objects.ImportFileController;
-import com.example.demo.controller.Objects.Info;
 import com.example.demo.controller.Objects.Month;
-import com.example.demo.controller.Objects.Template;
-import com.example.demo.controller.Objects.Utils;
-import com.example.demo.controller.Objects.Year;
 import com.example.demo.controller.Objects.DAL.IODAL;
 import com.example.demo.controller.Objects.Entities.IO;
 import com.example.demo.service.ValidationService;
@@ -155,63 +151,6 @@ public class DemoController extends DefaultBean{
         return modelAndView;
     }
 
-    @GetMapping("/download_template2")
-    public ModelAndView downloadTemplate2() {        
-        ModelAndView modelAndView = new ModelAndView();
-        directory = "jdbc:sqlite:UNMANAGEDPROCESS.db";
-        String sqlQuery = "SELECT * FROM tabelaTeste;";
-        List<Template> templates = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(directory);
-            Statement statement = connection.createStatement()) {
-                
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
-
-            while (resultSet.next()) {
-                templates.add(new Template(resultSet.getInt("id"), resultSet.getString("name"), resultSet.getString("description")));
-                System.out.println("Templates List: " + templates);
-                for (Template t : templates) {
-                    System.out.println("Template ID: " + t.getId() + ", Name: " + t.getName() + ",  Description: " + t.getDescription());
-                }
-            }
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        modelAndView.addObject("templates", templates);
-        System.out.println("Added Templates");
-        modelAndView.setViewName("download_template");
-        return modelAndView;
-    }
-
-    @GetMapping("/download_template")
-    public ModelAndView downloadTemplate() {        
-        ModelAndView modelAndView = new ModelAndView();
-        directory = "jdbc:sqlite:UNMANAGEDPROCESS.db";
-        String sqlQuery = "SELECT * FROM [Category];";
-        List<Template> templates = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(directory);
-            Statement statement = connection.createStatement()) {
-                
-            ResultSet resultSet = statement.executeQuery(sqlQuery);
-
-            while (resultSet.next()) {
-                templates.add(new Template(resultSet.getInt("CategoryID"), resultSet.getString("Name"), resultSet.getString("Description")));
-                /*for (Template t : templates) {
-                    System.out.println("Template ID: " + t.getId() + ", Name: " + t.getName() + ",  Description: " + t.getDescription());
-                }*/
-            }
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        modelAndView.addObject("templates", templates);
-        //System.out.println("Added Templates");
-        modelAndView.setViewName("download_template");
-        return modelAndView;
-    }
-
-    
-
     @GetMapping("/import_file")
     public ModelAndView importFile() {
         ModelAndView modelAndView = new ModelAndView();
@@ -279,20 +218,6 @@ public class DemoController extends DefaultBean{
         }
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("import_file");
-        return modelAndView;
-    }
-
-    @GetMapping("/run_validations")
-    public ModelAndView runValidations() {
-        Year year = new Year();
-        Month month = new Month();
-        List<Integer> years = year.getYears();
-        List<String> months = month.getMonths();
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("getYears", years);
-        modelAndView.addObject("year", year.getCurrentYear());
-        modelAndView.addObject("getMonths", months);
-        modelAndView.setViewName("run_validations");
         return modelAndView;
     }
 

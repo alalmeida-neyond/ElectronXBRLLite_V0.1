@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.example.demo.DTOs.*;
+import com.example.demo.Data.Access.Info;
 import com.example.demo.controller.Objects.*;
 
 import jakarta.persistence.CascadeType;
@@ -58,7 +59,6 @@ public class OutValidationResult implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "OUT_VALIDATIONRESULT_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONRESULT_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONRESULTID")
     @NotNull
     private Integer validationResultId;

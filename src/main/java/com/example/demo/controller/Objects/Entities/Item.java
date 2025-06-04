@@ -19,20 +19,16 @@ public class Item implements Serializable{
     private int itemId;
     
     @Column(name = "NAME")
-    //@Lob
     @NotNull
     private String name;
     
     @Column(name = "DESCRIPTION")
-    //@Lob
     private String description;
     
-    //@Column(name = "ISPROPERTY", columnDefinition = "CHAR(1)")
     @Column(name = "ISPROPERTY")
     @NotNull
     private boolean isProperty;
     
-    //@Column(name = "ISACTIVE", columnDefinition = "CHAR(1)")
     @Column(name = "ISACTIVE")
     @NotNull
     private boolean isActive;

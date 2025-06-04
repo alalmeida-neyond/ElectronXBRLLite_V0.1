@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.example.demo.Converter.*;
-import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.Conf.*;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
@@ -16,31 +16,11 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "IO")
 @NamedQuery(name="IO.findAll", query="SELECT e FROM IO e")
-/*@SqlResultSetMappings({   
-    @SqlResultSetMapping(
-            name = "DashboardGeralRow",
-            classes = {
-                @ConstructorResult(
-                        targetClass = DashboardGeralDTO.class,
-                        columns = {
-                            @ColumnResult(name = "referenceDate", type = String.class),
-                            @ColumnResult(name = "module", type = String.class),
-                            @ColumnResult(name = "entity", type = String.class),
-                            @ColumnResult(name = "domain", type = String.class),
-                            @ColumnResult(name = "isImported", type = Boolean.class),
-                            @ColumnResult(name = "isValidated", type = Boolean.class),
-                            @ColumnResult(name = "isGenerated", type = Boolean.class),
-                            @ColumnResult(name = "isLocked", type = Boolean.class)
-                        }
-                )
-            })
-})*/
 public class IO implements Serializable{
     
     @Id
     @NotNull
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    //@SequenceGenerator(name="IO_IOID_GENERATOR", sequenceName="IO_SEQ", allocationSize=1, initialValue=1)
     @Column(name = "IOID")
     private int ioId;
     

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Entities;
 
 import java.io.Serializable;
@@ -43,7 +39,6 @@ public class OutValidationTable implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "OUT_VALIDATIONTABLE_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONTABLE_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONTABLEID")
     @NotNull
     private Integer validationTableId;

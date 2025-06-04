@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.example.demo.Converter.*;
-import com.example.demo.controller.Objects.ConfEntities;
+import com.example.demo.controller.Objects.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.*;
 
 import jakarta.persistence.Column;
@@ -51,7 +51,6 @@ public class OutXBRLGenerated implements Serializable {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "genXBRLSequence_gen", sequenceName = "DPM_ED.GENERATEXBLRSEQUENCE", allocationSize = 1)
     @Column(name = "XBRL_ID")
     private int idXBRLGenerate;
 

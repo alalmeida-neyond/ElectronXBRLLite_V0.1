@@ -22,21 +22,15 @@ import java.util.zip.ZipOutputStream;
 import java.util.Comparator;
 
 
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jboss.logging.Logger;
 
 import com.example.demo.DTOs.OutValidationsDashboardDTO;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.Utils;
-import com.example.demo.controller.Objects.DAL.LockAssociationDAL;
 import com.example.demo.controller.Objects.DAL.OutValidationResultDAL;
 import com.example.demo.controller.Objects.Entities.IO;
 import com.example.demo.controller.Objects.Entities.ModuleVersion;
-import com.example.demo.controller.Objects.Lock.LockAssociation;
 
 public class DownloadAction {
     private final Logger LOG = Logger.getLogger(DownloadAction.class);

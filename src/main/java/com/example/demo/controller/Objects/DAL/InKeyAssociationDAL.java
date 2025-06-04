@@ -30,14 +30,6 @@ public class InKeyAssociationDAL {
             params.append(impTable.getImportKeyID() + ",");
         }
 
-        //REMODELAR ESTA QUERY PARA SQLITE (NAO EXISTE A TABELA DUAL)
-        /*StringBuilder queryString = new StringBuilder("With listKeysAssoc as (");
-        queryString.append(" select regexp_substr(:listKeys,'[^,]+', 1, level) IMPORTKEYID");
-        queryString.append(" from dual connect by regexp_substr(:listKeys, '[^,]+', 1, level) is not null");
-        queryString.append(")");
-        queryString.append(" Select IN_KEYASSOCIATION.* from IN_KEYASSOCIATION ");
-        queryString.append(" inner join listKeysAssoc ");
-        queryString.append(" on IN_KEYASSOCIATION.IMPORTKEYID = listKeysAssoc.IMPORTKEYID ");*/
         StringBuilder queryString = new StringBuilder("WITH RECURSIVE split(level, start_pos, end_pos) AS (");
         queryString.append("SELECT 1 as level, 1 as start_pos, ");
         queryString.append("CASE ");

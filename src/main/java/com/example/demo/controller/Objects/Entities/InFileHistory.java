@@ -3,7 +3,7 @@ package com.example.demo.controller.Objects.Entities;
 import java.time.LocalDateTime;
 
 import com.example.demo.Converter.LocalDateTimePersistenceConverter;
-import com.example.demo.controller.Objects.ConfEntities;
+import com.example.demo.controller.Objects.Conf.ConfEntities;
 
 import jakarta.persistence.*;
 

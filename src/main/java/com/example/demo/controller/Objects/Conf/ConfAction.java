@@ -1,4 +1,4 @@
-package com.example.demo.controller.Objects;
+package com.example.demo.controller.Objects.Conf;
 
 import java.io.Serializable;
 import jakarta.persistence.*;

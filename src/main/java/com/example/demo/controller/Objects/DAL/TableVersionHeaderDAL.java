@@ -13,10 +13,6 @@ import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.Constants;
 import com.example.demo.controller.Objects.Utils;
 
-/**
- *
- * @author brferreira
- */
 public class TableVersionHeaderDAL {
 
     public static List<Object[]> getGenerationHeader(int tableVID, LocalDate referenceDate) {

@@ -74,7 +74,6 @@ public class XBRLGeneratorMap implements Runnable {
         Map<Integer, List<InKeyAssociation>> keyAssociationsFromCells = new HashMap<Integer, List<InKeyAssociation>>();
         boolean firstLoopInHeaderForAlt = true;
         try (FileWriter writer = new FileWriter(fillingCSVPath.toFile())) {
-            //TODO Change Header Based on other points
             if(altXBRLGeneration){
                 for (Object[] obj : header) {
                     if(!firstLoopInHeaderForAlt){
@@ -99,8 +98,7 @@ public class XBRLGeneratorMap implements Runnable {
                 List<InImportedValuesTemp> cells = InImportedValuesDAL.getListOfImportedCellBasedOnImportedTable(impTab);
                 if(altXBRLGeneration){
                     Map<InImportKey,List<InImportedValuesTemp>> mappedByRowkey = cells.stream()
-                                                                                .collect(//Collectors.groupingBy(item -> item.getImportKey())
-                                                                                        Collectors.toMap(
+                                                                                .collect(Collectors.toMap(
                                                                                                     InImportedValuesTemp::getImportKey,
                                                                                                     x -> {
                                                                                                         List<InImportedValuesTemp> list = new ArrayList<>();
@@ -156,7 +154,6 @@ public class XBRLGeneratorMap implements Runnable {
                         writer.append("\n");
                         writer.append("dp");
                         writer.append(cell.getVariableVersion().getVariableVID() + ",");
-                        //TODO: Check if is necessary to change the value
                         writer.append(cell.getRuleValue());
                         if (!header.isEmpty()) {
                             for (Object[] obj : header) {

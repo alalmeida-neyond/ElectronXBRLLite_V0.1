@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
 import org.jboss.logging.Logger;
 
 import com.example.demo.Data.*;
+import com.example.demo.Data.Access.Info;
 import com.example.demo.controller.Objects.ActionPhases.DownloadAction;
+import com.example.demo.controller.Objects.Conf.*;
 import com.example.demo.controller.Objects.DAL.*;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Generation.OutXBRLGenerated;
@@ -185,8 +187,6 @@ public class XBRLGenerationController implements Runnable {
                 generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
                 Connection.merge(generationIo);                
             }
-            //OperationRunningDAL.deleteOperationRun(threadName);
-            //remove Operation Table
 
         } catch (Exception e) {
             LOG.error("Erro na geracao:" + e.getMessage());

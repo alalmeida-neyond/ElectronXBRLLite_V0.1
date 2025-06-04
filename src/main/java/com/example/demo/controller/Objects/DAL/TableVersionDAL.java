@@ -25,12 +25,6 @@ public class TableVersionDAL {
         JPA<TableVersionDPM> jpa = new JPA<TableVersionDPM>(TableVersionDPM.class);
         List<TableVersionDPM> listOfFiles = new ArrayList<>();
         try {
-            /*StringBuilder queryString = new StringBuilder("Select c.* from MODULEVERSIONCOMPOSITION b ");
-            queryString.append(" inner join MODULEVERSION a on b.ModuleVID = a.ModuleVID ");
-            queryString.append(" inner join tableversion c on c.TableVid = b.TableVid and c.Tableid = b.Tableid ");
-            queryString.append(" where a.ModuleVID = :moduleVID and (a.fromreferencedate <= :referencedate ");
-            queryString.append(" and (a.toreferencedate is null or a.toreferencedate >= :referencedate)) ");*/
-
             StringBuilder queryString = new StringBuilder("Select c.* from MODULEVERSIONCOMPOSITION b ");
             queryString.append(" inner join MODULEVERSION a on b.ModuleVID = a.ModuleVID ");
             queryString.append(" inner join tableversion c on c.TableVid = b.TableVid and c.Tableid = b.Tableid ");
@@ -50,57 +44,6 @@ public class TableVersionDAL {
 
         return listOfFiles;
     }
-
-    public static List<TableVersionDPM> getFilesImportedForIO(IO io) {
-        if (io == null) {
-            return null;
-        }
-        JPA<TableVersionDPM> jpa = new JPA<TableVersionDPM>(TableVersionDPM.class);
-        List<TableVersionDPM> listOfFiles = new ArrayList<>();
-        try {
-            StringBuilder queryString = new StringBuilder(" select tv.* ");
-            queryString.append(" from in_importedtablestemp tables ");
-            queryString.append(" inner join IO io ");
-            queryString.append(" on tables.ioid = io.ioid ");
-            queryString.append(" inner join tableversion tv ");
-            queryString.append(" on tables.tablevid = tv.tablevid ");
-            queryString.append(" where io.ioid = :ioid ");
-
-            listOfFiles = jpa.getTypedNativeResultList(queryString.toString(),
-                    "ioid", io.getIoId());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-
-        return listOfFiles;
-    }
-    
-
-    
-    public static List<TableVersionDPM> getAllVersionsOfATableVersion(String code) {
-        if (code == null) {
-            return null;
-        }
-        JPA<TableVersionDPM> jpa = new JPA<TableVersionDPM>(TableVersionDPM.class);
-        List<TableVersionDPM> listOfFiles = new ArrayList<>();
-        try {
-            StringBuilder queryString = new StringBuilder("Select c.* from tableversion c  ");
-            queryString.append(" where c.code = :code");
-
-            listOfFiles = jpa.getTypedNativeResultList(queryString.toString(),
-                    "code", code);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-
-        return listOfFiles;
-	}
 
     public static Map<String, Integer> getPropertiesKeyTypes(Integer tableVId, LocalDate referenceDate){
         JPA<Object[]> jpa = new JPA<>(Object[].class);

@@ -28,11 +28,9 @@ public class SubCategory implements Serializable{
     private String code;
     
     @Column(name = "NAME")
-    //@Lob
     private String name;
     
     @Column(name = "DESCRIPTION")
-    //@Lob
     private String description;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)", nullable = false)

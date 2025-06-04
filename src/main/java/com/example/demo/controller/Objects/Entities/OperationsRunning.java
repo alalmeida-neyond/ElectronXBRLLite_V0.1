@@ -1,6 +1,6 @@
 package com.example.demo.controller.Objects.Entities;
 
-import com.example.demo.controller.Objects.ConfEntities;
+import com.example.demo.controller.Objects.Conf.ConfEntities;
 
 import jakarta.persistence.*;
 
@@ -16,7 +16,6 @@ public class OperationsRunning {
     @Id
     @NotNull    
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "OPERATIONRUNNING_SEQ", sequenceName = "OPERATIONRUNNING_SEQ", allocationSize = 1)
     @Column(name = "OPERATIONRUNNINGID")
     private int operationRunningId;
     

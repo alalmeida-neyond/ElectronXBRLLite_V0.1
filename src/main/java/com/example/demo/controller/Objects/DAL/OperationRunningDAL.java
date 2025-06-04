@@ -6,7 +6,7 @@ import java.util.List;
 import com.example.demo.Data.Connection;
 import com.example.demo.Data.ConnectionManager;
 import com.example.demo.Data.Access.JPA;
-import com.example.demo.controller.Objects.ConfEntities;
+import com.example.demo.controller.Objects.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Constants;
 import com.example.demo.controller.Objects.Entities.*;
 
@@ -20,13 +20,6 @@ public class OperationRunningDAL {
         List<IO> result = new ArrayList<IO>();
 
         try {
-            /*StringBuilder queryString = new StringBuilder("Select io.* from IO io ");
-            queryString.append(" inner join io_state ioe on ioe.io_stateid = io.io_stateid ");
-            queryString.append(" where referencedate = :referenceDate ");
-            queryString.append(" and domain = :domain ");
-            queryString.append(" and entityId = :entityId ");
-            queryString.append(" and moduleVID = :moduleVID ");
-            queryString.append(" and ioe.io_typestateid = :typeStatePending ");*/
 
             StringBuilder queryString = new StringBuilder("Select io.* from IO io ");
             queryString.append(" inner join io_state ioe on ioe.io_stateid = io.io_stateid ");
@@ -49,27 +42,6 @@ public class OperationRunningDAL {
 
         return result;
     }
-    /*public static List<OperationsRunning> getOperationOfCurrentUser(String operation, String userid) {
-
-        userid = Utils.getStringOrOperatorPercentage(userid);
-
-        JPA<OperationsRunning> jpa = new JPA<OperationsRunning>(OperationsRunning.class);
-        List<OperationsRunning> result = new ArrayList<OperationsRunning>();
-        try {
-
-            result = jpa.getTypedNativeResultList("Select * from operationrunning "
-                    + "where upper(operation) like ?operation and userid like ?userid",
-                    "operation", operation.toUpperCase(),
-                    "userid", userid);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-
-        return result;
-    }*/
 
     public static boolean createNewOperationRunning(OperationsRunning operation){
         ConnectionManager cm = new ConnectionManager();
@@ -105,19 +77,5 @@ public class OperationRunningDAL {
         return true;
     }
 
-    public static boolean deleteOperationRun(String threadName) {
-        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
-        try {
-            jpa.executeNativeQuery("Delete operationrunning where threadname = ?threadName",
-                    "threadName", threadName);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            jpa.close();
-        }
-
-        return true;
-    }
 
 }

@@ -21,7 +21,6 @@ public class OutValidationTableResult implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "OUT_VALIDATIONTABLERESULT_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONTABLERESULT_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONTABLERESULTID")
     @NotNull
     private Integer validationTableResultId;

@@ -11,6 +11,7 @@ import java.util.List;
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.Access.*;
 import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Generation.OutXBRLGenerated;
 import com.example.demo.controller.Objects.Import.*;
