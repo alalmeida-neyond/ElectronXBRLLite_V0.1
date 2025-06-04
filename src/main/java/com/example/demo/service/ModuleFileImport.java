@@ -522,7 +522,7 @@ public class ModuleFileImport implements Runnable{
                 LogImportProcess logMapImportEnd = new LogImportProcess(importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " concluido");
                 Connection.persist(cm, logMapImportEnd);
             }
-            
+            workBook.close();
         }catch (Exception e) {
             e.printStackTrace();
             ioState = new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk));

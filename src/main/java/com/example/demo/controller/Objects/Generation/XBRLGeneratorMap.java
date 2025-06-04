@@ -144,51 +144,55 @@ public class XBRLGeneratorMap implements Runnable {
                         List<InImportKey> importKeysFromCells = cells.stream().map(InImportedValuesTemp::getImportKey).distinct().collect(Collectors.toList());
                         keyAssociationsFromCells = InKeyAssociationDAL.getListOfKeyAssociationsBasedOnImportKey(importKeysFromCells);
                     }
-                    for (InImportedValuesTemp cell : cells) {
-                        List<InKeyAssociation> keysRowKey = new ArrayList<InKeyAssociation>();
-                        if (cell.getImportKey() != null && keyAssociationsFromCells.containsKey(cell.getImportKey().getImportKeyID())) {
-                            keysRowKey = keyAssociationsFromCells.get(cell.getImportKey().getImportKeyID());
-                        }
-                        writer.append("\n");
-                        writer.append("dp");
-                        writer.append(cell.getVariableVersion().getVariableVID() + ",");
-                        writer.append(cell.getRuleValue());
-                        if (!header.isEmpty()) {
-                            for (Object[] obj : header) {
-                                boolean found = false;
-                                if (!keysRowKey.isEmpty()) {
-                                    for (InKeyAssociation key : keysRowKey) {
-                                        if (key.getPropertyName().toUpperCase().equals(obj[0].toString().toUpperCase())) {
-                                            writer.append("," + key.getPropertyValue());
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                //IF found it isn't the desagregationCode
-                                if (!found) {
-                                    //desagregationCode 
-                                    if (!keysDesagregationCode.isEmpty()) {
-                                        if(keysDesagregationCode.get(0).getImportedKey().getKeyType().getKeyTypeID() == Constants.DESAGREGATIONCODEFIXEDTYPE){
-                                            continue;
-                                        }
-                                        for (InKeyAssociation key : keysDesagregationCode) {
+                    if(cells != null)
+                    {
+                        for (InImportedValuesTemp cell : cells) {
+                            List<InKeyAssociation> keysRowKey = new ArrayList<InKeyAssociation>();
+                            if (cell.getImportKey() != null && keyAssociationsFromCells.containsKey(cell.getImportKey().getImportKeyID())) {
+                                keysRowKey = keyAssociationsFromCells.get(cell.getImportKey().getImportKeyID());
+                            }
+                            writer.append("\n");
+                            writer.append("dp");
+                            writer.append(cell.getVariableVersion().getVariableVID() + ",");
+                            writer.append(cell.getRuleValue());
+                            if (!header.isEmpty()) {
+                                for (Object[] obj : header) {
+                                    boolean found = false;
+                                    if (!keysRowKey.isEmpty()) {
+                                        for (InKeyAssociation key : keysRowKey) {
                                             if (key.getPropertyName().toUpperCase().equals(obj[0].toString().toUpperCase())) {
                                                 writer.append("," + key.getPropertyValue());
+                                                found = true;
                                                 break;
                                             }
                                         }
                                     }
-                                }
 
-                                //Not filled values
-                                if(!found){
-                                    writer.append(",");
+                                    //IF found it isn't the desagregationCode
+                                    if (!found) {
+                                        //desagregationCode 
+                                        if (!keysDesagregationCode.isEmpty()) {
+                                            if(keysDesagregationCode.get(0).getImportedKey().getKeyType().getKeyTypeID() == Constants.DESAGREGATIONCODEFIXEDTYPE){
+                                                continue;
+                                            }
+                                            for (InKeyAssociation key : keysDesagregationCode) {
+                                                if (key.getPropertyName().toUpperCase().equals(obj[0].toString().toUpperCase())) {
+                                                    writer.append("," + key.getPropertyValue());
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    //Not filled values
+                                    if(!found){
+                                        writer.append(",");
+                                    }
                                 }
                             }
                         }
                     }
+                    
                 }
             }
         } catch (IOException e) {

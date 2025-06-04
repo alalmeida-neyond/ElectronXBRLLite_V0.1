@@ -1,6 +1,5 @@
 package com.example.demo.controller.Objects.ActionPhases;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,21 +111,14 @@ public class DownloadAction {
 
     public void startDownload(String finalFolder, IO ioValidation) {
         SXSSFWorkbook validationsWorkbook = null;
-        ByteArrayOutputStream bos_validations = null;
         try {
-
-            List<OutValidationsDashboardDTO> lastValidationResult = getLastValidationResult();
-
             Path excelFilePath = Paths.get(finalFolder + Utils.getSeparator(), "ResultsValidation.csv");
 
             LOG.info("ExcelFilePath:" + excelFilePath.toString());
 
-            OutValidationsDashboardDTO lastValidation = lastValidationResult.get(0);
-
             List<Object[]> validationData = new ArrayList<>();
             
             validationData = OutValidationResultDAL.getValidationResultsDetailsForGeneration(ioValidation);
-            
             
             Object[] validationHeader = new Object[]{"Ref. Date", "Módulo", "Entidade", "Domínio", "Relatório", "Regra Código","Severidade", "Domínio Regra",
                  "Origem Regra", "Regra com valores", "Origem",	"Resultado", "Data processamento", "Diferença", "Margem"};

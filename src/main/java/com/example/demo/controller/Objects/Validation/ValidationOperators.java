@@ -10,15 +10,15 @@ import java.util.stream.Collectors;
 
 import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
-import com.example.demo.controller.Objects.Aggregation.*;
-import com.example.demo.controller.Objects.Comparison.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.DataType;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.Operator;
-import com.example.demo.controller.Objects.IndividualBoolean.*;
-import com.example.demo.controller.Objects.Logical.*;
 import com.example.demo.controller.Objects.Logs.LogValidationProcess;
-import com.example.demo.controller.Objects.NumericAggregationStrategy.*;
-import com.example.demo.controller.Objects.Where.*;
+import com.example.demo.controller.Objects.Operations.Aggregation.*;
+import com.example.demo.controller.Objects.Operations.Comparison.*;
+import com.example.demo.controller.Objects.Operations.IndividualBoolean.*;
+import com.example.demo.controller.Objects.Operations.Logical.*;
+import com.example.demo.controller.Objects.Operations.NumericAggregationStrategy.*;
+import com.example.demo.controller.Objects.Operations.Where.*;
 
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -152,7 +152,6 @@ public class ValidationOperators {
                 ValValue scalarValue = new ValValue(leftChild.getNode().getScalar());
                 ValResult scalarResult = new ValResult(scalarValue);
 
-                //Criar a lista de scalar's com o mesmo tamanho que a outra lista.
                 for (ValResult rightValue : rightChild.getResults()) {
                     leftValues.add(scalarResult);
                 }
@@ -164,7 +163,6 @@ public class ValidationOperators {
                 ValValue scalarValue = new ValValue(rightChild.getNode().getScalar());
                 ValResult scalarResult = new ValResult(scalarValue);
 
-                //Criar a lista de scalar's com o mesmo tamanho que a outra lista.
                 for (ValResult leftValue : leftChild.getResults()) {
                     rightValues.add(scalarResult);
                 }
@@ -175,7 +173,6 @@ public class ValidationOperators {
             } else if (isToCompareToItem) {
                 ValResult itemResult = rightChild.getResults().get(Constants.FIRSTRESULT);
 
-                //Criar a lista de items com o mesmo tamanho que a outra lista.
                 for (ValResult leftValue : leftChild.getResults()) {
                     rightValues.add(itemResult);
                 }
@@ -185,10 +182,8 @@ public class ValidationOperators {
                 return prepareBinaryOperation(parent, leftChild, rightChild, false, operationsSubgroup);
             }
 
-            //Caso: Utlizar chaves
             Boolean isToUseKeys = OperationsUtils.isToUseKeys(leftChild, rightChild);
             if (isToUseKeys == null){
-                //DEU UM ERRO
                 return false;
             } else if (isToUseKeys) {
                 LOG.info("Operacao binária aplicada com chaves, no nó " + parent.getNode().getNodeID());
@@ -200,7 +195,6 @@ public class ValidationOperators {
             return prepareBinaryOperation(parent, leftChild, rightChild, false, operationsSubgroup);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-            //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Avaliacao dos casos nas operacoes binárias com erros.", null, null, "Erro");
         }
 
         return false;
@@ -225,7 +219,6 @@ public class ValidationOperators {
             return prepareIndividualOperations(parent, operandChild, operationsSubgroup);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Avaliacao dos casos nas operacoes de individuais com erros.", null, null, "Erro");
         }
 
         return false;
@@ -236,7 +229,6 @@ public class ValidationOperators {
         List<ValResult> operandValues = new ArrayList<>();
         List<ValResult> parentResults = new ArrayList<>();
         ValResult parentResult = new ValResult();
-        String resultLog = "";
 
         try {
             if(operandChild != null && operandChild.getResults() != null && !operandChild.getResults().isEmpty()){
@@ -253,7 +245,6 @@ public class ValidationOperators {
                     Map<ValKey, List<ValResult>> valuesGroupedBy = OperationsUtils.groupValues(operandValues, key);
                     if(valuesGroupedBy == null || valuesGroupedBy.isEmpty()){
                         LOG.log(Level.SEVERE,"Ocorreu um erro no agrupamento dos valores, no nó " + parent.getNode().getNodeID());
-//                        Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Avaliacao dos casos nas operacoes de agrupamento com erros.", null, null, "Erro");
                         return false;
                     }
 
@@ -261,9 +252,6 @@ public class ValidationOperators {
                     for(ValKey keyThatGroupValues : valuesGroupedBy.keySet()){
                         List<ValResult> resultsThatShareKey = valuesGroupedBy.get(keyThatGroupValues);
                         
-                        //resultLog  += parent.getNode().getOperator().getSymbol() + "("
-                        //        +String.join(", ", resultsThatShareKey.stream().map(ValResult::getRawValue).collect(Collectors.toList()))+")";
-                        //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, keyThatGroupValues.toString(), "Operacao");
                         
                         AggregationStrategy strategy = AggregationStrategyFactory.getStrategy(parent.getNode().getOperator().getOperatorID());
                         parentResult = strategy.evaluate(operandChild, resultsThatShareKey);
@@ -274,12 +262,9 @@ public class ValidationOperators {
                             parentResult.setExpression(expressionBuilder.aggregateOperationBuilder(parent.getOperatorSymbol(), operandChild, groupingClauseChild, resultsThatShareKey, resultFromGroup));
                             parentResult.setDomain(domainBuilder.groupOfResultsDomainBuilder(resultsThatShareKey));
                             parentResults.add(parentResult);
-                        } else {
-                            //TODO: strategy deu null
-                        }
+                        } 
                     }
                 } else {
-                    //caso que os dados não são agrupados
                     LOG.info("Operacao de agrupamento sem chaves, no nó " + parent.getNode().getNodeID());
                     
                     //resultLog += parent.getNode().getOperator().getSymbol() + "("
@@ -294,9 +279,7 @@ public class ValidationOperators {
                         parentResult.setExpression(expressionBuilder.aggregateOperationBuilder(parent.getOperatorSymbol(), operandChild, null, operandValues, null));
                         parentResult.setDomain(domainBuilder.groupOfResultsDomainBuilder(operandValues));
                         parentResults.add(parentResult);
-                    } else {
-                        //TODO: strategy deu null
-                    }
+                    } 
                 }
                 
                 //Se o resultado dos pais for diferente de vazio, então adiciona os resultados no pai
@@ -304,20 +287,17 @@ public class ValidationOperators {
                     parent.setResults(parentResults);
                     return true;
                 }
-
-                //TODO: Deve dar falso???
                 return false;
             }
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Avaliacao dos casos nas operacoes de agrupamento com erros.", null, null, "Erro");
         }
 
         return false;
     }
     
     private static Boolean evaluateAggregateNumericOperations(ValNode parent, List<ValNode> childs) {
-        List<ValResult> values = new ArrayList();
+        List<ValResult> values = new ArrayList<ValResult>();
         List<ValResult> parentResults = new ArrayList<>();
         
         try {
@@ -361,17 +341,14 @@ public class ValidationOperators {
                     return true;
                 } else {
                     LOG.log(Level.SEVERE,"Não foram encontrados valores no filho do nó " + parent.getNode().getNodeID());
-//                    Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes de agregacao de valores numéricos com erros.", null, null, "Erro");
                     return false;
                 }
             } else {
                 LOG.log(Level.SEVERE,"Não foram encontrados filhos do nó " + parent.getNode().getNodeID());
-//                Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes de agregacao de valores numéricos com erros.", null, null, "Erro");
                 return false;
             }
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes de agregacao de valores numéricos com erros.", null, null, "Erro");   
         }
         return false;
     }

@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.DTOs.ValidationResultsDetailsDTO;
@@ -9,8 +8,6 @@ import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
 import com.example.demo.controller.Objects.Beans.DefaultBean;
 import com.example.demo.controller.Objects.Entities.Conf.ConfImportRules;
-import com.example.demo.controller.Objects.Entities.DAL.IODAL;
-import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.service.ValidationService;
 
 import jakarta.annotation.PostConstruct;
@@ -26,7 +23,6 @@ import org.jboss.logging.Logger;
 import org.springframework.ui.Model;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
@@ -41,16 +37,9 @@ public class DemoController extends DefaultBean{
     private final String fileUrl = "https://blobstoragexbrl.blob.core.windows.net/xbrldatabaseblob/UNMANAGEDPROCESS.db";
     private final String localFilePath = System.getProperty("user.dir") + File.separator + "/src/UNMANAGEDPROCESS.db"; 
     private final Logger LOG = Logger.getLogger(ImportFileController.class);
-
-    private List<IO> importIOs;
-
-    private String fileName;
-    private Boolean isSubmitDisable = true;
-    private Boolean isOperationOccuring = true;
     private List<Integer> listOfImportRulesToApply = new ArrayList<Integer>();
     private List<Integer> listOfImportRulesToAlwaysApply = new ArrayList<Integer>();
     private List<ConfImportRules> listOfImportRules;
-    private MultipartFile file;
 
     /**
      * method called when the page to list the imported files open, making sure
@@ -68,26 +57,10 @@ public class DemoController extends DefaultBean{
                 .map(ConfImportRules::getImportRuleID)
                 .collect(Collectors.toList());
 
-        getImportIOs(refData.getImportID(), true);
         createTables();
     }
 
-    public void getImportIOs(Integer privilege, boolean withView) {
-        LocalDate referenceDate = null;
-        if (getYear() != null && getMonth() != null) {
-            // CastMonth into number
-            //setReferenceDate(getYear(), getMonth());
-            referenceDate = getDateAtLastDay(getMonth(),getYear());
-        } else {
-            referenceDate = null;
-        }
-
-        importIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(),
-                referenceDate,
-                getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionImport,
-                Constants.VALIDATEID);
-
-    }
+    
 
     // Create tables if they don't exist
     private void createTables() {
@@ -179,43 +152,6 @@ public class DemoController extends DefaultBean{
     public ModelAndView importFileDetail() {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("import_file_detail");
-        return modelAndView;
-    }
-
-    @GetMapping("/import_fileTest")
-    public ModelAndView importFileTest() {
-        
-        List<String[]> columnValues = new ArrayList<>();
-        directory = "jdbc:sqlite:UNMANAGEDPROCESS.db";
-        String sqlQuery = "INSERT INTO tabelaTeste (Name, Description) VALUES (?, ?);";
-        try (
-            // Connect to Azure SQL Server
-            /*Connection azureConn = DriverManager.getConnection(AZURE_URL, AZURE_USERNAME, AZURE_PASSWORD);
-            Statement stmt = azureConn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT Name, Description FROM Category");*/
-
-            // Connect to SQLite
-            Connection sqliteConn = DriverManager.getConnection(directory);
-            PreparedStatement pstmt = sqliteConn.prepareStatement(sqlQuery)
-        ) {
-            // Fetch column values from Azure SQL Server
-            /*while (rs.next()) {
-                String value1 = rs.getString(1);
-                String value2 = rs.getString(2);
-                columnValues.add(new String[]{value1, value2});
-
-                // Insert both values into SQLite
-                pstmt.setString(1, value1);
-                pstmt.setString(2, value2);
-                pstmt.executeUpdate();
-            }*/
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Database operation failed: " + e.getMessage());
-        }
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("import_file");
         return modelAndView;
     }
 

@@ -109,14 +109,7 @@ public class RefDataBean {
         boolean gen = false;
         boolean val = false;
         boolean view = false;
-        Map<String, HashMap<Integer, List<String>>> privilegesAll = getPrivilegios();
-        /*if(privilegesAll.containsKey(user.getUserId().toUpperCase())){
-            Map<Integer, List<String>> privilegesUser = privilegesAll.get(user.getUserId().toUpperCase());
-            imp = privilegesUser.containsKey(Constants.IMPORTID);
-            gen  = privilegesUser.containsKey(Constants.GENERATEID);
-            val  = privilegesUser.containsKey(Constants.VALIDATEID);
-            view  = privilegesUser.containsKey(Constants.VIEWID);
-        }*/
+        
         setImportBoolean( imp || view);
         setValidate(val || view);
         setGenerate(gen || view); 
@@ -124,7 +117,6 @@ public class RefDataBean {
         setImportBooleanOnly(imp);
         setValidateOnly(val);
         setGenerateOnly(gen);
-        //setIsAdmin(user.getProfile().equals(Constants.Admin));
     }
     
     public HashMap<String, HashMap<Integer, List<String>>> getPrivilegios() {
@@ -152,11 +144,7 @@ public class RefDataBean {
     }
 
 // Reporting BdP
-    //TODO complete lists
     private final static WebPage[] HEADER1_REPORTING_BDP = new WebPage[]{WebPage.bpd_templates, WebPage.import_file, WebPage.imported_files_list, WebPage.imported_file_maps_list, WebPage.imported_file_cells_list, WebPage.imported_files_export, WebPage.imported_files_resume, WebPage.imported_rules_list, WebPage.create_rules};
-//TODO
-//    private final static WebPage[] HEADER2_CONF_LOGS = new WebPage[]{WebPage.conf_logs};
-//    private final static WebPage[] HEADER2_CONF = new WebPage[]{WebPage.config, WebPage.config_datapoints, WebPage.config_directories, WebPage.config_managment, WebPage.config_regras, WebPage.config_templates, WebPage.config_validations, WebPage.config_xbrl, WebPage.margem_erro, WebPage.DPM_rulesView, WebPage.manual_rulesView, WebPage.config_regulator_rules};
 
     private final static WebPage[] HEADER2_BdP_IMPORTACAO_RELATORIOS = new WebPage[]{WebPage.import_file, WebPage.imported_files_list, WebPage.imported_file_maps_list, WebPage.imported_file_cells_list, WebPage.imported_files_export, WebPage.imported_files_resume, WebPage.imported_rules_list, WebPage.create_rules, WebPage.import_details};
     private final static WebPage[] HEADER2_BdP_VALIDACOES = new WebPage[]{WebPage.execute_validation, WebPage.results_validation, WebPage.rules_validation, WebPage.resume_validation, WebPage.dashboard_validation, WebPage.validations_details, WebPage.validations_results_details};
@@ -191,15 +179,12 @@ public class RefDataBean {
         import_details(100021, "/XBRL_2.0/import_file_detail.xhtml");
 
         private String name;
-        private int id;
 
         private WebPage(int id, String name) {
             this.name = name;
         }
 
-        public int getId() {
-            return id;
-        }
+        
 
         public String getName() {
             return name;

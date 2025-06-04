@@ -312,7 +312,7 @@ public class OperationsUtils {
             } else {
                 if(leftValues != null && leftValues.size() == 1 && rightValues != null && rightValues.size() == 1){
                     return false;
-                } else if (leftValues.size() != rightValues.size()) {
+                } else if (leftValues != null && rightValues != null && leftValues.size() != rightValues.size()) {
                     return null;
                 }
             }
@@ -494,7 +494,6 @@ public class OperationsUtils {
             return innerJoinKey;
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO: Incluir logs
         }
 
         return null;
@@ -765,15 +764,12 @@ public class OperationsUtils {
                     return getDataTypeByID(Constants.DATETIME);
 
                 default:
-                    //TODO:
-//                    Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro porque não encontrou o id do datatype", null, null, "Erro");
                     LOG.error("DetermineDataType a dar erro");
                     return null;
             }
 
         } catch (Exception e) {
             LOG.error("DetermineDataType a dar erro" + e.getMessage());
-//            Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro", null, null,  "Erro");
         }
         return null;
     }
@@ -804,14 +800,11 @@ public class OperationsUtils {
                 
                     
                 default:
-                    //TODO:
-//                    Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "TransformValue a dar erro porque não encontrou o id do datatype", null, null, "Erro");
                     LOG.error("TransformValue a dar erro");
                     return null;
             }
         } catch (Exception e) {
             LOG.error("TransformValue a dar erro" + e.getMessage());
-//            Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "TransformValue a dar erro", null, null, "Erro");
         }
         return null;
     }
@@ -824,7 +817,6 @@ public class OperationsUtils {
         List<ValResult> resultsList = new ArrayList<>();
         List<ValResult> leftResults = new ArrayList<>();
         List<ValResult> rightResults = new ArrayList<>();
-        String resultLog = "";
 
         try {
             if (leftNode != null) {
@@ -859,7 +851,6 @@ public class OperationsUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO: Incluir logs
         }
 
         return false;

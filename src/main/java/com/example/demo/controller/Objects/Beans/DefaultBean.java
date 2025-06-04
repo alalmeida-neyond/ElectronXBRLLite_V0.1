@@ -37,7 +37,6 @@ public abstract class DefaultBean {
 
     private final Logger LOG = Logger.getLogger(DefaultBean.class);
 
-    //@ManagedProperty(value = "#{refData}")
     @Autowired
     @Qualifier("refData")
     protected RefDataBean refData;
@@ -49,7 +48,6 @@ public abstract class DefaultBean {
     public void setRefData(RefDataBean refData) {
         this.refData = refData;
     }
-
 
     private ModuleVersion moduleVersion;
     private ConfEntities entity;

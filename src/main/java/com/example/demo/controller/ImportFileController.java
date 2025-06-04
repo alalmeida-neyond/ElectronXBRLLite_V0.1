@@ -31,7 +31,6 @@ import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
 import com.example.demo.controller.Objects.Beans.DefaultBean;
-import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Entities.Conf.*;
 import com.example.demo.controller.Objects.Entities.DAL.IODAL;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
@@ -83,6 +82,8 @@ public class ImportFileController extends DefaultBean {
                 referenceDate,
                 getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionImport,
                 Constants.VALIDATEID);
+
+        setImportIOs(importIOs);
 
     }
 
@@ -222,7 +223,6 @@ public class ImportFileController extends DefaultBean {
     // Upload file to a local directory or to the application's server
     public void uploadFile(MultipartFile uploadedFile) {
         setStatusMessage("");
-        List<ConfAppConfigs> configs = new ArrayList<>();
         InputStream inputStream = null;
         OutputStream outputStream = null;
         File inputFile = null;
@@ -230,11 +230,7 @@ public class ImportFileController extends DefaultBean {
         int read = 0;
 
         try {
-            configs = Info.getInstance().refDataGet(Constants.AppConfigsAll);
-            // path = configs.stream().filter(x ->
-            // x.getKey().equals(Constants.IMPORTFILESPATH)).findFirst().get().getValue();
             path = Paths.get("XBRL_Lite", "Run", "Reports", "DataPoints");
-            // LOG.info("Path:" + path);
             String uniqueFileName = getNewFileName(uploadedFile.getOriginalFilename());
             inputFile = new File(path + Utils.getSeparator() + uniqueFileName);
 

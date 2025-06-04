@@ -25,9 +25,7 @@ public class ValidationAction {
     
     private List<InImportedTablesTemp> importedTables;
     private List<Integer> selectedMapsToValidate;
-    private List<IO> validateIOs;
-    private List<IO> validationIOs;
-    
+    private List<IO> validateIOs;    
     private final Logger LOG = Logger.getLogger(ValidationAction.class.getName());
 
     private RefDataBean refDataBean;

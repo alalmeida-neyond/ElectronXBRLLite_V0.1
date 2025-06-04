@@ -113,7 +113,7 @@ public class JPA<T> {
         return null;
     }
 
-    @SuppressWarnings("serial")
+    //@SuppressWarnings("serial")
     public List<T> getSimpleResultList(String filterColumn1, Object filterValue1, String filterColumn2, Object filterValue2, String... selectColumns) {
         if (filterColumn1 != null && !"".equals(filterColumn1) && filterValue1 != null && !"".equals(filterValue1) && filterColumn2 != null && !"".equals(filterColumn2) && filterValue2 != null && !"".equals(filterValue2)) {
             return getResultListWithoutPagination(new HashMap<String, Object>() {
@@ -132,7 +132,7 @@ public class JPA<T> {
         }
     }
 
-    @SuppressWarnings("serial")
+    //@SuppressWarnings("serial")
     public List<T> getSimpleResultList(String filterColumn1, Object filterValue1, String filterColumn2,
             Object filterValue2, String filterColumn3, Object filterValue3, String... selectColumns) {
         if (filterColumn1 != null && !"".equals(filterColumn1) && filterValue1 != null && !"".equals(filterValue1)
@@ -157,7 +157,7 @@ public class JPA<T> {
         }
     }
 
-    @SuppressWarnings("serial")
+    //@SuppressWarnings("serial")
     public List<T> getSimpleResultList(String filterColumn, Object filterValue, String... selectColumns) {
         if (filterColumn != null && !"".equals(filterColumn) && filterValue != null && !"".equals(filterValue)) {
             return getResultListWithoutPagination(new HashMap<String, Object>() {
@@ -174,7 +174,7 @@ public class JPA<T> {
         }
     }
 
-    @SuppressWarnings("serial")
+    //@SuppressWarnings("serial")
     public List<T> getSimpleResultList(String filterColumn, Object filterValue, String sortField, String sortOrder) {
         SortOrder sortOrderType = sortOrder == null ? null : (sortOrder.matches("(?i)asc") ? SortOrder.ASCENDING : SortOrder.DESCENDING);
         if (filterColumn != null && !"".equals(filterColumn) && filterValue != null && !"".equals(filterValue)) {
@@ -255,15 +255,27 @@ public class JPA<T> {
                 }
                 if (!select.isEmpty()) {
                     if (isAggregate) {
-                        queryAgg.multiselect(select);
+                        if(queryAgg != null)
+                        {
+                            queryAgg.multiselect(select);
+                        }
                     } else {
-                        query.multiselect(select);
+                        if(query != null)
+                        {
+                            query.multiselect(select);
+                        }
                     }
                 } else {
-                    query.select(from);
+                    if(query != null)
+                    {
+                        query.select(from);
+                    }
                 }
             } else {
-                query.select(from);
+                if(query != null)
+                {
+                    query.select(from);
+                }
             }
 
             //filter
@@ -352,23 +364,25 @@ public class JPA<T> {
                                         if (horaFim == -1) {
                                             horaFim = 23;
                                         }
-                                        LocalDate diaIni;
+                                        LocalDate diaIni = null;
                                         if (horaIni == 23) {
-                                            diaIni = dia.minusDays(1);
+                                            if(dia != null)
+                                            {
+                                                diaIni = dia.minusDays(1);
+                                            }
                                         } else {
                                             diaIni = dia;
                                         }
                                         if (horaFim == 23) {
-                                            dia = dia.minusDays(1);
+                                            if(dia != null)
+                                            {
+                                                dia = dia.minusDays(1);
+                                            }
                                         }
                                         filterCondition = cb.and(filterCondition, cb.greaterThanOrEqualTo(f.get(key), ZonedDateTime.of(LocalDateTime.of(diaIni, LocalTime.of(horaIni, 0)), ZoneId.of("Europe/Lisbon"))));
                                         filterCondition = cb.and(filterCondition, cb.lessThanOrEqualTo(f.get(key), ZonedDateTime.of(LocalDateTime.of(dia, LocalTime.of(horaFim, 0)), ZoneId.of("Europe/Lisbon"))));
                                         break;
 
-//													if(!"0".equals(split[0]))
-//														filterCondition = cb.and(filterCondition, cb.greaterThanOrEqualTo(cb.function("to_char", LocalTime.class, f.get(key), cb.literal("hh24:mi:ss")), LocalTime.of(horaIni, 0)));
-//													if(!"23".equals(split[1]))
-//														filterCondition = cb.and(filterCondition, cb.lessThanOrEqualTo(cb.function("to_char", LocalTime.class, f.get(key), cb.literal("hh24:mi:ss")), LocalTime.of(horaFim, 0))); break;
                                     case ">=horaInteger":
                                         LocalDate diaInicial = dia;
                                         LocalDate diaFinal = dia;
@@ -377,23 +391,40 @@ public class JPA<T> {
                                         if ((filter.getKey().equals("inicioTimestamp") || filter.getKey().equals("fimTimestamp")) && filters.containsKey("inicioTimestamp") && filters.containsKey("fimTimestamp") && !filter.getValue().toString().contains(",")) {
                                             horaInicial = Integer.parseInt(filters.get("inicioTimestamp").toString()) - 1 == -1 ? 23 : Integer.parseInt(filters.get("inicioTimestamp").toString()) - 1;
                                             horaFinal = Integer.parseInt(filters.get("fimTimestamp").toString()) - 1 == -1 ? 23 : Integer.parseInt(filters.get("fimTimestamp").toString()) - 1;
-                                            diaInicial = horaInicial == 23 ? diaInicial.minusDays(1) : diaInicial;
-                                            diaFinal = horaFinal == 23 ? diaFinal.minusDays(1) : diaFinal;
+                                            if(diaInicial != null)
+                                            {
+                                                diaInicial = horaInicial == 23 ? diaInicial.minusDays(1) : diaInicial;
+                                            }
+                                            if(diaFinal != null)
+                                            {
+                                                diaFinal = horaFinal == 23 ? diaFinal.minusDays(1) : diaFinal;
+                                            }
 
                                         } else if ((filter.getKey().equals("inicioTimestamp") || filter.getKey().equals("fimTimestamp")) && filters.containsKey("inicioTimestamp") && !filters.containsKey("fimTimestamp") && !filter.getValue().toString().contains(",")) {
                                             horaInicial = Integer.parseInt(filters.get("inicioTimestamp").toString()) - 1 == -1 ? 23 : Integer.parseInt(filters.get("inicioTimestamp").toString()) - 1;
                                             horaFinal = horaFinal - 1;
-                                            diaInicial = horaInicial == 23 ? diaInicial.minusDays(1) : diaInicial;
-
+                                            if(diaInicial != null)
+                                            {
+                                                diaInicial = horaInicial == 23 ? diaInicial.minusDays(1) : diaInicial;
+                                            }
                                         } else if ((filter.getKey().equals("inicioTimestamp") || filter.getKey().equals("fimTimestamp")) && !filters.containsKey("inicioTimestamp") && filters.containsKey("fimTimestamp") && !filter.getValue().toString().contains(",")) {
                                             horaInicial = 23;
                                             horaFinal = Integer.parseInt(filters.get("fimTimestamp").toString()) - 1 <= 0 ? 23 : Integer.parseInt(filters.get("fimTimestamp").toString()) - 1;
-                                            diaInicial = horaInicial == 23 ? diaInicial.minusDays(1) : diaInicial;
-                                            diaFinal = horaFinal == 23 ? diaFinal.minusDays(1) : diaFinal;
+                                            if(diaInicial != null)
+                                            {
+                                                diaInicial = horaInicial == 23 ? diaInicial.minusDays(1) : diaInicial;
+                                            }
+                                            if(diaFinal != null)
+                                            {
+                                                diaFinal = horaFinal == 23 ? diaFinal.minusDays(1) : diaFinal;
+                                            }
 
                                         } else {
                                             horaFinal = horaFinal - 1;
-                                            diaInicial.minusDays(1);
+                                            if(diaInicial != null)
+                                            {
+                                                diaInicial.minusDays(1);
+                                            }
                                         }
                                         filterCondition = cb.and(filterCondition, cb.greaterThanOrEqualTo(f.get(key), ZonedDateTime.of(LocalDateTime.of(diaInicial, LocalTime.of(horaInicial, 0)), ZoneId.of("Europe/Lisbon"))));
                                         filterCondition = cb.and(filterCondition, cb.lessThanOrEqualTo(f.get(key), ZonedDateTime.of(LocalDateTime.of(dia, LocalTime.of(horaFinal, 0)), ZoneId.of("Europe/Lisbon"))));
@@ -464,13 +495,18 @@ public class JPA<T> {
                     }
                 }
                 if (isAggregate) {
-                    queryAgg.where(filterCondition);
+                    if(queryAgg != null)
+                    {
+                        queryAgg.where(filterCondition);
+                    }
                 } else {
-                    query.where(filterCondition);
+                    if(query != null)
+                    {
+                        query.where(filterCondition);
+                    }
                 }
             }
 
-            //sort (se o campo a ordenar for da entidade base ou não corresponder a nenhum filtro com join)
             if (!isAggregate && sortField != null && !"".equals(sortField)) {
                 String key;
                 int dot = sortField.indexOf('.');
@@ -512,12 +548,13 @@ public class JPA<T> {
                     orderList.add(cb.desc(f.get(key)));
                 }
             }
-            //aplicar ordenacao
             if (orderList != null && !orderList.isEmpty()) {
-                query.orderBy(orderList);
+                if(query != null)
+                {
+                    query.orderBy(orderList);
+                }
             }
 
-            //create query
             if (isAggregate) {
                 return em.em.createQuery(queryAgg);
             } else {

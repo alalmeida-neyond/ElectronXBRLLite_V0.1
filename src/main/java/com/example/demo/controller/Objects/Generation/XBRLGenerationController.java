@@ -71,9 +71,7 @@ public class XBRLGenerationController implements Runnable {
         String finalFolder = "";
         File directory;
         try {
-            em = new ConnectionManager();
-            List<ConfAppConfigs> configs = Info.getInstance().refDataGet(Constants.AppConfigsAll);
-                
+            em = new ConnectionManager();                
 
             path = Paths.get("XBRL_Lite","Run", "Reports", "XBRL_Generated").toString();
             
@@ -173,8 +171,12 @@ public class XBRLGenerationController implements Runnable {
 
         } catch (Exception e) {
             e.printStackTrace();
-            generationIo.setEndTimestamp(LocalDateTime.now());
-            generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
+            if(generationIo != null)
+            {
+                generationIo.setEndTimestamp(LocalDateTime.now());
+                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
+            }
+            
             Connection.merge(generationIo); 
         }
         DownloadAction downloadAction = new DownloadAction();

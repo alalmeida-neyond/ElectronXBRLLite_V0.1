@@ -19,8 +19,6 @@ public class GenerationAction {
 
     private boolean generationRunning;
 
-    private List<IO> generationIOs;
-
     public static File getLastModified(String directoryFilePath) {
         File directory = new File(directoryFilePath);
         File[] files = directory.listFiles(File::isFile);
