@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Validation;
 
 import java.math.BigDecimal;
@@ -16,7 +12,6 @@ import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
 import com.example.demo.controller.Objects.Aggregation.*;
 import com.example.demo.controller.Objects.Comparison.*;
-import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.DataType;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.Operator;
 import com.example.demo.controller.Objects.IndividualBoolean.*;

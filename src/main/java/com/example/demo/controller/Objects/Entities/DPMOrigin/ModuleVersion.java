@@ -10,8 +10,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import com.example.demo.Converter.*;
-import com.example.demo.controller.Objects.Entities.DPMOrigin.CompoundKey;
-
 import org.springframework.data.annotation.Immutable;
 
 @Immutable

@@ -1,23 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Aggregation;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 import com.example.demo.Resources.Constants;
-import com.example.demo.controller.Objects.*;
 import com.example.demo.controller.Objects.Validation.OperationsUtils;
 import com.example.demo.controller.Objects.Validation.ValNode;
 import com.example.demo.controller.Objects.Validation.ValResult;
 import com.example.demo.controller.Objects.Validation.ValValue;
 
-/**
- *
- * @author njesus
- */
 public class AggregationCountStrategy implements AggregationStrategy {
 
     @Override

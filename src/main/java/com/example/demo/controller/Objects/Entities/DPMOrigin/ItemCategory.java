@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import com.example.demo.DTOs.DatapointItensDTO;
-import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.IDs.ItemCategoryID;
 
 import jakarta.persistence.*;

@@ -14,9 +14,7 @@ import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.*;
 import com.example.demo.Resources.Constants;
-import com.example.demo.controller.Objects.*;
 import com.example.demo.controller.Objects.ActionPhases.GenerationAction;
-import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Entities.Conf.*;
 import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.*;
@@ -34,7 +32,6 @@ public class Validator_2_0 implements Runnable {
     private ConfEntities entity;
     private LocalDate refDate;
     private String domain;
-    private String userID;
     private Set<TableVersionDPM> tables;
     
     public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, Set<TableVersionDPM> tables){

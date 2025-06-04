@@ -1,14 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Logs;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.example.demo.Converter.LocalDateTimePersistenceConverter;
-import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.IO.IO;
 
 import jakarta.persistence.Column;

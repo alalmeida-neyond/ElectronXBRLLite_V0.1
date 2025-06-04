@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 
 import org.springframework.data.annotation.Immutable;
 
-import com.example.demo.controller.Objects.Entities.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.IDs.KeyCompositionID;
 
 @Immutable

@@ -16,16 +16,7 @@ public class HeaderManager {
         List<HeaderDTO> listOfModules = new ArrayList<>();
         List<Object[]> tempList = new ArrayList<>();
         try {
-            tempList =/*entityManager.createQuery("SELECT h.headerId, hv.code, h.direction " +
-                                                    "FROM TableVersionHeader tvh " +
-                                                    "JOIN tvh.headerVersion hv " +
-                                                    "JOIN hv.header h " +
-                                                    "JOIN tvh.tableVersion tv " + 
-                                                    "WHERE tv.tableVID = :tableVid", HeaderDTO.class)
-                                                    .setParameter("tableVid", tableVid)
-                                                    .getResultList();*/
-                 
-                    entityManager.createNativeQuery("SELECT H.HEADERID, HV.CODE, H.DIRECTION \n" +
+            tempList = entityManager.createNativeQuery("SELECT H.HEADERID, HV.CODE, H.DIRECTION \n" +
                                                             "FROM TABLEVERSIONHEADER TVH \n" +
                                                             "Inner JOIN HEADERVERSION HV ON TVH.HEADERVID = HV.HEADERVID \n" +
                                                             "Inner JOIN HEADER H ON H.HEADERID = HV.HEADERID \n" +

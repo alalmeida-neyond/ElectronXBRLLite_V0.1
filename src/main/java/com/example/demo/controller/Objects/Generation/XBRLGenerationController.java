@@ -49,9 +49,7 @@ public class XBRLGenerationController implements Runnable {
     private final Logger LOG = Logger.getLogger(XBRLGenerationController.class);
 
 
-    //public XBRLGenerationController(ActiveUser user, String threadName, ModuleVersion module, String domain, ConfEntities entity, LocalDate referenceDate) {
     public XBRLGenerationController(String threadName, ModuleVersion module, String domain, ConfEntities entity, LocalDate referenceDate) {
-        //this.user = user;
         this.threadName = threadName;
         this.module = module;
         this.domain = domain;
@@ -61,7 +59,6 @@ public class XBRLGenerationController implements Runnable {
 
     @Override
     public void run() {
-        //xbrlGenerationMain();
     }
 
     public void xbrlGenerationMain(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity,IO ioImport, IO ioValidation) {
@@ -77,7 +74,6 @@ public class XBRLGenerationController implements Runnable {
             em = new ConnectionManager();
             List<ConfAppConfigs> configs = Info.getInstance().refDataGet(Constants.AppConfigsAll);
                 
-            //path = Utils.getFinalPathOfOS(configs.stream().filter(x -> x.getKey().equals(Constants.XBRLGENERATEDPATH)).findFirst().get().getValue(),configs.stream().filter(x -> x.getKey().equals(Constants.WINDOWSDISK)).findFirst().get().getValue());
 
             path = Paths.get("XBRL_Lite","Run", "Reports", "XBRL_Generated").toString();
             
@@ -89,7 +85,7 @@ public class XBRLGenerationController implements Runnable {
                 directory.mkdirs();
             }
 
-            generationIo = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
+            generationIo = new IO(
                     Info.getInstance().getIOStateByID(Constants.processoPending),
                     getReferenceDate(),
                     getModule(),
@@ -106,7 +102,6 @@ public class XBRLGenerationController implements Runnable {
 
             Connection.persist(em, generationIo);
 
-            //OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated(user.getUserId(), folderName, getModule(), now, getEntity(), domain, getReferenceDate(), generationIo);
             OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("ABC", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), ioImport);
 
             Connection.persist(em, outXBRLGenerated);
@@ -133,7 +128,7 @@ public class XBRLGenerationController implements Runnable {
             Set<String> filteredMapWithoutEmpty = listOfTableGroupedByTheTableVID.entrySet().stream()
                     .filter(entry -> {
                         InImportedTablesTemp obj = entry.getValue().get(0);
-                        return obj.getIoState().getIoStateId() != 12; //TODO remove HardCoded number
+                        return obj.getIoState().getIoStateId() != 12; 
                     })
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toSet());
@@ -165,22 +160,21 @@ public class XBRLGenerationController implements Runnable {
                 //Add to the Log Generation Canceled
                 GenerateLogDAL.createNewGenerationLog("Geracao Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
                 generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));//new IOState(Constants.processoCanceled, new IOTypeState(Constants.tipoStateCanceled)));
+                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));
                 Connection.merge(generationIo);    
 
             } else {
                 //Add to the Log Generation Conclude sucesufully
                 GenerateLogDAL.createNewGenerationLog("Geracao Concluída com sucesso", outXBRLGenerated.getIdXBRLGenerate());
                 generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
                 Connection.merge(generationIo);                
             }
 
         } catch (Exception e) {
-            LOG.error("Erro na geracao:" + e.getMessage());
             e.printStackTrace();
             generationIo.setEndTimestamp(LocalDateTime.now());
-            generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
+            generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
             Connection.merge(generationIo); 
         }
         DownloadAction downloadAction = new DownloadAction();
@@ -245,7 +239,7 @@ public class XBRLGenerationController implements Runnable {
             writer.append(domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3).toUpperCase() : domain.toUpperCase());
             writer.append("\n");
             writer.append("refPeriod,");
-            writer.append(getReferenceDate().toString()); //TODO: Normalize date
+            writer.append(getReferenceDate().toString()); 
             writer.append("\n");
             writer.append("baseCurrency,");
             writer.append(currency);
@@ -262,17 +256,9 @@ public class XBRLGenerationController implements Runnable {
             writer.append("decimalsDecimal,");
             writer.append(decimal);
         } catch (IOException e) {
-            //Something Wrong Happen
+            
         }
     }
-
-    /*public ActiveUser getUser() {
-        return user;
-    }
-
-    public void setUser(ActiveUser user) {
-        this.user = user;
-    }*/
 
     public String getThreadName() {
         return threadName;

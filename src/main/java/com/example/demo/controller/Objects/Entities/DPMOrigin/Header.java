@@ -1,12 +1,6 @@
-/*
- * Here comes the text of your license
- * Each line should be prefixed with  * 
- */
 package com.example.demo.controller.Objects.Entities.DPMOrigin;
 
 import java.io.Serializable;
-
-import com.example.demo.controller.Objects.Entities.*;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

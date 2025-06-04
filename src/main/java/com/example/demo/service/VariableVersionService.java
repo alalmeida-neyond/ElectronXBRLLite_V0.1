@@ -2,7 +2,7 @@ package com.example.demo.service;
 
 import java.util.List;
 
-import com.example.demo.controller.Objects.Entities.*;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.VariableVersion;
 
 public class VariableVersionService {
     
