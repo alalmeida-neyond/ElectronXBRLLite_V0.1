@@ -7,7 +7,7 @@ package com.example.demo.controller.Objects.Where;
 import java.util.List;
 import java.util.Map;
 
-import com.example.demo.controller.Objects.ValResult;
+import com.example.demo.controller.Objects.Validation.ValResult;
 
 public interface WhereStrategy {
     

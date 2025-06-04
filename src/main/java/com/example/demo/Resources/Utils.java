@@ -1,8 +1,14 @@
+/*
+ * Here comes the text of your license
+ * Each line should be prefixed with  * 
+ */
 package com.example.demo.Resources;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.sql.Clob;
 import java.sql.Timestamp;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
@@ -19,13 +25,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import java.io.Reader;
 
-import com.example.demo.controller.Objects.Constants;
-import com.example.demo.controller.Objects.Entities.ModuleVersion;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 
 public final class Utils {
 
@@ -61,13 +73,14 @@ public final class Utils {
     public static String pad2(int number) {
         return (number < 10 ? "0" : "") + number;
     }
-    
+
     public static String pad4(Integer number) {
         if (number == null) {
             return "";
         }
         return String.format("%04d", number);
     }
+
     /**
      * Method to get the List of Months in a written form (Janeiro / Fevereiro /
      * etc)
@@ -75,11 +88,11 @@ public final class Utils {
      * @return
      */
     public static List<Object[]> getMonths() {
-        String[] monthsDescription = new DateFormatSymbols().getMonths();
+        String[] monthsDescription = new DateFormatSymbols(Constants.LOCALPT).getMonths();
         List<Object[]> months = new ArrayList<>();
         for (int i = 0; i < monthsDescription.length; i++) {
-            if(!monthsDescription[i].isEmpty()){
-                Object[] obj = new Object[]{monthsDescription[i], i+1};
+            if (!monthsDescription[i].isEmpty()) {
+                Object[] obj = new Object[]{monthsDescription[i], i + 1};
                 months.add(obj);
             }
         }
@@ -105,7 +118,7 @@ public final class Utils {
      */
     public static String getSeparator() {
         String separator = "\\";
-        if (!System.getProperty("os.name").contains("Windows")) {
+        if (!System.getProperty(Constants.OS).contains(Constants.WINDOWS)) {
 
             separator = "/";
         }
@@ -113,6 +126,18 @@ public final class Utils {
         return separator;
     }
 
+//    /**
+//     * method used to get the corresponding number of the month based on the
+//     * long form of the month (Dezembro -> 12 Marco -> 03) Add a 0 when the moth
+//     * is inferior to 10
+//     *
+//     * @param MonthName name of the month as Long form (Janeiro)
+//     * @return
+//     */
+//    public static String getMonthNumber(String MonthName) {
+//        int monthNumber = getMonths().indexOf(MonthName) + 1;
+//        return pad2(monthNumber);
+//    }
     public static String getNullIfEmpty(String string) {
         if (string != null && string.equals("")) {
             return null;
@@ -210,18 +235,17 @@ public final class Utils {
     public static String getEmptyMessage() {
         return Constants.emptyMessage;
     }
-    
-    
-
 
     public static LocalDate dateToLocalDate(Date date) {
         return date == null ? LocalDate.MAX : date.toInstant().atZone(Constants.LISBON).toLocalDate();
     }
+
 	
-    /*public static void addLogOfOperations(Integer operationid, Integer operationnodeid, String result, String margins, String key, String type){
-        List<LogOperationTemp> logsList = Info.getInstance().getLogOperationsTempList();
-        logsList.add(new LogOperationTemp(operationid, operationnodeid, result, margins, key, type, Timestamp.valueOf(LocalDateTime.now())));
-    }*/
+//    public static void addLogOfOperations(Integer operationid, Integer operationnodeid, String result, String margins, String key, String type){
+//        List<LogOperationTemp> logsList = Info.getInstance().getLogOperationsTempList();
+//        logsList.add(new LogOperationTemp(operationid, operationnodeid, result, margins, key, type, Timestamp.valueOf(LocalDateTime.now())));
+//    }
+    
 
     public static String findOneByRegex(String regex, String scopeParsed) {
         return findOneByRegex(regex, scopeParsed, 0);
@@ -295,19 +319,19 @@ public final class Utils {
             return null;
         }
     }
-    
-    public static String getMonthNumber(String month){
+
+    public static String getMonthNumber(String month) {
         return Month.valueOf(month).toString();
     }
-    
-    public static String getCurrentTimeStampAsString(DateTimeFormatter format){
+
+    public static String getCurrentTimeStampAsString(DateTimeFormatter format) {
         return LocalDateTime.now().format(format);
     }
-    
-    public static boolean validateFromARegex(String value, String regex){
+
+    public static boolean validateFromARegex(String value, String regex) {
         return Pattern.compile(regex).matcher(value).matches();
     }
-    
+
     public static String dateTreatment(String value) {
         String returnString = null;
         for (DateTimeFormatter formatter : Constants.DATEFORMATTERARRAY) {
@@ -317,11 +341,11 @@ public final class Utils {
                 // Try the next format
             }
         }
-        
+
         return returnString;
     }
-    
-    public static String dateTimeTreatment(String value){
+
+    public static String dateTimeTreatment(String value) {
         String returnString = null;
         for (DateTimeFormatter formatter : Constants.DATETIMEFORMATTERARRAY) {
             try {
@@ -332,9 +356,94 @@ public final class Utils {
         }
         return returnString;
     }
-    
+
     public static String roundToZero(String value) throws Exception {
         double num = Double.parseDouble(value);
         return Math.abs(num) < 1e-6 ? "0" : value;
+    }
+
+    public static Map<Integer, Object[]> createHashMapForExcel(List<Object[]> data, Object[] header) {
+        int i = 0;
+        Map<Integer, Object[]> hashmap = new TreeMap<Integer, Object[]>();
+        hashmap.put(i, header);
+
+        for (Object[] o : data) {
+            i++;
+            hashmap.put(i, o);
+        }
+        return hashmap;
+    }
+
+    public static SXSSFWorkbook createSpreadSheet(String sheetname, Map<Integer, Object[]> data, SXSSFWorkbook workbook) {
+
+        Sheet spreadsheet = workbook.createSheet(sheetname);
+
+        Row xssfRow;
+
+        Set<Integer> keyid = data.keySet();
+
+        int rowid = 0;
+
+        // writing the data into the sheets...
+        for (Integer key : keyid) {
+
+            xssfRow = spreadsheet.createRow(rowid++);
+            Object[] objectArr = data.get(key);
+            int cellid = 0;
+
+            for (Object obj : objectArr) {
+                String objString = "";
+                if (obj instanceof BigDecimal) {
+                    BigDecimal objBigDecimal = (BigDecimal) obj;
+                    objString = objBigDecimal.toString();
+                } else if (obj == null) {
+                    objString = "null";
+                } else if (obj instanceof Clob) {
+                    StringBuilder sb = new StringBuilder();
+                    try (Reader reader = ((Clob) obj).getCharacterStream();
+                        BufferedReader br = new BufferedReader(reader)) {
+                        
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line).append(System.lineSeparator());
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to convert CLOB to String", e);
+                    }
+                    objString = sb.toString().trim();
+                } else {
+                    objString = obj.toString();
+                }
+
+                Cell cell = xssfRow.createCell(cellid++);
+                cell.setCellValue(objString);
+            }
+        }
+        return workbook;
+    }
+
+    public static String applyParametersToQuery(String queryStr, Object... parameters) {
+        String stringAux = queryStr;
+        if (parameters != null && (parameters.length & 1) == 0) // número par de parâmetros
+        {
+            for (int i = 0; i < parameters.length; i = i + 2) {
+                if (parameters[i + 1] != null) {
+                    try {
+                        stringAux = stringAux.replace("?" + parameters[i], "\'"+parameters[i + 1] + "\'");
+                    } catch (Exception e) {
+
+                    }
+                }
+
+            }
+        }
+        return stringAux;
+    }
+    
+    public static String getFinalPathOfOS(String mainPath, String windowsDisk){
+        if (System.getProperty(Constants.OS).contains(Constants.WINDOWS)) {
+            return windowsDisk+mainPath;
+        }
+        return mainPath;
     }
 }

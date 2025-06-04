@@ -6,7 +6,7 @@ package com.example.demo.controller.Objects.Lock;
 
 import java.io.Serializable;
 
-import com.example.demo.controller.Objects.Entities.IO;
+import com.example.demo.controller.Objects.IO.IO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

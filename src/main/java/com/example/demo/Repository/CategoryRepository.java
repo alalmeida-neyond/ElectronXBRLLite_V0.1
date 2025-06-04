@@ -1,7 +1,8 @@
 package com.example.demo.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.example.demo.controller.Objects.Entities.Category;
+
+import com.example.demo.controller.Objects.Entities.DPMOrigin.Category;
 
 import java.util.Optional;
 

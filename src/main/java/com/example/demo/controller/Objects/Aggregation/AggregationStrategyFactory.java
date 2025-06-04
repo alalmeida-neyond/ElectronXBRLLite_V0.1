@@ -7,12 +7,8 @@ package com.example.demo.controller.Objects.Aggregation;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.example.demo.controller.Objects.Constants;
+import com.example.demo.Resources.Constants;
 
-/**
- *
- * @author njesus
- */
 public class AggregationStrategyFactory {
     
     private static final Map<Integer, AggregationStrategy> strategies = new HashMap<>();

@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-import com.example.demo.controller.Objects.Constants;
+import com.example.demo.Resources.Constants;
 
 
 @Converter

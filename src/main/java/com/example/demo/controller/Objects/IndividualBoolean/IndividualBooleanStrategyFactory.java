@@ -7,7 +7,7 @@ package com.example.demo.controller.Objects.IndividualBoolean;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.example.demo.controller.Objects.Constants;
+import com.example.demo.Resources.Constants;
 
 public class IndividualBooleanStrategyFactory {
     

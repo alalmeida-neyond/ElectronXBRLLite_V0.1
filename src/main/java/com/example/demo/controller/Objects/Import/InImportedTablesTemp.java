@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 import com.example.demo.Converter.LocalDateTimePersistenceConverter;
 import com.example.demo.DTOs.CommonDatapointValidationDTO;
 import com.example.demo.DTOs.ImportedFilesResumeDTO;
-import com.example.demo.controller.Objects.Entities.*;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.VariableVersion;
+import com.example.demo.controller.Objects.IO.IO;
+import com.example.demo.controller.Objects.IO.IOState;
 
 import jakarta.persistence.*;
 
@@ -68,16 +71,13 @@ public class InImportedTablesTemp implements Serializable {
     private IO io;
 
     @ManyToOne
-    //@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TABLEVID", referencedColumnName = "TABLEVID", nullable = false)
     private TableVersionDPM tableVersion;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
     @ManyToOne
     @JoinColumn(name = "VARIABLEVID", referencedColumnName = "VARIABLEVID")
     private VariableVersion variableVersion;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
     @ManyToOne
     @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID")
     private InImportKey importKey;

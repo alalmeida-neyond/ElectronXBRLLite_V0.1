@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 
 import org.jboss.logging.Logger;
 
-import com.example.demo.controller.Objects.Constants;
+import com.example.demo.Resources.Constants;
 
 
 public final class Connection {

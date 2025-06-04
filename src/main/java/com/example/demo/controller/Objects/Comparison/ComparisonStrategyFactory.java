@@ -7,7 +7,7 @@ package com.example.demo.controller.Objects.Comparison;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.example.demo.controller.Objects.Constants;
+import com.example.demo.Resources.Constants;
 
 import java.util.AbstractMap;
 

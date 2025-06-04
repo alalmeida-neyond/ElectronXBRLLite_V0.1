@@ -10,6 +10,8 @@ import java.util.Map;
 import org.jboss.logging.Logger;
 
 import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.Validation.ValKey;
+import com.example.demo.controller.Objects.Validation.ValResult;
 
 public class WhereNotEqualsToStrategy implements WhereStrategy {
 

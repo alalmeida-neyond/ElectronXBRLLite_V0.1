@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.demo.controller.Objects.*;
+import com.example.demo.controller.Objects.Validation.ValNode;
+import com.example.demo.controller.Objects.Validation.ValResult;
 
 public interface NumericAggregationStrategy {
     

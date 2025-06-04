@@ -27,10 +27,10 @@ import org.jboss.logging.Logger;
 
 import com.example.demo.DTOs.OutValidationsDashboardDTO;
 import com.example.demo.Data.Access.JPA;
-import com.example.demo.controller.Objects.Utils;
-import com.example.demo.controller.Objects.DAL.OutValidationResultDAL;
-import com.example.demo.controller.Objects.Entities.IO;
-import com.example.demo.controller.Objects.Entities.ModuleVersion;
+import com.example.demo.Resources.Utils;
+import com.example.demo.controller.Objects.Entities.DAL.OutValidationResultDAL;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
+import com.example.demo.controller.Objects.IO.IO;
 
 public class DownloadAction {
     private final Logger LOG = Logger.getLogger(DownloadAction.class);

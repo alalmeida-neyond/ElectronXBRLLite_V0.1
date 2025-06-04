@@ -1,12 +1,13 @@
 package com.example.demo.controller.Objects.Entities;
 
-import com.example.demo.controller.Objects.Conf.ConfEntities;
-
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
+
+import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 
 @Immutable
 @Entity

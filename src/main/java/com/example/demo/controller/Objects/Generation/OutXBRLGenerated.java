@@ -9,8 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.example.demo.Converter.*;
-import com.example.demo.controller.Objects.Conf.ConfEntities;
-import com.example.demo.controller.Objects.Entities.*;
+import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
+import com.example.demo.controller.Objects.IO.IO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ColumnResult;
