@@ -27,7 +27,7 @@ public class OutValidationResultDAL {
         String moduleVID = moduleVersion != null && String.valueOf(moduleVersion.getModuleVID()) != null ? String.valueOf(moduleVersion.getModuleVID()) : null;
         String entityID = entity != null ? String.valueOf(entity.getEntityID()) : null;
         try {
-            listOfResultstemp = jpa.getNativeResultList(Utils.getResource("GetValidationsResults.sql"),
+            listOfResultstemp = jpa.getNativeResultList(Utils.getResource("SQL_Queries/GetValidationsResults.sql"),
                     "referenceDate", referenceDate != null ? referenceDate.format(Constants.dateFormat) : null,
                     "format",Constants.ISOBASEFORMAT,
                     "entityID", entityID,
@@ -70,7 +70,7 @@ public class OutValidationResultDAL {
         List<ValidationResultsDetailsDTO> listOfResults = new ArrayList<>();
 
         try {
-            listOfResults = jpa. getNativeResultListWithMapping(Utils.getResource("GetValidationsResultsDetails.sql"), "ValidationResultsDetailsRow",
+            listOfResults = jpa. getNativeResultListWithMapping(Utils.getResource("SQL_Queries/GetValidationsResultsDetails.sql"), "ValidationResultsDetailsRow",
                 "stateOk", Constants.processoOk,
                 "validationResultId", validationResultID,
                 "typeStateOk", Constants.tipoStateOK,                   
@@ -93,7 +93,7 @@ public class OutValidationResultDAL {
         List<Object[]> listOfResultstemp = new ArrayList<>();
 
         try {
-            listOfResultstemp = jpa.getNativeResultList(Utils.getResource("GetValidationsResultsDetailsForGenDownload.sql"),
+            listOfResultstemp = jpa.getNativeResultList(Utils.getResource("SQL_Queries/GetValidationsResultsDetailsForGenDownload.sql"),
                 "stateOk", Constants.processoOk,
                 "ioId", String.valueOf(ioIdValidate.getIoId()),
                 "typeStateOk", Constants.tipoStateOK,                   

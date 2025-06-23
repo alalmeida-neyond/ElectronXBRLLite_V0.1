@@ -29,7 +29,7 @@ public class OperationsUtils {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
         try {
-            results = jpa.getMappedFileQueryResultList("GetValuesForTimeShiftUpdate.sql", "ValuesForOperationMapping",
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesForTimeShiftUpdate.sql", "ValuesForOperationMapping",
                     "operationVId", String.valueOf(operationVID),
                     "entityId", entityID,
                     "refdate", refDate.format(Constants.DATEFORMATISO8601),

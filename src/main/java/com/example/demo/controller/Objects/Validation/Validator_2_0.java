@@ -46,7 +46,7 @@ public class Validator_2_0 implements Runnable {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
         try {
-            results = jpa.getMappedFileQueryResultList("XBRLArvore.sql", "OperationNodeMapping",
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvore.sql", "OperationNodeMapping",
                     "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
                     "format",Constants.ISOBASEFORMAT8601SQLite,
@@ -65,7 +65,7 @@ public class Validator_2_0 implements Runnable {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
         try {
-            results = jpa.getMappedFileQueryResultList("XBRLArvorePreconditions.sql", "OperationNodeMapping",
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvorePreconditions.sql", "OperationNodeMapping",
                     "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
                     "format",Constants.ISOBASEFORMAT8601SQLite
@@ -120,7 +120,7 @@ public class Validator_2_0 implements Runnable {
         List<Object[]> results = new ArrayList<>();
 
         try {
-            results = jpa.getMappedFileQueryResultList("GetValuesUpdate.sql", "ValuesForOperationMapping",
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesUpdate.sql", "ValuesForOperationMapping",
                     "operationVId", String.valueOf(operationVID),
                     "ioId", io.getIoId(),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
@@ -150,7 +150,7 @@ public class Validator_2_0 implements Runnable {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
         try {
-            results = jpa.getMappedFileQueryResultList("GetValuesForPreconditionsUpdate.sql", "ValuesForOperationMapping",
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesForPreconditionsUpdate.sql", "ValuesForOperationMapping",
                     "preconditionVId", String.valueOf(precondtionVId),
                     "ioId", io.getIoId());
         } catch (Exception e) {
@@ -551,7 +551,7 @@ public class Validator_2_0 implements Runnable {
         JPA<Object[]> jpa = new JPA<>(cm, Object[].class);
  
         try {
-            result = jpa.executeFileQuery("InsertIntoValidationsDashboard.sql",
+            result = jpa.executeFileQuery("SQL_Queries/InsertIntoValidationsDashboard.sql",
                     "referenceDate", this.refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
                     "typeStateOk", String.valueOf(Constants.tipoStateOK),
                     "ioId", String.valueOf(io.getIoId()),

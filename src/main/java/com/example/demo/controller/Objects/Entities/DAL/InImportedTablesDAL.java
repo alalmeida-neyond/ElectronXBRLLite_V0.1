@@ -24,7 +24,7 @@ public class InImportedTablesDAL {
     public static List<InImportedTablesTemp> getListOfImportedMaps(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain, IO io) {
         JPA<InImportedTablesTemp> jpa = new JPA<>(InImportedTablesTemp.class);
         domain = domain != null ? (domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain) : null;
-        String queryStr = Utils.getResource("GetImportedTablesForGeneration.sql");
+        String queryStr = Utils.getResource("SQL_Queries/GetImportedTablesForGeneration.sql");
         
         List<InImportedTablesTemp> listOfMaps = new ArrayList<>();
         try {
@@ -42,7 +42,7 @@ public class InImportedTablesDAL {
     public static List<InImportedTablesTemp> getListOfImportedMapsToValidate(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain, IO io) {
         JPA<InImportedTablesTemp> jpa = new JPA<>(InImportedTablesTemp.class);
         domain = domain != null ? (domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain) : null;
-        String queryStr = Utils.getResource("GetImportedTables.sql");
+        String queryStr = Utils.getResource("SQL_Queries/GetImportedTables.sql");
         
         List<InImportedTablesTemp> listOfMaps = new ArrayList<>();
         try {
@@ -65,7 +65,7 @@ public class InImportedTablesDAL {
         JPA<CommonDatapointValidationDTO> jpa = new JPA<CommonDatapointValidationDTO>(CommonDatapointValidationDTO.class);
         List<CommonDatapointValidationDTO> possibleDatapointsConflictsList = new ArrayList<>();
         domain = domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain;
-        String queryStr = Utils.getResource("GetCommonDatapoints20.sql");
+        String queryStr = Utils.getResource("SQL_Queries/GetCommonDatapoints20.sql");
         try {
             possibleDatapointsConflictsList = jpa.getNativeResultListWithMapping(queryStr, "CommonDatapointValidation", 
                     "ioId", io.getIoId(),

@@ -11,7 +11,7 @@ public class ValidationService {
         JPA<ValidationResultsDetailsDTO> jpa = new JPA<>(ValidationResultsDetailsDTO.class);
         List<ValidationResultsDetailsDTO> results = new ArrayList<>();
         try {
-            results = jpa.getMappedFileQueryResultList("GetValidationsResultsDetails.sql",
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValidationsResultsDetails.sql",
                     "ValidationResultsDetailsRow","ioId", ioId);
 
             if(results == null)

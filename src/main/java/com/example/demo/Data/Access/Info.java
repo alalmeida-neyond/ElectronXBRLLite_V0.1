@@ -221,7 +221,7 @@ public class Info {
     private void setTablesByModule(EntityManager em) {
         JPA<Object[]> jpa = new JPA<Object[]>(em, Object[].class);
         List<Object[]> results = new ArrayList<>();
-        String query = Utils.getResource("TablesByModule.sql");
+        String query = Utils.getResource("SQL_Queries/TablesByModule.sql");
         try {
             results = jpa.getNativeResultListWithMapping(query, "TablesByModuleMapping");
             for (Object[] result : results) {

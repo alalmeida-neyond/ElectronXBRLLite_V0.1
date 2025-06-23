@@ -104,7 +104,7 @@ public class ItemCategoryDAL {
         List<DatapointItensDTO> listOfFiles = new ArrayList<>();
         
         try {
-            listOfFiles = jpa.getMappedFileQueryResultList("DatapointPossibleValues.sql", "DatapointItensDTO",
+            listOfFiles = jpa.getMappedFileQueryResultList("SQL_Queries/DatapointPossibleValues.sql", "DatapointItensDTO",
                         "tablevid", tableVID, 
                         "direction",direction ,
                         "reportCoordinates", Optional.ofNullable(reportCoordinates).orElse(""),

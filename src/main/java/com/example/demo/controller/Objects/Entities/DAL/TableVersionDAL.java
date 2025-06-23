@@ -51,7 +51,7 @@ public class TableVersionDAL {
         Map<String, Integer> properties = new HashMap<>();
         
         try {
-            List<Object[]> results = jpa.getFileQueryResultList("PropertiesIdentifier.sql",
+            List<Object[]> results = jpa.getFileQueryResultList("SQL_Queries/PropertiesIdentifier.sql",
                     "tableVId", String.valueOf(tableVId),
                     "referenceDate", referenceDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS).toString());
             

@@ -111,25 +111,8 @@ public class ImportFileDetailController extends DefaultBean {
         List<Object[]> tempReports = new ArrayList<>();
         
         try {
-            /*tempReports = jpa.getNativeResultList(Utils.getResource("GetImportedDetails.sql"),
-                    "actionImportId", String.valueOf(Constants.actionImport),
-                    "referenceDate", referenceDate,
-                    "domain", domain,
-                    //"entityID", entity == null ? null : entity.getEntityID(),
-                    "moduleVID", module == null ? null : module.getModuleVID(),
-                    "ioid", ioImport == null ? null : ioImport.getIoId());*/
-
-            //Com a pesquisa de IO
-            /*tempReports = jpa.getNativeResultList(Utils.getResource("GetImportedDetails.sql"),
-                    "actionImportId", String.valueOf(Constants.actionImport),
-                    "referenceDate", referenceDate,
-                    "format",Constants.ISOBASEFORMAT8601SQLite,
-                    "domain", domain,
-                    "entityID", entity == null ? null : entity.getEntityID(),
-                    "moduleVID", module == null ? null : module.getModuleVID());*/
-
             //Sem a pesquisa IO
-            tempReports = jpa.getNativeResultList(Utils.getResource("GetImportedDetails.sql"),
+            tempReports = jpa.getNativeResultList(Utils.getResource("SQL_Queries/GetImportedDetails.sql"),
                     "format",Constants.ISOBASEFORMAT8601SQLite,
                     "ioId", io.getIoId());
         } catch (Exception e) {

@@ -25,7 +25,7 @@ public class InImportedValuesDAL {
         domain = domain != null ? (domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain) : null;
         List<ImportedValuesDTO> listOfValues = new ArrayList<>();
         try {
-            listOfValues = jpa.getNativeResultListWithMapping(Utils.getResource("GetImportedValues.sql"), "ImportedValuesRow",
+            listOfValues = jpa.getNativeResultListWithMapping(Utils.getResource("SQL_Queries/GetImportedValues.sql"), "ImportedValuesRow",
                     "actionId", String.valueOf(Constants.actionImport),
                     "typeStateOk", String.valueOf(Constants.tipoStateOK),
                     "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE),
@@ -64,21 +64,8 @@ public class InImportedValuesDAL {
         List<Object[]> resultList = new ArrayList<>();
         
         try {
-            /*resultList = jpa.getNativeResultList(Utils.getResource("GetDifferences.sql"),
-                        "typeStateOk", String.valueOf(Constants.tipoStateOK),
-                        "actionImportId", String.valueOf(Constants.actionImport),
-                        "referenceDate", row.getReferenceDate().format(Constants.dateFormat),
-                        "domain", row.getDomain(),
-                        "format", Constants.ISOBASEFORMAT,
-                        "entityId", row.getEntity().getEntityID(),
-                        "moduleVID", row.getModuleVersion().getModuleVID(),
-                        "ioIdGenerate", row.getIo().getIoId(),
-                        "desagregationCodeType", Constants.DESAGREGATIONCODETYPE,
-                        "rowKeyType", Constants.ROWKEYTYPE, 
-                        "currentDate", LocalDate.now().format(Constants.DATEFORMATISO8601),
-                        "currentUser", user);*/
 
-            resultList = jpa.getNativeResultList(Utils.getResource("GetDifferences.sql"),
+            resultList = jpa.getNativeResultList(Utils.getResource("SQL_Queries/GetDifferences.sql"),
                         "typeStateOk", String.valueOf(Constants.tipoStateOK),
                         "actionImportId", String.valueOf(Constants.actionImport),
                         "referenceDate", row.getReferenceDate().format(Constants.dateFormat),
