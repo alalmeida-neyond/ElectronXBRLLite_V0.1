@@ -1,7 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html" xmlns:p="http://primefaces.org/ui"
-  xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-  xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<!DOCTYPE html>
+<html>
 
 <h:head>
   <link href="./Style/Headers.css" rel="stylesheet" type="text/css" />
@@ -49,6 +47,21 @@
   text-decoration: underline;
 }
 
+  #languageSwitcher {
+    background-color: transparent;
+    color: white;
+    border: none;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  #languageSwitcher option {
+    color: black; /* makes dropdown readable */
+  }
+
+
   </style>
 </h:head>
 
@@ -59,18 +72,22 @@
           style="height: auto; width: 45%" /></a>
     </div>
     <div id="dvheaderGroup">
-      <div id="dvheaderRight">
-        LEI CODE: *A INSERIR*
+      <div id="dvheaderRight" class="internationalization" data-key="toBeInserted.label">
+        {{toBeInserted.label}}
       </div>
 
       <div id="dvheaderRightDown">
-        <a th:href="@{/}" title="Templates">Templates de Utilização</a>
-        <a th:href="@{/}" title="Manual">Manual de Utilizador</a>
-        <a th:href="@{/}" title="Settings">Configurações</a>
-        <a th:href="@{/}" title="Language">Idioma</a>
+        <a th:href="@{/}" class="internationalization" data-key="templates.label" title="Templates">{{templates.label}}</a>
+        <a th:href="@{/}" class="internationalization" data-key="manual.label" title="Manual">{{manual.label}}</a>
+        <a th:href="@{/}" class="internationalization" data-key="settings.label" title="Settings">{{settings.label}}</a>
+        <div class="language-switcher">
+          <select id="languageSelect" class="form-select form-select-sm w-auto">
+            <option value="pt" selected>Português</option>
+            <option value="en">English</option>
+          </select>
+        </div>
       </div>
     </div>
   </div>
 </body>
-
 </html>

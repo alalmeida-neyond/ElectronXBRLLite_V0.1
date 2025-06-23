@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Operations.Where;
 
 import java.util.HashMap;
@@ -9,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import org.jboss.logging.Logger;
 
-import com.example.demo.controller.Objects.*;
 import com.example.demo.controller.Objects.Validation.ValKey;
 import com.example.demo.controller.Objects.Validation.ValResult;
 
@@ -44,7 +39,6 @@ public class WhereNotEqualsToStrategy implements WhereStrategy {
             return false;
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO: INCLUIR LOGS
             LOG.error("Erro em filterResultsUsingWhere: " + e.getMessage());
         }
         return false;

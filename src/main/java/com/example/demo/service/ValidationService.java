@@ -30,10 +30,27 @@ public class ValidationService {
         List<Object[]> result = new ArrayList<Object[]>();
 
         try {
-            StringBuilder queryString = new StringBuilder("Select io.ioid as ioid, io.io_stateid as stateid,io.modulevid as module");
-            queryString.append(", io.entityid as entity, io.domain as domain, date(io.referencedate) as referenceDate, io.actionid");
-            queryString.append(" from IO io");
+            StringBuilder queryString = new StringBuilder("Select io.ioid as ioid, io.io_stateid as stateid,mv.code as module");
+            queryString.append(", ce.leicode as entity, io.domain as domain, date(io.referencedate) as referenceDate, io.actionid");
+            queryString.append(" from IO io inner join ModuleVersion mv on mv.modulevid = io.modulevid inner join CONF_ENTITIES ce on ce.entityid = io.entityid");
             queryString.append(" where io.ACTIONID = 2;");
+            result = jpa.getTypedNativeResultList(queryString.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            jpa.close();
+        }
+
+        return result;
+    }
+
+    public List<String> getModules() {
+        JPA<String> jpa = new JPA<String>(String.class);
+        List<String> result = new ArrayList<String>();
+
+        try {
+            StringBuilder queryString = new StringBuilder("Select mv.code as module");
+            queryString.append(" from ModuleVersion mv;");
             result = jpa.getTypedNativeResultList(queryString.toString());
         } catch (Exception e) {
             e.printStackTrace();

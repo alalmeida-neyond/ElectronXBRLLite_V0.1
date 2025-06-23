@@ -12,7 +12,7 @@ public class DemoApplication {
 
 	public static void main(String[] args) {
 		DeleteAction deleteAction = new DeleteAction();
-		deleteAction.deleteRecords();
+		//deleteAction.deleteRecords();
 		ReplacementDB replacementDB = new ReplacementDB();
 		replacementDB.replacementDBEvent();
 		System.out.println("Replacement Called");

@@ -101,7 +101,8 @@ public class DemoController extends DefaultBean{
 
         init();
         
-        modelAndView.setViewName("index");
+        //modelAndView.setViewName("index");
+        modelAndView.setViewName("test");
         modelAndView.addObject("username", "Marcus Tremor"); // Dynamic username
         return modelAndView; // Thymeleaf template name (greeting.html)
     }
@@ -144,6 +145,16 @@ public class DemoController extends DefaultBean{
         ValidationService validationService = new ValidationService();
         List<Object[]> validationResults = new ArrayList<Object[]>();
         validationResults = validationService.getIOResults();
+        return validationResults;
+    }
+
+    @GetMapping("/importFile/modules")
+    @ResponseBody
+    public List<String> getModules() {
+        LOG.info("Modules");
+        ValidationService validationService = new ValidationService();
+        List<String> validationResults = new ArrayList<String>();
+        validationResults = validationService.getModules();
         return validationResults;
     }
 

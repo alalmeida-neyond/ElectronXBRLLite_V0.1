@@ -80,21 +80,6 @@ public class FileController {
     private List<String> extractExcelColumn(Path filePath, int columnIndex) {
         List<String> columnValues = new ArrayList<>();
 
-        /*try (InputStream is = Files.newInputStream(filePath);
-            Workbook workbook = new XSSFWorkbook(is)) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            for (org.apache.poi.ss.usermodel.Row row : sheet) {
-                Cell cell = row.getCell(columnIndex);
-                if (cell != null) {
-                    String value = cell.toString();
-                    columnValues.add(value);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
         return columnValues;
     }
 

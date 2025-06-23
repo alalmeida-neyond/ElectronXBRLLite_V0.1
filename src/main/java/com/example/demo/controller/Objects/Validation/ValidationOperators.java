@@ -551,7 +551,6 @@ public class ValidationOperators {
 
     //Aplicacao das operacoes numéricas sobre os valores enviados como parâmetros
     private static ValResult applyNumericOperations(ValNode parent, ValNode leftNode, ValNode rightNode, ValResult leftValue, ValResult rightValue) {
-        //FIXME - SEGUIR ABORDAGEM DAS STRATEGYS
         BigDecimal leftMargin = null;
         BigDecimal rightMargin = null;
         boolean isToUseIntervals = false;
@@ -1039,7 +1038,6 @@ public class ValidationOperators {
                                 }
                                 break;
 
-                            //TODO: Caso se aparecer algo que não entre na condicao?
                         }
                     }
                 }

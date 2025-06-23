@@ -1,42 +1,35 @@
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:p="http://primefaces.org/ui"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<!DOCTYPE html>
 
 
-    <div id="dvFooterContainer" style="width: 100%;">
-        <table style="width: 100%;">
-            <tr>
-                <td style="width: 50%; text-align: left; padding-left:10px;">© Neyond
-                        . Todos os direitos reservados.</td>
-                        
-                <td style="width: 50%; text-align: right; padding-right:10px;"><a
-                        href="http://www.neyond.pt/" target="_blank">Desenvolvido
-                        por Neyond</a> <div>XBRL Lite 1.0</div></td>
-            </tr>
-        </table>
-    </div>
+<div class="footer text-white">
 
-    <script>
-        function checkFooterPosition(){
-            let footer = document.getElementById("footer");
-            let body = document.body;
-            let html = document.documentElement;
-            
-            let documentHeigth = Math.max(body.scrollHeight,body.offsetHeight, html.clientHeight,html.scrollHeight,html.offsetHeight);
-            let windowHeigth = window.innerHeight;
-            if(documentHeigth & lt != windowHeigth){
-                footer.style.bottom = '0';
-            }else{
-                footer.style.bottom = '';
-            }
-        }
-        checkFooterPosition();
-        window.addEventListener('resize',checkFooterPosition);
-        window.addEventListener('scroll',checkFooterPosition);
-    </script>
-</ui:composition>
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 border-top">
+      <div class="col-md-4 d-flex align-items-center">
+        <a href="/" class="mb-3 me-2 mb-md-0 text-decoration-none lh-1">
+          <svg class="bi" width="30" height="24" aria-hidden="true"></svg>
+        </a>
+        <span class="mb-3 mb-md-0 internationalization" data-key="copyright.label">{{copyright.label}}</span>
+      </div>
+      <ul class="nav col-md-4 list-unstyled d-flex justify-content-end" style="margin-right: 20px;">
+        <li class="ms-3">
+          <a href="#" class="text-white internationalization" aria-label="Neyond" data-key="developed.label">{{developed.label}}</a>
+        </li>
+        <li class="ms-3">
+          <span>XBRL Lite 1.0</span>
+        </li>
+      </ul>
+    </footer>
+</div>
+
+<style>
+    .footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  
+  }
+
+  footer{
+    background-color: #033d51; 
+  }
+</style>
