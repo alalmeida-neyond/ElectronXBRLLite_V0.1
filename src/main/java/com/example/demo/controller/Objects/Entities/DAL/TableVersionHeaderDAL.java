@@ -28,7 +28,7 @@ public class TableVersionHeaderDAL {
             queryString.append(" Inner JOIN Header h ON h.HEADERID = HV.HEADERID ");
             queryString.append(" left join release sr on sr.releaseid = ic.startreleaseid ");
             queryString.append(" left join release er on er.releaseid = ic.endreleaseid ");
-            queryString.append(" where (sr.\"Date\" <= TO_DATE(:referenceDate, 'YYYY-MM-DD') and (er.\"Date\" >= TO_DATE(:referenceDate, 'YYYY-MM-DD') or er.releaseid is null)) ");
+            queryString.append(" where (sr.\"Date\" <= STRFTIME('YYYY-MM-DD', :referenceDate) and (er.\"Date\" >= STRFTIME('YYYY-MM-DD', :referenceDate) or er.releaseid is null)) ");
             queryString.append("     and h.iskey = '1' and TVH.TABLEVID = :tableVID ");
             queryString.append(" ORDER BY TVH.\"Order\",TVH.TABLEVID");
             resultList = jpa.getNativeResultList(queryString.toString(),

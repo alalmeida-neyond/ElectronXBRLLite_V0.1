@@ -202,9 +202,16 @@ public class Info {
             this.refData.put(Constants.VersionsAll.toLowerCase(), em.createNativeQuery("SELECT DISTINCT e.versionNumber " +
                                                                                             "FROM ModuleVersion e " +
                                                                                             "ORDER BY " +
-                                                                                            "TO_NUMBER(REGEXP_SUBSTR(e.versionNumber, '^[0-9]+', 1, 1)) DESC, " +
-                                                                                            "TO_NUMBER(COALESCE(REGEXP_SUBSTR(e.versionNumber, '[0-9]+', 1, 2), '0')) DESC, " +
-                                                                                            "TO_NUMBER(COALESCE(REGEXP_SUBSTR(e.versionNumber, '[0-9]+', 1, 3), '0')) DESC").getResultList());
+                                                                                            "CAST(SUBSTR(e.versionNumber, 1, INSTR(e.versionNumber, '.') - 1) AS INTEGER) DESC, " +
+                                                                                            "CAST(SUBSTR( " +
+                                                                                            "e.versionNumber, " +
+                                                                                            "INSTR(e.versionNumber, '.') + 1, " +
+                                                                                            "INSTR(SUBSTR(e.versionNumber, INSTR(e.versionNumber, '.') + 1), '.') - 1 " +
+                                                                                            ") AS INTEGER) DESC, " +
+                                                                                            "CAST(SUBSTR( " +
+                                                                                            "e.versionNumber, " +
+                                                                                            "LENGTH(SUBSTR(e.versionNumber, 1, INSTR(e.versionNumber, '.') + INSTR(SUBSTR(e.versionNumber, INSTR(e.versionNumber, '.') + 1), '.') )) + 1 " +
+                                                                                            ") AS INTEGER) DESC").getResultList());
         } catch (Exception e) {
             LOG.error("Erro na obtencao da lista de versões:" + e.getMessage());
         }

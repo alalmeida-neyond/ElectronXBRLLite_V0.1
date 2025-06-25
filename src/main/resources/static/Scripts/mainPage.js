@@ -1,8 +1,6 @@
 
 let languageLabels = {};
 function updateLanguageLabels(language) {
-    console.log("Idioma selecionado:", language);
-
     fetch(`./Languages_Files/${language}.json`)
         .then(response => {
             if (!response.ok) throw new Error("Ficheiro de idioma não encontrado");
@@ -11,14 +9,25 @@ function updateLanguageLabels(language) {
         .then(data => {
             document.querySelectorAll(".internationalization").forEach(element => {
                 const key = element.getAttribute("data-key");
-                if (data[key]) {
+                const translation = data[key];
+
+                if (translation) {
                     if (element.tagName === "INPUT") {
-                        element.placeholder = data[key];
+                        element.placeholder = translation;
+                    } else if (element.tagName === "I"){
+                        element.title = translation;
                     } else {
-                        element.textContent = data[key];
+                        const firstChild = element.firstChild;
+                        if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
+                            firstChild.nodeValue = translation + " ";
+                        } else {
+                            const textNode = document.createTextNode(translation + " ");
+                            element.insertBefore(textNode, element.firstChild);
+                        }
                     }
                 }
             });
+
         })
         .catch(error => {
             console.error("Erro ao carregar idioma:", error);
@@ -144,61 +153,40 @@ document.addEventListener("DOMContentLoaded", function () {
     function createCellCustomIOState(value, ioStateId) {
         const td = document.createElement("td");
 
-        let text = value ?? "-";
-        const image = document.createElement("i");
-
-        image.classList.add("bi");
-        image.classList.add("me-2");
+        const icon = document.createElement("i");
+        icon.classList.add("bi", "me-2");
 
         let label = "";
-        let backgroundColor = ""
+        let backgroundColor = "";
+
         if (ioStateId == 1) {
-            console.log("Here");
-            image.classList.add("bi-check-circle-fill");
-            image.classList.add("text-success");
-
-
-            td.setAttribute("data-key", "ok.label");
-            td.style.backgroundColor = "lightGrey";
-            backgroundColor = "lightGrey";
+            icon.classList.add("bi-check-circle-fill", "text-success");
             label = "ok.label";
+            backgroundColor = "lightgrey";
         } else if (ioStateId == 2) {
-
-            image.classList.add("bi-exclamation-triangle-fill");
-            image.classList.add("text-warning");
-
-            td.setAttribute("data-key", "warning.label");
-            td.style.backgroundColor = "#fff3cd";
-            backgroundColor = "#fff3cd";
+            icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
             label = "warning.label";
+            backgroundColor = "#fff3cd";
         } else if (ioStateId == 3) {
-
-            image.classList.add("bi-x-circle-fill");
-            image.classList.add("text-danger");
-
-            td.setAttribute("data-key", "error.label");
-            td.style.backgroundColor = "#f8d7da";
-            backgroundColor = "#f8d7da";
+            icon.classList.add("bi-x-circle-fill", "text-danger");
             label = "error.label";
+            backgroundColor = "#f8d7da";
         }
-        td.appendChild(image);
-        td.appendChild(document.createTextNode(text));
-        td.classList.add("first-cell");
-        td.classList.add("internationalization");
 
-        td.innerHTML = `
-          <td class= 'internationalization first-cell' data-key='${label} style="background-color: ${backgroundColor};">
-            <i class="bi me-2 bi-check-circle-fill text-success"></i>
-          </td>`;
+        td.appendChild(icon);
+
+        td.setAttribute("data-key", label);
+        td.classList.add("first-cell", "internationalization");
+        td.style.backgroundColor = backgroundColor;
 
         return td;
     }
 
+
+
     function createCellCustom(value, ioStateId) {
         const td = document.createElement("td");
-
-        //td.classList.add("ioCell");
-
+        
         let iconClass = "";
         let text = value ?? "-";
 
@@ -259,12 +247,6 @@ document.addEventListener("DOMContentLoaded", function () {
             <i class="bi bi-box-arrow-up-right"></i>
           </span>`;
 
-            const imageDetails = document.createElement("i");
-            imageDetails.classList.add("bi", "bi-box-arrow-up-right");
-            imageDetails.style.color = "#0d6efd";
-            imageDetails.style.cursor = "pointer";
-            imageDetails.style.textDecoration = "underline";
-            btn.appendChild(imageDetails);
             detailBtnTd.appendChild(btn);
             tr.appendChild(detailBtnTd);
             btn.onclick = () => toggleDetails(io[0], btn);
@@ -284,6 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const detailTd = document.createElement("td");
             detailTd.colSpan = 7;
+            detailTd.style.padding = 10;
             const loadingDiv = document.createElement("div");
             loadingDiv.id = `detail-${io[0]}`;
             loadingDiv.classList.add("internationalization");
@@ -339,8 +322,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     const headerRow = document.createElement("tr");
 
                     const header = [
-                        { key: "rule.label", className: "firstItemDetails" },
+                        { key: "ruleCode.label", className: "firstItemDetails" },
                         { key: "severity.label" },
+                        { key: "ruleDomain.label" },
+                        { key: "rule.label"},
+                        { key: "ruleValues.label"},
                         { key: "result.label" },
                         { key: "processDate.label", className: "lastItemDetails" }
                     ];
@@ -349,6 +335,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         const th = document.createElement("th");
                         th.classList.add("internationalization");
                         th.setAttribute("data-key", key);
+                        th.style.fontSize = "0.9rem";
                         if (className) {
                             th.classList.add(className);
                         }
@@ -371,20 +358,71 @@ document.addEventListener("DOMContentLoaded", function () {
                             rowStyle = `background-color: #f8d7da`;
                         }
 
+                        const ruleCodeKey = ((d.regraCode ?? 'unknown') + '').toLowerCase() + ".label";
+                        const tdRuleCodeKey = document.createElement("td");
+                        tdRuleCodeKey.classList.add("internationalization");
+                        tdRuleCodeKey.setAttribute("data-key", ruleCodeKey);
+                        tdRuleCodeKey.setAttribute("style", rowStyle);
+                        tdRuleCodeKey.textContent = d.regraCode ?? "-";
+                        tdRuleCodeKey.style.fontSize = "0.7rem";
+
+                        bodyRow.appendChild(tdRuleCodeKey);
+
+                        const severityKey = ((d.severity ?? 'unknown') + '').toLowerCase();
+                        const tdSeverity = document.createElement("td");
+                        tdSeverity.setAttribute("style", rowStyle);
+
+                        const iconSeverity = document.createElement("i");
+                        iconSeverity.classList.add("bi", "me-2");
+
+                        let severityLabel = "";
+
+                        if (severityKey === "ok") {
+                            iconSeverity.classList.add("bi-check-circle-fill", "text-success");
+                            severityLabel = "success.label";
+                        } else if (severityKey === "warning") {
+                            iconSeverity.classList.add("bi-exclamation-triangle-fill", "text-warning");
+                            severityLabel = "warning.label";
+                        } else if (severityKey === "error") {
+                            iconSeverity.classList.add("bi-x-circle-fill", "text-danger");
+                            severityLabel = "error.label";
+                        }
+                        iconSeverity.classList.add("internationalization");
+                        iconSeverity.setAttribute("data-key", severityLabel);
+                        if(languageLabels[severityLabel])
+                        {
+                            iconSeverity.title = languageLabels[severityLabel];
+                        }
+                        
+                        
+                        tdSeverity.appendChild(iconSeverity);
+                        bodyRow.appendChild(tdSeverity);
+
+                        const ruleDomainKey = ((d.regraDomain ?? 'unknown') + '').toLowerCase() + ".label";
+                        const tdRuleDomainKey = document.createElement("td");
+                        tdRuleDomainKey.classList.add("internationalization");
+                        tdRuleDomainKey.setAttribute("data-key", ruleDomainKey);
+                        tdRuleDomainKey.setAttribute("style", rowStyle);
+                        tdRuleDomainKey.textContent = d.regraDomain ?? "-";
+                        tdRuleDomainKey.style.fontSize = "0.7rem";
+                        tdRuleDomainKey.style.overflowWrap = "break-word";
+                        bodyRow.appendChild(tdRuleDomainKey);
+
                         const tdRule = document.createElement("td");
                         tdRule.textContent = d.regra ?? "-";
                         tdRule.classList.add("firstItemDetails");
                         tdRule.setAttribute("style", rowStyle);
+                        tdRule.style.fontSize = "0.7rem";
                         bodyRow.appendChild(tdRule);
 
-                        const severityKey = ((d.severity ?? 'unknown') + '').toLowerCase() + ".label";
-                        const tdSeverity = document.createElement("td");
-                        tdSeverity.classList.add("internationalization");
-                        tdSeverity.setAttribute("data-key", severityKey);
-                        tdSeverity.setAttribute("style", rowStyle);
-                        tdSeverity.textContent = d.severity ?? "-";
-
-                        bodyRow.appendChild(tdSeverity);
+                        const ruleValuesKey = ((d.regraExecutada ?? 'unknown') + '').toLowerCase() + ".label";
+                        const tdRuleValuesKey = document.createElement("td");
+                        tdRuleValuesKey.classList.add("internationalization");
+                        tdRuleValuesKey.setAttribute("data-key", ruleValuesKey);
+                        tdRuleValuesKey.setAttribute("style", rowStyle);
+                        tdRuleValuesKey.textContent = d.regraExecutada ?? "-";
+                        tdRuleValuesKey.style.fontSize = "0.7rem";
+                        bodyRow.appendChild(tdRuleValuesKey);
 
                         const tdResult = document.createElement("td");
                         tdResult.classList.add("internationalization");
@@ -395,6 +433,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         );
                         tdResult.setAttribute("style", rowStyle);
                         tdResult.textContent = resultado;
+                        tdResult.style.fontSize = "0.7rem";
                         bodyRow.appendChild(tdResult);
 
                         const tdProcessDate = document.createElement("td");
@@ -402,6 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         tdProcessDate.textContent = d.dataProcessamento ?? "-";
                         tdProcessDate.classList.add("lastItemDetails");
                         tdProcessDate.setAttribute("style", rowStyle);
+                        tdProcessDate.style.fontSize = "0.7rem";
                         bodyRow.appendChild(tdProcessDate);
 
                         tbody.appendChild(bodyRow);
@@ -436,7 +476,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return td;
     }
 
-    // On page load, optionally fetch existing IOs
     fetchModulesFromBackend();
     fetchIOs();
 

@@ -18,14 +18,17 @@
   "copyright.label":"© 2025 Neyond. Todos os direitos reservados.",
   "developed.label":"Desenvolvido por Neyond",
   "rule.label":"Regra",
+  "ruleValues.label":"Regra Com Valores",
+  "ruleCode.label":"Regra Código",
   "severity.label":"Severidade",
+  "ruleDomain.label":"Domínio",
   "result.label":"Resultado",
   "processDate.label":"Data de Processamento",
   "errorDetails.label":"Erro ao carregar detalhes",
-  "ok.label":"OK",
+  "success.label":"SUCESSO",
   "warning.label":"AVISO",
   "error.label":"ERRO",
   "ruleOK.label":"REGRA OK",
-  "ruleNotOK.label":"REGRA NAO OK",
-  "ruleSkip.label":"REGRA NAO CORRER"
+  "ruleNotOK.label":"REGRA NÃO OK",
+  "ruleSkip.label":"REGRA SEM CONDIÇÕES PARA CORRER"
 }
