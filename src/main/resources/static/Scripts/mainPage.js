@@ -89,19 +89,37 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             body: formData
         })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+                }
+                return response.text();
+            })
             .then(data => {
+                console.log("Success");
                 document.getElementById("logContainer").style.display = "block";
                 document.getElementById("upload-text").style.display = "block";
                 document.getElementById("loading-text").style.display = "none";
+                document.getElementById("upload-error").style.display = "none";
                 fetchModulesFromBackend();
                 fetchIOs();
             })
             .catch(error => {
-                console.error("Erro no upload:", error);
+                console.error("Erro ao fazer upload:", error.message); 
                 document.getElementById("upload-text").style.display = "block";
                 document.getElementById("loading-text").style.display = "none";
+
+                const errorBox = document.getElementById("upload-error");
+                if (errorBox) {
+                    errorBox.innerText = error.message;
+                    errorBox.style.display = "block";
+                } else {
+                    alert("Erro: " + error.message); 
+                }
             });
+
     }
 
 
@@ -126,19 +144,24 @@ document.addEventListener("DOMContentLoaded", function () {
     function createCellCustomIOState(value, ioStateId) {
         const td = document.createElement("td");
 
-        let iconClass = "";
         let text = value ?? "-";
         const image = document.createElement("i");
 
         image.classList.add("bi");
         image.classList.add("me-2");
+
+        let label = "";
+        let backgroundColor = ""
         if (ioStateId == 1) {
+            console.log("Here");
             image.classList.add("bi-check-circle-fill");
             image.classList.add("text-success");
 
 
             td.setAttribute("data-key", "ok.label");
             td.style.backgroundColor = "lightGrey";
+            backgroundColor = "lightGrey";
+            label = "ok.label";
         } else if (ioStateId == 2) {
 
             image.classList.add("bi-exclamation-triangle-fill");
@@ -146,6 +169,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             td.setAttribute("data-key", "warning.label");
             td.style.backgroundColor = "#fff3cd";
+            backgroundColor = "#fff3cd";
+            label = "warning.label";
         } else if (ioStateId == 3) {
 
             image.classList.add("bi-x-circle-fill");
@@ -153,11 +178,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
             td.setAttribute("data-key", "error.label");
             td.style.backgroundColor = "#f8d7da";
+            backgroundColor = "#f8d7da";
+            label = "error.label";
         }
         td.appendChild(image);
         td.appendChild(document.createTextNode(text));
         td.classList.add("first-cell");
         td.classList.add("internationalization");
+
+        td.innerHTML = `
+          <td class= 'internationalization first-cell' data-key='${label} style="background-color: ${backgroundColor};">
+            <i class="bi me-2 bi-check-circle-fill text-success"></i>
+          </td>`;
+
         return td;
     }
 
@@ -209,6 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         ioList.forEach(io => {
             const tr = document.createElement("tr");
+
             const td0 = createCellCustomIOState(io[1], io[1]);
 
             tr.appendChild(td0);

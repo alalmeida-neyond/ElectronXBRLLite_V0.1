@@ -92,13 +92,18 @@ public class ImportFileController extends DefaultBean {
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
         try {
             setFile(file);
-            // LOG.info("Successful\n" + file.getOriginalFilename() + " is uploaded.");
+
+            if (!validateFileName(file.getOriginalFilename())) {
+                return ResponseEntity.badRequest().body(getStatusMessage());
+            }
+
             upload();
             return ResponseEntity.ok("File uploaded successfully");
+
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File upload failed: " + e.getMessage());
         }
-        
     }
 
     public void upload() {
@@ -170,7 +175,15 @@ public class ImportFileController extends DefaultBean {
     public boolean validateFileName(String fileName) {
         LOG.info("Filename:" + fileName);
         if (fileName == null || fileName.equals("") || !fileName.matches(Constants.IMPORT_REGEX)) {
-            setStatusMessage("Ficheiro não selecionado");
+            if(!fileName.matches(Constants.IMPORT_REGEX))
+            {
+                setStatusMessage(Constants.INCORRECTFILEDESC);
+            }
+            else
+            {
+                setStatusMessage("Ficheiro não selecionado");
+            }
+            
             return false;
         }
         try {

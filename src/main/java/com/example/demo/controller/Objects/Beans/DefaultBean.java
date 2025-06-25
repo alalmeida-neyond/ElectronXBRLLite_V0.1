@@ -371,10 +371,12 @@ public abstract class DefaultBean {
     }
 
     public ModuleVersion getModuleByFilenameInfo(LocalDate referenceDate, String moduleCode) {
+        
         List<ModuleVersion> moduleVersionList = new ArrayList<>();
         if (moduleCode.isEmpty() || moduleCode == null) {
             return null;
         }
+        LOG.info("Module Code:" + moduleCode);
         try {
             for (ModuleVersion mv : new ArrayList<ModuleVersion>(Info.getInstance().refDataGet(Constants.ModuleVersionAll))) {
                 if (mv.getCode().replace("_", "").trim().toLowerCase().equals(moduleCode.toLowerCase())

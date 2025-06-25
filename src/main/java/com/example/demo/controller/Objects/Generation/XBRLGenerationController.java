@@ -25,6 +25,7 @@ import org.jboss.logging.Logger;
 
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.Info;
+import com.example.demo.Data.Access.JPA;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
 import com.example.demo.controller.Objects.ActionPhases.DownloadAction;
@@ -62,6 +63,26 @@ public class XBRLGenerationController implements Runnable {
     }
 
     public void xbrlGenerationMain(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity,IO ioImport, IO ioValidation) {
+
+        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
+        
+        StringBuilder query = new StringBuilder(" DELETE FROM IO WHERE actionid IN (1, 2, 3) ");
+
+        query.append("AND modulevid = :moduleVID ")
+                    .append("AND ioid NOT IN ( ")
+                    .append("SELECT MAX(ioid) ")
+                    .append("FROM IO ")
+                    .append("WHERE actionid IN (1, 2, 3) ")
+                    .append("AND modulevid = :moduleVID ")
+                    .append("GROUP BY actionid ); ");
+        
+        try {
+            jpa.executeNativeQuery(query.toString(),"moduleVID", moduleVersion != null ? String.valueOf(moduleVersion.getModuleVID()) : null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            jpa.rollback();
+        }
+        
         IO generationIo = null;
         ConnectionManager em = null;
         String path = "";

@@ -249,7 +249,7 @@ public class Constants {
     
     public static final int DOMAINLENGTH = 3;
 
-    public static String INCORRECTFILEDESC = "O ficheiro não cumpre os requesitos";
+    public static String INCORRECTFILEDESC = "O ficheiro não cumpre os requisitos";
 
     public static final int FIRSTRESULT = 0;
     public static final String TRUERESULT = "true";
