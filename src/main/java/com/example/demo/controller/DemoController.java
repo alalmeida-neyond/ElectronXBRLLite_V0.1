@@ -103,23 +103,13 @@ public class DemoController extends DefaultBean{
         
         //modelAndView.setViewName("index");
         modelAndView.setViewName("test");
-        modelAndView.addObject("username", "Marcus Tremor"); // Dynamic username
-        return modelAndView; // Thymeleaf template name (greeting.html)
-    }
-
-    @GetMapping("/thymeleaf")
-    public ModelAndView thymeleafPage(Model model) {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("thymeleaf");
-        modelAndView.addObject("user", "Alex"); // Default value
-
         return modelAndView;
     }
 
-    @GetMapping("/index_Neyond")
-    public ModelAndView indexNeyond() {
+    @GetMapping("/settings")
+    public ModelAndView settings() {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("index_Neyond");
+        modelAndView.setViewName("settings");
         return modelAndView;
     }
 
@@ -141,7 +131,6 @@ public class DemoController extends DefaultBean{
     @GetMapping("/importFile/results")
     @ResponseBody
     public List<Object[]> getIOResults() {
-        LOG.info("IO");
         ValidationService validationService = new ValidationService();
         List<Object[]> validationResults = new ArrayList<Object[]>();
         validationResults = validationService.getIOResults();

@@ -107,12 +107,8 @@ public class ImportFileController extends DefaultBean {
     }
 
     public void upload() {
-        // LOG.warn("File Name:"+getFile().getOriginalFilename());
         if (file != null) {
-            // LOG.warn("Not Null");
             if (onFileChange(validateFileName(getFile().getOriginalFilename()))) {
-                // LOG.info("Ficheiro encontra-se pronto para ser importado");
-
                 try {
                     uploadFile(getFile());
                 } catch (Exception e) {
@@ -302,20 +298,6 @@ public class ImportFileController extends DefaultBean {
 
         importExecution.run();
 
-        /*Thread t = new Thread(new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(),
-                getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux));
-        // Thread t = new Thread(new ModuleFileImport(file, originalFileName,
-        // getDomainExecution(), getReferenceDate().format(Constants.dateFormat),
-        // getModuleVersionExecution(), filenameOnServer, aux));
-        t.setName(Constants.IMPORT + filenameOnServer);*/
-        /*
-         * LOG.info("Size:" + aux.size());
-         * //LOG.info("Entity:" + getEntityExecution().getDescription());
-         * LOG.info("DomainExecution:" + getDomainExecution());
-         * LOG.info("ReferenceDate:" + getReferenceDate().format(Constants.dateFormat));
-         * LOG.info("ModuleVersion:" + getModuleVersionExecution().getName());
-         */
-        /*t.start();*/
     }
 
     public String getFileName() {

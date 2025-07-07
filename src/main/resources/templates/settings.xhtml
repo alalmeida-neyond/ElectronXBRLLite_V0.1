@@ -9,7 +9,7 @@
       <link href="./Style/Headers.css" rel="stylesheet" type="text/css" />
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-      <script src="./Scripts/mainPage.js"></script>
+      <script src="./Scripts/updateMetadata.js"></script>
 
     </head>
   
@@ -34,6 +34,12 @@
           </div>
           <div id="upload-error" class="alert alert-danger" style="display: none;"></div>
         </form>
+
+        <form id="metadataForm" enctype="multipart/form-data" onsubmit="downloadMetadata(event)">
+                                <span>
+                                    <input type="submit" onclick="downloadMetadata(event)" value="Atualizar Metadados" id="uploadButtonMetadata" style="margin: 0 5px; width: auto"/>
+                                </span>
+                            </form>
         
         <div class="logContainer" id="logContainer">
           <div class="Sep"> </div>

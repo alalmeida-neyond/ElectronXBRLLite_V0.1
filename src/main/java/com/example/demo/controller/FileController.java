@@ -48,16 +48,11 @@ public class FileController {
             if (!Files.exists(uploadPath)) {
                 return "<p style='color:red;'>Diretoria inválida</p>";
             }
-            /*
-                Ver quantas colunas tem o documento e fazer a mesma quantidade de arrays que tem de linhas
-                Depois em cada array colocar a informacao das colunas
-                Depois colocar esses arrays num array global
-                Depois iteramos o array global
-            */ 
+            
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            List<String> extractedDataColumn1 = extractExcelColumn(filePath, 1);
+            /*List<String> extractedDataColumn1 = extractExcelColumn(filePath, 1);
             List<String> extractedDataColumn2 = extractExcelColumn(filePath, 1);
             List<String[]> fullList = new ArrayList<>();
             int i = 0;
@@ -66,7 +61,7 @@ public class FileController {
                 i++;
             }
             
-            insertIntoDatabase(fullList);
+            insertIntoDatabase(fullList);*/
             
             
             responseMessage.append("<p style='color:green;'>Ficheiro carrgado com sucesso!</p>");
@@ -77,7 +72,7 @@ public class FileController {
         return responseMessage.toString();
     }
 
-    private List<String> extractExcelColumn(Path filePath, int columnIndex) {
+    /*private List<String> extractExcelColumn(Path filePath, int columnIndex) {
         List<String> columnValues = new ArrayList<>();
 
         return columnValues;
@@ -93,13 +88,13 @@ public class FileController {
             for (String[] value : columnValues) {
                 pstmt.setString(1, value[0]);
                 pstmt.setString(2, value[1]);
-                pstmt.executeUpdate(); // Insert row into SQLite
+                pstmt.executeUpdate(); 
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     @PostMapping("/processMetaData")
     public void handleMetaDataTransfer(Model model) {

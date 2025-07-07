@@ -1,8 +1,3 @@
-/*
-
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.Resources;
 
 import java.time.ZoneId;
@@ -412,5 +407,26 @@ public class Constants {
 
     public static Integer GENERATIONBASEDONCOLLUMN = 1;
     public static Integer GENERATIONBASEDONDATAPOINTS = 2;
+
+    public static String publicKeyDirectory = "public.pem";
+    public static String licenseStringDirectory = "licenseString.dat";
+    public static String charSet = "UTF-8";
+    public static String signatureString = "signature";
+    public static String licenseString = "license";
+    public static String algoritmString = "RSASSA-PSS";
+    public static String mdNameString = "SHA-256";
+    public static String mgfNameString = "MGF1";
+    public static String LEICodeKeyString = "LEICode";
+    public static String BDPIDKeyString = "BDPID";
+    public static String hardwareIDKeyString = "hardware";
+    public static String expirationDateString = "expiry";
+    public static String beginRegex = "-----BEGIN (.*)-----";
+    public static String endRegex = "-----END (.*)-----";
+    public static String whiteSpaceRegex = "\\s";
+    public static String RSAAlgoritmString = "RSA";
+
+    
+    
+
     
 }

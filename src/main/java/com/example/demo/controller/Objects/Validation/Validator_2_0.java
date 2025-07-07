@@ -258,24 +258,19 @@ public class Validator_2_0 implements Runnable {
                             OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
                             Connection.persist(em, outValTableResult);
                         } else if (Boolean.parseBoolean(preConditionResult.getRawValue())) {
-                            //Obtencao dos valores importados nos nós
                             LOG.info("Avaliacao da regra: " + operationVId);
 
-                            //obtém os dados para validar
                             Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId, ioImport);
                             Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
 
-                            //valida a operacao
                             List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, operationVId);
 
-                            //Estes clears sao atualizacoes do XBRL 2.0
                             resultsMappedByNode.clear();
                             nodesMappedByLevel.clear();
 
                             if (results != null && !results.isEmpty()) {
                                 List<OutValidationResultDetails> resultDetails = OutValidationResultDetails.createResultDetails(results, outValResult);
                                 
-                                //Este clear e atualizacao do XBRL 2.0
                                 results.clear();
                                 
                                 outValResult.setIoState(resultDetails);
@@ -288,7 +283,6 @@ public class Validator_2_0 implements Runnable {
 
                                 Connection.persistList(em, resultDetails);
                             } else {
-                                //ALGO CORREU MAL
                                 outValResult.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
                                 
                                 operationsResultsIds.put(operationVId, outValResult);
