@@ -18,7 +18,7 @@ public class DemoApplication {
 		LicenseVerification licenseVerification = new LicenseVerification();
 
         try {
-			licenseVerification.licenseVerification();
+			licenseVerification.licenseValidationFile();
 		} catch (Exception e) {
 			LOG.error("Error verifying license:" + e.getMessage());
 			e.printStackTrace();

@@ -10,7 +10,6 @@
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
       <script src="./Scripts/updateMetadata.js"></script>
-
     </head>
   
   <body>
@@ -19,77 +18,13 @@
     </div>
     <div class="container">
       <br><br>
-
-      <form id="uploadForm" method="post" th:action="@{/importFile/upload}" enctype="multipart/form-data">
-          <div class="upload-area w-100" id="upload-area">
-            <img src="./Images/upload_icon.png" alt="Upload Icon" class="upload-icon" />
-            <div class="upload-text" id="upload-text">
-              <span class="internationalization" data-key="upload.label">Upload Ficheiros ou</span>
-              <span class="underline internationalization" data-key="choose.label" style="color: blue; text-decoration: underline;">escolhe aqui</span>
-            </div>
-
-            <div class="loading-text internationalization" id="loading-text" data-key="loading.label">
-            </div>
-            <input type="file" id="file" name="file" class="upload-hidden-input" required accept=".xls,.xlsx" />
-          </div>
-          <div id="upload-error" class="alert alert-danger" style="display: none;"></div>
-        </form>
-
         <form id="metadataForm" enctype="multipart/form-data" onsubmit="downloadMetadata(event)">
-                                <span>
-                                    <input type="submit" onclick="downloadMetadata(event)" value="Atualizar Metadados" id="uploadButtonMetadata" style="margin: 0 5px; width: auto"/>
-                                </span>
-                            </form>
-        
-        <div class="logContainer" id="logContainer">
-          <div class="Sep"> </div>
-          <br />
-          <div>
-            <div class="SepRed">
-              <div>
-                <h:outputText value="Logs de importacao"
-                  style="font-weight:bold; font-size: 14px; color: white; vertical-align: middle; padding-left: 5px;" />
-              </div>
-            </div>
-            <div class="row mb-3 filterDiv" id="filterDiv">
-              <div class="col-md-2">
-                <select class="form-select" id="filterModule">
-                  <option value="" class="internationalization" data-key="allModules.label">{{allModules.label}}</option>
-                </select>
-              </div>
-              <div class="col-md-2">
-                  <div class="d-flex gap-2">
-                    <input type="number" id="filterYear" class="form-control" placeholder="YYYY" maxlength="4"  min="1" max="31" style="width: 80px;">
-                    <span>/</span>
-                    <input type="number" id="filterMonth" class="form-control" placeholder="MM" maxlength="2"  min="1" max="12"style="width: 50px;">
-                    <span>/</span>
-                    <input type="number" id="filterDay" class="form-control" placeholder="DD" maxlength="2"  min="1"  style="width: 50px;">
-                  </div>
-
-              </div>
-            </div>
-
-            <div class="table-wrapper">
-              <table id="validationTable" class="table table-borderless validationTable">
-                <thead class="tableHeadValidation">
-                  <tr>
-                    <th class="mainTableHeaderFirst internationalization" data-key="state.label">{{state.label}}</th>
-                    <th class="mainTableHeader internationalization" data-key="module.label">{{module.label}}</th>
-                    <th class="mainTableHeader internationalization" data-key="entity.label">{{entity.label}}</th>
-                    <th class="mainTableHeader internationalization" data-key="domain.label">{{domain.label}}</th>
-                    <th class="mainTableHeader internationalization" data-key="referenceDate.label">{{referenceDate.label}}</th>
-                    <th class="mainTableHeaderLast internationalization" data-key="details.label">{{details.label}}</th>
-                  </tr>
-                </thead>
-                <tbody id="validationTableBody"></tbody>
-              </table>
-            </div>
-
-          </div>
-        </div>
+          <span>
+                <input type="submit" onclick="downloadMetadata(event)" class="internationalization" data-key="updateMetadata.label" value="{{updateMetadata.label}}" id="uploadButtonMetadata" style="margin: 0 5px; width: auto"/>
+          </span>
+        </form>
     </div>
 
-    
     <div id="footer">
           <div th:replace="~{Layouts/footer}"></div>
     </div>

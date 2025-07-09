@@ -1,36 +1,5 @@
-function downloadMetadata(event) {
-            event.preventDefault();
-
-            var formData = new FormData(document.getElementById("metadataForm"));
-
-            let uploadButton = document.getElementById("uploadButtonMetadata");
-            uploadButton.disabled = true;
-            uploadButton.value = "A Atualizar...";
-
-            fetch("/processMetaData", {
-                method: "POST"
-            }).then(response => response.json())
-                .then(data => {
-                    alert(data.message); // Show API response
-
-                    if (data.enabled) {
-                        uploadButton.disabled = false;
-                        uploadButton.value = "Atualizar Metadados";
-                    }})
-                    .catch(error => {
-                        console.error("Error:", error);
-                    })
-                    .finally(() => {
-                        alert('Para concluir a atualizacao dos metadados, por favor, feche a aplicacao e volte a abrir!')
-                        uploadButton.disabled = false;
-                        uploadButton.value = "Atualizar Metadados";
-                    });
-
-        
-        }
-
-
 let languageLabels = {};
+
 function updateLanguageLabels(language) {
     fetch(`./Languages_Files/${language}.json`)
         .then(response => {
@@ -41,7 +10,8 @@ function updateLanguageLabels(language) {
             document.querySelectorAll(".internationalization").forEach(element => {
                 const key = element.getAttribute("data-key");
                 const translation = data[key];
-
+                console.log(element.tagName);
+                console.log(translation);
                 if (translation) {
                     if (element.tagName === "INPUT") {
                         const type = element.getAttribute("type")?.toLowerCase();
@@ -54,9 +24,15 @@ function updateLanguageLabels(language) {
                         } else {
                             element.placeholder = translation;
                         }
-                    } else if (element.tagName === "I"){
-                        element.title = translation;
-                    } else {
+                    } else if (element.tagName === "LABEL"){
+                        element.textContent = translation;
+                    }  else if (element.tagName === "TEXTAREA"){
+                        element.placeholder = translation;
+                    } else if (element.tagName === "SMALL"){
+                        element.textContent = translation;
+                    } else if (element.tagName === "INPUT"){
+                        element.value = translation;
+                    }else {
                         const firstChild = element.firstChild;
                         if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
                             firstChild.nodeValue = translation + " ";
@@ -73,6 +49,21 @@ function updateLanguageLabels(language) {
             console.error("Erro ao carregar idioma:", error);
         });
 }
+
+function selectionForms ()
+{
+    const optionRegistration = document.getElementById("registration");
+    const optionValidation = document.getElementById("validation");
+
+    if (optionRegistration.checked) {
+        document.getElementById("licensing").style.display = "none";
+        document.getElementById("requestLicense").style.display = "block";
+    } else if (optionValidation.checked){
+        document.getElementById("licensing").style.display = "block";
+        document.getElementById("requestLicense").style.display = "none";
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const langSelect = document.getElementById("languageSelect");
 
@@ -84,9 +75,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const initialLang = langSelect.value || "pt";
         updateLanguageLabels(initialLang);
+
+        
     } else {
         console.warn("Elemento #languageSelect não encontrado");
     }
-
 });
-

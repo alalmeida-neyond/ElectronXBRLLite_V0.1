@@ -6,6 +6,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
+import com.example.demo.Verification.LicenseVerification;
 import com.example.demo.controller.Objects.Beans.DefaultBean;
 import com.example.demo.controller.Objects.Entities.Conf.ConfImportRules;
 import com.example.demo.service.ValidationService;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 
 import java.sql.*;
@@ -40,6 +42,9 @@ public class DemoController extends DefaultBean{
     private List<Integer> listOfImportRulesToApply = new ArrayList<Integer>();
     private List<Integer> listOfImportRulesToAlwaysApply = new ArrayList<Integer>();
     private List<ConfImportRules> listOfImportRules;
+    private static boolean licenseValidated = false;
+    @Autowired
+    private LicenseVerification licenseVerification;
 
     /**
      * method called when the page to list the imported files open, making sure
@@ -47,6 +52,7 @@ public class DemoController extends DefaultBean{
      */
     @PostConstruct
     public void init() {
+        licenseVerification = new LicenseVerification();
         setListOfImportRules(Info.getInstance().refDataGet(Constants.ConfImportRulesAll));
         listOfImportRulesToApply = getListOfImportRules().stream()
                 .map(ConfImportRules::getImportRuleID)
@@ -96,27 +102,87 @@ public class DemoController extends DefaultBean{
     
 
     @GetMapping("/")
-    public ModelAndView greeting() {
+    public ModelAndView greeting() throws FileNotFoundException {
         ModelAndView modelAndView = new ModelAndView();
 
         init();
-        
+        try {
+            licenseValidated = licenseVerification.licenseValidationFile();
+        } catch (Exception e) {
+            licenseValidated = false;
+            System.err.println("Erro ao validar licença: " + e.getMessage());
+        }
+        if (licenseValidated)
+        {
+            modelAndView.setViewName("test");
+        }
+        else
+        {
+            modelAndView.setViewName("licensepage");
+        }
         //modelAndView.setViewName("index");
-        modelAndView.setViewName("test");
+        
         return modelAndView;
     }
 
     @GetMapping("/settings")
     public ModelAndView settings() {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("settings");
+        try {
+            licenseValidated = licenseVerification.licenseValidationFile();
+        } catch (Exception e) {
+            licenseValidated = false;
+            System.err.println("Erro ao validar licença: " + e.getMessage());
+        }
+        if (licenseValidated)
+        {
+            modelAndView.setViewName("settings");
+        }
+        else
+        {
+            modelAndView.setViewName("licensepage");
+        }
         return modelAndView;
     }
 
-    @GetMapping("/import_file")
-    public ModelAndView importFile() {
+    @GetMapping("/licensing")
+    public ModelAndView licensing() {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("import_file");
+        modelAndView.setViewName("licensepage");
+        return modelAndView;
+    }
+
+    @PostMapping("/licensing")
+    public ModelAndView insertingLicense(@RequestParam("licensingString") String licensingString) {
+        try {
+            licenseVerification.licenseVerificationString(licensingString);
+            return new ModelAndView("redirect:/");
+
+        } catch (Exception e) {
+           ModelAndView mv = new ModelAndView("licensepage");
+            mv.addObject("error", "Invalid license: " + e.getMessage());
+            return mv;
+        }
+    }
+
+    @GetMapping("/import_file")
+    public ModelAndView importFile() throws FileNotFoundException {
+        
+        ModelAndView modelAndView = new ModelAndView();
+        try {
+            licenseValidated = licenseVerification.licenseValidationFile();
+        } catch (Exception e) {
+            licenseValidated = false;
+            System.err.println("Erro ao validar licença: " + e.getMessage());
+        }
+        if (licenseValidated)
+        {
+            modelAndView.setViewName("import_file");
+        }
+        else
+        {
+            modelAndView.setViewName("licensepage");
+        }
         return modelAndView;
     }
 

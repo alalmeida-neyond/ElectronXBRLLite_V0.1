@@ -35,7 +35,7 @@ public class ImportFileDetailController extends DefaultBean {
     @PostConstruct
     public void init() {
         String ioid = "";
-        if (ioid != null) {
+        if (ioid != null && ioid.length() != 0) {
             setIoImport(IODAL.getIOById(ioid));
         }
 
