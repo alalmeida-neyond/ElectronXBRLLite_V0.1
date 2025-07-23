@@ -268,14 +268,6 @@ public class Info {
         return operatorArgumentById;
     }
 
-//    public List<LogOperationTemp> getLogOperationsTempList() {
-//        return operationsLogs;
-//    }
-//
-//    public List<LogOperationTemp> clearLogOperationsList() {
-//        operationsLogs.clear();
-//        return operationsLogs;
-//    }
 
     public String getConfigValueByKey(String key) {
         List<ConfAppConfigs> configsList = refData.get(Constants.AppConfigsAll.toLowerCase());

@@ -8,19 +8,23 @@ function updateLanguageLabels(language) {
         })
         .then(data => {
             document.querySelectorAll(".internationalization").forEach(element => {
+                
                 const key = element.getAttribute("data-key");
-                const translation = data[key];
-                console.log(element.tagName);
-                console.log(translation);
+                let translation = data[key];
+
+                const value = element.getAttribute("data-value");
+                if (value) {
+                    translation = translation.replace("{0}", value);
+                }
+                element.textContent = translation;
+                
                 if (translation) {
                     if (element.tagName === "INPUT") {
                         const type = element.getAttribute("type")?.toLowerCase();
                         if (type === "submit") {
-                            console.log("Yes");
                             element.value = translation;
                         } else if (type === "button") {
                             element.value = translation;
-                            console.log("Also Yes");
                         } else {
                             element.placeholder = translation;
                         }
@@ -48,20 +52,6 @@ function updateLanguageLabels(language) {
         .catch(error => {
             console.error("Erro ao carregar idioma:", error);
         });
-}
-
-function selectionForms ()
-{
-    const optionRegistration = document.getElementById("registration");
-    const optionValidation = document.getElementById("validation");
-
-    if (optionRegistration.checked) {
-        document.getElementById("licensing").style.display = "none";
-        document.getElementById("requestLicense").style.display = "block";
-    } else if (optionValidation.checked){
-        document.getElementById("licensing").style.display = "block";
-        document.getElementById("requestLicense").style.display = "none";
-    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {

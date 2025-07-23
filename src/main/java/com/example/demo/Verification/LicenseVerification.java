@@ -1,8 +1,10 @@
 package com.example.demo.Verification;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -28,9 +30,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class LicenseVerification {
 
     private static final File PUBLIC_KEY_FILE = new File(Constants.publicKeyDirectory);
-    private static String cachedLicense = null;
     private static boolean licenseValidated = false;
     private final Logger LOG = Logger.getLogger(LicenseVerification.class);
+    private boolean expired;
+    private String lei,BDPID,hwid,expiry;
+
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public void setIsExpired (boolean expired)
+    {
+        this.expired = expired;
+    }
 
     public void licenseVerificationString(String licenseString) throws Exception {
 
@@ -57,6 +69,7 @@ public class LicenseVerification {
             while (scanningLicenseString.hasNextLine()) {
                 String licenseStringPrevious = scanningLicenseString.nextLine();
                 if (validateLicense(licenseStringPrevious)) {
+                    scanningLicenseString.close();
                     return true;
                 }
             }
@@ -64,8 +77,31 @@ public class LicenseVerification {
         }
         return false;
     }
+    
+    public String getSystemUUID() {
+        String uuid = null;
+        try {
+            String command = "powershell Get-WmiObject Win32_ComputerSystemProduct | Select-Object -ExpandProperty UUID";
+
+            Process process = Runtime.getRuntime().exec(command);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()) {
+                    uuid = line.trim();
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return uuid;
+    }
 
     public boolean validateLicense(String base64) {
+        expired = false;
         String json = new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -79,12 +115,9 @@ public class LicenseVerification {
             byte[] licenseBytes = mapper.writeValueAsBytes(license);
             byte[] signature = Base64.getDecoder().decode(signatureBase64);
 
-            PublicKey publicKey;
-
-            publicKey = loadPublicKey(PUBLIC_KEY_FILE);
-
+            PublicKey publicKey = loadPublicKey(PUBLIC_KEY_FILE);
             if (publicKey == null) {
-                LOG.error("The Public Key Does Not Exist");
+                LOG.error("Public key does not exist");
                 return false;
             }
 
@@ -101,15 +134,34 @@ public class LicenseVerification {
             if (!verified)
                 return false;
 
-            String lei = license.get(Constants.LEICodeKeyString);
-            String BDPID = license.get(Constants.BDPIDKeyString);
-            String hwid = license.get(Constants.hardwareIDKeyString);
-            String expiry = license.get(Constants.expirationDateString);
-
+            String machinehwid = getSystemUUID();
+            lei = license.get(Constants.LEICodeKeyString);
+            BDPID = license.get(Constants.BDPIDKeyString);
+            hwid = license.get(Constants.hardwareIDKeyString);
+            expiry = license.get(Constants.expirationDateString);
+            
+            setBDPID(BDPID);
+            setLEICode(lei);
+            setHardwareID(hwid);
+            
+            System.out.println("BDPID:" + BDPID);
+            System.out.println("LEICODE:" + lei);
+            System.out.println("HardwareID:" + hwid);
+            System.out.println("Expiration Date:" + expiry);
             LocalDate expiryDate = LocalDate.parse(expiry);
             if (expiryDate.isBefore(LocalDate.now())) {
+                expired = true;
+                setIsExpired(expired);
+
                 return false;
             }
+
+            if (!hwid.equalsIgnoreCase(machinehwid))
+            {
+                return false;
+            }
+            
+            setExpirationDate(expiry);
 
             JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
 
@@ -159,5 +211,45 @@ public class LicenseVerification {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public String getLEICode()
+    {
+        return lei;
+    }
+
+    private void setLEICode(String LEICode)
+    {
+        this.lei = LEICode;
+    }
+
+    public String getHardwareID()
+    {
+        return hwid;
+    }
+
+    private void setHardwareID(String HardwareID)
+    {
+        this.hwid = HardwareID;
+    }
+
+    public String getBDPID()
+    {
+        return BDPID;
+    }
+
+    private void setBDPID(String BDPID)
+    {
+        this.BDPID = BDPID;
+    }
+
+    public String getExpirationDate()
+    {
+        return expiry;
+    }
+
+    private void setExpirationDate(String ExpirationDate)
+    {
+        this.expiry = ExpirationDate;
     }
 }

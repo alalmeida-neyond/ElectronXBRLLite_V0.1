@@ -1,5 +1,5 @@
 {
-  "toBeInserted.label":"LEI CODE: *A INSERIR*",
+  "toBeInserted.label":"LEI CODE: {0}",
   "templates.label":"Templates de Utilização",
   "manual.label":"Manual de Utilizador",
   "settings.label":"Configurações",
@@ -35,8 +35,9 @@
   "licenseLabel.label":"Chave de Licença",
   "uuid.label":"Identificador Único Universal Windows",
   "typeLicense.label":"Tipo de Licença",
+  "licenseExpiredMessage.label":"A sua licença expirou. Por favor, clique no botão abaixo para renovar.",
+  "licenseExpiredButton.label":"Renovar Licença",
   "optionDefault.label":"Escolher...",
-  "optionTrial.label":"Avaliação",
   "optionMontly.label":"Mensal",
   "optionAnnual.label":"Anual",
   "sendLicense.label":"Pedir Licença",
@@ -44,5 +45,7 @@
   "error.label":"ERRO",
   "ruleOK.label":"REGRA OK",
   "ruleNotOK.label":"REGRA NÃO OK",
-  "ruleSkip.label":"REGRA SEM CONDIÇÕES PARA CORRER"
+  "ruleSkip.label":"REGRA SEM CONDIÇÕES PARA CORRER",
+  "updateCompleted1.label":"Atualização dos Metadados Concluído!",
+  "updateCompleted2.label":"Para concluir a atualização dos metadados, por favor, feche a aplicação e volte a abrir!"
 }

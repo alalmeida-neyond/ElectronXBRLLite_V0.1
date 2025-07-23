@@ -51,17 +51,12 @@ public class ImportFileDetailController extends DefaultBean {
 
     public List<ImportedDetailsDTO> getImportDetails(Integer privilege) {
         List<Object[]> tempReports = new ArrayList<>();
-        if (ioImport == null) {
-        //if (!triggeredByUser ) {
-            return impDetails;
-        }
         impDetails = new ArrayList<ImportedDetailsDTO>();
         if (getYear() != null && getMonth() != null) {
             //CastMonth into number
             this.referenceDate = getDateAtLastDay(getMonth(), getYear());
         } else {
             if (ioImport == null) {
-            //if (triggeredByUser) {
                 LOG.info("Detalhes importacao:" + Constants.missingRefDate);
                 return impDetails;
             }
@@ -121,5 +116,4 @@ public class ImportFileDetailController extends DefaultBean {
         
         return tempReports;
     }
-
 }

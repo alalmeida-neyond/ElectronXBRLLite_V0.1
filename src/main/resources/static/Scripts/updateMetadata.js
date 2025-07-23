@@ -4,8 +4,13 @@ function downloadMetadata(event) {
             var formData = new FormData(document.getElementById("metadataForm"));
 
             let uploadButton = document.getElementById("uploadButtonMetadata");
-            uploadButton.disabled = true;
-            uploadButton.value = "A Atualizar...";
+            uploadButton.style.display="none";
+
+            let loadingButton = document.getElementById("loadingButton");
+
+            loadingButton.style.display="inline-block";
+
+            let alertUpdate = document.getElementById("alert-success");
 
             fetch("/processMetaData", {
                 method: "POST"
@@ -14,16 +19,15 @@ function downloadMetadata(event) {
                     alert(data.message); // Show API response
 
                     if (data.enabled) {
-                        uploadButton.disabled = false;
-                        uploadButton.value = "Atualizar Metadados";
+                        uploadButton.style.display="inline-block";
                     }})
                     .catch(error => {
                         console.error("Error:", error);
                     })
                     .finally(() => {
-                        alert('Para concluir a atualizacao dos metadados, por favor, feche a aplicacao e volte a abrir!')
-                        uploadButton.disabled = false;
-                        uploadButton.value = "Atualizar Metadados";
+                        alertUpdate.style.display="block";
+                        uploadButton.style.display="inline-block";
+                        loadingButton.style.display="none";
                     });
 
         
@@ -40,17 +44,21 @@ function updateLanguageLabels(language) {
         .then(data => {
             document.querySelectorAll(".internationalization").forEach(element => {
                 const key = element.getAttribute("data-key");
-                const translation = data[key];
+                let translation = data[key];
+
+                const value = element.getAttribute("data-value");
+                if (value) {
+                    translation = translation.replace("{0}", value);
+                }
+                element.textContent = translation;
 
                 if (translation) {
                     if (element.tagName === "INPUT") {
                         const type = element.getAttribute("type")?.toLowerCase();
                         if (type === "submit") {
-                            console.log("Yes");
                             element.value = translation;
                         } else if (type === "button") {
                             element.value = translation;
-                            console.log("Also Yes");
                         } else {
                             element.placeholder = translation;
                         }

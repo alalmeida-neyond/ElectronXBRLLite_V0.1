@@ -22,51 +22,14 @@
   <br>
   <br>
   <div class="container">
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="inlineRadioOptions" id="registration" value="register" onclick = "selectionForms()" checked>
-      <label class="form-check-label internationalization" data-key="requestForLicense.label" for="registration">Request
-        For License</label>
-    </div>
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" type="radio" name="inlineRadioOptions" id="validation" value="validate" onclick = "selectionForms()">
-      <label class="form-check-label internationalization" data-key="insertLicense.label" for="validation">Insert
-        License</label>
+    <div th:if="${expired}" class="alert alert-warning internationalization" data-key="licenseExpiredMessage.label">
+      Your license has expired.
+      <form th:action="@{/renewLicense}" method="post">
+          <button type="submit" class="btn btn-warning internationalization" data-key="licenseExpiredButton.label">Renew License</button>
+      </form>
     </div>
   </div>
-  <div class="container" id="requestLicense">
-    <form id="requestForm" method="post" th:action="@{/requestLicense}" enctype="multipart/form-data">
-      <div class="form-group mb-2 ">
-        <label for="inputEmail" >Email</label>
-        <input type="email" name="inputEmailText" class="form-control" id="inputEmail">
-      </div>
-      <div class="form-group mb-2 ">
-        <label for="inputLEICODE" >LEI Code</label>
-        <input type="text" name="inputLEICODEText" class="form-control" id="inputLEICODE" minlength="20" maxlength="20" placeholder="xxxxxxxxxxxxxxxxxxxx">
-      </div>
-      <div class="form-group mb-2 ">
-        <label for="inputHardwareID" class="internationalization" data-key="uuid.label">Universally Unique Identifier</label>
-        <input type="text" name="inputHardwareIDText" class="form-control" id="inputHardwareID" minlength="36" maxlength="36" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-      </div>
-      <div class="form-group mb-4 ">
-        <label for="inputBDPID" >BDPID</label>
-        <input type="text" name="inputBDPIDText" class="form-control" id="inputBDPID" pattern="[0-9]{4}" required placeholder="0000">
-      </div>
-
-      <div class="form-group mb-4 ">
-        <label for="inputLicenseType" class="internationalization" data-key="typeLicense.label">Type Of License</label>
-        <select id="inputLicenseType" class="form-control" name="licenseTypeDropdown">
-          <option selected value="" class="internationalization" data-key="optionDefault.label">Choose...</option>
-          <option value="trial" class="internationalization" data-key="optionTrial.label">Trial</option>
-          <option value="month" class="internationalization" data-key="optionMontly.label">Monthly</option>
-          <option value="year" class="internationalization" data-key="optionAnnual.label">Annual</option>
-        </select>
-      </div>
-      <input type="submit" class="btn btn-primary mb-2 internationalization" data-key="sendLicense.label" />
-    </form>
-    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-  </div>
-
-  <div class="container" id="licensing" style="display: none;">
+  <div class="container" id="licensing">
     <br><br>
 
     <form id="licensingForm" method="post" th:action="@{/licensing}" enctype="multipart/form-data">
@@ -78,7 +41,7 @@
       </div>
       <small id="licensingStringHelp" class="form-text text-muted internationalization p-2"
         data-key="licenseHelp.label">NEVER SHARE THIS KEY WITH ANYONE</small>
-      <input type="submit" class="btn btn-primary mb-2 internationalization" data-key="confirmLicense.label" />
+      <input type="submit" class="btn btn-primary mb-2 internationalization confirmLicenseButton" data-key="confirmLicense.label" />
     </form>
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
   </div>

@@ -1,5 +1,5 @@
 {
-  "toBeInserted.label":"LEI CODE: *TO BE INSERTED*",
+  "toBeInserted.label":"LEI CODE: {0}",
   "templates.label":"Utilization Templates",
   "manual.label":"User Manual",
   "settings.label":"Settings",
@@ -35,8 +35,9 @@
   "licenseLabel.label":"Licensing Key",
   "uuid.label":"Universally Unique Identifier Windows",
   "typeLicense.label":"Type of License",
+  "licenseExpiredMessage.label":"Your license expired. Please, click in the button below to renew.",
+  "licenseExpiredButton.label":"Renew License",
   "optionDefault.label":"Choose...",
-  "optionTrial.label":"Trial",
   "optionMontly.label":"Monthly",
   "optionAnnual.label":"Annual",
   "sendLicense.label":"Ask License",
@@ -44,5 +45,7 @@
   "error.label":"ERROR",
   "ruleOK.label":"RULE OK",
   "ruleNotOK.label":"RULE NOT OK",
-  "ruleSkip.label":"RULE DO NOT RUN"
+  "ruleSkip.label":"RULE DO NOT RUN",
+  "updateCompleted1.label":"Metadata Update Completed!",
+  "updateCompleted2.label":"To conclude the Metadata update, please, close the application and open it again!"
 }

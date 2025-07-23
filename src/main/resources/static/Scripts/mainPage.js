@@ -9,7 +9,13 @@ function updateLanguageLabels(language) {
         .then(data => {
             document.querySelectorAll(".internationalization").forEach(element => {
                 const key = element.getAttribute("data-key");
-                const translation = data[key];
+                let translation = data[key];
+                
+                const value = element.getAttribute("data-value");
+                if (value) {
+                    translation = translation.replace("{0}", value);
+                }
+                element.textContent = translation;
 
                 if (translation) {
                     if (element.tagName === "INPUT") {
@@ -107,7 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.text();
             })
             .then(data => {
-                console.log("Success");
                 document.getElementById("logContainer").style.display = "block";
                 document.getElementById("upload-text").style.display = "block";
                 document.getElementById("loading-text").style.display = "none";

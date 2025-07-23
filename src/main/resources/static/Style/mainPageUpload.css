@@ -188,4 +188,7 @@ td.last-cell {
   padding-top: 10px;
 }
 
-
+.confirmLicenseButton
+{
+  float: right;
+}

@@ -559,7 +559,6 @@ public class ValidationOperators {
         BigDecimal finalMargin = BigDecimal.ZERO;
         Integer precisionOfDivision = 0;
         ValKey keyToUse = new ValKey();
-        String resultLog = "";
         String marginsLog = null;
         
         try {
@@ -703,7 +702,6 @@ public class ValidationOperators {
         boolean leftIsScalar = false;
         boolean rightIsScalar = false;
         
-        String resultLog = "";
         String marginLog = "";
 
         try {
@@ -819,7 +817,6 @@ public class ValidationOperators {
         ValValue valueParentResult = new ValValue();
         ValResult parentResult = new ValResult();
         Boolean result = null;
-        String resultLog = "";
         
         try {
             LOG.info("Aplicacao de uma operacao booleana individual, no nó " + parent.getNode().getNodeID());
@@ -901,7 +898,6 @@ public class ValidationOperators {
     }
     
     private static ValResult applyNumericAggregateOperation(ValNode parent, List<Map.Entry<ValNode, ValResult>> results, ValKey keyToUse) {
-        String resultLog = "";
         boolean isToUseKeys = false;
         ValResult parentResult = new ValResult();
 
@@ -1071,9 +1067,7 @@ public class ValidationOperators {
         ValResult ifResult = new ValResult();
         ValResult thenResult = new ValResult();
         ValResult elseResult = new ValResult();
-        
-        String resultLog = "";
-        
+                
         Integer conditionNodeId = null;
         Integer thenNodeId = null;
         Integer elseNodeId = null;
@@ -1170,7 +1164,6 @@ public class ValidationOperators {
         List<ValResult> conditionResults = new ArrayList<>();
         List<ValResult> parentResults = new ArrayList<>();
         Map<ValResult, List<ValResult>> groupedValues = new HashMap<>();
-        String resultLog = "";
         ValResult selectionResult = new ValResult();
         ValResult conditionResult = new ValResult();
 
@@ -1279,7 +1272,6 @@ public class ValidationOperators {
         List<ValResult> parentResults = new ArrayList<>();
         
         String inLog = "in(";
-        String resultLog = "";
         
         try {
             if(OperationsUtils.isChildOfWhere(parent)){
@@ -1336,7 +1328,6 @@ public class ValidationOperators {
         List<ValResult> operandChilds = new ArrayList<>();
         String pattern = "";
         List<ValResult> parentResults = new ArrayList<>();
-        String resultLog = "";
         
         try {
             if (operandChild != null && operandChild.getResults() != null && !operandChild.getResults().isEmpty()) {
@@ -1390,7 +1381,6 @@ public class ValidationOperators {
         List<ValResult> operandValues = new ArrayList<>();
         String component = "";
         List<ValResult> parentResults = new ArrayList<>();
-        String resultLog = "";
         
         try {
             if (operandChild != null && operandChild.getResults() != null && !operandChild.getResults().isEmpty()) {

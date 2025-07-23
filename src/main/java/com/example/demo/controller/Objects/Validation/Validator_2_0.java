@@ -163,7 +163,6 @@ public class Validator_2_0 implements Runnable {
     }
     
     public void validateOperations(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO ioImport) {
-        boolean hasErrors = false;
         OutValidationResult commonDatapointValidationResult = null;
 
         Map<Integer, ValResult> resultPerPrecondition = new HashMap<>();

@@ -10,10 +10,6 @@ import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.List;
-
-import java.sql.*;
 
 
 @Controller
@@ -21,7 +17,6 @@ import java.sql.*;
 public class FileController {
     // Get the project directory dynamically
     private static final String UPLOAD_DIR = System.getProperty("user.dir");
-    private String directory;
 
     private final String fileUrl = "https://blobstoragexbrl.blob.core.windows.net/xbrldatabaseblob/UNMANAGEDPROCESS.db";
     private final String localFilePath = System.getProperty("user.dir") + File.separator + "/src/UNMANAGEDPROCESS.db"; 

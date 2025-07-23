@@ -52,7 +52,6 @@ public class DemoController extends DefaultBean{
      */
     @PostConstruct
     public void init() {
-        licenseVerification = new LicenseVerification();
         setListOfImportRules(Info.getInstance().refDataGet(Constants.ConfImportRulesAll));
         listOfImportRulesToApply = getListOfImportRules().stream()
                 .map(ConfImportRules::getImportRuleID)
@@ -106,19 +105,16 @@ public class DemoController extends DefaultBean{
         ModelAndView modelAndView = new ModelAndView();
 
         init();
-        try {
-            licenseValidated = licenseVerification.licenseValidationFile();
-        } catch (Exception e) {
-            licenseValidated = false;
-            System.err.println("Erro ao validar licença: " + e.getMessage());
-        }
-        if (licenseValidated)
-        {
+        licenseValidated = licenseVerification.licenseValidationFile();
+        modelAndView.addObject("LEICode", licenseVerification.getLEICode());
+        if (licenseValidated) {
             modelAndView.setViewName("test");
-        }
-        else
-        {
+        } else {
             modelAndView.setViewName("licensepage");
+            LOG.info(licenseVerification.isExpired());
+            if (licenseVerification.isExpired()) {
+                modelAndView.addObject("expired", true);
+            }
         }
         //modelAndView.setViewName("index");
         
@@ -130,9 +126,9 @@ public class DemoController extends DefaultBean{
         ModelAndView modelAndView = new ModelAndView();
         try {
             licenseValidated = licenseVerification.licenseValidationFile();
+            modelAndView.addObject("LEICode", licenseVerification.getLEICode());
         } catch (Exception e) {
             licenseValidated = false;
-            System.err.println("Erro ao validar licença: " + e.getMessage());
         }
         if (licenseValidated)
         {
@@ -163,6 +159,31 @@ public class DemoController extends DefaultBean{
             mv.addObject("error", "Invalid license: " + e.getMessage());
             return mv;
         }
+    }
+
+    @PostMapping("/renewLicense")
+    public ModelAndView renewLicense() {
+        try {
+            return new ModelAndView("redirect:/");
+
+        } catch (Exception e) {
+           ModelAndView mv = new ModelAndView("licensepage");
+            mv.addObject("error", "Invalid license: " + e.getMessage());
+            return mv;
+        }
+    }
+
+    @PostMapping("/requestLicense")
+    public void requestingLicense(@RequestParam String inputEmailText,
+        @RequestParam String inputLEICODEText,
+        @RequestParam String inputHardwareIDText,
+        @RequestParam String inputBDPIDText,
+        @RequestParam String inputLicenseType ) {
+        LOG.info("Email:" + inputEmailText);
+        LOG.info("LEI CODE:" + inputLEICODEText);
+        LOG.info("Hardware ID:" + inputHardwareIDText);
+        LOG.info("BDP ID:" + inputBDPIDText);
+        LOG.info("License Type:" + inputLicenseType);
     }
 
     @GetMapping("/import_file")
