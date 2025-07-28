@@ -1142,7 +1142,12 @@ public class ValidationOperators {
     }
     
     private static ValResult applyIfThenElse(ValResult ifResult, ValResult thenResult, ValResult elseResult, ValKey key){
+        if(ifResult == null)
+        {
+            System.out.println("Its null");
+        }
         if (ifResult.valueIsNull() || ifResult.getRawValue().equals(Constants.FALSERESULT)) {
+        //if (ifResult == null || ifResult.valueIsNull() || ifResult.getRawValue().equals(Constants.FALSERESULT)) {
             if (elseResult == null || elseResult.valueIsNull()) {
                 return new ValResult(key, new ValValue(OperationsUtils.getDataTypeByID(Constants.BOOLEAN), null));
             } else {

@@ -45,7 +45,9 @@
   "error.label":"ERROR",
   "ruleOK.label":"RULE OK",
   "ruleNotOK.label":"RULE NOT OK",
+  "ruleOKNotOK.label":"RULE OK NOT OK",
   "ruleSkip.label":"RULE DO NOT RUN",
+  "ruleSkipPre.label":"RULE DO NOT RUN PREREQUISITE",
   "updateCompleted1.label":"Metadata Update Completed!",
   "updateCompleted2.label":"To conclude the Metadata update, please, close the application and open it again!"
 }

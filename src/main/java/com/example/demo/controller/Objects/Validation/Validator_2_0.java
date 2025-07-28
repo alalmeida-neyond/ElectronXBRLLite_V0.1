@@ -20,8 +20,10 @@ import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.*;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.Logs.*;
+import com.example.demo.service.ProgressService;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class Validator_2_0 implements Runnable {
@@ -33,6 +35,9 @@ public class Validator_2_0 implements Runnable {
     private LocalDate refDate;
     private String domain;
     private Set<TableVersionDPM> tables;
+
+    @Autowired
+    private ProgressService progressService;
     
     public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, Set<TableVersionDPM> tables){
         this.moduleVersion = moduleVersion;
@@ -195,6 +200,8 @@ public class Validator_2_0 implements Runnable {
             //Obtencao dos nós da árvore por operacao
             Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
             
+            int completedTables = 0;
+            //progressService.setValidationProgress(completedTables, getTables().size());
                     
             for (TableVersionDPM table : getTables()) {
                 Integer tableVId = table.getTableVID();
@@ -245,10 +252,12 @@ public class Validator_2_0 implements Runnable {
                             validatePrecondition(preConditionVId, nodesMappedByLevel, resultPerPrecondition, ioImport);
                         }
 
-                        ValResult preConditionResult = resultPerPrecondition.get(preConditionVId);
+                        //ValResult preConditionResult = resultPerPrecondition.get(preConditionVId);
+
+                        ValResult preConditionResult = (preConditionVId != null) ? resultPerPrecondition.get(preConditionVId) : null;
 
                         //caso a precondicao
-                        if(preConditionResult.valueIsNull() || !Boolean.parseBoolean(preConditionResult.getRawValue())){
+                        if(preConditionVId != null && preConditionResult.valueIsNull() || !Boolean.parseBoolean(preConditionResult.getRawValue())){
                             outValResult.setIoState(Info.getInstance().getIOStateByID(Constants.RULEDONOTRUNPREREQUISITE.getKey()));
                             
                             operationsResultsIds.put(operationVId, outValResult);
@@ -313,6 +322,7 @@ public class Validator_2_0 implements Runnable {
 
                 LogValidationProcess logValProcessMapEnd = new LogValidationProcess(ioValidation, "Validacao - " + table.getCode() + " - Concluída", LocalDateTime.now());
                 Connection.persist(em, logValProcessMapEnd);
+                //progressService.setValidationProgress(completedTables++, getTables().size());
             }
 
             //if(commonDatapointValidationResult != null){

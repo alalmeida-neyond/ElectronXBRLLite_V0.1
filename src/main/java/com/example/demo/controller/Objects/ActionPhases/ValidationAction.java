@@ -18,12 +18,12 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
-import com.example.demo.controller.Objects.Import.*;
 import com.example.demo.controller.Objects.Validation.Validator_2_0;
 
 public class ValidationAction {
     
-    private List<InImportedTablesTemp> importedTables;
+    //private List<InImportedTablesTemp> importedTables;
+    private List<TableVersionDPM> importedTables;
     private List<Integer> selectedMapsToValidate;
     private List<IO> validateIOs;    
     private final Logger LOG = Logger.getLogger(ValidationAction.class.getName());
@@ -31,12 +31,18 @@ public class ValidationAction {
     private RefDataBean refDataBean;
 
     
-    public List<InImportedTablesTemp> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
-        if(moduleVersion != null && domain != null && entity != null)
-            importedTables = InImportedTablesDAL.getListOfImportedMapsToValidate(moduleVersion, referenceDate, entity, domain, io);
-        else
+    //public List<InImportedTablesTemp> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
+    public List<TableVersionDPM> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
+        //if(moduleVersion != null && domain != null && entity != null)
+        if(moduleVersion != null){
+            //importedTables = InImportedTablesDAL.getListOfImportedMapsToValidate(moduleVersion, referenceDate, entity, domain, io);
+            importedTables = InImportedTablesDAL.getMapsToValidate(moduleVersion);
+            selectedMapsToValidate = importedTables.stream().map(TableVersionDPM::getTableVID).collect(Collectors.toList());
+        }else{
+            //importedTables = new ArrayList<>();
             importedTables = new ArrayList<>();
-        
+            selectedMapsToValidate = new ArrayList<>();
+        }
         return importedTables;
     }
 
@@ -48,14 +54,24 @@ public class ValidationAction {
         }
         importedTables = getImportedMaps(referenceDate, moduleVersion, domain, entity, filename, io);
         
-        List<InImportedTablesTemp> tablesToValidate = new ArrayList<>();
+        /*List<InImportedTablesTemp> tablesToValidate = new ArrayList<>();
         for (InImportedTablesTemp importedTable : importedTables) {
             tablesToValidate.add(importedTable);
+        }*/
+
+        List<TableVersionDPM> tablesToValidate = new ArrayList<>();
+        for (TableVersionDPM importedTable : importedTables) {
+            if(selectedMapsToValidate.contains(importedTable.getTableVID()))
+                tablesToValidate.add(importedTable);
         }
         
-        Set<TableVersionDPM> sortedTables = tablesToValidate.stream()
+        /*Set<TableVersionDPM> sortedTables = tablesToValidate.stream()
                                                 .map(InImportedTablesTemp::getTableVersion)
                                                 .collect(Collectors.toCollection(() -> 
+                                                    new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
+                                                ));*/
+
+        Set<TableVersionDPM> sortedTables = tablesToValidate.stream().collect(Collectors.toCollection(() -> 
                                                     new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
                                                 ));
         LOG.info("Validacao Iniciada | " + "Processo de validacao iniciada.");
@@ -94,11 +110,19 @@ public class ValidationAction {
         return estado;
     }
 
-    public List<InImportedTablesTemp> getImportedTables() {
+    /*public List<InImportedTablesTemp> getImportedTables() {
         return importedTables;
     }
 
     public void setImportedTables(List<InImportedTablesTemp> importedTables) {
+        this.importedTables = importedTables;
+    }*/
+
+    public List<TableVersionDPM> getImportedTables() {
+        return importedTables;
+    }
+
+    public void setImportedTables(List<TableVersionDPM> importedTables) {
         this.importedTables = importedTables;
     }
 

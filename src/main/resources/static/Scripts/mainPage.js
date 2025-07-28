@@ -93,6 +93,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("filterModule").addEventListener("change", autoSubmit);
 
+    function updateProgressBar(id, value) {
+        const bar = document.getElementById(id);
+        bar.style.width = value + '%';
+        bar.textContent = value + '%';
+    }
+
+    /*setInterval(() => {
+        fetch('/progress/importProgress')
+        .then(response => response.json())
+        .then(progress => {
+            const bar = document.getElementById('importProgress');
+            console.log('Import progress:', progress);
+            bar.style.width = progress + '%';
+            bar.textContent = progress + '%';
+        })
+        .catch(err => console.error('Import progress fetch error:', err));
+
+        fetch('/progress/validationProgress')
+        .then(response => response.json())
+        .then(progress => {
+            const bar = document.getElementById('validationProgress');
+            console.log('Validation progress:', progress);
+            bar.style.width = progress + '%';
+            bar.textContent = progress + '%';
+        })
+        .catch(err => console.error('Validation progress fetch error:', err));
+
+        fetch('/progress/generationProgress')
+        .then(response => response.json())
+        .then(progress => {
+            const bar = document.getElementById('generationProgress');
+            console.log('Generation progress:', progress);
+            bar.style.width = progress + '%';
+            bar.textContent = progress + '%';
+        })
+        .catch(err => console.error('Generation progress fetch error:', err));
+    }, 1000);*/
+
+
+
     function uploadFile(file) {
         const formData = new FormData();
         formData.append("file", file);
@@ -164,24 +204,20 @@ document.addEventListener("DOMContentLoaded", function () {
         let label = "";
         let backgroundColor = "";
 
+        console.log(ioStateId)
+
         if (ioStateId == 1) {
             icon.classList.add("bi-check-circle-fill", "text-success");
-            label = "ok.label";
             backgroundColor = "lightgrey";
         } else if (ioStateId == 2) {
             icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
-            label = "warning.label";
             backgroundColor = "#fff3cd";
         } else if (ioStateId == 3) {
             icon.classList.add("bi-x-circle-fill", "text-danger");
-            label = "error.label";
             backgroundColor = "#f8d7da";
         }
 
         td.appendChild(icon);
-
-        td.setAttribute("data-key", label);
-        td.classList.add("first-cell", "internationalization");
         td.style.backgroundColor = backgroundColor;
 
         return td;
@@ -235,6 +271,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         ioList.forEach(io => {
             const tr = document.createElement("tr");
+
+            console.log("State:" + io[1]);
 
             const td0 = createCellCustomIOState(io[1], io[1]);
 
@@ -363,10 +401,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             rowStyle = `background-color: #f8d7da`;
                         }
 
-                        const ruleCodeKey = ((d.regraCode ?? 'unknown') + '').toLowerCase() + ".label";
                         const tdRuleCodeKey = document.createElement("td");
-                        tdRuleCodeKey.classList.add("internationalization");
-                        tdRuleCodeKey.setAttribute("data-key", ruleCodeKey);
                         tdRuleCodeKey.setAttribute("style", rowStyle);
                         tdRuleCodeKey.textContent = d.regraCode ?? "-";
                         tdRuleCodeKey.style.fontSize = "0.7rem";
@@ -403,10 +438,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         tdSeverity.appendChild(iconSeverity);
                         bodyRow.appendChild(tdSeverity);
 
-                        const ruleDomainKey = ((d.regraDomain ?? 'unknown') + '').toLowerCase() + ".label";
                         const tdRuleDomainKey = document.createElement("td");
-                        tdRuleDomainKey.classList.add("internationalization");
-                        tdRuleDomainKey.setAttribute("data-key", ruleDomainKey);
                         tdRuleDomainKey.setAttribute("style", rowStyle);
                         tdRuleDomainKey.textContent = d.regraDomain ?? "-";
                         tdRuleDomainKey.style.fontSize = "0.7rem";
@@ -420,10 +452,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         tdRule.style.fontSize = "0.7rem";
                         bodyRow.appendChild(tdRule);
 
-                        const ruleValuesKey = ((d.regraExecutada ?? 'unknown') + '').toLowerCase() + ".label";
                         const tdRuleValuesKey = document.createElement("td");
-                        tdRuleValuesKey.classList.add("internationalization");
-                        tdRuleValuesKey.setAttribute("data-key", ruleValuesKey);
                         tdRuleValuesKey.setAttribute("style", rowStyle);
                         tdRuleValuesKey.textContent = d.regraExecutada ?? "-";
                         tdRuleValuesKey.style.fontSize = "0.7rem";
@@ -434,7 +463,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         tdResult.setAttribute("data-key",
                             resultado === "RULE OK" ? "ruleOK.label" :
                                 resultado === "RULE DO NOT RUN" ? "ruleSkip.label" :
-                                    resultado === "RULE NOT OK" ? "ruleNotOK.label" : ""
+                                    resultado === "RULE NOT OK" ? "ruleNotOK.label" : 
+                                    resultado === "RULE DO NOT RUN PREREQUISITE" ? "ruleSkipPre.label" : 
+                                    resultado === "RULE OK WITH NOT OK" ? "ruleOKNotOK.label" : 
+                                    ""
                         );
                         tdResult.setAttribute("style", rowStyle);
                         tdResult.textContent = resultado;
@@ -442,7 +474,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         bodyRow.appendChild(tdResult);
 
                         const tdProcessDate = document.createElement("td");
-                        tdProcessDate.classList.add("internationalization");
                         tdProcessDate.textContent = d.dataProcessamento ?? "-";
                         tdProcessDate.classList.add("lastItemDetails");
                         tdProcessDate.setAttribute("style", rowStyle);

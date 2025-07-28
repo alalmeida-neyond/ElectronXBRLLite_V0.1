@@ -57,6 +57,21 @@ public class InImportedTablesDAL {
         }
         return listOfMaps;
     }
+
+    public static List<TableVersionDPM> getMapsToValidate(ModuleVersion module) {
+        JPA<TableVersionDPM> jpa = new JPA<>(TableVersionDPM.class);
+        String queryStr = Utils.getResource("SQL_Queries/GetTablesToValidate.sql");
+
+        List<TableVersionDPM> listOfMaps = new ArrayList<>();
+        try {
+            listOfMaps = jpa.getTypedNativeResultList(queryStr, "modulevid", String.valueOf(module.getModuleVID()));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            jpa.close();
+        }
+        return listOfMaps;
+    }
 	
     
     public static List<CommonDatapointValidationDTO> getPossibleDataPointsConflicts(TableVersionDPM table, LocalDate referenceDate, String domain, ConfEntities entity, IO io){

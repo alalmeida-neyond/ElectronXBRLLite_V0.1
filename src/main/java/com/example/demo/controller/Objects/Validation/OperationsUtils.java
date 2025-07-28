@@ -704,17 +704,63 @@ public class OperationsUtils {
     }
 
     public static BigDecimal setMarginValue(ValNode node, ValResult result) {
-        BigDecimal fixMargin = new BigDecimal(Info.getInstance().getConfigValueByKey(Constants.TOLERANCE));
+        //BigDecimal fixMargin = new BigDecimal(Info.getInstance().getConfigValueByKey(Constants.TOLERANCE));
         boolean isLeaf = (node != null) ? node.getNode().isLeaf() : false;
 
+        DataType dataTypeOfValue = (result != null) ? ((result.getResult() != null ) ? result.getResult().getDatatype() : null) : null;
+        BigDecimal radius = BigDecimal.ZERO;
+        
+        if(isLeaf){
+            radius = determineRadius(dataTypeOfValue);
+        } else if (!isLeaf && result != null && result.getMargin() != null) {
+            radius = result.getMargin();
+        }
+
         //Caso estejam a zero (valor idêntico a null vindo da base de dados), deve ser para utilizar margem de erro parametrizada
-        if (node != null && (node.getNode().isUseIntervalArithmetics() || (result.getMargin() != null && result.getMargin() != BigDecimal.ZERO))){
+        /*if (node != null && (node.getNode().isUseIntervalArithmetics() || (result.getMargin() != null && result.getMargin() != BigDecimal.ZERO))){
             if(node.getNode().isUseIntervalArithmetics() && isLeaf){
                 return (node.getNode().getRelativeTolerance() == 0.0) ? fixMargin : new BigDecimal(node.getNode().getRelativeTolerance());
             } else if (!isLeaf && result.getMargin() != null && result.getMargin() != BigDecimal.ZERO) {
                 return result.getMargin();
             }          
-        } 
+        }*/
+        //return BigDecimal.ZERO;
+        return radius;
+    }
+
+    private static BigDecimal determineRadius(DataType dataType){
+        Integer precision = null;
+        if(dataType != null){
+            switch (dataType.getDataTypeId()) {
+                case Constants.DATATYPEINTEGER:
+                    precision = Integer.valueOf(Info.getInstance().getConfigValueByKey(Constants.INTEGERPRECISION));
+                    break;
+                case Constants.DATATYPEDECIMAL:
+                    precision = Integer.valueOf(Info.getInstance().getConfigValueByKey(Constants.DECIMALPRECISION));
+                    break;
+                case Constants.DATATYPEMONETARY:
+                    precision = Integer.valueOf(Info.getInstance().getConfigValueByKey(Constants.MONETARYPRECISION));
+                    break;
+                case Constants.DATATYPEPERCENTAGE:
+                    precision = Integer.valueOf(Info.getInstance().getConfigValueByKey(Constants.PERCENTAGEPRECISION));
+                    break;
+                case Constants.DATATYPESTRINGNONEMPTY:
+                case Constants.DATATYPEENUMERATION:
+                case Constants.DATATYPEURI:
+                case Constants.DATATYPEORDINALS:
+                case Constants.DATATYPESTRINGINCLUDINGEMPTY:
+                case Constants.DATATYPEDATE:
+                case Constants.DATATYPEDATETIME:
+                    return BigDecimal.ZERO;                    
+                default:
+                    throw new AssertionError();
+            }
+        }
+        
+        if(precision != null){
+            double radius = Math.pow(10, -precision) / 2.0;
+            return BigDecimal.valueOf(radius);
+        }
         
         return BigDecimal.ZERO;
     }

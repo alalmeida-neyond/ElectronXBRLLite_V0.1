@@ -10,14 +10,19 @@ import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Generation.XBRLGenerationController;
 import com.example.demo.controller.Objects.IO.IO;
+import com.example.demo.service.ProgressService;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class GenerationAction {
 
     private final Logger LOG = Logger.getLogger(GenerationAction.class.getName());
 
     private boolean generationRunning;
+
+    @Autowired
+    private ProgressService progressService;
 
     public static File getLastModified(String directoryFilePath) {
         File directory = new File(directoryFilePath);
@@ -47,6 +52,7 @@ public class GenerationAction {
         String threadName = Constants.GEN + "_" + moduleVersion.getCode() + "_" + domain + "_"
                 + referenceDate.toString() + "_" + entity.getBdpId();
         try {
+            //progressService.setGenerationProgress(25);
             XBRLGenerationController generationController = new XBRLGenerationController(threadName, moduleVersion, domain, entity, referenceDate);
             generationController.xbrlGenerationMain(referenceDate,moduleVersion,domain,entity,ioImport, ioValidation);
         } catch (Exception e) {

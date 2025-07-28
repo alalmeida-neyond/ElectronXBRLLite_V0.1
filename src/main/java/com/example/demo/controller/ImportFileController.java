@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +37,7 @@ import com.example.demo.controller.Objects.Entities.DAL.IODAL;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.service.ModuleFileImport;
+import com.example.demo.service.ProgressService;
 
 @RestController
 @RequestMapping("/importFile")
@@ -52,6 +54,9 @@ public class ImportFileController extends DefaultBean {
     private List<Integer> listOfImportRulesToAlwaysApply = new ArrayList<Integer>();
     private List<ConfImportRules> listOfImportRules;
     private MultipartFile file;
+
+    @Autowired
+    private ProgressService progressService;
 
     @PostConstruct
     public void init() {
@@ -90,13 +95,14 @@ public class ImportFileController extends DefaultBean {
     @PostMapping("/upload")
     @ResponseBody
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        
         try {
             setFile(file);
 
             if (!validateFileName(file.getOriginalFilename())) {
                 return ResponseEntity.badRequest().body(getStatusMessage());
             }
-
+            //progressService.setImportProgress(10);
             upload();
             return ResponseEntity.ok("File uploaded successfully");
 
@@ -295,6 +301,8 @@ public class ImportFileController extends DefaultBean {
 
         ModuleFileImport importExecution = new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(),
                 getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux);
+
+        //progressService.setImportProgress(20);
 
         importExecution.run();
 

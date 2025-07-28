@@ -17,6 +17,32 @@
     <div id="header1">
       <div th:replace="~{Layouts/xbrl2_header1}"></div>
     </div>
+    <div class="container mt-3">
+      <div class="importProgressBar">
+        <h5>Importation</h5>
+        <div class="progress mb-3">
+          <div id="importProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%;">0%</div>
+        </div>
+      </div>
+      
+      <div class="validationProgressBar">
+        <h5>Validation</h5>
+        <div class="progress mb-3">
+          <div id="validationProgress" class="progress-bar bg-info" role="progressbar" style="width: 0%;">0%</div>
+        </div>
+      </div>
+      
+
+      <div class="generationProgressBar">
+        <h5>Generation</h5>
+        <div class="progress mb-3">
+          <div id="generationProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%;">0%</div>
+        </div>
+      </div>
+      
+
+    </div>
+
     <div class="container">
       <br><br>
 

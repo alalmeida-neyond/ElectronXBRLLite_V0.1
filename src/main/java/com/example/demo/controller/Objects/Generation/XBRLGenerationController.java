@@ -22,6 +22,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.Info;
@@ -36,6 +37,7 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.Import.*;
 import com.example.demo.controller.Objects.Logs.GenerateLogDAL;
+import com.example.demo.service.ProgressService;
 
 public class XBRLGenerationController implements Runnable {
 
@@ -46,6 +48,9 @@ public class XBRLGenerationController implements Runnable {
     private String domain;
     private ConfEntities entity;
     private LocalDate referenceDate;
+
+    @Autowired
+    private ProgressService progressService;
 
     private final Logger LOG = Logger.getLogger(XBRLGenerationController.class);
 
@@ -82,6 +87,9 @@ public class XBRLGenerationController implements Runnable {
             ex.printStackTrace();
             jpa.rollback();
         }
+
+        //progressService.setGenerationProgress(50);
+
         
         IO generationIo = null;
         ConnectionManager em = null;
@@ -129,9 +137,6 @@ public class XBRLGenerationController implements Runnable {
             boolean altGeneration = Info.getInstance().checkIfUsesAltGeneration(module.getModuleVID(),Constants.GENERATIONBASEDONCOLLUMN);
             List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain, ioImport);
 
-            for (InImportedTablesTemp inImportedTablesTemp : tempList) {
-                LOG.info("GetTableCode:" + inImportedTablesTemp.getTableVersion());
-            }
             //Create Map
             Map<String, List<InImportedTablesTemp>> listOfTableGroupedByTheTableVID = tempList.stream()
                     .collect(Collectors.groupingBy(item -> item.getTableVersion().getCode()));
@@ -143,6 +148,7 @@ public class XBRLGenerationController implements Runnable {
                 threadList.add(t);
                 t.start();
             }
+            //progressService.setGenerationProgress(75);
             createParametersCSV(finalFolder);
             Set<String> filteredMapWithoutEmpty = listOfTableGroupedByTheTableVID.entrySet().stream()
                     .filter(entry -> {
@@ -151,6 +157,7 @@ public class XBRLGenerationController implements Runnable {
                     })
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toSet());
+            //progressService.setGenerationProgress(87);
             createFillingIndicatorCSV(finalFolder, filteredMapWithoutEmpty);
             boolean waitingForAllThread = true;
             Thread auxVariableToCheck = null;
@@ -180,7 +187,8 @@ public class XBRLGenerationController implements Runnable {
                 GenerateLogDAL.createNewGenerationLog("Geracao Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
                 generationIo.setEndTimestamp(LocalDateTime.now());
                 generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));
-                Connection.merge(generationIo);    
+                Connection.merge(generationIo);  
+                //setGenerationProgress(100);  
 
             } else {
                 //Add to the Log Generation Conclude sucesufully
@@ -207,7 +215,8 @@ public class XBRLGenerationController implements Runnable {
 
     public void createFillingIndicatorCSV(String path, Set<String> maps) {
         List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(getModule(), getReferenceDate());
-        Path fillingCSVPath = Paths.get(path + Utils.getSeparator(), "FilingIndicators.csv");
+        //Path fillingCSVPath = Paths.get(path + Utils.getSeparator(), "FilingIndicators.csv");
+        Path fillingCSVPath = Paths.get(path + Utils.getSeparator(), Constants.FILLINGINDICATORSFILENAME);
         Map<String, Boolean> mapNameChecker = new TreeMap<>();
         Map<String, String> abstractNameChecker = new HashMap<>();
         for (TableVersionDPM tableVersion : fillingIndicatorModuleList) {
@@ -235,12 +244,14 @@ public class XBRLGenerationController implements Runnable {
         }
 
         try (FileWriter writer = new FileWriter(fillingCSVPath.toFile())) {
-            writer.append("templateID,reported");
+            //writer.append("templateID,reported");
+            writer.append(Constants.FILLINGINDICATORSLABELS);
             for (Map.Entry<String, Boolean> entry : mapNameChecker.entrySet()) {
                 writer.append("\n");
                 writer.append(entry.getKey());
                 writer.append(",");
-                writer.append((entry.getValue() ? "true" : "false"));
+                //writer.append((entry.getValue() ? "true" : "false"));
+                writer.append((entry.getValue() ? Constants.TRUERESULT : Constants.FALSERESULT));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -248,22 +259,32 @@ public class XBRLGenerationController implements Runnable {
     }
 
     public void createParametersCSV(String path) {
-        Path paramCSVPath = Paths.get(path + Utils.getSeparator(), "parameters.csv");
+        /*Path paramCSVPath = Paths.get(path + Utils.getSeparator(), "parameters.csv");
         String currency = ConfAppConfigsDAL.getValueOfAppConfigurationKey("CURRENCY");
         String monetary = ConfAppConfigsDAL.getValueOfAppConfigurationKey("MONETARY");
         String percentage = ConfAppConfigsDAL.getValueOfAppConfigurationKey("PERCENTAGE");
         String decimal = ConfAppConfigsDAL.getValueOfAppConfigurationKey("DECIMAL");
-        String integer = ConfAppConfigsDAL.getValueOfAppConfigurationKey("INTEGER");
+        String integer = ConfAppConfigsDAL.getValueOfAppConfigurationKey("INTEGER");*/
+        Path paramCSVPath = Paths.get(path + Utils.getSeparator(), Constants.PARAMETERSFILENAME);
+        String currency = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGCURRENCY);
+        String monetary = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGMONETARY);
+        String percentage = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGPERCENTAGE);
+        String decimal = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGDECIMAL);
+        String integer = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGINTEGER);
         try (FileWriter writer = new FileWriter(paramCSVPath.toFile())) {
-            writer.append("name,value\n");
-            writer.append("entityID,");
+            //writer.append("name,value\n");
+            writer.append(Constants.PARAMETERSLABELS);
+            writer.append("\n");
+            //writer.append("entityID,");
+            writer.append(Constants.PARAMETERSKEYENTITY);
             writer.append(getEntity().getLeiCode());
             writer.append(".");
             writer.append(domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3).toUpperCase() : domain.toUpperCase());
             writer.append("\n");
-            writer.append("refPeriod,");
+            //writer.append("refPeriod,");
+            writer.append(Constants.PARAMETERSKEYREFERENCEDATE);
             writer.append(getReferenceDate().toString()); 
-            writer.append("\n");
+            /*writer.append("\n");
             writer.append("baseCurrency,");
             writer.append(currency);
             writer.append("\n");
@@ -277,6 +298,21 @@ public class XBRLGenerationController implements Runnable {
             writer.append(percentage);
             writer.append("\n");
             writer.append("decimalsDecimal,");
+            writer.append(decimal);*/
+            writer.append("\n");
+            writer.append(Constants.PARAMETERSKEYCURRENCY);
+            writer.append(currency);
+            writer.append("\n");
+            writer.append(Constants.PARAMETERSKEYINTEGER);
+            writer.append(integer);
+            writer.append("\n");
+            writer.append(Constants.PARAMETERSKEYMONETARY);
+            writer.append(monetary);
+            writer.append("\n");
+            writer.append(Constants.PARAMETERSKEYPERCENTAGE);
+            writer.append(percentage);
+            writer.append("\n");
+            writer.append(Constants.PARAMETERSKEYDECIMAL);
             writer.append(decimal);
         } catch (IOException e) {
             

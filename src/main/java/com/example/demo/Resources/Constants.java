@@ -1,5 +1,8 @@
 package com.example.demo.Resources;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -185,6 +188,26 @@ public class Constants {
     //AppConfigs
     public static final String TOLERANCE = "TOLERANCE";
     public static final String PRECISIONOFDIVISION = "PRECISIONOFDIVISION";
+    public static final String MONETARYPRECISION = "MONETARY";
+    public static final String INTEGERPRECISION = "INTEGER";
+    public static final String PERCENTAGEPRECISION = "PERCENTAGE";
+    public static final String DECIMALPRECISION = "DECIMAL";
+
+    //DataTypes
+    public static final int DATATYPENOTAPPLICABLE = 0;
+    public static final int DATATYPEINTEGER = 1;
+    public static final int DATATYPEDECIMAL = 2;
+    public static final int DATATYPESTRINGNONEMPTY = 3;
+    public static final int DATATYPEBOOLEAN = 4;
+    public static final int DATATYPETRUE = 5;
+    public static final int DATATYPEDATETIME = 6;
+    public static final int DATATYPEDATE = 7;
+    public static final int DATATYPEENUMERATION = 8;
+    public static final int DATATYPEMONETARY = 9;
+    public static final int DATATYPEPERCENTAGE = 10;
+    public static final int DATATYPEURI = 11;
+    public static final int DATATYPEORDINALS = 12;
+    public static final int DATATYPESTRINGINCLUDINGEMPTY = 13;
 
     //DataTypes
     public static final int NOTAPPLICABLE = 0;
@@ -280,6 +303,10 @@ public class Constants {
     //DATAS
     public static final String YEARMONTH = "[0-9]{6}";
     public static final String YEARMONTHDAY = "[0-9]{8}";
+
+    //BOOLEAN
+    public static final String FALSEBOOLEANPATTERN = "(?i)^(false|n|n - no|no|não|0|n - não|nao|n - nao)$";
+    public static final String TRUEBOOLEANPATTERN = "(?i)^(true|y|y - yes|yes|sim|1|s - sim)$";
 
     //User
     public static final String ACTIVEUSER = "ActiveUser";
@@ -380,6 +407,7 @@ public class Constants {
     
     public static int IMPORTRULEDATE = 1;
     public static int IMPORTRULEDATETIME = 3;
+    public static int IMPORTRULEBOOLEAN = 4;
     public static int IMPORTRULE = 2;
     
     
@@ -407,6 +435,40 @@ public class Constants {
 
     public static Integer GENERATIONBASEDONCOLLUMN = 1;
     public static Integer GENERATIONBASEDONDATAPOINTS = 2;
+
+    //Special Char Threatment
+    public static String LESSTHANOREQUALSCHAR = "≤";
+    public static String GREATERTHANOREQUALSCHAR = "≥";
+    public static String LESSTHANOREQUALSSTRING = "<=";
+    public static String GREATERTHANOREQUALSSTRING = ">=";
+    
+    public static Object[] VALIDATIONRESULTSHEADER = new Object[]{"Ref. Date", "Módulo", "Entidade", "Domínio", "Relatório", "Severidade", "Domínio Regra",
+                 "Origem Regra", "Regra com valores", "Origem",	"Resultado", "Data processamento", "Diferença", "Margem"};
+    public static String VALIDATIONSHEETNAME = "Validações";
+    public static String VALIDATIONFILENAME = "Validations_";
+    
+    //Arelle XBRL Validator
+    public static Path arellePath = Paths.get("D:", File.separator, "Arelle", File.separator, "arelle-win", File.separator, "arelleCmdLine.exe");
+    public static Path fullTaxonomyPath = Paths.get("D:", File.separator, "Taxonomy");
+    public static Path reportsDirectory = Paths.get("D:", File.separator, "Taxonomy", File.separator, "reports");
+    
+    //XBRL CSV Templates
+    public static String FILLINGINDICATORSFILENAME = "FilingIndicators.csv";
+    public static String FILLINGINDICATORSLABELS = "templateID,reported";
+    public static String PARAMETERSFILENAME = "parameters.csv";
+    public static String PARAMETERSLABELS = "name,value";
+    public static String PARAMETERSKEYENTITY = "entityID,rs:";  
+    public static String PARAMETERSKEYREFERENCEDATE = "refPeriod,";  
+    public static String PARAMETERSKEYCURRENCY = "baseCurrency,";  
+    public static String PARAMETERSKEYMONETARY = "decimalsMonetary,";
+    public static String PARAMETERSKEYPERCENTAGE = "decimalsPercentage,";
+    public static String PARAMETERSKEYDECIMAL = "decimalsDecimal,";
+    public static String PARAMETERSKEYINTEGER = "decimalsInteger,";
+    public static String APPCONFIGCURRENCY = "CURRENCY";
+    public static String APPCONFIGMONETARY = "MONETARY";
+    public static String APPCONFIGPERCENTAGE = "PERCENTAGE";
+    public static String APPCONFIGDECIMAL = "DECIMAL";
+    public static String APPCONFIGINTEGER = "INTEGER";
 
     public static String publicKeyDirectory = "public.pem";
     public static String licenseStringDirectory = "licenseString.dat";

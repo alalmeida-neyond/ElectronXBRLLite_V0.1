@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.Info;
@@ -38,7 +41,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
+//@Component
 public class ModuleFileImport implements Runnable{
     
     //main constructor to use in Import
@@ -63,6 +66,9 @@ public class ModuleFileImport implements Runnable{
     private String alterFilename;
     private List<Integer> listOfImportRulesToApply;
     private final Logger LOG = Logger.getLogger(ModuleFileImport.class);
+
+    @Autowired
+    private ProgressService progressService;
 
             
 
@@ -166,6 +172,9 @@ public class ModuleFileImport implements Runnable{
             List<InImportedValuesTemp> openRowAuxListForPersiste = new ArrayList<>();
             boolean hasInsertedValue;
             List<String> errorMsgPerTables = new ArrayList<>();
+
+            //progressService.setImportProgress(50);
+
             for (int sheet = 0; sheet < workBook.getNumberOfSheets(); sheet++) {
                 hasInsertedValue = false;
                 //In case of Error, only required to upload sheets missing
@@ -188,25 +197,20 @@ public class ModuleFileImport implements Runnable{
                 //Filling Indicator like what is stored in the DB
                 String fillingIndicatorWithUnderScores = fillingIndicator.replaceAll(" ", "_").trim();
 
-                LOG.info("FillinSize:" + fillingIndicatorModuleList.size());
                 //Check if the filling indicator is possible
                 singleFillingIndicatorAsTableVersion = FillingIndicatorModuleService.getTableVersionFromList(fillingIndicatorModuleList,fillingIndicatorWithUnderScores);
                 if(singleFillingIndicatorAsTableVersion == null){
                     //LOG.info("Here");
                     continue;
                 }
-                LOG.info("Importacao do mapa - " + sheetName + " iniciado");
                 headerDTOList = TableVersionHeaderDAL.getListOfHeaderForATableVid(singleFillingIndicatorAsTableVersion.getTableVID());
-                LOG.info("headerDTOListSize:" + headerDTOList.size());
                 sheetValueAsHeaderCode = null;
                 InImportKey desagregationCodeKey = null;
                 if(desagregationCode != null){
                     if(Utils.isNumeric(desagregationCode)){
                             sheetValueAsHeaderCode = HeaderService.getHeaderDTOFromList(headerDTOList,desagregationCode.trim(),Constants.SheetCoordinateAsChar,false);
-                            LOG.info("sheetValueAsHeaderCode" + sheetValueAsHeaderCode);
                         }
                     desagregationCodeKey = buildDesagregationCode(desagregationCode,singleFillingIndicatorAsTableVersion.getTableVID(),singleFillingIndicatorAsTableVersion.getTable().getTableId(), io.getReferenceDate());
-                    LOG.info("desagregationCodeKey" + desagregationCodeKey);
                     if (desagregationCodeKey != null) {
                         em.persist(desagregationCodeKey);
                     }
@@ -258,10 +262,8 @@ public class ModuleFileImport implements Runnable{
                     boolean isOpenRow = false;
                     if (rowValue != null) {
                         if (!"".equals(rowValue)) {
-                            LOG.info("Coordinates:" + Constants.ColumnCoordinate);
                             ListItems = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(singleFillingIndicatorAsTableVersion.getTableVID(), Constants.ColumnCoordinate, null, io.getReferenceDate());
                             if(ListItems != null && !ListItems.isEmpty()){
-                                LOG.info("Not Null");
                                 ListItemsMapped = ListItems.stream().collect(
                                                                  Collectors.groupingBy(
                                                                              DatapointItensDTO::getHeaderCode,
@@ -521,6 +523,8 @@ public class ModuleFileImport implements Runnable{
                 
                 LogImportProcess logMapImportEnd = new LogImportProcess(importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " concluido");
                 Connection.persist(cm, logMapImportEnd);
+                //progressService.setImportProgress(90);
+
             }
             workBook.close();
         }catch (Exception e) {
@@ -576,7 +580,7 @@ public class ModuleFileImport implements Runnable{
             io.setEndTimestamp(LocalDateTime.now());
             Connection.merge(io);
         }
-
+        //progressService.setImportProgress(100);
         ValidationAction validationAction = new ValidationAction();
 
         validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);

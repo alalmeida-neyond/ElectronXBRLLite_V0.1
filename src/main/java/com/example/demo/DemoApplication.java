@@ -24,7 +24,7 @@ public class DemoApplication {
 			e.printStackTrace();
 		}
 		DeleteAction deleteAction = new DeleteAction();
-		//deleteAction.deleteRecords();
+		deleteAction.deleteRecords();
 		ReplacementDB replacementDB = new ReplacementDB();
 		replacementDB.replacementDBEvent();
 		if (!replacementDB.isValidSQLiteFile()) {
