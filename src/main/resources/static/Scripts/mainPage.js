@@ -99,8 +99,8 @@ document.addEventListener("DOMContentLoaded", function () {
         bar.textContent = value + '%';
     }
 
-    /*setInterval(() => {
-        fetch('/progress/importProgress')
+    setInterval(() => {
+        fetch('/importProgress')
         .then(response => response.json())
         .then(progress => {
             const bar = document.getElementById('importProgress');
@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(err => console.error('Import progress fetch error:', err));
 
-        fetch('/progress/validationProgress')
+        fetch('/validationProgress')
         .then(response => response.json())
         .then(progress => {
             const bar = document.getElementById('validationProgress');
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(err => console.error('Validation progress fetch error:', err));
 
-        fetch('/progress/generationProgress')
+        fetch('/generationProgress')
         .then(response => response.json())
         .then(progress => {
             const bar = document.getElementById('generationProgress');
@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
             bar.textContent = progress + '%';
         })
         .catch(err => console.error('Generation progress fetch error:', err));
-    }, 1000);*/
+    }, 1000);
 
 
 
@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("file", file);
 
         document.getElementById("upload-text").style.display = "none";
-        document.getElementById("loading-text").style.display = "block";
+        document.getElementById("loading-container").style.display = "flex";
 
         fetch("/importFile/upload", {
             method: "POST",
@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 document.getElementById("logContainer").style.display = "block";
                 document.getElementById("upload-text").style.display = "block";
-                document.getElementById("loading-text").style.display = "none";
+                document.getElementById("loading-container").style.display = "none";
                 document.getElementById("upload-error").style.display = "none";
                 fetchModulesFromBackend();
                 fetchIOs();
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(error => {
                 console.error("Erro ao fazer upload:", error.message); 
                 document.getElementById("upload-text").style.display = "block";
-                document.getElementById("loading-text").style.display = "none";
+                document.getElementById("loading-container").style.display = "none";
 
                 const errorBox = document.getElementById("upload-error");
                 if (errorBox) {
@@ -197,6 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function createCellCustomIOState(value, ioStateId) {
         const td = document.createElement("td");
+        td.classList.add("first-cell");
 
         const icon = document.createElement("i");
         icon.classList.add("bi", "me-2");
@@ -275,6 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("State:" + io[1]);
 
             const td0 = createCellCustomIOState(io[1], io[1]);
+            td0.classList.add("first-cell");
 
             tr.appendChild(td0);
             tr.appendChild(createCellCustom(io[2], io[1]));
@@ -358,6 +360,10 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(`/importFile/results/${ioid}`)
                 .then(res => res.json())
                 .then(details => {
+
+                    const scrollContainer = document.createElement("div");
+                    scrollContainer.className = "detailsTable";
+                    scrollContainer.classList.add("detailsTable");
                     const table = document.createElement("table");
                     table.className = "fixed-header-table table table-borderless";
 
@@ -484,13 +490,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
 
                     table.appendChild(tbody);
-
+                    scrollContainer.appendChild(table);
                     container.innerHTML = "";
                     container.classList.remove("internationalization");
                     container.removeAttribute("data-key");
-                    container.appendChild(table);
+                    //container.appendChild(table);
+                    container.appendChild(scrollContainer);
                     container.dataset.loaded = "true";
-
 
                     const selectedLang = document.getElementById("languageSelect")?.value || "pt";
                     updateLanguageLabels(selectedLang);

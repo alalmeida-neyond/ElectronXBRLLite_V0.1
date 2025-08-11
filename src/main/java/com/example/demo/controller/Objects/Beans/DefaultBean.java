@@ -16,14 +16,14 @@ import jakarta.faces.FacesException;
 import jakarta.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
@@ -377,6 +377,7 @@ public abstract class DefaultBean {
             return null;
         }
         LOG.info("Module Code:" + moduleCode);
+        LOG.info("ModuleVersion data: " + Info.getInstance().refDataGet(Constants.ModuleVersionAll));
         try {
             for (ModuleVersion mv : new ArrayList<ModuleVersion>(Info.getInstance().refDataGet(Constants.ModuleVersionAll))) {
                 if (mv.getCode().replace("_", "").trim().toLowerCase().equals(moduleCode.toLowerCase())

@@ -53,9 +53,19 @@
 .loading-text {
   font-size: 16px;
   color: #333;
-  display: none;
   font-family: 'Muli';
 }
+
+.loading-gif {
+  width: 30px;
+}
+
+.loading-container {
+  display: none; 
+  align-items: center;
+  gap: 8px;
+}
+
 
 .upload-link {
   color: blue;
@@ -77,13 +87,12 @@
 #logContainer
 {
   display: none;
-  overflow:scroll;
 }
 
 .table-wrapper {
   margin: 0 auto;
   border: none;
-  max-height: 400px;
+  max-height: max-content;
   position: sticky;
 }
 
@@ -191,4 +200,22 @@ td.last-cell {
 .confirmLicenseButton
 {
   float: right;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.detailsTable
+{
+  max-height: 240px;      
+  overflow-y: auto;       
+  overflow-x: auto;       
+  margin-top: 10px;
+}
+
+.progress {
+    height: 12px;
 }

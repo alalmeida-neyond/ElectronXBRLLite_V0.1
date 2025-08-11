@@ -86,7 +86,8 @@ public class InImportedValuesTemp implements Serializable {
     @Column(name = "IMPORTEDVALUESID")
     private int importedvaluesID;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    //@ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "IMPORTEDTABLEID", referencedColumnName = "IMPORTEDTABLEID", nullable = false)
     private InImportedTablesTemp importedTableId;
 
@@ -96,7 +97,8 @@ public class InImportedValuesTemp implements Serializable {
     @Column(name = "RULEVALUE")
     private String ruleValue;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    //@ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID", nullable = false)
     private InImportKey importKey;
 

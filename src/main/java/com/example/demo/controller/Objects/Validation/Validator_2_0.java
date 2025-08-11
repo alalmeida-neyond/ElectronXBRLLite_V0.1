@@ -8,22 +8,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.*;
 import com.example.demo.Resources.Constants;
-import com.example.demo.controller.Objects.ActionPhases.GenerationAction;
 import com.example.demo.controller.Objects.Entities.Conf.*;
 import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.*;
+import com.example.demo.controller.Objects.Generation.XBRLGenerator;
 import com.example.demo.controller.Objects.IO.IO;
+import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.Logs.*;
 import com.example.demo.service.ProgressService;
 
 import org.jboss.logging.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class Validator_2_0 implements Runnable {
@@ -36,20 +37,140 @@ public class Validator_2_0 implements Runnable {
     private String domain;
     private Set<TableVersionDPM> tables;
 
-    @Autowired
     private ProgressService progressService;
     
-    public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, Set<TableVersionDPM> tables){
+    
+    public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, ProgressService progressService){
         this.moduleVersion = moduleVersion;
         this.entity = entity;
         this.refDate = refDate;
         this.domain = domain;
-        this.tables = tables;
+        this.progressService = progressService;
+    }
+
+    //private List<InImportedTablesTemp> importedTables;
+    private List<TableVersionDPM> importedTables;
+    private List<Integer> selectedMapsToValidate;
+    private List<IO> validateIOs;    
+    
+    //public List<InImportedTablesTemp> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
+    public List<TableVersionDPM> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
+        //if(moduleVersion != null && domain != null && entity != null)
+        if(moduleVersion != null){
+            //importedTables = InImportedTablesDAL.getListOfImportedMapsToValidate(moduleVersion, referenceDate, entity, domain, io);
+            importedTables = InImportedTablesDAL.getMapsToValidate(moduleVersion);
+            selectedMapsToValidate = importedTables.stream().map(TableVersionDPM::getTableVID).collect(Collectors.toList());
+        }else{
+            //importedTables = new ArrayList<>();
+            importedTables = new ArrayList<>();
+            selectedMapsToValidate = new ArrayList<>();
+        }
+        return importedTables;
+    }
+
+    public void startValidation(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io) {
+        List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(moduleVersion, domain, entity, referenceDate.toString());
+        if (!operationsRunningFromIO.isEmpty()) {
+            LOG.info(Constants.concurrentOperations + " | " + Constants.concurrentOperationsDesc);
+            return;
+        }
+        importedTables = getImportedMaps(referenceDate, moduleVersion, domain, entity, filename, io);
+        
+        /*List<InImportedTablesTemp> tablesToValidate = new ArrayList<>();
+        for (InImportedTablesTemp importedTable : importedTables) {
+            tablesToValidate.add(importedTable);
+        }*/
+
+        List<TableVersionDPM> tablesToValidate = new ArrayList<>();
+        for (TableVersionDPM importedTable : importedTables) {
+            if(selectedMapsToValidate.contains(importedTable.getTableVID()))
+                tablesToValidate.add(importedTable);
+        }
+        
+        /*Set<TableVersionDPM> sortedTables = tablesToValidate.stream()
+                                                .map(InImportedTablesTemp::getTableVersion)
+                                                .collect(Collectors.toCollection(() -> 
+                                                    new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
+                                                ));*/
+
+        Set<TableVersionDPM> sortedTables = tablesToValidate.stream().collect(Collectors.toCollection(() -> 
+                                                    new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
+                                                ));
+        setTables(sortedTables);
+        LOG.info("Validacao Iniciada | " + "Processo de validacao iniciada.");
+        
+        try {
+            validateOperations(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, sortedTables, io);
+        } catch (Exception e) {
+            
+        }
+    }
+    
+    public String getEstadoForExcel(IOState ioState){
+        String estado = null;
+        
+        if(ioState.getIoTypeStateId().getIoTypeStateId() == 3){
+            estado = Constants.PENDENTE;
+            return estado;
+        }
+        if(ioState.getIoTypeStateId().getIoTypeStateId() == 2){
+            estado = Constants.NOTOK;
+            return estado;
+        }
+        if(ioState.getIoTypeStateId().getIoTypeStateId() == 12){
+            estado = Constants.OKComMapasVazios;
+            return estado;
+        }
+        if(ioState.getIoTypeStateId().getIoTypeStateId() == 1 && ioState.getIoStateId() != 12 && ioState.getIoStateId() != 2){
+            estado = Constants.OK;
+            return estado;
+        }
+        if(ioState.getIoStateId() == 2){
+            estado = Constants.OKMapasComErros;
+            return estado;
+        }
+        return estado;
+    }
+
+    /*public List<InImportedTablesTemp> getImportedTables() {
+        return importedTables;
+    }
+
+    public void setImportedTables(List<InImportedTablesTemp> importedTables) {
+        this.importedTables = importedTables;
+    }*/
+
+    public List<TableVersionDPM> getImportedTables() {
+        return importedTables;
+    }
+
+    public void setImportedTables(List<TableVersionDPM> importedTables) {
+        this.importedTables = importedTables;
+    }
+
+    public List<IO> getValidateIOs() {
+        return validateIOs;
+    }
+
+    public void setValidateIOs(List<IO> validateIOs) {
+        this.validateIOs = validateIOs;
+    }
+
+    public List<Integer> getSelectedMapsToValidate() {
+        return selectedMapsToValidate;
+    }
+
+    public void setSelectedMapsToValidate(List<Integer> selectedMapsToValidate) {
+        this.selectedMapsToValidate = selectedMapsToValidate;
     }
 
     private Map<Integer, Map<Integer, List<ValNode>>> getNodes(int tableVId) {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
+        LOG.info("RefDate:" + refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
+        LOG.info("Module Version:" + String.valueOf(moduleVersion.getModuleVID()));
+        LOG.info("Format:" + Constants.ISOBASEFORMAT8601SQLite);
+        LOG.info("TableVID:" + String.valueOf(tableVId));
         try {
             results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvore.sql", "OperationNodeMapping",
                     "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
@@ -167,7 +288,7 @@ public class Validator_2_0 implements Runnable {
         return OperationsUtils.mapResultsFromDatabase(results, refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
     }
     
-    public void validateOperations(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO ioImport) {
+    public void validateOperations(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, Set<TableVersionDPM> sortedTables,IO ioImport) {
         OutValidationResult commonDatapointValidationResult = null;
 
         Map<Integer, ValResult> resultPerPrecondition = new HashMap<>();
@@ -200,8 +321,8 @@ public class Validator_2_0 implements Runnable {
             //Obtencao dos nós da árvore por operacao
             Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
             
-            int completedTables = 0;
-            //progressService.setValidationProgress(completedTables, getTables().size());
+            int completedTables = 1;
+            progressService.setValidationProgress(completedTables, getTables().size()+1);
                     
             for (TableVersionDPM table : getTables()) {
                 Integer tableVId = table.getTableVID();
@@ -311,7 +432,7 @@ public class Validator_2_0 implements Runnable {
                 long endPerMap = System.nanoTime();
                 float durationPerMap = ((float) (endPerMap - initPerMap) / 1000000000);
                 String durationFormatted = String.format("%.2f", durationPerMap);
-                LOG.info("Término da avaliacao do mapa: " + table.getCode() + " | Duracao: " + durationFormatted + " segundos");
+                LOG.info("Termino da avaliacao do mapa: " + table.getCode() + " | Duracao: " + durationFormatted + " segundos");
                 
                 if(operationsResultsIds.isEmpty()){
                     outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));//new IOState(Constants.processoOkEmpty, new IOTypeState(Constants.tipoStateOK)));
@@ -322,7 +443,9 @@ public class Validator_2_0 implements Runnable {
 
                 LogValidationProcess logValProcessMapEnd = new LogValidationProcess(ioValidation, "Validacao - " + table.getCode() + " - Concluída", LocalDateTime.now());
                 Connection.persist(em, logValProcessMapEnd);
-                //progressService.setValidationProgress(completedTables++, getTables().size());
+                LOG.info("Completed:" + completedTables);
+                LOG.info("Total:" + Integer.valueOf(getTables().size()) + 1);
+                progressService.setValidationProgress(completedTables++, getTables().size()+1);
             }
 
             //if(commonDatapointValidationResult != null){
@@ -333,6 +456,8 @@ public class Validator_2_0 implements Runnable {
             long endAllProcess = System.nanoTime();
             float durationAllProcess = ((float) (endAllProcess - initAllProcess) / 1000000000);
             String durationFormatted = String.format("%.2f", durationAllProcess);
+
+            progressService.setValidationProgress(getTables().size()+1, getTables().size()+1);
 
             LOG.info("Termino da validacao | Duracao: " + durationFormatted + " segundos");
             
@@ -356,7 +481,7 @@ public class Validator_2_0 implements Runnable {
             }
             
             LOG.info("Generation Start");
-            GenerationAction generationAction = new GenerationAction();
+            XBRLGenerator generationAction = new XBRLGenerator(progressService,referenceDate, moduleVersion, domain.toUpperCase(), entity);
 
             generationAction.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, ioImport, ioValidation);
         } catch (Exception e) {

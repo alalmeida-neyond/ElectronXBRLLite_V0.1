@@ -1,66 +1,90 @@
-package com.example.demo.controller;
+package com.example.demo.controller.Objects.Beans;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
-import org.jboss.logging.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.*;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
-import com.example.demo.controller.Objects.Beans.DefaultBean;
-import com.example.demo.controller.Objects.Entities.Conf.*;
+import com.example.demo.Verification.LicenseVerification;
+import com.example.demo.controller.Objects.Entities.Conf.ConfAppConfigs;
+import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
+import com.example.demo.controller.Objects.Entities.Conf.ConfImportRules;
 import com.example.demo.controller.Objects.Entities.DAL.IODAL;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.service.ModuleFileImport;
 import com.example.demo.service.ProgressService;
+import com.example.demo.service.ValidationService;
+import org.springframework.http.*;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceUnit;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
+
+import java.io.*;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/importFile")
-public class ImportFileController extends DefaultBean {
+public class MainBean extends DefaultBean{
+    private String directory;
 
-    private final Logger LOG = Logger.getLogger(ImportFileController.class);
+    private final String fileUrl = Constants.fileUrl;
+    private final String localFilePath = Constants.localFilePath;
+    private final Logger LOG = Logger.getLogger(MainBean.class);
+    private List<Integer> listOfImportRulesToApply = new ArrayList<Integer>();
+    private List<Integer> listOfImportRulesToAlwaysApply = new ArrayList<Integer>();
+    private List<ConfImportRules> listOfImportRules = new ArrayList<>();
+    private static boolean licenseValidated = false;
 
     private List<IO> importIOs;
 
     private String fileName;
     private Boolean isSubmitDisable = true;
     private Boolean isOperationOccuring = true;
-    private List<Integer> listOfImportRulesToApply = new ArrayList<Integer>();
-    private List<Integer> listOfImportRulesToAlwaysApply = new ArrayList<Integer>();
-    private List<ConfImportRules> listOfImportRules;
     private MultipartFile file;
 
+    private static final String UPLOAD_DIR = Constants.UPLOAD_DIR;
+    private final ProgressService progressService;
+
+    public MainBean(ProgressService progressService) {
+        this.progressService = progressService;
+    }
     @Autowired
-    private ProgressService progressService;
+    private LicenseVerification licenseVerification;
+
 
     @PostConstruct
     public void init() {
-        setListOfImportRules(Info.getInstance().refDataGet(Constants.ConfImportRulesAll));
+        Info.getInstance().loadRefData(true);
+        List<ConfImportRules> rules = Info.getInstance().refDataGet(Constants.ConfImportRulesAll);
+        if (rules == null) {
+            rules = new ArrayList<>();
+        }
+        setListOfImportRules(rules);
+
         listOfImportRulesToApply = getListOfImportRules().stream()
                 .map(ConfImportRules::getImportRuleID)
                 .collect(Collectors.toList());
@@ -70,7 +94,6 @@ public class ImportFileController extends DefaultBean {
                 .map(ConfImportRules::getImportRuleID)
                 .collect(Collectors.toList());
 
-        getImportIOs(refData.getImportID(), true);
     }
 
     public void getImportIOs(Integer privilege, boolean withView) {
@@ -92,7 +115,7 @@ public class ImportFileController extends DefaultBean {
 
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/importFile/upload")
     @ResponseBody
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
         
@@ -300,7 +323,7 @@ public class ImportFileController extends DefaultBean {
                 .collect(Collectors.toList());
 
         ModuleFileImport importExecution = new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(),
-                getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux);
+                getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux, progressService);
 
         //progressService.setImportProgress(20);
 
@@ -397,6 +420,236 @@ public class ImportFileController extends DefaultBean {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erro ao preparar o ficheiro.");
+        }
+    }
+
+    @GetMapping("/importProgress")
+    public int getImportProgress() {
+        return progressService.getImportProgress();
+    }
+
+    @GetMapping("/validationProgress")
+    public int getValidationProgress() {
+        return progressService.getValidationProgress();
+    }
+
+    @GetMapping("/generationProgress")
+    public int getGenerationProgress() {
+        return progressService.getGenerationProgress();
+    }
+
+    @PersistenceUnit
+    private EntityManagerFactory emf;
+
+    @PreDestroy
+    public void closeEntityManager() {
+        if (emf != null) {
+            emf.close();
+            System.out.println("EntityManagerFactory closed.");
+        }
+    }
+    
+
+    @GetMapping("/")
+    public ModelAndView greeting() throws FileNotFoundException {
+        ModelAndView modelAndView = new ModelAndView();
+
+        init();
+        licenseValidated = licenseVerification.licenseValidationFile();
+        modelAndView.addObject(Constants.LEICodeKeyString, licenseVerification.getLEICode());
+        if (licenseValidated) {
+            modelAndView.setViewName("test");
+        } else {
+            modelAndView.setViewName("licensepage");
+            LOG.info(licenseVerification.isExpired());
+            if (licenseVerification.isExpired()) {
+                modelAndView.addObject("expired", true);
+            }
+        }
+        //modelAndView.setViewName("index");
+        
+        return modelAndView;
+    }
+
+    @PostMapping("/process")
+    @ResponseBody
+    public String handleFileUpload(@RequestParam("file") MultipartFile file, Model model) {
+        StringBuilder responseMessage = new StringBuilder();
+
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || !fileName.toLowerCase().endsWith(".xlsx")) {
+            return "<p style='color:red;'>Tipo de ficheiro inválido</p>";
+        }
+
+        try {
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                return "<p style='color:red;'>Diretoria inválida</p>";
+            }
+            
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            /*List<String> extractedDataColumn1 = extractExcelColumn(filePath, 1);
+            List<String> extractedDataColumn2 = extractExcelColumn(filePath, 1);
+            List<String[]> fullList = new ArrayList<>();
+            int i = 0;
+            for (String extractedDataLine : extractedDataColumn1) {
+                fullList.add(new String[]{extractedDataLine, extractedDataColumn2.get(i)});
+                i++;
+            }
+            
+            insertIntoDatabase(fullList);*/
+            
+            
+            responseMessage.append("<p style='color:green;'>Ficheiro carrgado com sucesso!</p>");
+            
+        } catch (Exception e) {
+            return "<p style='color:red;'>Erro a processar o ficheiro: " + e.getMessage() + "</p>";
+        }
+        return responseMessage.toString();
+    }
+
+    @GetMapping("/settings")
+    public ModelAndView settings() {
+        ModelAndView modelAndView = new ModelAndView();
+        try {
+            licenseValidated = licenseVerification.licenseValidationFile();
+            modelAndView.addObject("LEICode", licenseVerification.getLEICode());
+        } catch (Exception e) {
+            licenseValidated = false;
+        }
+        if (licenseValidated)
+        {
+            modelAndView.setViewName("settings");
+        }
+        else
+        {
+            modelAndView.setViewName("licensepage");
+        }
+        return modelAndView;
+    }
+
+    @GetMapping("/licensing")
+    public ModelAndView licensing() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("licensepage");
+        return modelAndView;
+    }
+
+    @PostMapping("/licensing")
+    public ModelAndView insertingLicense(@RequestParam("licensingString") String licensingString) {
+        try {
+            licenseVerification.licenseVerificationString(licensingString);
+            return new ModelAndView("redirect:/");
+
+        } catch (Exception e) {
+           ModelAndView mv = new ModelAndView("licensepage");
+            mv.addObject("error", "Invalid license: " + e.getMessage());
+            return mv;
+        }
+    }
+
+    @PostMapping("/renewLicense")
+    public ModelAndView renewLicense() {
+        try {
+            return new ModelAndView("redirect:/");
+
+        } catch (Exception e) {
+           ModelAndView mv = new ModelAndView("licensepage");
+            mv.addObject("error", "Invalid license: " + e.getMessage());
+            return mv;
+        }
+    }
+
+    @PostMapping("/requestLicense")
+    public void requestingLicense(@RequestParam String inputEmailText,
+        @RequestParam String inputLEICODEText,
+        @RequestParam String inputHardwareIDText,
+        @RequestParam String inputBDPIDText,
+        @RequestParam String inputLicenseType ) {
+        LOG.info("Email:" + inputEmailText);
+        LOG.info("LEI CODE:" + inputLEICODEText);
+        LOG.info("Hardware ID:" + inputHardwareIDText);
+        LOG.info("BDP ID:" + inputBDPIDText);
+        LOG.info("License Type:" + inputLicenseType);
+    }
+
+    @GetMapping("/import_file")
+    public ModelAndView importFile() throws FileNotFoundException {
+        
+        ModelAndView modelAndView = new ModelAndView();
+        try {
+            licenseValidated = licenseVerification.licenseValidationFile();
+        } catch (Exception e) {
+            licenseValidated = false;
+            System.err.println("Erro ao validar licença: " + e.getMessage());
+        }
+        if (licenseValidated)
+        {
+            modelAndView.setViewName("import_file");
+        }
+        else
+        {
+            modelAndView.setViewName("licensepage");
+        }
+        return modelAndView;
+    }
+
+    @GetMapping("/importFile/results/{id}")
+    @ResponseBody
+    public List<ValidationResultsDetailsDTO> getValidationResults(@PathVariable("id") Integer ioId) {
+        LOG.info("Validation");
+        ValidationService validationService = new ValidationService();
+        return validationService.getValidationResults(ioId);
+    }
+
+    @GetMapping("/importFile/results")
+    @ResponseBody
+    public List<Object[]> getIOResults() {
+        ValidationService validationService = new ValidationService();
+        List<Object[]> validationResults = new ArrayList<Object[]>();
+        validationResults = validationService.getIOResults();
+        return validationResults;
+    }
+
+    @GetMapping("/importFile/modules")
+    @ResponseBody
+    public List<String> getModules() {
+        LOG.info("Modules");
+        ValidationService validationService = new ValidationService();
+        List<String> validationResults = new ArrayList<String>();
+        validationResults = validationService.getModules();
+        return validationResults;
+    }
+
+
+    @GetMapping("/importFileDetail")
+    public ModelAndView importFileDetail() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("import_file_detail");
+        return modelAndView;
+    }
+
+    @GetMapping("/generate_xbrl")
+    public ModelAndView generateXBRL() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("index_Neyond");
+        return modelAndView;
+    }
+
+    @PostMapping("/processMetaData")
+    public void handleMetaDataTransfer(Model model) {
+        try {
+            
+            URL url = URI.create(fileUrl).toURL();
+            try (InputStream inputStream = url.openStream()) {
+                Files.copy(inputStream, Path.of(localFilePath), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error replacing file: " + e.getMessage());
         }
     }
 }

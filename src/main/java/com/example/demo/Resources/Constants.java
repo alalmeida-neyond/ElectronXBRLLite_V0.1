@@ -487,8 +487,15 @@ public class Constants {
     public static String whiteSpaceRegex = "\\s";
     public static String RSAAlgoritmString = "RSA";
 
+    public static String fileUrl = "https://blobstoragexbrl.blob.core.windows.net/xbrldatabaseblob/UNMANAGEDPROCESS.db";
+    public static String UPLOAD_DIR = System.getProperty("user.dir");
+    public static String localFilePath = UPLOAD_DIR + File.separator + "/src/UNMANAGEDPROCESS.db"; 
     
-    
+    public static String folderUrl = "https://blobstoragexbrl.blob.core.windows.net/xbrldatabaseblob/JSONs";
 
+    public static String sourceFilePath = System.getProperty("user.dir") + File.separator + "/src/UNMANAGEDPROCESS.db";
+    public static String targetFilePath = System.getProperty("user.dir") + File.separator + "UNMANAGEDPROCESS.db";
+
+    public static String connectionStringSqlite = "jdbc:sqlite:UNMANAGEDPROCESS.db";
     
 }

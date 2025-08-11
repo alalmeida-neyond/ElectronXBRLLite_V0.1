@@ -7,6 +7,7 @@
       <link href="./Style/mainPageUpload.css" rel="stylesheet" type="text/css" />
       <link rel="shortcut icon" th:href="@{/Images/favico.ico}" />
       <link href="./Style/Headers.css" rel="stylesheet" type="text/css" />
+      <link href="./Style/footer.css" rel="stylesheet" type="text/css" />
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
       <script src="./Scripts/mainPage.js"></script>
@@ -19,23 +20,23 @@
     </div>
     <div class="container mt-3">
       <div class="importProgressBar">
-        <h5>Importation</h5>
-        <div class="progress mb-3">
+        <span class="internationalization" data-key="importTitle.label" style="font-size: x-small;"></span>
+        <div class="progress">
           <div id="importProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%;">0%</div>
         </div>
       </div>
       
       <div class="validationProgressBar">
-        <h5>Validation</h5>
-        <div class="progress mb-3">
+        <span class="internationalization" data-key="validationTitle.label" style="font-size: x-small;"></span>
+        <div class="progress">
           <div id="validationProgress" class="progress-bar bg-info" role="progressbar" style="width: 0%;">0%</div>
         </div>
       </div>
       
 
       <div class="generationProgressBar">
-        <h5>Generation</h5>
-        <div class="progress mb-3">
+        <span class="internationalization" data-key="generationTitle.label" style="font-size: x-small;"></span>
+        <div class="progress">
           <div id="generationProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%;">0%</div>
         </div>
       </div>
@@ -44,9 +45,9 @@
     </div>
 
     <div class="container">
-      <br><br>
+      <br>
 
-      <form id="uploadForm" method="post" th:action="@{/importFile/upload}" enctype="multipart/form-data">
+      <form id="uploadForm" method="post" th:action="@{/upload}" enctype="multipart/form-data">
           <div class="upload-area w-100" id="upload-area">
             <img src="./Images/upload_icon.png" alt="Upload Icon" class="upload-icon" />
             <div class="upload-text" id="upload-text">
@@ -54,8 +55,11 @@
               <span class="underline internationalization" data-key="choose.label" style="color: blue; text-decoration: underline;">escolhe aqui</span>
             </div>
 
-            <div class="loading-text internationalization" id="loading-text" data-key="loading.label">
+            <div class="loading-container" id="loading-container">
+                <span class="loading-text internationalization" data-key="loading.label">Loading...</span>
+                <img src="./Images/loadingGif.gif" id="loading-gif" class ="loading-gif" alt="Loading..." />
             </div>
+            
             <input type="file" id="file" name="file" class="upload-hidden-input" required accept=".xls,.xlsx" />
           </div>
           <div id="upload-error" class="alert alert-danger" style="display: none;"></div>
@@ -63,7 +67,6 @@
         
         <div class="logContainer" id="logContainer">
           <div class="Sep"> </div>
-          <br />
           <div>
             <div class="SepRed">
               <div>
@@ -81,9 +84,9 @@
                   <div class="d-flex gap-2">
                     <input type="number" id="filterYear" class="form-control" placeholder="YYYY" maxlength="4"  min="1" max="31" style="width: 80px;">
                     <span>/</span>
-                    <input type="number" id="filterMonth" class="form-control" placeholder="MM" maxlength="2"  min="1" max="12"style="width: 50px;">
+                    <input type="number" id="filterMonth" class="form-control" placeholder="MM" maxlength="2"  min="1" max="12"style="width: 70px;">
                     <span>/</span>
-                    <input type="number" id="filterDay" class="form-control" placeholder="DD" maxlength="2"  min="1"  style="width: 50px;">
+                    <input type="number" id="filterDay" class="form-control" placeholder="DD" maxlength="2"  min="1"  style="width: 70px;">
                   </div>
 
               </div>

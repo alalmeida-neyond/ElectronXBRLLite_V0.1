@@ -13,16 +13,12 @@ import java.util.stream.Collectors;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jboss.logging.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.Info;
 import com.example.demo.Finrep.*;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
-import com.example.demo.controller.Objects.ActionPhases.ValidationAction;
 import com.example.demo.controller.Objects.Entities.Conf.*;
 import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.Cell;
@@ -35,17 +31,19 @@ import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.IO.IOTypeState;
 import com.example.demo.controller.Objects.Import.*;
+import com.example.demo.controller.Objects.Validation.Validator_2_0;
+
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ConstraintViolationException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-//@Component
 public class ModuleFileImport implements Runnable{
     
     //main constructor to use in Import
-    public ModuleFileImport(File inputFile, String filename, ConfEntities entity, String domain,LocalDate referenceDate,ModuleVersion moduleVersion, String filenameWithTimestamp, List<Integer> ruleIdsToApply) {
+    public ModuleFileImport(File inputFile, String filename, ConfEntities entity, String domain,LocalDate referenceDate,ModuleVersion moduleVersion, 
+    String filenameWithTimestamp, List<Integer> ruleIdsToApply, ProgressService progressService) {
         this.inputFile = inputFile;
         this.filename = filename;
         this.entity = entity;
@@ -54,6 +52,7 @@ public class ModuleFileImport implements Runnable{
         this.moduleVersion = moduleVersion;
         this.alterFilename = filenameWithTimestamp;
         this.listOfImportRulesToApply = ruleIdsToApply;
+        this.progressService = progressService;
     }
     
     private List<Integer> typeListToExclude = Arrays.asList(Constants.INTEGER, Constants.DECIMAL, Constants.MONETARY, Constants.PERCENTAGE);
@@ -67,8 +66,7 @@ public class ModuleFileImport implements Runnable{
     private List<Integer> listOfImportRulesToApply;
     private final Logger LOG = Logger.getLogger(ModuleFileImport.class);
 
-    @Autowired
-    private ProgressService progressService;
+    private final ProgressService progressService;
 
             
 
@@ -155,6 +153,8 @@ public class ModuleFileImport implements Runnable{
             }
             //for each sheet in the imported file;
 
+            LOG.info("Workbook Sheets:" + workBook.getNumberOfSheets());
+
             List<VariableVersion> varVersionMapList = VariableVersionDAL.getListOfVariableVersionOfModuleSheets(moduleVersion.getModuleVID());
             List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(moduleVersion,referenceDate);
             TableVersionDPM singleFillingIndicatorAsTableVersion = null;
@@ -173,7 +173,7 @@ public class ModuleFileImport implements Runnable{
             boolean hasInsertedValue;
             List<String> errorMsgPerTables = new ArrayList<>();
 
-            //progressService.setImportProgress(50);
+            progressService.setImportProgress(50);
 
             for (int sheet = 0; sheet < workBook.getNumberOfSheets(); sheet++) {
                 hasInsertedValue = false;
@@ -403,7 +403,9 @@ public class ModuleFileImport implements Runnable{
                                         //BuildRowKey
                                         if(rowKeyImportKey == null){
                                             rowKeyImportKey = new InImportKey();
-                                            rowKeyImportKey.setKeyType(em.getReference(InKeyType.class,Constants.ROWKEYTYPE));
+                                            //rowKeyImportKey.setKeyType(em.getReference(InKeyType.class,Constants.ROWKEYTYPE));
+                                            InKeyType keyType = cm.em.getReference(InKeyType.class,Constants.ROWKEYTYPE);
+                                            rowKeyImportKey.setKeyType(keyType);
 
                                             rowKeyImportKey.setListPropertyValues(new ArrayList<>());
                                             Connection.persist(cm, rowKeyImportKey);
@@ -415,8 +417,10 @@ public class ModuleFileImport implements Runnable{
                                         desagregationCodeAssociation.setPropertyValue((Utils.isNumericWithComma(value)? (value.contains(",") ? value.replace(",", ".") : value) : valueEdited));
 
                                         rowKeyImportKey.getListPropertyValues().add(desagregationCodeAssociation);
-                                        em.persist(desagregationCodeAssociation);
-                                        em.merge(rowKeyImportKey);
+                                        /*em.persist(desagregationCodeAssociation);
+                                        em.merge(rowKeyImportKey);*/
+                                        Connection.persist(cm, desagregationCodeAssociation);
+                                        Connection.merge(cm, rowKeyImportKey);
 
                                         
                                     }
@@ -477,12 +481,19 @@ public class ModuleFileImport implements Runnable{
                             Connection.persist(cm, importedValue);
                         }
                     }
-                    if (nRegistos % 1000 == 0) {
+                    /*if (nRegistos % 1000 == 0) {
                         if (!em.getTransaction().isActive()) {
                             em.getTransaction().begin();
                         }
                         em.flush();
                         em.clear();
+                    }*/
+                    if (nRegistos % 1000 == 0) {
+                        if (!cm.em.getTransaction().isActive()) {
+                            cm.em.getTransaction().begin();
+                        }
+                        cm.em.flush();
+                        cm.em.clear();
                     }
                 }
                 
@@ -523,7 +534,7 @@ public class ModuleFileImport implements Runnable{
                 
                 LogImportProcess logMapImportEnd = new LogImportProcess(importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " concluido");
                 Connection.persist(cm, logMapImportEnd);
-                //progressService.setImportProgress(90);
+                progressService.setImportProgress(90);
 
             }
             workBook.close();
@@ -556,6 +567,7 @@ public class ModuleFileImport implements Runnable{
     
     // main method that is being called
     public void run() {
+        ConnectionManager cm = new ConnectionManager(Connection.getEm());
         List<Integer> listOfIDImportRules = listOfImportRulesToApply != null ? listOfImportRulesToApply : new ArrayList<>();
         //Add to the FileHistory
         if(domain.length() > 3){
@@ -567,7 +579,9 @@ public class ModuleFileImport implements Runnable{
         try {
             io = new IO(iostate, referenceDate, moduleVersion, domain.toUpperCase(), entity, 
                     LocalDateTime.now(), null, action, "abc", filename, Constants.IMPORT+alterFilename, alterFilename);
-            IODAL.persist(io);
+            
+            Connection.persist(cm, io);
+            //IODAL.persist(io);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -578,10 +592,11 @@ public class ModuleFileImport implements Runnable{
         if(result != null){
             io.setIoState(result);
             io.setEndTimestamp(LocalDateTime.now());
-            Connection.merge(io);
+            //Connection.merge(io);
+            Connection.merge(cm, io);
         }
-        //progressService.setImportProgress(100);
-        ValidationAction validationAction = new ValidationAction();
+        progressService.setImportProgress(100);
+        Validator_2_0 validationAction = new Validator_2_0(moduleVersion, referenceDate, entity, domain,progressService);
 
         validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
     }

@@ -190,6 +190,7 @@ public class Info {
     }
 
     public void setEntitiesAll(EntityManager em) {
+        List<ConfEntities> list = em.createNamedQuery("ConfEntities.findAll", ConfEntities.class).getResultList();
         try {
             this.refData.put(Constants.EntitiesAll.toLowerCase(), em.createNamedQuery("ConfEntities.findAll", ConfEntities.class).getResultList());
         } catch (Exception e) {
@@ -222,6 +223,7 @@ public class Info {
             this.refData.put(Constants.ConfImportRulesAll.toLowerCase(), em.createNamedQuery("ConfImportRules.findAll", ConfImportRules.class).getResultList());
         } catch (Exception e) {
             LOG.error("Erro na obtencao dos objetos ConfEntities:" + e.getMessage());
+            e.printStackTrace();
         }
     }
 
