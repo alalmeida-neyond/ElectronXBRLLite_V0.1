@@ -149,7 +149,7 @@
           document.getElementById("logContainer").style.display = "block";
           document.getElementById("upload-text").style.display = "block";
           document.getElementById("loading-text").style.display = "none";
-          fetchIOs(); // fetch and show the updated list of IOs
+          fetchIOs();
         })
         .catch(error => {
           console.error("Erro no upload:", error);
@@ -170,7 +170,6 @@
           return res.json();
         })
         .then(data => {
-          console.log("Going to Populate Table")
           populateMainTable(data);
         })
         .catch(err => {

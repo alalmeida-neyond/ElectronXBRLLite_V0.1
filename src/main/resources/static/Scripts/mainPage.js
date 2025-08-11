@@ -104,7 +104,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(progress => {
             const bar = document.getElementById('importProgress');
-            console.log('Import progress:', progress);
             bar.style.width = progress + '%';
             bar.textContent = progress + '%';
         })
@@ -114,7 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(progress => {
             const bar = document.getElementById('validationProgress');
-            console.log('Validation progress:', progress);
             bar.style.width = progress + '%';
             bar.textContent = progress + '%';
         })
@@ -124,7 +122,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(progress => {
             const bar = document.getElementById('generationProgress');
-            console.log('Generation progress:', progress);
             bar.style.width = progress + '%';
             bar.textContent = progress + '%';
         })
@@ -139,6 +136,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.getElementById("upload-text").style.display = "none";
         document.getElementById("loading-container").style.display = "flex";
+        document.getElementById("file").disabled = true;
+
+        console.log("Is it Disabled?" + document.getElementById("file").disabled)
 
         fetch("/importFile/upload", {
             method: "POST",
@@ -157,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("upload-text").style.display = "block";
                 document.getElementById("loading-container").style.display = "none";
                 document.getElementById("upload-error").style.display = "none";
+                document.getElementById("file").disabled = false;
                 fetchModulesFromBackend();
                 fetchIOs();
             })
@@ -164,6 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error("Erro ao fazer upload:", error.message); 
                 document.getElementById("upload-text").style.display = "block";
                 document.getElementById("loading-container").style.display = "none";
+                document.getElementById("file").disabled = false;
 
                 const errorBox = document.getElementById("upload-error");
                 if (errorBox) {
@@ -204,8 +206,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let label = "";
         let backgroundColor = "";
-
-        console.log(ioStateId)
 
         if (ioStateId == 1) {
             icon.classList.add("bi-check-circle-fill", "text-success");
@@ -272,8 +272,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         ioList.forEach(io => {
             const tr = document.createElement("tr");
-
-            console.log("State:" + io[1]);
 
             const td0 = createCellCustomIOState(io[1], io[1]);
             td0.classList.add("first-cell");

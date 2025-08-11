@@ -9,7 +9,7 @@
   "validationTitle.label":"Validation",
   "generationTitle.label":"Generation",
   "choose.label": "choose here",
-  "loading.label": "Loading...",
+  "loading.label": "Executing...",
   "allModules.label": "All Modules",
   "state.label":"State",
   "module.label":"Module",
@@ -52,5 +52,7 @@
   "ruleSkip.label":"RULE DO NOT RUN",
   "ruleSkipPre.label":"RULE DO NOT RUN PREREQUISITE",
   "updateCompleted1.label":"Metadata Update Completed!",
-  "updateCompleted2.label":"To conclude the Metadata update, please, close the application and open it again!"
+  "updateCompleted2.label":"To conclude the Metadata update, please, close the application and open it again!",
+  "directoryLabel.label":"Directory XBRL",
+  "directoryButton.label":"Choose Directory"
 }

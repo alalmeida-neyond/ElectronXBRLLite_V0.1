@@ -9,7 +9,7 @@
   "validationTitle.label":"Validação",
   "generationTitle.label":"Geração",
   "choose.label": "escolhe aqui",
-  "loading.label": "A carregar...",
+  "loading.label": "Em Execução...",
   "allModules.label": "Todos os Módulos",
   "state.label":"Estado",
   "module.label":"Módulo",
@@ -52,5 +52,7 @@
   "ruleSkip.label":"REGRA SEM CONDIÇÕES PARA CORRER",
   "ruleSkipPre.label":"REGRA SEM CONDIÇÕES PARA CORRER PREREQUISITO",
   "updateCompleted1.label":"Atualização dos Metadados Concluído!",
-  "updateCompleted2.label":"Para concluir a atualização dos metadados, por favor, feche a aplicação e volte a abrir!"
+  "updateCompleted2.label":"Para concluir a atualização dos metadados, por favor, feche a aplicação e volte a abrir!",
+  "directoryLabel.label":"Diretoria XBRL",
+  "directoryButton.label":"Escolhe Diretoria"
 }
