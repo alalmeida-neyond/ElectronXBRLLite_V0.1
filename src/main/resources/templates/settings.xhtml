@@ -40,7 +40,14 @@
 
     <div class="container">
       
-      
+      <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;" />
+
+      <button type="button" onclick="openFolderSelector()" class="btn btn-primary">
+          Select Folder
+      </button>
+
+      <div id="directoryDisplay" style="display: none; margin-top: 10px; padding: 10px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+      </div>
 
     </div>
 
