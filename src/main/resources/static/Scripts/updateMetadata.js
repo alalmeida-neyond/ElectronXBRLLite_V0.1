@@ -128,7 +128,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.warn("Elemento #languageSelect não encontrado");
     }
     
-    // Add event listener for folder input
     const folderInput = document.getElementById('folderInput');
     if (folderInput) {
         folderInput.addEventListener('change', selectFolder);
