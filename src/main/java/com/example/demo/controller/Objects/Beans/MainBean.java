@@ -33,8 +33,6 @@ import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 
 import java.io.*;
@@ -519,6 +517,8 @@ public class MainBean extends DefaultBean{
         } catch (Exception e) {
             licenseValidated = false;
         }
+        String storedPath = getStoredPathOrFallback();
+        modelAndView.addObject("storedPath", storedPath);
         if (licenseValidated)
         {
             modelAndView.setViewName("settings");
@@ -529,6 +529,36 @@ public class MainBean extends DefaultBean{
         }
         return modelAndView;
     }
+
+    private String getStoredPathOrFallback() {
+        try {
+            Path filePath = Paths.get("path.dat");
+
+            if (Files.exists(filePath)) {
+                String content = Files.readString(filePath).trim();
+                if (!content.isEmpty()) {
+                    Path dir = Paths.get(content);
+                    if (!Files.exists(dir)) {
+                        Files.createDirectories(dir);
+                    }
+                    return dir.toAbsolutePath().toString();
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("Erro ao ler/criar diretoria do path.dat", e);
+        }
+
+        Path fallback = Paths.get(System.getProperty("user.home"), "Downloads");
+        try {
+            if (!Files.exists(fallback)) {
+                Files.createDirectories(fallback);
+            }
+        } catch (IOException e) {
+            LOG.error("Erro ao criar pasta Downloads", e);
+        }
+        return fallback.toAbsolutePath().toString();
+    }
+
 
     @GetMapping("/licensing")
     public ModelAndView licensing() {

@@ -173,8 +173,11 @@ public class ModuleFileImport implements Runnable{
             boolean hasInsertedValue;
             List<String> errorMsgPerTables = new ArrayList<>();
 
-            progressService.setImportProgress(50);
+            
 
+            int totalNumberSheets = workBook.getNumberOfSheets();
+            int completedTables = 1;
+            progressService.setImportProgress(completedTables, Integer.valueOf(totalNumberSheets) + 1);
             for (int sheet = 0; sheet < workBook.getNumberOfSheets(); sheet++) {
                 hasInsertedValue = false;
                 //In case of Error, only required to upload sheets missing
@@ -534,7 +537,7 @@ public class ModuleFileImport implements Runnable{
                 
                 LogImportProcess logMapImportEnd = new LogImportProcess(importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " concluido");
                 Connection.persist(cm, logMapImportEnd);
-                progressService.setImportProgress(90);
+                progressService.setImportProgress(completedTables++, Integer.valueOf(totalNumberSheets) + 1);
 
             }
             workBook.close();
@@ -595,7 +598,7 @@ public class ModuleFileImport implements Runnable{
             //Connection.merge(io);
             Connection.merge(cm, io);
         }
-        progressService.setImportProgress(100);
+        progressService.setImportProgress(1,1);
         Validator_2_0 validationAction = new Validator_2_0(moduleVersion, referenceDate, entity, domain,progressService);
 
         validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);

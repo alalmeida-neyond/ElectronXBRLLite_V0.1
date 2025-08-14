@@ -144,10 +144,6 @@ public class LicenseVerification {
             setLEICode(lei);
             setHardwareID(hwid);
             
-            System.out.println("BDPID:" + BDPID);
-            System.out.println("LEICODE:" + lei);
-            System.out.println("HardwareID:" + hwid);
-            System.out.println("Expiration Date:" + expiry);
             LocalDate expiryDate = LocalDate.parse(expiry);
             if (expiryDate.isBefore(LocalDate.now())) {
                 expired = true;

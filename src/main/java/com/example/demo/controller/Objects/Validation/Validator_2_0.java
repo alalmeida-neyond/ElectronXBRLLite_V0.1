@@ -167,10 +167,6 @@ public class Validator_2_0 implements Runnable {
     private Map<Integer, Map<Integer, List<ValNode>>> getNodes(int tableVId) {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
         List<Object[]> results = new ArrayList<>();
-        LOG.info("RefDate:" + refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
-        LOG.info("Module Version:" + String.valueOf(moduleVersion.getModuleVID()));
-        LOG.info("Format:" + Constants.ISOBASEFORMAT8601SQLite);
-        LOG.info("TableVID:" + String.valueOf(tableVId));
         try {
             results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvore.sql", "OperationNodeMapping",
                     "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
@@ -322,7 +318,7 @@ public class Validator_2_0 implements Runnable {
             Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
             
             int completedTables = 1;
-            progressService.setValidationProgress(completedTables, getTables().size()+1);
+            progressService.setValidationProgress(completedTables, Integer.valueOf(getTables().size()) + 1);
                     
             for (TableVersionDPM table : getTables()) {
                 Integer tableVId = table.getTableVID();
@@ -445,7 +441,7 @@ public class Validator_2_0 implements Runnable {
                 Connection.persist(em, logValProcessMapEnd);
                 LOG.info("Completed:" + completedTables);
                 LOG.info("Total:" + Integer.valueOf(getTables().size()) + 1);
-                progressService.setValidationProgress(completedTables++, getTables().size()+1);
+                progressService.setValidationProgress(completedTables++, Integer.valueOf(getTables().size()) + 1);
             }
 
             //if(commonDatapointValidationResult != null){
@@ -457,7 +453,7 @@ public class Validator_2_0 implements Runnable {
             float durationAllProcess = ((float) (endAllProcess - initAllProcess) / 1000000000);
             String durationFormatted = String.format("%.2f", durationAllProcess);
 
-            progressService.setValidationProgress(getTables().size()+1, getTables().size()+1);
+            progressService.setValidationProgress(getTables().size()+1, Integer.valueOf(getTables().size()) + 1);
 
             LOG.info("Termino da validacao | Duracao: " + durationFormatted + " segundos");
             

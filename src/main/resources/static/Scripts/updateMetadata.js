@@ -15,7 +15,7 @@ function downloadMetadata(event) {
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message); // Show API response
+        alert(data.message);
         
         if (data.enabled) {
             uploadButton.style.display = "inline-block";
@@ -30,6 +30,8 @@ function downloadMetadata(event) {
         loadingButton.style.display = "none";
     });
 }
+
+
 
 let languageLabels = {};
 
@@ -79,31 +81,39 @@ function updateLanguageLabels(language) {
         });
 }
 
-// Function to handle folder selection and display directory
 function selectFolder() {
     const folderInput = document.getElementById('folderInput');
     const directoryDisplay = document.getElementById('directoryDisplay');
     
     if (folderInput.files.length > 0) {
-        // Get the first file to extract the folder path
         const firstFile = folderInput.files[0];
         const folderPath = firstFile.webkitRelativePath.split('/')[0];
         
-        // Display the directory name
-        directoryDisplay.innerHTML = `<strong>Selected Directory:</strong> ${folderPath}`;
+        directoryDisplay.innerHTML = `${folderPath}`;
         directoryDisplay.style.display = 'block';
-        
-        console.log('Selected folder:', folderPath);
-        console.log('Number of files in folder:', folderInput.files.length);
     }
 }
 
-// Function to trigger folder selection
 function openFolderSelector() {
     document.getElementById('folderInput').click();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+
+    const folderPathTextarea = document.getElementById('folderPath');
+    const button = document.getElementById('chooseFolder');
+
+    window.api.readStoredPath().then(storedPath => {
+        
+      folderPathTextarea.value = storedPath;
+    });
+
+    button.addEventListener('click', async () => {
+      const folderPath = await window.api.selectFolder();
+      if (folderPath) {
+        folderPathTextarea.value = folderPath;
+      }
+    });
     const langSelect = document.getElementById("languageSelect");
     
     if (langSelect) {

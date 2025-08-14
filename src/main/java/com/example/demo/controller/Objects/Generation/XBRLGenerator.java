@@ -14,6 +14,7 @@ import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -279,9 +280,13 @@ public class XBRLGenerator implements Runnable {
             Files.copy(zipFilePath, finalPackagePath.resolve(zipFile.getFileName()),
                     StandardCopyOption.REPLACE_EXISTING);
 
-            LOG.info(finalPackage.toString());
+            LOG.info("Final Package Directory:" + finalPackage.toString());
+            LOG.info("Final Package ZIP Directory:" + finalPackagePath.toString());
 
             zipFolder(finalPackage);
+
+            copyZipToPreferedDirectory(finalPackagePath);
+            
 
             validationsWorkbook.close();
 
@@ -385,6 +390,55 @@ public class XBRLGenerator implements Runnable {
         }
 
     }
+
+    public Path getPreferredDirectory() {
+        Path pathFile = Paths.get("path.dat");
+        String folderPath = null;
+
+        try {
+            if (Files.exists(pathFile)) {
+                folderPath = Files.readString(pathFile, StandardCharsets.UTF_8).trim();
+            }
+
+            // If file is empty or does not exist, use Downloads
+            if (folderPath == null || folderPath.isEmpty()) {
+                folderPath = System.getProperty("user.home") + File.separator + "Downloads";
+            }
+
+            Path preferredPath = Paths.get(folderPath);
+            LOG.info("Selected output folder: " + preferredPath);
+            return preferredPath;
+
+        } catch (IOException e) {
+            LOG.error("Failed to read path.dat, defaulting to Downloads folder", e);
+            return Paths.get(System.getProperty("user.home"), "Downloads");
+        }
+    }
+
+
+    public void copyZipToPreferedDirectory(Path zipDirectory) {
+        if (!Files.isDirectory(zipDirectory)) {
+            throw new IllegalArgumentException("Diretoria Invalida");
+        }
+
+        try {
+            Path preferredDirectory = getPreferredDirectory();
+
+            Path zipFile = Paths.get(zipDirectory.toString() + ".zip");
+            LOG.info("Zip File: " + zipFile);
+
+            Path targetFile = preferredDirectory.resolve(zipFile.getFileName());
+            
+            Files.copy(zipFile, targetFile,
+                    StandardCopyOption.COPY_ATTRIBUTES,
+                    StandardCopyOption.REPLACE_EXISTING);
+
+
+        } catch (IOException e) {
+            LOG.error("Erro ao copiar o ficheiro ZIP para a diretoria preferida", e);
+        }
+    }
+
 
     public static File getLastModified(String directoryFilePath) {
         File directory = new File(directoryFilePath);

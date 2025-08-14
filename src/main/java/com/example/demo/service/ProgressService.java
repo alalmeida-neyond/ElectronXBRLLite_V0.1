@@ -10,8 +10,12 @@ public class ProgressService {
     private volatile int validationProgress = 0;
     private volatile int generationProgress = 0;
 
-    public void setImportProgress(int progress) {
-        this.importProgress = progress;
+    public void setImportProgress(int completedSteps, int totalSteps) {
+        if (totalSteps == 0) {
+            this.importProgress = 0;
+        } else {
+            this.importProgress = (completedSteps * 100) / totalSteps;
+        }
     }
 
     public int getImportProgress() {
