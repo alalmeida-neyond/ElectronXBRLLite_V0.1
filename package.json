@@ -1,24 +1,47 @@
 {
-  "name": "electronxbrllite_v0.1",
+  "name": "electronxbrllite",
   "version": "1.0.0",
+  "description": "This application is a desktop app that imports Excel files used to create XBRL files, validates them, generates and transfers XBRL files to a default or a user specified directory",
+  "author": "Neyond",
   "main": "main.js",
-  "author": "",
-  "license": "ISC",
-  "homepage": "https://github.com/alalmeida-neyond/XBRL_Lite4#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/alalmeida-neyond/XBRL_Lite4.git"
-  },
-  "bugs": {
-    "url": "https://github.com/alalmeida-neyond/XBRL_Lite4/issues"
-  },
   "scripts": {
-    "electron": "electron .",
+    "start": "electron .",
     "dev": "wait-on http://localhost:8082 && electron .",
-    "boot": "cd ../<path-to-your-spring-boot-project> && mvn -q -Dspring-boot.run.profiles=desktop spring-boot:run",
-    "dev:all": "concurrently -k \"npm:boot\" \"npm:electron\"",
+    "dev:all": "concurrently -k \"npm run boot\" \"npm run dev\"",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.neyond.xbrllite",
+    "productName": "XBRL Lite",
+    "icon": "icons/output.ico",
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "directories": {
+      "output": "build"
+    },
+    "asar": true,
+    "win": {
+      "icon": "icons/output.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }, 
+        "portable"                             
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "XBRL Lite",
+      "artifactName": "${productName}-${version}-Setup.${ext}"
+    }
   },
   "devDependencies": {
     "concurrently": "^9.2.0",
@@ -289,6 +312,5 @@
     "yauzl": "^2.10.0",
     "yocto-queue": "^0.1.0"
   },
-  "keywords": [],
-  "description": ""
+  "keywords": []
 }

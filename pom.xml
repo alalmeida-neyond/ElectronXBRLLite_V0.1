@@ -9,11 +9,11 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>demo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
+	<artifactId>XBRL_Lite</artifactId>
+	<version>1.0.0</version>
+	<name>XBRL Lite</name>
 	<description>XBRL Lite</description>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<url/>
 	<licenses>
 		<license/>
@@ -207,6 +207,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>XBRL_Lite</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -223,6 +224,13 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+					<goals>
+						<goal>repackage</goal>
+					</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<excludes>
 						<exclude>

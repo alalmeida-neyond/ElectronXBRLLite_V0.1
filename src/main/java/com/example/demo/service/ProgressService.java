@@ -22,8 +22,12 @@ public class ProgressService {
         return importProgress;
     }
 
-    public void setGenerationProgress(int progress) {
-        this.generationProgress = progress;
+    public void setGenerationProgress(int completedSteps, int totalSteps) {
+        if (totalSteps == 0) {
+            this.generationProgress = 0;
+        } else {
+            this.generationProgress = (completedSteps * 100) / totalSteps;
+        }
     }
 
     public int getGenerationProgress() {

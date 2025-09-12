@@ -3,66 +3,6 @@
 
 <h:head>
   <link href="./Style/Headers.css" rel="stylesheet" type="text/css" />
-  <style>
-    #dvPageHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 20px;
-  background-color: #033d51; /* or your preferred dark color */
-  color: white;
-}
-
-#dvlogo img {
-  width: 150px;
-  height: auto;
-}
-
-#dvheaderGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  color: white;
-}
-
-#dvheaderRight {
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: white;
-}
-
-#dvheaderRightDown {
-  display: flex;
-  gap: 16px;
-  padding: 10px 0;
-}
-
-#dvheaderRightDown a {
-  color: white;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-#dvheaderRightDown a:hover {
-  text-decoration: underline;
-}
-
-  #languageSwitcher {
-    background-color: transparent;
-    color: white;
-    border: none;
-    font-weight: 600;
-    text-decoration: underline;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-  #languageSwitcher option {
-    color: black; /* makes dropdown readable */
-  }
-
-
-  </style>
 </h:head>
 
 <body>
@@ -76,8 +16,8 @@
       </div>
 
       <div id="dvheaderRightDown">
-        <a th:href="@{/}" class="internationalization" data-key="templates.label" title="Templates">{{templates.label}}</a>
-        <a th:href="@{/}" class="internationalization" data-key="manual.label" title="Manual">{{manual.label}}</a>
+        <!--<a th:href="@{/}" class="internationalization" data-key="templates.label" title="Templates">{{templates.label}}</a>
+        <a th:href="@{/}" class="internationalization" data-key="manual.label" title="Manual">{{manual.label}}</a> -->
         <a th:href="@{/settings}" class="internationalization" data-key="settings.label" title="Settings">{{settings.label}}</a>
         <div class="language-switcher">
           <select id="languageSelect" class="form-select form-select-sm w-auto">

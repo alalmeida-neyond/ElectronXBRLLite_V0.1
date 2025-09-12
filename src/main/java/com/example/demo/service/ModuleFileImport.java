@@ -132,6 +132,10 @@ public class ModuleFileImport implements Runnable{
      * return NOK, OK, CANCEL, depending if it conclude with success, without success or have been canceled
      */
     private IOState mainImport(IO io, List<Integer> listOfIDImportRules){
+
+        progressService.setImportProgress(0,1);
+        progressService.setValidationProgress(0,1);
+        progressService.setGenerationProgress(0,1);
         EntityManager em = Connection.getEm();
         ConnectionManager cm = null;
         IOState ioState = null;
@@ -141,7 +145,6 @@ public class ModuleFileImport implements Runnable{
         LOG.info("Entered Main Import");
         try {
             cm = new ConnectionManager(em);
-            LOG.info("Input File:" + inputFile);
             ExcelPoints excelPointStruct = new ExcelPoints();
             FileInputStream fileStream = new FileInputStream(inputFile);
             XSSFWorkbook workBook = new XSSFWorkbook(fileStream);
@@ -153,7 +156,6 @@ public class ModuleFileImport implements Runnable{
             }
             //for each sheet in the imported file;
 
-            LOG.info("Workbook Sheets:" + workBook.getNumberOfSheets());
 
             List<VariableVersion> varVersionMapList = VariableVersionDAL.getListOfVariableVersionOfModuleSheets(moduleVersion.getModuleVID());
             List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(moduleVersion,referenceDate);
@@ -203,7 +205,6 @@ public class ModuleFileImport implements Runnable{
                 //Check if the filling indicator is possible
                 singleFillingIndicatorAsTableVersion = FillingIndicatorModuleService.getTableVersionFromList(fillingIndicatorModuleList,fillingIndicatorWithUnderScores);
                 if(singleFillingIndicatorAsTableVersion == null){
-                    //LOG.info("Here");
                     continue;
                 }
                 headerDTOList = TableVersionHeaderDAL.getListOfHeaderForATableVid(singleFillingIndicatorAsTableVersion.getTableVID());
@@ -223,7 +224,6 @@ public class ModuleFileImport implements Runnable{
                 }
                 VariableVersion variableVersionOfMap = null;
                 if(singleFillingIndicatorAsTableVersion.getAbstractTable() != null){
-                    //Get the variableVersion based on Abstract (M_02.00.a ->M_02.00)
                     variableVersionOfMap = VariableVersionDAL.getVariableVersionFromAbstract(singleFillingIndicatorAsTableVersion.getAbstractTable().getTableId());
                 }else{
                     String codeTemp = singleFillingIndicatorAsTableVersion.getCode();

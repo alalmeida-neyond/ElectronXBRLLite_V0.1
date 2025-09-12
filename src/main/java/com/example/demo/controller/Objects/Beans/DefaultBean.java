@@ -376,8 +376,6 @@ public abstract class DefaultBean {
         if (moduleCode.isEmpty() || moduleCode == null) {
             return null;
         }
-        LOG.info("Module Code:" + moduleCode);
-        LOG.info("ModuleVersion data: " + Info.getInstance().refDataGet(Constants.ModuleVersionAll));
         try {
             for (ModuleVersion mv : new ArrayList<ModuleVersion>(Info.getInstance().refDataGet(Constants.ModuleVersionAll))) {
                 if (mv.getCode().replace("_", "").trim().toLowerCase().equals(moduleCode.toLowerCase())
@@ -399,10 +397,8 @@ public abstract class DefaultBean {
 
     public ConfEntities getEntityByFilenameInfo(String entityBST) {
         if (entityBST == null) {
-            LOG.info("entityBST:" + entityBST);
             return null;
         }
-        LOG.info("EntityBST:" + entityBST);
         List<ConfEntities> entitiesList = new ArrayList<ConfEntities>(Info.getInstance().refDataGet(Constants.EntitiesAll)).stream().filter(ent
                 -> ent.getBdpId().equals(entityBST)).collect(Collectors.toList());
 

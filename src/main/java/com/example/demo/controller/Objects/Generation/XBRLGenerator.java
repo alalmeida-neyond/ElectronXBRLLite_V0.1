@@ -236,7 +236,6 @@ public class XBRLGenerator implements Runnable {
         try {
             Path excelFilePath = Paths.get(finalFolder + Utils.getSeparator(), "ResultsValidation.csv");
 
-            LOG.info("ExcelFilePath:" + excelFilePath.toString());
 
             List<Object[]> validationData = new ArrayList<>();
             
@@ -280,9 +279,6 @@ public class XBRLGenerator implements Runnable {
             Files.copy(zipFilePath, finalPackagePath.resolve(zipFile.getFileName()),
                     StandardCopyOption.REPLACE_EXISTING);
 
-            LOG.info("Final Package Directory:" + finalPackage.toString());
-            LOG.info("Final Package ZIP Directory:" + finalPackagePath.toString());
-
             zipFolder(finalPackage);
 
             copyZipToPreferedDirectory(finalPackagePath);
@@ -291,6 +287,7 @@ public class XBRLGenerator implements Runnable {
             validationsWorkbook.close();
 
             cleanUp();
+            progressService.setGenerationProgress(1, 1);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -406,7 +403,6 @@ public class XBRLGenerator implements Runnable {
             }
 
             Path preferredPath = Paths.get(folderPath);
-            LOG.info("Selected output folder: " + preferredPath);
             return preferredPath;
 
         } catch (IOException e) {
@@ -425,7 +421,6 @@ public class XBRLGenerator implements Runnable {
             Path preferredDirectory = getPreferredDirectory();
 
             Path zipFile = Paths.get(zipDirectory.toString() + ".zip");
-            LOG.info("Zip File: " + zipFile);
 
             Path targetFile = preferredDirectory.resolve(zipFile.getFileName());
             
@@ -461,20 +456,17 @@ public class XBRLGenerator implements Runnable {
     public void startGeneration(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO ioImport, IO ioValidation) {
         List<IO> operationsRunningFromIO = IODAL.getOperationRunningFromIO(moduleVersion, domain, entity, referenceDate.toString());
         if (!operationsRunningFromIO.isEmpty()) {
-            LOG.info(Constants.concurrentOperations + Constants.concurrentOperationsDesc);
             return;
         }
 
         String threadName = Constants.GEN + "_" + moduleVersion.getCode() + "_" + domain + "_"
                 + referenceDate.toString() + "_" + entity.getBdpId();
         try {
-            progressService.setGenerationProgress(25);
             xbrlGenerationMain(referenceDate,moduleVersion,domain,entity,ioImport, ioValidation, threadName);
         } catch (Exception e) {
             LOG.warn("Geracao | Erro na pesquisa logs geracao", e);
             return;
         }
-        LOG.info(Constants.generationStarted + Constants.generationStartedDesc);
 
     }
 
@@ -506,9 +498,6 @@ public class XBRLGenerator implements Runnable {
             ex.printStackTrace();
             jpa.rollback();
         }
-
-        progressService.setGenerationProgress(50);
-
         
         IO generationIo = null;
         ConnectionManager em = null;
@@ -519,6 +508,7 @@ public class XBRLGenerator implements Runnable {
         String finalFolder = "";
         File directory;
         try {
+            int completedSteps = 1;
             em = new ConnectionManager();                
 
             path = Paths.get("XBRL_Lite","Run", "Reports", "XBRL_Generated").toString();
@@ -560,14 +550,17 @@ public class XBRLGenerator implements Runnable {
             Map<String, List<InImportedTablesTemp>> listOfTableGroupedByTheTableVID = tempList.stream()
                     .collect(Collectors.groupingBy(item -> item.getTableVersion().getCode()));
             Queue<Thread> threadList = new LinkedList<>();
+            progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
             //HERE
             for (Map.Entry<String, List<InImportedTablesTemp>> entry : listOfTableGroupedByTheTableVID.entrySet()) {
 
                 Thread t = new Thread(new XBRLGeneratorMap(finalFolder, entry.getValue(), ioImport.getReferenceDate(), altGeneration));
                 threadList.add(t);
                 t.start();
+                completedSteps++;
+                progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
             }
-            progressService.setGenerationProgress(75);
+            
             createParametersCSV(finalFolder);
             Set<String> filteredMapWithoutEmpty = listOfTableGroupedByTheTableVID.entrySet().stream()
                     .filter(entry -> {
@@ -576,7 +569,8 @@ public class XBRLGenerator implements Runnable {
                     })
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toSet());
-            progressService.setGenerationProgress(87);
+            completedSteps++;
+            progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
             createFillingIndicatorCSV(finalFolder, filteredMapWithoutEmpty);
             boolean waitingForAllThread = true;
             Thread auxVariableToCheck = null;
@@ -606,9 +600,7 @@ public class XBRLGenerator implements Runnable {
                 GenerateLogDAL.createNewGenerationLog("Geracao Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
                 generationIo.setEndTimestamp(LocalDateTime.now());
                 generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));
-                Connection.merge(generationIo);  
-                //setGenerationProgress(100);  
-
+                Connection.merge(generationIo);
             } else {
                 //Add to the Log Generation Conclude sucesufully
                 GenerateLogDAL.createNewGenerationLog("Geracao Concluída com sucesso", outXBRLGenerated.getIdXBRLGenerate());
@@ -628,7 +620,6 @@ public class XBRLGenerator implements Runnable {
             Connection.merge(generationIo); 
         }
 
-        progressService.setGenerationProgress(100);
         startDownload(finalFolder, ioValidation);
     }
 

@@ -11,31 +11,32 @@
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
       <script src="./Scripts/mainPage.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
     </head>
   
   <body>
-    <div id="header1">
+    <div id="mainHeader">
       <div th:replace="~{Layouts/xbrl2_header1}"></div>
     </div>
-    <div class="container mt-3">
-      <div class="importProgressBar">
-        <span class="internationalization" data-key="importTitle.label" style="font-size: x-small;"></span>
+    <div class="container" id = "progressDiv">
+      <div class="importProgressBar" id = "importProgressBar">
+        <span class="internationalization" data-key="importTitle.label"></span>
         <div class="progress">
           <div id="importProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%;">0%</div>
         </div>
       </div>
       
-      <div class="validationProgressBar">
-        <span class="internationalization" data-key="validationTitle.label" style="font-size: x-small;"></span>
+      <div class="validationProgressBar" id = "validationProgressBar">
+        <span class="internationalization" data-key="validationTitle.label"></span>
         <div class="progress">
           <div id="validationProgress" class="progress-bar bg-info" role="progressbar" style="width: 0%;">0%</div>
         </div>
       </div>
       
 
-      <div class="generationProgressBar">
-        <span class="internationalization" data-key="generationTitle.label" style="font-size: x-small;"></span>
+      <div class="generationProgressBar" id = "generationProgressBar">
+        <span class="internationalization" data-key="generationTitle.label"></span>
         <div class="progress">
           <div id="generationProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%;">0%</div>
         </div>
@@ -82,17 +83,38 @@
               </div>
               <div class="col-md-2">
                   <div class="d-flex gap-2">
-                    <input type="number" id="filterYear" class="form-control" placeholder="YYYY" maxlength="4"  min="1" max="31" style="width: 80px;">
-                    <span>/</span>
-                    <input type="number" id="filterMonth" class="form-control" placeholder="MM" maxlength="2"  min="1" max="12"style="width: 70px;">
-                    <span>/</span>
-                    <input type="number" id="filterDay" class="form-control" placeholder="DD" maxlength="2"  min="1"  style="width: 70px;">
+                    <select name="filterYear" id="filterYear" class="form-control" style="max-width: 70%;">
+                      <option value="" class="internationalization" data-key="yearSelect.label" selected>{{yearSelect.label}}</option>
+                      <option id = "behindThreeYears" value=""></option>
+                      <option id = "behindTwoYears" value=""></option>
+                      <option id = "behindOneYear" value=""></option>
+                      <option id = "currentYear" value=""></option>
+                      <option id = "forwardOneYear" value=""></option>
+                      <option id = "forwardTwoYears" value=""></option>
+                      <option id = "forwardThreeYears" value=""></option>
+                    </select>
+                    <span></span>
+                    <select name="filterMonth" id="filterMonth" class="form-control" style="max-width: 70%;">
+                      <option value="" class="internationalization" data-key="monthSelect.label" selected>{{monthSelect.label}}</option>
+                      <option value='1' class="internationalization" data-key="januarySelect.label"></option>
+                      <option value='2' class="internationalization" data-key="februarySelect.label"></option>
+                      <option value='3' class="internationalization" data-key="marchSelect.label"></option>
+                      <option value='4' class="internationalization" data-key="aprilSelect.label"></option>
+                      <option value='5' class="internationalization" data-key="maySelect.label"></option>
+                      <option value='6' class="internationalization" data-key="juneSelect.label"></option>
+                      <option value='7' class="internationalization" data-key="julySelect.label"></option>
+                      <option value='8' class="internationalization" data-key="augustSelect.label"></option>
+                      <option value='9' class="internationalization" data-key="septemberSelect.label"></option>
+                      <option value='10' class="internationalization" data-key="octoberSelect.label"></option>
+                      <option value='11' class="internationalization" data-key="novemberSelect.label"></option>
+                      <option value='12' class="internationalization" data-key="decemberSelect.label"></option>
+                    </select>
                   </div>
 
               </div>
             </div>
 
-            <div class="table-wrapper">
+            <div class="table-wrapper" id ="table-wrapper">
               <table id="validationTable" class="table table-borderless validationTable">
                 <thead class="tableHeadValidation">
                   <tr>
@@ -106,7 +128,12 @@
                 </thead>
                 <tbody id="validationTableBody"></tbody>
               </table>
+                <div class="paginationDiv" id="paginationDiv" style="display: none;">
+                  <div id="sharedPaginationContainer" class="sharedPaginationContainer"></div>
+                </div>
             </div>
+
+            
 
           </div>
         </div>

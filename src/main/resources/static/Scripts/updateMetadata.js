@@ -103,11 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const folderPathTextarea = document.getElementById('folderPath');
     const button = document.getElementById('chooseFolder');
 
-    window.api.readStoredPath().then(storedPath => {
-        
-      folderPathTextarea.value = storedPath;
-    });
-
     button.addEventListener('click', async () => {
       const folderPath = await window.api.selectFolder();
       if (folderPath) {

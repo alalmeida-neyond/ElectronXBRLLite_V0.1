@@ -612,21 +612,15 @@ public class JPA<T> {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
 
-            LOG.info(availableParameters);
 
             for (String stringAvailable : availableParameters) {
-                LOG.info("StringAvailable:" + stringAvailable);
             }
             if (parameters != null && (parameters.length & 1) == 0) // número par de parâmetros
             {
-                LOG.info("Query parameters being set");
                 for (int i = 0; i < parameters.length; i = i + 2)
                 {
                     try 
                     {
-                        LOG.info("Parameter:" + (String) parameters[i]);
-                        LOG.info("Parameter:" + parameters[i+1]);
-
                         String name = (String) parameters[i];
                         Object value = parameters[i + 1];
                         query.setParameter(name, value);
@@ -638,12 +632,6 @@ public class JPA<T> {
                     }
                 }
             }
-            /*LOG.info("------------------Break Line ------------------");
-            for (Parameter<?> object : query.getParameters()) {
-                LOG.info("Position:" + object.getClass());
-                //LOG.info("ParameterType:" + object.getParameterType().getName());
-                LOG.info("Result:" + object.getName());
-            }*/
                         
             return query.getResultList();
         } 
@@ -663,13 +651,10 @@ public class JPA<T> {
             
             if (parameters != null && (parameters.length & 1) == 0) // número par de parâmetros
             {
-                LOG.info("Query parameters being set");
                 for (int i = 0; i < parameters.length; i = i + 2)
                 {
                     try 
                     {
-                        LOG.info("Parameter:" + (String) parameters[i]);
-                        LOG.info("Parameter:" + parameters[i+1]);
                         query.setParameter((String) parameters[i], parameters[i+1]);
                     } 
                     catch (Exception e) 
@@ -678,7 +663,6 @@ public class JPA<T> {
                     }
                 }
             }
-            LOG.info("------------------Break Line2 ------------------");
             for (Parameter<?> object : query.getParameters()) {
                 LOG.info("Position:" + object.getPosition());
                 LOG.info("ParameterType:" + object.getParameterType().getName());

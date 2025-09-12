@@ -84,16 +84,19 @@
   font-family: 'Muli';
 }
 
-#logContainer
-{
-  display: none;
+.table-wrapper {
+  max-height: calc(86.5vh - 300px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
 }
 
-.table-wrapper {
-  margin: 0 auto;
-  border: none;
-  max-height: max-content;
+#validationTable thead {
   position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: #033d51;
+  color: white;
 }
 
 .fixed-header-table {
@@ -205,17 +208,117 @@ td.last-cell {
 html, body {
   height: 100%;
   margin: 0;
-  overflow: hidden;
-}
-
-.detailsTable
-{
-  max-height: 240px;      
-  overflow-y: auto;       
-  overflow-x: auto;       
-  margin-top: 10px;
+  margin-top: 65px;
+  margin-bottom: 50px;
+  overflow-y: hidden;
 }
 
 .progress {
     height: 12px;
 }
+
+#mainHeader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    z-index: 1000;
+}
+
+.importProgressBar, .validationProgressBar, .generationProgressBar{
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-weight: bold;
+  font-family: 'Muli';
+  display: none;
+}
+
+.resultado-filter-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;        
+  overflow-x: auto;          
+  gap: 10px;
+  scrollbar-width: thin;
+  width: fit-content;    
+}
+
+.resultado-filter-button {
+  white-space: nowrap;       
+  padding: 6px 16px;
+  background-color: #e4e4e4;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+  font-family: 'Muli';
+  flex-shrink: 0;           
+}
+
+.resultado-filter-button:hover {
+  background-color: #ccc;
+}
+
+.resultado-filter-button.active {
+  background-color: #033d51;
+  color: white;
+}
+
+.upload-area.collapsed {
+  height: 70px;                
+  padding: 10px;               
+  font-size: 0.8rem;           
+  overflow: hidden;           
+}
+
+.upload-area.collapsed .upload-icon {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 4px;
+}
+
+.upload-area.collapsed .upload-text {
+  font-size: 0.75rem;
+}
+
+.upload-area.collapsed .loading-text {
+  font-size: 0.75rem;
+}
+
+.upload-area.collapsed .loading-gif {
+  width: 18px;
+  height: 18px;
+}
+
+
+.detailsTable thead th {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+#paginationDiv {
+  background-color: #033d51;
+  color: white;
+  position: sticky;
+  bottom: 0;
+  margin-top: 10px;
+  border-radius: 10px;
+  border-top: 1px solid #ccc;
+  padding: 2px;
+  text-align: center;
+  z-index: 10;
+}
+
+.roundButton{
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+}
+
+

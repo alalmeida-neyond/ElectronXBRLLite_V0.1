@@ -196,7 +196,6 @@ public class MainBean extends DefaultBean{
     // Validate if the filename respects the format
     // ENTITY_MODULE_DOMAIN_DATE.xlsx/csv
     public boolean validateFileName(String fileName) {
-        LOG.info("Filename:" + fileName);
         if (fileName == null || fileName.equals("") || !fileName.matches(Constants.IMPORT_REGEX)) {
             if(!fileName.matches(Constants.IMPORT_REGEX))
             {
@@ -211,7 +210,6 @@ public class MainBean extends DefaultBean{
         }
         try {
             String fileExtension = Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_9);
-            LOG.info("File Extension:" + fileExtension);
             if (fileExtension.equals("")) {
                 setStatusMessage(Constants.extensaoInvalida);
                 return false;
@@ -220,7 +218,6 @@ public class MainBean extends DefaultBean{
             LocalDate referenceDate = Utils.stringToDate(
                     Utils.findOneByRegex(Constants.IMPORT_REGEX, fileName, Constants.REGEX_GROUP_5),
                     Constants.dateFormat);
-            LOG.info("Reference Date:" + referenceDate);
             if (referenceDate == null) {
                 setStatusMessage(Constants.dataInvalida);
                 return false;
@@ -274,7 +271,6 @@ public class MainBean extends DefaultBean{
                 for (Path file : stream) {
                     if (Files.isRegularFile(file)) {
                         Files.delete(file);
-                        LOG.info("Deleted: " + file.getFileName());
                     }
                 }
             } catch (IOException e) {
@@ -289,11 +285,7 @@ public class MainBean extends DefaultBean{
             }
             setStatusMessage("Ficheiro " + uploadedFile.getOriginalFilename()
                     + " carregado com sucesso para a diretoria de importacao.");
-            /*
-             * LOG.info("InputFile:" + inputFile);
-             * LOG.info("OriginalFilename:" + uploadedFile.getOriginalFilename());
-             * LOG.info("uniqueFileName:" + uniqueFileName);
-             */
+           
             startImportOperation(inputFile, uploadedFile.getOriginalFilename(), uniqueFileName);
         } catch (Exception e) {
             LOG.error("Erro uploadFile " + uploadedFile.getOriginalFilename() + ".", e);
@@ -452,6 +444,8 @@ public class MainBean extends DefaultBean{
     public ModelAndView greeting() throws FileNotFoundException {
         ModelAndView modelAndView = new ModelAndView();
 
+        ProgressService progressService = new ProgressService();
+
         init();
         licenseValidated = licenseVerification.licenseValidationFile();
         modelAndView.addObject(Constants.LEICodeKeyString, licenseVerification.getLEICode());
@@ -459,12 +453,10 @@ public class MainBean extends DefaultBean{
             modelAndView.setViewName("test");
         } else {
             modelAndView.setViewName("licensepage");
-            LOG.info(licenseVerification.isExpired());
             if (licenseVerification.isExpired()) {
                 modelAndView.addObject("expired", true);
             }
         }
-        //modelAndView.setViewName("index");
         
         return modelAndView;
     }
@@ -598,11 +590,6 @@ public class MainBean extends DefaultBean{
         @RequestParam String inputHardwareIDText,
         @RequestParam String inputBDPIDText,
         @RequestParam String inputLicenseType ) {
-        LOG.info("Email:" + inputEmailText);
-        LOG.info("LEI CODE:" + inputLEICODEText);
-        LOG.info("Hardware ID:" + inputHardwareIDText);
-        LOG.info("BDP ID:" + inputBDPIDText);
-        LOG.info("License Type:" + inputLicenseType);
     }
 
     @GetMapping("/import_file")
@@ -629,7 +616,6 @@ public class MainBean extends DefaultBean{
     @GetMapping("/importFile/results/{id}")
     @ResponseBody
     public List<ValidationResultsDetailsDTO> getValidationResults(@PathVariable("id") Integer ioId) {
-        LOG.info("Validation");
         ValidationService validationService = new ValidationService();
         return validationService.getValidationResults(ioId);
     }
@@ -646,7 +632,6 @@ public class MainBean extends DefaultBean{
     @GetMapping("/importFile/modules")
     @ResponseBody
     public List<String> getModules() {
-        LOG.info("Modules");
         ValidationService validationService = new ValidationService();
         List<String> validationResults = new ArrayList<String>();
         validationResults = validationService.getModules();
