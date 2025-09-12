@@ -52,5 +52,9 @@ replay_pid*
 .history
 .ionide
 
+/node_modules/
+/server/jre/
+/build/win-unpacked/
+
 
 
