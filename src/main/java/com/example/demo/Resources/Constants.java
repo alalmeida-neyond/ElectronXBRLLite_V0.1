@@ -426,6 +426,8 @@ public class Constants {
     public static String reports = "reports";
     public static String reportJSON = "report.json";
     public static String metaInf = "META-INF";
+    public static String REPORTJSONCONTENTPARTBEGIN = "{\n\t\"documentInfo\": {\n\t\t\"documentType\": \"https://xbrl.org/2021/xbrl-csv\",\n\t\t\"extends\": [\n\t\t\t\"";
+    public static String REPORTJSONCONTENTPARTEND = "\"\n\t\t]\n\t}\n}";
     
     public static String OK = "OK";
     public static String OKMapasComErros = "OK C/ MAPAS COM ERROS";
@@ -469,6 +471,13 @@ public class Constants {
     public static String APPCONFIGPERCENTAGE = "PERCENTAGE";
     public static String APPCONFIGDECIMAL = "DECIMAL";
     public static String APPCONFIGINTEGER = "INTEGER";
+
+    public static int MONETARYVARIABLEWITHUNITITEMID = 4646;
+    public static String PARAMETERSKEYUNIT = "unit";
+    public static String CURRENCYDESAGREGATIONCODEHEADERNAME = "CUS";
+    public static String CURRENCYUNITPREFIX = "iso4217:";
+    public static String CURRENCYDESAGREGATIONCODEPREFIX = "eba_CU:";
+    public static String MAPPEDCSVFIXEDHEADER = "datapoint,factValue";
 
     public static String publicKeyDirectory = "public.pem";
     public static String licenseStringDirectory = "licenseString.dat";

@@ -99,7 +99,7 @@ public class InImportedValuesTemp implements Serializable {
 
     //@ManyToOne(cascade = CascadeType.ALL)
     @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID", nullable = false)
+    @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID")
     private InImportKey importKey;
 
     //@ManyToOne(fetch = FetchType.LAZY)

@@ -27,6 +27,9 @@ public class ConfTemplate implements Serializable {
     
     @Column(name = "ServerFilename")
     private String serverFilename;
+
+    @Column(name = "EntryPointURL")
+    private String entryPointURL;
     
     @Column(name = "JSONFileName")
     private String JSONFileName;
@@ -69,6 +72,14 @@ public class ConfTemplate implements Serializable {
 
     public void setServerFilename(String serverFilename) {
         this.serverFilename = serverFilename;
+    }
+
+    public String getEntryPointURL() {
+        return entryPointURL;
+    }
+
+    public void setEntryPointURL(String entryPointURL) {
+        this.entryPointURL = entryPointURL;
     }
 
     public String getJSONFileName() {

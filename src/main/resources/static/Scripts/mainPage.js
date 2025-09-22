@@ -206,16 +206,19 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch("/importProgress")
         .then((response) => response.json())
         .then((progressImport) => {
+          console.log("Import Progress:" + progressImport);
           if (progressImport === 100) {
             fetch("/validationProgress")
               .then((response) => response.json())
               .then((progressValidation) => {
+                console.log("Validation Progress:" + progressValidation);
                 if (progressValidation === 100) {
                   fetch("/generationProgress")
                     .then((response) => response.json())
                     .then((progressGeneration) => {
+                      console.log("Generation Progress:" + progressGeneration);
                       if (progressGeneration === 100) {
-                        clearInterval(progressInterval); // ✅ stop here too
+                        clearInterval(progressInterval);
                         document.getElementById(
                           "importProgressBar"
                         ).style.display = "none";

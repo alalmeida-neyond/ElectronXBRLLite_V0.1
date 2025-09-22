@@ -96,4 +96,29 @@ public class InImportedTablesDAL {
         return possibleDatapointsConflictsList;
     }
 
+    public static List<DataTypeHasUnitDTO> getListOfImportedDatatypes(ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain) {
+        JPA<DataTypeHasUnitDTO> jpa = new JPA<>(DataTypeHasUnitDTO.class);
+        domain = domain != null ? (domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3) : domain) : null;
+
+        List<DataTypeHasUnitDTO> listOfDataTypes = new ArrayList<>();
+        try {
+            listOfDataTypes = jpa.getMappedFileQueryResultList("SQL_Queries/GetImportedDatatypesHasUnit.sql", "dataTypeHasUnitDTOMapping",
+                    "actionId", String.valueOf(Constants.actionImport),
+                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
+                    "referenceDate", referenceDate != null ? referenceDate.format(Constants.dateFormat) : null,
+                    "format", Constants.ISOBASEFORMAT,
+                    "domain", domain != null ? domain.toUpperCase() : null,
+                    "moduleVID", module != null ? String.valueOf(module.getModuleVID()) : null,
+                    "entityId", entity != null ? String.valueOf(entity.getEntityID()) : null,
+                    "monetaryDatatypeId", String.valueOf(Constants.DATATYPEMONETARY),
+                    "itemId", String.valueOf(Constants.MONETARYVARIABLEWITHUNITITEMID)
+            );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            jpa.close();
+        }
+        return listOfDataTypes;
+    }
+
 }

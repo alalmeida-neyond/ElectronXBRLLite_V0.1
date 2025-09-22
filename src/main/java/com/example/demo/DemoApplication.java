@@ -33,8 +33,9 @@ public class DemoApplication {
 			System.err.println("The SQLite file is invalid. Application will not start.");
 			System.exit(1);
 		}
-        
+        //ATIVAR EM PROD
         //deleteRecords();
+
         //Info.getInstance().loadRefData(true);
 		SpringApplication.run(DemoApplication.class, args);
 	}

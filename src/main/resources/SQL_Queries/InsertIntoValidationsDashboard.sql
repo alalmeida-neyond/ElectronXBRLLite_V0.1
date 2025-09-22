@@ -123,36 +123,13 @@ with periodicityFromReferenceDate as (
     where os.isactive = 1 and os.fromsubmissiondate <= strftime(:format, :referenceDate)
     group by vc.modulevid, ov.operationvid
 )
-, operandReferenceFromOperations as (
-    select ovm.modulevid, ovm.operationvid, opn.nodeid, opr.variableid, oprl.cellid, oprl."Table"
-    from operationVersionByModule ovm 
-    left join operationnode opn on ovm.operationvid = opn.operationvid
-    left join operandreference opr on opn.nodeid = opr.nodeid
-    inner join operandreferencelocation oprl on opr.operandreferenceid = oprl.operandreferenceid
-)
-, cellsFromTablesImported as (
-    select itc.*, tvc.cellid, tvc.cellcode
-    from importedTablesWithoutDeleted itc 
-    inner join moduleversioncomposition mvc on itc.modulevid = mvc.modulevid and itc.tablevid = mvc.tablevid
-    inner join tableversion tv on mvc.tableid = tv.tableid and mvc.tablevid = tv.tablevid
-    inner join tableversioncell tvc on tvc.tablevid = tv.tablevid
-)
-, referenceMatchedCells as (
-    select orfo.operationvid, orfo.nodeid, cft.tablevid, cft.referenceDate, cft.modulevid, cft.domain, cft.entityid
-    from operandReferenceFromOperations orfo
-    inner join cellsFromTablesImported cft on orfo.cellid = cft.cellid
-)
-, operationVersionByTablesAndContext as (
-    select rmc.operationvid, rmc.tablevid, referenceDate, modulevid, domain, entityid
-    from referenceMatchedCells rmc
-    group by rmc.operationvid, rmc.tablevid, referenceDate, modulevid, domain, entityid
-)
 , operationsExpected as (
-    select count(operationvid) nRegrasEsperadas, referenceDate, modulevid, domain, entityid from (
-        select otc.operationvid, referenceDate, modulevid, domain, entityid
-        from operationVersionByTablesAndContext otc 
-        group by otc.operationvid, referenceDate, modulevid, domain, entityid
-    ) group by referenceDate, modulevid, domain, entityid
+    select *
+    from (
+        select count(distinct ovm.operationvid) nregrasesperadas
+        from operationVersionByModule ovm
+    ) results
+    inner join validationContext vc on 1 = 1
 ) 
 , tablesValidated as (
     select io.modulevid, io.referenceDate, io.domain, io.entityid, vt.validationtableid, vt.tablevid, io.ioid, io.inittimestamp
@@ -201,7 +178,8 @@ with periodicityFromReferenceDate as (
     left join operationVersionByModule ovm on vr.operationvid = ovm.operationvid and vr.modulevid = ovm.modulevid
     where vr.operationvid is not null
     GROUP BY vr.referenceDate, vr.modulevid, vr.entityId, vr.domain
-), finalResults as (
+)
+, finalResults as (
     select 
         vc.entityid AS Entity,
         vc.domain as Domain,

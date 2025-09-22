@@ -1,1 +1,0 @@
-Select * from CONF_TEMPLATE where TEMPLATEID = :moduleVID

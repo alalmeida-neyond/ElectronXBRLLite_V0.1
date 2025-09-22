@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -27,11 +28,13 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.VariableVersion;
 import com.example.demo.controller.Objects.Entities.Logs.LogImportProcess;
+import com.example.demo.controller.Objects.Entities.Logs.LogOperationTemp;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.IO.IOTypeState;
 import com.example.demo.controller.Objects.Import.*;
 import com.example.demo.controller.Objects.Validation.Validator_2_0;
+import com.example.demo.controller.Objects.Extensions.RunnableExtension;
 
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ConstraintViolationException;
@@ -39,7 +42,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ModuleFileImport implements Runnable{
+public class ModuleFileImport extends RunnableExtension{
     
     //main constructor to use in Import
     public ModuleFileImport(File inputFile, String filename, ConfEntities entity, String domain,LocalDate referenceDate,ModuleVersion moduleVersion, 
@@ -142,6 +145,7 @@ public class ModuleFileImport implements Runnable{
         
         boolean hasOk = false;
         boolean hasNotOk = false;
+        boolean hasEmpty = false;
         LOG.info("Entered Main Import");
         try {
             cm = new ConnectionManager(em);
@@ -155,7 +159,6 @@ public class ModuleFileImport implements Runnable{
                 LOG.error("Closing failed" + e);
             }
             //for each sheet in the imported file;
-
 
             List<VariableVersion> varVersionMapList = VariableVersionDAL.getListOfVariableVersionOfModuleSheets(moduleVersion.getModuleVID());
             List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(moduleVersion,referenceDate);
@@ -175,7 +178,6 @@ public class ModuleFileImport implements Runnable{
             boolean hasInsertedValue;
             List<String> errorMsgPerTables = new ArrayList<>();
 
-            
 
             int totalNumberSheets = workBook.getNumberOfSheets();
             int completedTables = 1;
@@ -214,13 +216,19 @@ public class ModuleFileImport implements Runnable{
                     if(Utils.isNumeric(desagregationCode)){
                             sheetValueAsHeaderCode = HeaderService.getHeaderDTOFromList(headerDTOList,desagregationCode.trim(),Constants.SheetCoordinateAsChar,false);
                         }
-                    desagregationCodeKey = buildDesagregationCode(desagregationCode,singleFillingIndicatorAsTableVersion.getTableVID(),singleFillingIndicatorAsTableVersion.getTable().getTableId(), io.getReferenceDate());
-                    if (desagregationCodeKey != null) {
+                    desagregationCodeKey = buildDesagregationCode(desagregationCode,singleFillingIndicatorAsTableVersion.getTableVID(),singleFillingIndicatorAsTableVersion.getTable().getTableId(), io.getReferenceDate(),cm);
+                    /*if (desagregationCodeKey != null) {
                         em.persist(desagregationCodeKey);
+                    }*/
+                    if (desagregationCodeKey != null && ((sheetValueAsHeaderCode != null && Utils.isNumeric(desagregationCode)) || !Utils.isNumeric(desagregationCode))) {
+                        List<InKeyAssociation> keyAssociationsDesagCode = desagregationCodeKey.getListPropertyValues();
+                        Optional<InKeyAssociation> keyAssociationWithNull = keyAssociationsDesagCode.stream().filter(keyAssociation -> keyAssociation.getPropertyValue() == null).findAny();
+
+                        if (!keyAssociationWithNull.isPresent()) {
+                            Connection.persist(cm, desagregationCodeKey);
+                        }
+
                     }
-
-                    Connection.persist(cm, desagregationCodeKey);
-
                 }
                 VariableVersion variableVersionOfMap = null;
                 if(singleFillingIndicatorAsTableVersion.getAbstractTable() != null){
@@ -426,7 +434,7 @@ public class ModuleFileImport implements Runnable{
                                         Connection.merge(cm, rowKeyImportKey);
 
                                         
-                                    }
+                                    } 
                                     continue;
                                 }
                                 if(cellListCategory != null && cellListCategory.size() > 1 && !Utils.isNumericWithComma(value) && cellType == Constants.ENUMERATION){
@@ -434,12 +442,11 @@ public class ModuleFileImport implements Runnable{
                                 }
                                 
                                 if(typeListToExclude.contains(cellType) &&Utils.isNumericWithComma(value)) {
-                                        if (value.contains(",")) {
-                                            valueEdited = value.replace(",", ".");
-                                        }else{
-                                            valueEdited = value;
-                                        }
-                                    
+                                    if (value.contains(",")) {
+                                        valueEdited = value.replace(",", ".");
+                                    }else{
+                                        valueEdited = value;
+                                    }
                                 }
                                 
                                 if(notInsertedInImportedValuesPerSheet){
@@ -507,22 +514,18 @@ public class ModuleFileImport implements Runnable{
                         importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
                         hasOk = true;
                     } else if (!errorMsgPerTables.isEmpty() && !hasInsertedValue) {
+                        hasEmpty = true;
                         
                         importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
                         
-                        //Criar lista de logs com base na lista de erros
-                        List<LogImportProcess> errorLogs = new ArrayList<>();
-                        for (String error : errorMsgPerTables) {
-                            LogImportProcess errorLog = new LogImportProcess(importedTableTemp.getImportedTableId(), error);
-                            errorLogs.add(errorLog);
-                        }
-
-                        errorMsgPerTables.clear();
-                        if (!errorLogs.isEmpty()) {
-                            Connection.persistList(cm, errorLogs);
-                        }
+                        hasNotOk = true;
+                    } else if (!errorMsgPerTables.isEmpty()) {
+                        importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
 
                         hasNotOk = true;
+
+                    } else if (errorMsgPerTables.isEmpty() && !hasInsertedValue) {
+                        hasEmpty = true;
                     }
                 } 
                 
@@ -534,9 +537,6 @@ public class ModuleFileImport implements Runnable{
                 cm.em.flush();
                 cm.em.clear();
                 
-                
-                LogImportProcess logMapImportEnd = new LogImportProcess(importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " concluido");
-                Connection.persist(cm, logMapImportEnd);
                 progressService.setImportProgress(completedTables++, Integer.valueOf(totalNumberSheets) + 1);
 
             }
@@ -555,27 +555,30 @@ public class ModuleFileImport implements Runnable{
             }
         }
         
-        if(hasNotOk && !hasOk){
-            ioState = new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk));
+        if (hasNotOk && !hasOk) {
+            ioState = Info.getInstance().getIOStateByID(Constants.processoNotOk);//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk));
         } else if (hasNotOk && hasOk) {
-            ioState = new IOState(Constants.processoOkWithError, new IOTypeState(Constants.tipoStateOK));
+            ioState = Info.getInstance().getIOStateByID(Constants.processoOkWithError);//new IOState(Constants.processoOkWithError, new IOTypeState(Constants.tipoStateOK));
+        } else if (hasEmpty) {
+            ioState = Info.getInstance().getIOStateByID(Constants.processoOkEmpty);//new IOState(Constants.processoOkEmpty, new IOTypeState(Constants.tipoStateOK));
         } else {
-            ioState = new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK));
-        } 
+            ioState = Info.getInstance().getIOStateByID(Constants.processoOk);//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK));
+        }
         
-        ioState = new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK));
+        //ioState = new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK));
         return ioState;
         
     }
     
     // main method that is being called
     public void run() {
+        setIsActive(true);
         ConnectionManager cm = new ConnectionManager(Connection.getEm());
         List<Integer> listOfIDImportRules = listOfImportRulesToApply != null ? listOfImportRulesToApply : new ArrayList<>();
         //Add to the FileHistory
         if(domain.length() > 3){
             domain = domain.substring(0,3).toUpperCase();
-        }                      
+        }                     
         IO io = null;
         IOState iostate = Info.getInstance().getIOStateByID(Constants.processoPending);//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending));
         ConfAction action = Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionImport));                       
@@ -610,10 +613,10 @@ public class ModuleFileImport implements Runnable{
      * @param desagregationCodes List with the desagregation Codes
      * @return the InImportKey that references all DesagregationCodes
      */
-    public InImportKey buildDesagregationCode(String rawDesagregationCode, int tableVID, int tableID, LocalDate referenceDate){
+    public InImportKey buildDesagregationCode(String rawDesagregationCode, int tableVID, int tableID, LocalDate referenceDate, ConnectionManager cm){
        EntityManager em = null;
        InImportKey desagregationImportKey = null;
-       try{
+       try {
         em = Connection.getEm();
         List<DatapointItensDTO> ListItems = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(tableVID, Constants.SheetCoordinate, null, referenceDate);
         if(ListItems.isEmpty()){
@@ -631,50 +634,59 @@ public class ModuleFileImport implements Runnable{
                                                                  );
         String currentKey  = ListItemsMapped.firstKey();
         String[] ExcelDesagregationCodeList = rawDesagregationCode.split("\\|");
-         boolean firstLoop = true;
-         for(String stringSplittedDesagregation : ExcelDesagregationCodeList){
-             List<DatapointItensDTO> possibleCurrentValues =  ListItemsMapped.get(currentKey);
-             currentKey  = ListItemsMapped.higherKey(currentKey);
-             if(!Utils.isNumeric(stringSplittedDesagregation)){
-                 //field to Ignore
-                 if(firstLoop){
-                     firstLoop = false;
-                     desagregationImportKey = new InImportKey();
-                     desagregationImportKey.setKeyType(em.getReference(InKeyType.class,Constants.DESAGREGATIONCODETYPE));
-                     desagregationImportKey.setListPropertyValues(new ArrayList<>());
-                     em.persist(desagregationImportKey);
+        boolean firstLoop = true;
+        for(String stringSplittedDesagregation : ExcelDesagregationCodeList){
+            List<DatapointItensDTO> possibleCurrentValues =  ListItemsMapped.get(currentKey);
+            currentKey  = ListItemsMapped.higherKey(currentKey);
+            if(firstLoop){
+                firstLoop = false;
+                desagregationImportKey = new InImportKey();
+                desagregationImportKey.setKeyType(cm.em.getReference(InKeyType.class,Constants.DESAGREGATIONCODETYPE));
+                desagregationImportKey.setListPropertyValues(new ArrayList<>());
+                cm.em.persist(desagregationImportKey);
+            }
+            if(!Utils.isNumeric(stringSplittedDesagregation)){
+                //field to Ignore
+                
+                if(!possibleCurrentValues.isEmpty()){
+                    InKeyAssociation desagregationCodeAssociation = new InKeyAssociation();
+                    desagregationCodeAssociation.setImportedKey(desagregationImportKey);
+                    desagregationCodeAssociation.setPropertyName(possibleCurrentValues.get(Constants.FIRSTRESULT).getXBRLHeader());
+                    if(possibleCurrentValues.get(Constants.FIRSTRESULT).getSignature() != null){
+                        //Validate Against the ListList<Person> filteredPeople = people.stream()
+                        possibleCurrentValues = possibleCurrentValues.stream().filter(p -> p.getValueCode().equalsIgnoreCase(stringSplittedDesagregation) || p.getSignature().equalsIgnoreCase(Constants.EBASEPARATOR+stringSplittedDesagregation) || p.getName().equalsIgnoreCase(stringSplittedDesagregation))
+                        .collect(Collectors.toList());
+                        if(possibleCurrentValues.size() == Constants.UNIQUEELEMENTONLIST){
+                            desagregationCodeAssociation.setPropertyValue(possibleCurrentValues.get(Constants.FIRSTRESULT).getSignature());
+                        }else{
+                        }
+                    }else{
+                        desagregationCodeAssociation.setPropertyValue(stringSplittedDesagregation);
+                    }
+                    desagregationImportKey.getListPropertyValues().add(desagregationCodeAssociation);
+                    cm.em.persist(desagregationCodeAssociation);
+                    cm.em.persist(desagregationImportKey);
                  }
-                 if(!possibleCurrentValues.isEmpty()){
-                     InKeyAssociation desagregationCodeAssociation = new InKeyAssociation();
-                     desagregationCodeAssociation.setImportedKey(desagregationImportKey);
-                     desagregationCodeAssociation.setPropertyName(possibleCurrentValues.get(Constants.FIRSTRESULT).getXBRLHeader());
-                     if(possibleCurrentValues.get(Constants.FIRSTRESULT).getSignature() != null){
-                         //Validate Against the ListList<Person> filteredPeople = people.stream()
-                         possibleCurrentValues = possibleCurrentValues.stream().filter(p -> p.getValueCode().equalsIgnoreCase(stringSplittedDesagregation) || p.getSignature().equalsIgnoreCase(Constants.EBASEPARATOR+stringSplittedDesagregation) || p.getName().equalsIgnoreCase(stringSplittedDesagregation))
-                         .collect(Collectors.toList());
-                         if(possibleCurrentValues.size() == Constants.UNIQUEELEMENTONLIST){
-                             desagregationCodeAssociation.setPropertyValue(possibleCurrentValues.get(Constants.FIRSTRESULT).getSignature());
-                         }else{
-                         }
-                     }else{
-                         desagregationCodeAssociation.setPropertyValue(stringSplittedDesagregation);
-                     }
-                     desagregationImportKey.getListPropertyValues().add(desagregationCodeAssociation);
-                     em.persist(desagregationCodeAssociation);
-                     em.persist(desagregationImportKey);
-                 }
-             }
+            } else {
+                InKeyAssociation desagregationCodeAssociation = new InKeyAssociation();
+                    desagregationCodeAssociation.setImportedKey(desagregationImportKey);
+                    desagregationCodeAssociation.setPropertyName(Constants.SHEETCODE);
+                    desagregationCodeAssociation.setPropertyValue(stringSplittedDesagregation);
+                    desagregationImportKey.getListPropertyValues().add(desagregationCodeAssociation);
+                    cm.em.persist(desagregationCodeAssociation);
+                    cm.em.persist(desagregationImportKey);
+                    
+            }
 
-         }
+        }
         } catch (ConstraintViolationException e) {
             e.getConstraintViolations().forEach(err -> System.out.println(err.toString()));
-        }
-       catch(Exception e){
-                e.printStackTrace();
-                return null;
-        }finally{
+        } catch(Exception e){
+            e.printStackTrace();
+            return null;
+        } /*finally{
             Connection.close(em);
-        }
+        }*/
         return desagregationImportKey;
     }
     
@@ -687,7 +699,7 @@ public class ModuleFileImport implements Runnable{
         if (Thread.interrupted()) {
                     if(em.getTransaction().isActive()){
                         em.getTransaction().rollback();
-                        em.close();
+                        //em.close();
                     }
                     return true;
         }

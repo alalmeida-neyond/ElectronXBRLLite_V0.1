@@ -2,7 +2,7 @@ with tableColumns as (
     select tv.tableid, tv.tablevid, tvh.headerid, tvh.headervid
     from tableversion tv
     inner join tableversionheader tvh on tvh.tablevid = tv.tablevid
-    where tv.tablevid = :tableVId
+    where tv.tablevid = :tableVId and tvh.isabstract = 0
 )
 , keyColumns as (
     select 
@@ -16,9 +16,12 @@ with tableColumns as (
     left join itemcategory ic on i.itemid = ic.itemid 
     left join release sr on sr.releaseid = ic.startreleaseid
     left join release er on er.releaseid = ic.endreleaseid
-    where h.direction = 'X'
-        and i.isactive = 1
-        and (sr."Date" <= strftime(:format, :referenceDate) and (er."Date" >= strftime(:format, :referenceDate) or er.releaseid is null))
+    where 1 = 1
+        and h.direction = 'X'
+        and (i.itemid is null 
+            or (i.isactive = 1 
+            and (sr."Date" <= strftime(:format, :referenceDate) and (er."Date" >= strftime(:format, :referenceDate) or er.releaseid is null)))
+        )
 )
 select *
 from keyColumns pv

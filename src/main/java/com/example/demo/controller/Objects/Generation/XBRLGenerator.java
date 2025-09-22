@@ -24,13 +24,12 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -40,6 +39,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.jboss.logging.Logger;
 
+import com.example.demo.DTOs.DataTypeHasUnitDTO;
 import com.example.demo.DTOs.OutValidationsDashboardDTO;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.Info;
@@ -52,7 +52,6 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.Import.*;
-import com.example.demo.controller.Objects.Logs.GenerateLogDAL;
 import com.example.demo.service.ProgressService;
 
 public class XBRLGenerator implements Runnable {
@@ -80,6 +79,170 @@ public class XBRLGenerator implements Runnable {
     }
 
     private final String folderUrl = Constants.folderUrl;
+    
+    public void xbrlGenerationMain(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity,IO ioImport, IO ioValidation, String threadName) {
+
+        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
+        
+        StringBuilder query = new StringBuilder(" DELETE FROM IO WHERE actionid IN (1, 2, 3) ");
+
+        query.append("AND modulevid = :moduleVID ")
+                    .append("AND ioid NOT IN ( ")
+                    .append("SELECT MAX(ioid) ")
+                    .append("FROM IO ")
+                    .append("WHERE actionid IN (1, 2, 3) ")
+                    .append("AND modulevid = :moduleVID ")
+                    .append("GROUP BY actionid ); ");
+        
+        try {
+            jpa.executeNativeQuery(query.toString(),"moduleVID", moduleVersion != null ? String.valueOf(moduleVersion.getModuleVID()) : null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            jpa.rollback();
+        }
+        
+        IO generationIo = null;
+        ConnectionManager em = null;
+        String path = "";
+        DateTimeFormatter formater = Constants.generationDateFormat;
+        LocalDateTime now = LocalDateTime.now();
+        String folderName = "";
+        String finalFolder = "";
+        File directory;
+        try {
+            int completedSteps = 1;
+            em = new ConnectionManager(Connection.getEm());                
+
+            path = Paths.get("XBRL_Lite","Run", "Reports", "XBRL_Generated").toString();
+            
+            folderName = getEntity().getLeiCode() + "." + getDomain() + "_PT_" + Utils.applyVersionString(getModule()) + "_" + getModule().getCode().replace("_", "") + "_" + getReferenceDate() + "_" + now.format(formater);
+            //Create folder
+            finalFolder = path + Utils.getSeparator() + folderName;
+            directory = new File(finalFolder);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            generationIo = new IO(
+                    Info.getInstance().getIOStateByID(Constants.processoPending),
+                    getReferenceDate(),
+                    getModule(),
+                    domain,
+                    getEntity(),
+                    LocalDateTime.now(),
+                    null,
+                    Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionGeneration)),
+                    "ABC",
+                    folderName,
+                    threadName,
+                    folderName
+            );
+
+            Connection.persist(em, generationIo);
+
+            OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("ABC", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), ioImport);
+
+            Connection.persist(em, outXBRLGenerated);
+            //Get Object from NULL
+            boolean altGeneration = Info.getInstance().checkIfUsesAltGeneration(module.getModuleVID(),Constants.GENERATIONBASEDONCOLLUMN);
+            List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain, ioImport);
+
+            //Create Report JSON
+            boolean wasReportsJsonCreatedSucessufuly = createReportJSON(finalFolder, getModule().getModuleVID());
+            if (!wasReportsJsonCreatedSucessufuly){
+                generationIo.setEndTimestamp(LocalDateTime.now());
+                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
+                Connection.merge(em,generationIo);      
+                return;
+            }
+            
+            // Create Parameter CSV
+            List<DataTypeHasUnitDTO> importedDatatypes = InImportedTablesDAL.getListOfImportedDatatypes(module, referenceDate, entity, domain);
+            createParametersCSV(finalFolder, importedDatatypes);
+
+            //Create Map
+            Map<String, List<InImportedTablesTemp>> listOfTableGroupedByTheTableVID = tempList.stream()
+                    .collect(Collectors.groupingBy(item -> item.getTableVersion().getCode()));
+            for (Map.Entry<String, List<InImportedTablesTemp>> entry : listOfTableGroupedByTheTableVID.entrySet()) {
+                XBRLGeneratorMap.populateCSV(
+                        finalFolder, 
+                        entry.getValue(), 
+                        generationIo.getReferenceDate(), 
+                        altGeneration
+                );
+            }
+            progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
+            //HERE
+            /*for (Map.Entry<String, List<InImportedTablesTemp>> entry : listOfTableGroupedByTheTableVID.entrySet()) {
+
+                Thread t = new Thread(new XBRLGeneratorMap(finalFolder, entry.getValue(), ioImport.getReferenceDate(), altGeneration));
+                threadList.add(t);
+                t.start();
+                completedSteps++;
+                progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
+            }*/
+            
+            //Filling Indicators
+            Set<String> filteredMapWithoutEmpty = listOfTableGroupedByTheTableVID.entrySet().stream()
+                    .filter(entry -> {
+                        InImportedTablesTemp obj = entry.getValue().get(0);
+                        return obj.getIoState().getIoStateId() != 12; 
+                    })
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toSet());
+            completedSteps++;
+            progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
+            createFillingIndicatorCSV(finalFolder, filteredMapWithoutEmpty);
+            /*boolean waitingForAllThread = true;
+            Thread auxVariableToCheck = null;
+            while (waitingForAllThread) {
+                if (auxVariableToCheck == null) {
+                    auxVariableToCheck = threadList.poll();
+                    if (auxVariableToCheck == null && threadList.isEmpty()) {
+                        waitingForAllThread = false;
+                    }
+                } else if (!auxVariableToCheck.isAlive()) {
+                    auxVariableToCheck = null;
+                }
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
+            }
+            if (waitingForAllThread) {
+                //Cancel Happen
+                if (auxVariableToCheck != null) {
+                    auxVariableToCheck.interrupt();
+                }
+                while (!threadList.isEmpty()) {
+                    auxVariableToCheck = threadList.poll();
+                    auxVariableToCheck.interrupt();
+                }
+                //Add to the Log Generation Canceled
+                GenerateLogDAL.createNewGenerationLog("Geracao Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
+                generationIo.setEndTimestamp(LocalDateTime.now());
+                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));
+                Connection.merge(generationIo);
+            } else {
+                //Add to the Log Generation Conclude sucesufully
+                GenerateLogDAL.createNewGenerationLog("Geracao Concluída com sucesso", outXBRLGenerated.getIdXBRLGenerate());
+                generationIo.setEndTimestamp(LocalDateTime.now());
+                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
+                Connection.merge(generationIo);                
+            }*/
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if(generationIo != null)
+            {
+                generationIo.setEndTimestamp(LocalDateTime.now());
+                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
+            }
+            
+            Connection.merge(generationIo); 
+        } 
+
+        startDownload(finalFolder, ioValidation);
+    }
 
     public List<OutValidationsDashboardDTO> getLastValidationResult() {
         JPA<OutValidationsDashboardDTO> jpa = new JPA<OutValidationsDashboardDTO>(OutValidationsDashboardDTO.class);
@@ -478,150 +641,7 @@ public class XBRLGenerator implements Runnable {
         this.generationRunning = generationRunning;
     }
 
-    public void xbrlGenerationMain(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity,IO ioImport, IO ioValidation, String threadName) {
-
-        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
-        
-        StringBuilder query = new StringBuilder(" DELETE FROM IO WHERE actionid IN (1, 2, 3) ");
-
-        query.append("AND modulevid = :moduleVID ")
-                    .append("AND ioid NOT IN ( ")
-                    .append("SELECT MAX(ioid) ")
-                    .append("FROM IO ")
-                    .append("WHERE actionid IN (1, 2, 3) ")
-                    .append("AND modulevid = :moduleVID ")
-                    .append("GROUP BY actionid ); ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString(),"moduleVID", moduleVersion != null ? String.valueOf(moduleVersion.getModuleVID()) : null);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        }
-        
-        IO generationIo = null;
-        ConnectionManager em = null;
-        String path = "";
-        DateTimeFormatter formater = Constants.generationDateFormat;
-        LocalDateTime now = LocalDateTime.now();
-        String folderName = "";
-        String finalFolder = "";
-        File directory;
-        try {
-            int completedSteps = 1;
-            em = new ConnectionManager();                
-
-            path = Paths.get("XBRL_Lite","Run", "Reports", "XBRL_Generated").toString();
-            
-            folderName = getEntity().getLeiCode() + "." + getDomain() + "_PT_" + Utils.applyVersionString(getModule()) + "_" + getModule().getCode().replace("_", "") + "_" + getReferenceDate() + "_" + now.format(formater);
-            //Create folder
-            finalFolder = path + Utils.getSeparator() + folderName;
-            directory = new File(finalFolder);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-
-            generationIo = new IO(
-                    Info.getInstance().getIOStateByID(Constants.processoPending),
-                    getReferenceDate(),
-                    getModule(),
-                    domain,
-                    getEntity(),
-                    LocalDateTime.now(),
-                    null,
-                    Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionGeneration)),//new ConfAction(Constants.actionImport),
-                    "ABC",
-                    folderName,
-                    threadName,
-                    folderName
-            );
-
-            Connection.persist(em, generationIo);
-
-            OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("ABC", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), ioImport);
-
-            Connection.persist(em, outXBRLGenerated);
-            GenerateLogDAL.createNewGenerationLog("Geracao Iniciada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
-            //Get Object from NULL
-            boolean altGeneration = Info.getInstance().checkIfUsesAltGeneration(module.getModuleVID(),Constants.GENERATIONBASEDONCOLLUMN);
-            List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain, ioImport);
-
-            //Create Map
-            Map<String, List<InImportedTablesTemp>> listOfTableGroupedByTheTableVID = tempList.stream()
-                    .collect(Collectors.groupingBy(item -> item.getTableVersion().getCode()));
-            Queue<Thread> threadList = new LinkedList<>();
-            progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
-            //HERE
-            for (Map.Entry<String, List<InImportedTablesTemp>> entry : listOfTableGroupedByTheTableVID.entrySet()) {
-
-                Thread t = new Thread(new XBRLGeneratorMap(finalFolder, entry.getValue(), ioImport.getReferenceDate(), altGeneration));
-                threadList.add(t);
-                t.start();
-                completedSteps++;
-                progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
-            }
-            
-            createParametersCSV(finalFolder);
-            Set<String> filteredMapWithoutEmpty = listOfTableGroupedByTheTableVID.entrySet().stream()
-                    .filter(entry -> {
-                        InImportedTablesTemp obj = entry.getValue().get(0);
-                        return obj.getIoState().getIoStateId() != 12; 
-                    })
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-            completedSteps++;
-            progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
-            createFillingIndicatorCSV(finalFolder, filteredMapWithoutEmpty);
-            boolean waitingForAllThread = true;
-            Thread auxVariableToCheck = null;
-            while (waitingForAllThread) {
-                if (auxVariableToCheck == null) {
-                    auxVariableToCheck = threadList.poll();
-                    if (auxVariableToCheck == null && threadList.isEmpty()) {
-                        waitingForAllThread = false;
-                    }
-                } else if (!auxVariableToCheck.isAlive()) {
-                    auxVariableToCheck = null;
-                }
-                if (Thread.currentThread().isInterrupted()) {
-                    break;
-                }
-            }
-            if (waitingForAllThread) {
-                //Cancel Happen
-                if (auxVariableToCheck != null) {
-                    auxVariableToCheck.interrupt();
-                }
-                while (!threadList.isEmpty()) {
-                    auxVariableToCheck = threadList.poll();
-                    auxVariableToCheck.interrupt();
-                }
-                //Add to the Log Generation Canceled
-                GenerateLogDAL.createNewGenerationLog("Geracao Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
-                generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));
-                Connection.merge(generationIo);
-            } else {
-                //Add to the Log Generation Conclude sucesufully
-                GenerateLogDAL.createNewGenerationLog("Geracao Concluída com sucesso", outXBRLGenerated.getIdXBRLGenerate());
-                generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
-                Connection.merge(generationIo);                
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            if(generationIo != null)
-            {
-                generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
-            }
-            
-            Connection.merge(generationIo); 
-        }
-
-        startDownload(finalFolder, ioValidation);
-    }
+    
 
     public void createFillingIndicatorCSV(String path, Set<String> maps) {
         List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(getModule(), getReferenceDate());
@@ -668,13 +688,7 @@ public class XBRLGenerator implements Runnable {
         }
     }
 
-    public void createParametersCSV(String path) {
-        /*Path paramCSVPath = Paths.get(path + Utils.getSeparator(), "parameters.csv");
-        String currency = ConfAppConfigsDAL.getValueOfAppConfigurationKey("CURRENCY");
-        String monetary = ConfAppConfigsDAL.getValueOfAppConfigurationKey("MONETARY");
-        String percentage = ConfAppConfigsDAL.getValueOfAppConfigurationKey("PERCENTAGE");
-        String decimal = ConfAppConfigsDAL.getValueOfAppConfigurationKey("DECIMAL");
-        String integer = ConfAppConfigsDAL.getValueOfAppConfigurationKey("INTEGER");*/
+    /*public void createParametersCSV(String path) {
         Path paramCSVPath = Paths.get(path + Utils.getSeparator(), Constants.PARAMETERSFILENAME);
         String currency = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGCURRENCY);
         String monetary = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGMONETARY);
@@ -682,33 +696,15 @@ public class XBRLGenerator implements Runnable {
         String decimal = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGDECIMAL);
         String integer = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGINTEGER);
         try (FileWriter writer = new FileWriter(paramCSVPath.toFile())) {
-            //writer.append("name,value\n");
             writer.append(Constants.PARAMETERSLABELS);
             writer.append("\n");
-            //writer.append("entityID,");
             writer.append(Constants.PARAMETERSKEYENTITY);
             writer.append(getEntity().getLeiCode());
             writer.append(".");
             writer.append(domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3).toUpperCase() : domain.toUpperCase());
             writer.append("\n");
-            //writer.append("refPeriod,");
             writer.append(Constants.PARAMETERSKEYREFERENCEDATE);
             writer.append(getReferenceDate().toString()); 
-            /*writer.append("\n");
-            writer.append("baseCurrency,");
-            writer.append(currency);
-            writer.append("\n");
-            writer.append("decimalsInteger,");
-            writer.append(integer);
-            writer.append("\n");
-            writer.append("decimalsMonetary,");
-            writer.append(monetary);
-            writer.append("\n");
-            writer.append("decimalsPercentage,");
-            writer.append(percentage);
-            writer.append("\n");
-            writer.append("decimalsDecimal,");
-            writer.append(decimal);*/
             writer.append("\n");
             writer.append(Constants.PARAMETERSKEYCURRENCY);
             writer.append(currency);
@@ -727,6 +723,82 @@ public class XBRLGenerator implements Runnable {
         } catch (IOException e) {
             
         }
+    }*/
+
+    private Map<Integer, Map.Entry<String, String>> createParametersMap(){
+        String monetary = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGMONETARY);
+        String percentage = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGPERCENTAGE);
+        String decimal = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGDECIMAL);
+        String integer = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGINTEGER);
+        
+        Map<Integer, Map.Entry<String, String>> parametersMap = new HashMap<>();
+        parametersMap.put(Constants.DATATYPEDECIMAL, new AbstractMap.SimpleEntry<>(Constants.PARAMETERSKEYDECIMAL, decimal));
+        parametersMap.put(Constants.DATATYPEINTEGER, new AbstractMap.SimpleEntry<>(Constants.PARAMETERSKEYINTEGER, integer));
+        parametersMap.put(Constants.DATATYPEPERCENTAGE, new AbstractMap.SimpleEntry<>(Constants.PARAMETERSKEYPERCENTAGE, percentage));
+        parametersMap.put(Constants.DATATYPEMONETARY, new AbstractMap.SimpleEntry<>(Constants.PARAMETERSKEYMONETARY, monetary));
+        
+        return parametersMap;
+    }
+
+    private void createParametersCSV(String path, List<DataTypeHasUnitDTO> importedDatatypes) {
+        Map<Integer, Map.Entry<String, String>> parametersMap = createParametersMap();
+        String currency = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGCURRENCY);
+                
+        Path paramCSVPath = Paths.get(path + Utils.getSeparator(), Constants.PARAMETERSFILENAME);
+        try (FileWriter writer = new FileWriter(paramCSVPath.toFile())) {
+            //Fixed Parameters
+            writer.append(Constants.PARAMETERSLABELS);
+            writer.append("\n");
+            writer.append(Constants.PARAMETERSKEYENTITY);
+            writer.append(getEntity().getLeiCode());
+            writer.append(".");
+            writer.append(domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3).toUpperCase() : domain.toUpperCase());
+            writer.append("\n");
+            writer.append(Constants.PARAMETERSKEYREFERENCEDATE);
+            writer.append(getReferenceDate().toString()); //TODO: Normalize date
+            writer.append("\n");
+            
+            boolean isMonetaryAlreadyFound = false;
+            for(DataTypeHasUnitDTO dataType: importedDatatypes){
+                Map.Entry<String, String> valuesToWrite = parametersMap.get(dataType.getDatatypeId());
+                if(valuesToWrite == null) continue;
+                
+                if(dataType.getDatatypeId() != Constants.DATATYPEMONETARY || !isMonetaryAlreadyFound){
+                    writer.append(valuesToWrite.getKey());
+                    writer.append(valuesToWrite.getValue());
+                    writer.append("\n");
+                }
+                if(dataType.getDatatypeId() == Constants.DATATYPEMONETARY && !dataType.getHasUnit()){
+                    writer.append(Constants.PARAMETERSKEYCURRENCY);
+                    writer.append(currency);
+                    writer.append("\n");
+                }
+                if(dataType.getDatatypeId() == Constants.DATATYPEMONETARY){
+                    isMonetaryAlreadyFound = true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean createReportJSON(String path, int moduleVID){
+        Path reportJsonPath = Paths.get(path + Utils.getSeparator(), Constants.reportJSON);
+        String entryPointURL = ConfTemplateDAL.getEntryPointURL(moduleVID);
+        
+        if(entryPointURL==null){
+            
+            return false;
+        }
+        try (FileWriter writer = new FileWriter(reportJsonPath.toFile())) {
+            writer.append(Constants.REPORTJSONCONTENTPARTBEGIN);
+            writer.append(entryPointURL);
+            writer.append(Constants.REPORTJSONCONTENTPARTEND);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return true;
     }
 
     public String getThreadName() {

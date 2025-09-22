@@ -2,6 +2,9 @@ package com.example.demo.controller.Objects.Generation;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -10,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jboss.logging.Logger;
@@ -20,7 +24,7 @@ import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Import.*;
 
 
-public class XBRLGeneratorMap implements Runnable {
+public class XBRLGeneratorMap {
 
     private String path;
     private List<InImportedTablesTemp> listOfImportedTables;
@@ -52,12 +56,8 @@ public class XBRLGeneratorMap implements Runnable {
         this.listOfImportedTables = listOfImportedTables;
     }
 
-    @Override
-    public void run() {
-        populateCSV();
-    }
 
-    public void populateCSV() {
+    /*public void populateCSV() {
         if (listOfImportedTables.isEmpty()) {
             return;
         }
@@ -199,9 +199,205 @@ public class XBRLGeneratorMap implements Runnable {
             LOG.error("Erro na populacao do CSV: " + e.getMessage());
             e.printStackTrace();
         }
+    }*/
+    
+    public static void populateCSV(String path, List<InImportedTablesTemp> listOfImportedTables, LocalDate referenceDate, Boolean altXBRLGeneration) {
+        if (listOfImportedTables.isEmpty()) {
+            return;
+        }
+        List<Object[]> header;
+        if(altXBRLGeneration){
+            header = TableVersionHeaderDAL.getAltGenerationHeader(listOfImportedTables.get(0).getTableVersion().getTableVID(), referenceDate);
+        }else{
+            header = TableVersionHeaderDAL.getGenerationHeader(listOfImportedTables.get(0).getTableVersion().getTableVID(), referenceDate);
+        }
+        Path fillingCSVPath = Paths.get(path + Utils.getSeparator(), listOfImportedTables.get(0).getTableVersion().getCode().toLowerCase() + ".csv");
+        Map<Integer, List<InKeyAssociation>> keyAssociationsFromTables = new HashMap<Integer, List<InKeyAssociation>>();
+        Map<Integer, List<InKeyAssociation>> keyAssociationsFromCells = new HashMap<Integer, List<InKeyAssociation>>();
+        boolean firstLoopInHeaderForAlt = true;
+        
+        Set<Integer> sortedTableMonetaryVariableWithParamUnit = TableVersionDAL.getAllTableMonetaryVariablesWithParamUnit(listOfImportedTables.get(0).getTableVersion().getTableVID());
+        boolean isUsingParamUnit = !sortedTableMonetaryVariableWithParamUnit.isEmpty();
+        String defaultCurrencyUnit = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGCURRENCY);
+        boolean isUsingDefaultCurrencyUnit = true;
+        
+        try (Writer writer = Files.newBufferedWriter(fillingCSVPath, StandardCharsets.UTF_8);) {
+            if(altXBRLGeneration){
+                for (Object[] obj : header) {
+                    if(!firstLoopInHeaderForAlt){
+                        writer.append(",");
+                    }else{
+                        firstLoopInHeaderForAlt = false;
+                    }
+                    writer.append("c"+obj[1].toString());                   
+                }
+            }else{
+                writer.append(Constants.MAPPEDCSVFIXEDHEADER);
+                for (Object[] obj : header) {
+                    writer.append(",");
+                    writer.append(obj[0].toString());
+                    
+                    //check if map is using a diferent currency from the $baseCurrency
+                    if(obj[0].toString().equals(Constants.CURRENCYDESAGREGATIONCODEHEADERNAME)){
+                        isUsingDefaultCurrencyUnit = false;
+                    }
+                }
+                if(isUsingParamUnit){
+                    writer.append(",");
+                    writer.append(Constants.PARAMETERSKEYUNIT);
+                }
+            }
+
+            List<InImportKey> importKeysFromTables = listOfImportedTables.stream().map(InImportedTablesTemp::getImportKey).distinct().collect(Collectors.toList());
+            keyAssociationsFromTables = InKeyAssociationDAL.getListOfKeyAssociationsBasedOnImportKey(importKeysFromTables);
+
+            for (InImportedTablesTemp impTab : listOfImportedTables) {
+                List<InImportedValuesTemp> cells = InImportedValuesDAL.getListOfImportedCellBasedOnImportedTable(impTab);
+                if(altXBRLGeneration){
+                    Map<InImportKey,List<InImportedValuesTemp>> mappedByRowkey = cells.stream()
+                                                                                .collect(//Collectors.groupingBy(item -> item.getImportKey())
+                                                                                        Collectors.toMap(
+                                                                                                    InImportedValuesTemp::getImportKey,
+                                                                                                    x -> {
+                                                                                                        List<InImportedValuesTemp> list = new ArrayList<>();
+                                                                                                        list.add(x);
+                                                                                                        return list;
+                                                                                                    },
+                                                                                                    (left, right) -> {
+                                                                                                         left.addAll(right);
+                                                                                                         return left;
+                                                                                                    },
+                                                                                                    HashMap::new
+
+                                                                                             )
+                                                                                );
+                    for(Map.Entry<InImportKey,List<InImportedValuesTemp>> entry : mappedByRowkey.entrySet()){
+                        List<InImportedValuesTemp> rowValues = entry.getValue();
+                        firstLoopInHeaderForAlt = true;
+                        writer.append("\n");
+                        for (Object[] obj : header) {
+                            if(!firstLoopInHeaderForAlt){
+                                writer.append(",");
+                            }else{
+                                firstLoopInHeaderForAlt = false;
+                            }
+                            if(obj[2].toString().equals("1")){ //KEY
+                                Optional<InKeyAssociation> resultKeyToWrite = entry.getKey().getListPropertyValues().stream()
+                                                                                            .filter(rowkey -> rowkey.getPropertyName().equals(obj[0].toString()))
+                                                                                            .findFirst();
+                                if(resultKeyToWrite.isPresent()){
+                                    if(resultKeyToWrite.get().getPropertyValue().contains(",")){
+                                        writer.append("\"").append(resultKeyToWrite.get().getPropertyValue()).append("\"");
+                                    }
+                                    writer.append(resultKeyToWrite.get().getPropertyValue());
+                                }
+                            }else{
+                                Optional<InImportedValuesTemp> resultToWrite = rowValues.stream()
+                                                        .filter(row -> row.getColuna().equals(obj[1].toString()))
+                                                        .findFirst();
+                                
+                                if(resultToWrite.isPresent()){
+                                    if(resultToWrite.get().getRuleValue().contains(",")){
+                                        writer.append("\"").append(resultToWrite.get().getRuleValue()).append("\"");
+                                    }
+                                    writer.append(resultToWrite.get().getRuleValue());
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    List<InKeyAssociation> keysDesagregationCode = new ArrayList<InKeyAssociation>();
+                    if (impTab.getImportKey() != null && keyAssociationsFromTables.containsKey(impTab.getImportKey().getImportKeyID())) {
+                        keysDesagregationCode = keyAssociationsFromTables.get(impTab.getImportKey().getImportKeyID());
+                    }
+                    if (cells != null) {
+                        List<InImportKey> importKeysFromCells = cells.stream().map(InImportedValuesTemp::getImportKey).distinct().collect(Collectors.toList());
+                        keyAssociationsFromCells = InKeyAssociationDAL.getListOfKeyAssociationsBasedOnImportKey(importKeysFromCells);
+                    }
+                    for (InImportedValuesTemp cell : cells) {
+                        List<InKeyAssociation> keysRowKey = new ArrayList<InKeyAssociation>();
+                        if (cell.getImportKey() != null && keyAssociationsFromCells.containsKey(cell.getImportKey().getImportKeyID())) {
+                            keysRowKey = keyAssociationsFromCells.get(cell.getImportKey().getImportKeyID());
+                        }
+                        writer.append("\n");
+                        writer.append("dp");
+                        writer.append(cell.getVariableVersion().getVariable().getVariableID()+ ",");
+                        if(cell.getRuleValue().contains(",")){
+                            writer.append("\"").append(cell.getRuleValue()).append("\"");
+                        } else {
+                            writer.append(cell.getRuleValue());
+                        }
+                        
+                        String monetaryUnit = "";
+                        
+                        if (!header.isEmpty()) {
+                            for (Object[] obj : header) {
+                                boolean found = false;
+                                if (!keysRowKey.isEmpty()) {
+                                    for (InKeyAssociation key : keysRowKey) {
+                                        if (key.getPropertyName().toUpperCase().equals(obj[0].toString().toUpperCase())) {
+                                            if(key.getPropertyValue().contains(",")){
+                                                writer.append(",").append("\"").append(key.getPropertyValue()).append("\"");
+                                            } else {
+                                                writer.append(",").append(key.getPropertyValue());
+                                            }
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                //IF found it isn't the desagregationCode
+                                if (!found) {
+                                    //desagregationCode 
+                                    if (!keysDesagregationCode.isEmpty()) {
+                                        if(keysDesagregationCode.get(0).getImportedKey().getKeyType().getKeyTypeID() == Constants.DESAGREGATIONCODEFIXEDTYPE){
+                                            continue;
+                                        }
+                                        for (InKeyAssociation key : keysDesagregationCode) {
+                                            if (key.getPropertyName().toUpperCase().equals(obj[0].toString().toUpperCase())) {
+                                                if(key.getPropertyValue().contains(",")){
+                                                    writer.append(",").append("\"").append(key.getPropertyValue()).append("\"");
+                                                } else {
+                                                    writer.append(",").append(key.getPropertyValue());
+                                                }
+                                                
+                                                if(key.getPropertyValue().contains(Constants.CURRENCYDESAGREGATIONCODEPREFIX)){
+                                                    monetaryUnit = key.getPropertyValue().replace(Constants.CURRENCYDESAGREGATIONCODEPREFIX, "");
+                                                }
+                                                
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                //Not filled values
+                                if(!found){
+                                    writer.append(",");
+                                }
+                            }
+                        }
+                        if(isUsingParamUnit){
+                            writer.append(",");
+                            if (sortedTableMonetaryVariableWithParamUnit.contains(cell.getVariableVersion().getVariableVID())){
+                               if(isUsingDefaultCurrencyUnit){
+                                   writer.append(defaultCurrencyUnit);
+                               } else if(!monetaryUnit.isEmpty()){
+                                   writer.append(Constants.CURRENCYUNITPREFIX);
+                                   writer.append(monetaryUnit);
+                               }
+                            }
+                           
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-    
-    
     
 
 }

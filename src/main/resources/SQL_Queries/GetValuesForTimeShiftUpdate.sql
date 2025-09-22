@@ -56,19 +56,20 @@ with modulesApplicable as (
 )
 
 , maxImportedTableIdPerTableWithDesagCode as (
-    select importedtableid, tablevid
+    select results.importedtableid, results.tablevid
     from (
-        select max(it.importedtableid) importedtableid, it.tablevid, keyA.propertyvalue as desagCode  
+        select max(it.importedtableid) as importedtableid, it.tablevid, keyA.propertyvalue as desagCode  
         from operandReferencesVariableVID orv
         inner join importedTabledFiltered it on orv.tablevid = it.tablevid
-        inner join DPM_ED.in_importkey impK on impK.importkeyid = it.importkeyid 
-        inner join DPM_ED.in_keyassociation keyA on keyA.importkeyid = it.importkeyid 
-        where impK.keytypeid = ?desagregationCodeType or impK.keytypeid = ?desagregationTypeFixed
+        inner join in_importkey impK on impK.importkeyid = it.importkeyid 
+        inner join in_keyassociation keyA on keyA.importkeyid = it.importkeyid 
+        where impK.keytypeid = :desagregationCodeType or impK.keytypeid = :desagregationTypeFixed
         group by it.tablevid, keyA.propertyvalue
-        ) 
-    group by importedtableid, tablevid
+        ) results
+    inner join in_importedtablestemp it on it.importedtableid = results.importedtableid
+    where it.io_stateid = :stateOk
+    group by results.importedtableid, results.tablevid
 )
-
 , tablesImportedApplicable as (
     select mt.importedtableid, mt.tablevid, it.importkeyid
     from maxImportedTableIdPerTableWithDesagCode mt
@@ -83,8 +84,8 @@ with modulesApplicable as (
     select orv.nodeid as "NodeID", orv.operandreferenceid as "OperandReferenceID", orv.cellid as "CellID", orv.variablevid as "VariableVID", tia.tablevid as "TableVID", tia.importedtableid as "TableID", tia.importkeyid as "DesagregationCode"
     from operandReferencesVariableVID orv
     left join tablesImportedApplicable tia on tia.tablevid = orv.tablevid
-    left join dpm_ed.in_importkey ik on tia.importkeyid = ik.importkeyid 
-    where ik.keytypeid is null or ik.keytypeid <> ?desagregationTypeFixed
+    left join in_importkey ik on tia.importkeyid = ik.importkeyid 
+    where ik.keytypeid is null or ik.keytypeid <> :desagregationTypeFixed
 )
 
 , tablesImportedApplicableWithDesagCodeFixed as (
@@ -104,7 +105,7 @@ with modulesApplicable as (
     left join header h on h.headerid = c.sheetid
     left join headerversion hv on hv.headerid = h.headerid
     left join tablesImportedApplicableWithDesagCodeFixed tiaDCF on orv.tablevid = tiaDCF.tablevid and tiaDCF.propertyvalue = hv.code
-    where (h.direction = ?directionZ)     
+    where (h.direction = :directionZ)     
 )
 
 , referencesTablesImported as (
@@ -139,7 +140,7 @@ with modulesApplicable as (
 )
 
 , valuesWithRef as (
-    select ROWNUM as ValueID, valuesToOperation.*
+    select ROW_NUMBER() OVER () as ValueID, valuesToOperation.*
     from (
         select 
             ar."OperandReferenceID" "RefID",
@@ -177,12 +178,12 @@ with modulesApplicable as (
             when vr.RowKeyID <> -1 then 'r('
             else null 
         end || 
-        LISTAGG(
+        GROUP_CONCAT(
             case 
                 when vr.RowKeyID <> -1 then keyA.propertyvalue
                 else null 
             end
-        , ',') WITHIN GROUP (order by keyA.propertyvalue) ||
+        , ',' order by keyA.propertyvalue)  ||
         case 
             when vr.RowKeyID <> -1 then ')'
             else null 
@@ -197,17 +198,17 @@ with modulesApplicable as (
     select 
         vr.ValueID, vr.DesagregationCodeID, 
         case 
-            when vr.DesagregationCodeTypeID = ?desagregationCodeType then '('
+            when vr.DesagregationCodeTypeID = :desagregationCodeType then '('
             else null 
         end || 
-        LISTAGG(
+        GROUP_CONCAT(
             case 
-                when vr.DesagregationCodeTypeID = ?desagregationCodeType then (keyA.propertyname || '=' || keyA.propertyvalue)
+                when vr.DesagregationCodeTypeID = :desagregationCodeType then (keyA.propertyname || '=' || keyA.propertyvalue)
                 else null 
             end
-        , ',') WITHIN GROUP (order by keyA.propertyvalue) ||
+        , ',' order by keyA.propertyvalue) ||
         case 
-            when vr.DesagregationCodeTypeID = ?desagregationCodeType then ')'
+            when vr.DesagregationCodeTypeID = :desagregationCodeType then ')'
             else null 
         end DesagregationCodeValue
     from valuesWithRef vr

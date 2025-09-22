@@ -1,8 +1,18 @@
-with ioValidations as (
+with ioValidation as (
     select io.*
     from io io
+    where ioid = :ioid
+)
+, ioValidations as (
+    select io.*
+    from io io
+    inner join ioValidation on ioValidation.referencedate = io.referencedate
+        and ioValidation.entityid = io.entityid 
+        and ioValidation.domain = io.domain
+        and ioValidation.modulevid = io.modulevid 
+        and io.ioid <= ioValidation.ioid 
     inner join io_state ioe on ioe.io_stateid = io.io_stateid
-    where io.actionid = :actionValidateId and ioe.io_typestateid = :typeStateOk and io.ioid = :ioId
+    where io.actionid = :actionValidateId and ioe.io_typestateid = :typeStateOk
 )
 , ios as (
     select * from ioValidations
@@ -36,43 +46,24 @@ with ioValidations as (
     inner join conf_entities ce on ce.entityid = io.entityid
 )
 , resultsDetailsRunnedRules as (
-    SELECT 
-    strftime('%Y-%m-%d', rv.refDate) AS referenceDate,
-    rv.module AS module,
-    rv.entity,
-    rv.domain,
-    rv.relatorio AS mapa,
-    op.code AS regraCode,
-    severity,
-    vrd.domain AS regraDomain,
-    opv.expression AS regra,
-    vrd.expression AS regraExecutada,
-    'EBA' AS origem,
-    sd.description AS resultado,
-    datetime(vrd.timestamp / 1000.0, 'unixepoch') AS dataProcessamento,
-    COALESCE(CAST(vrd.difference AS TEXT), '-') AS difference,
-    vrd.usedmargin
-	FROM validationResults rv
-	INNER JOIN out_validationresult vr ON vr.validationresultid = rv.validationresultid
-	INNER JOIN out_validationresultdetails vrd ON vrd.validationresultid = vr.validationresultid
-	INNER JOIN io_state sd ON vrd.stateid = sd.io_stateid
-	INNER JOIN operationVersion opv ON opv.operationVid = vr.operationVid
-	INNER JOIN operation op ON op.operationId = opv.operationId
-	INNER JOIN operationScope os ON os.operationvid = opv.operationvid
-	INNER JOIN operationScopecomposition osc ON osc.operationscopeid = os.operationscopeid 
-    AND osc.modulevid = rv.modulevid
+    select strftime('%Y-%m-%d', rv.refDate) referenceDate, rv.module module, rv.entity, rv.domain, rv.relatorio mapa, op.code regraCode, severity,
+    vrd.domain regraDomain, opv.expression as regra, vrd.expression regraExecutada, 'EBA' as origem,
+    sd.description as resultado, strftime('%Y-%m-%d %H:%M:%S', vrd.timestamp / 1000, 'unixepoch','localtime') dataProcessamento, coalesce(CAST(vrd.difference as TEXT),'-') as difference,
+    case when vrd.usedmargin = '1' then 'TRUE' else 'FALSE' end as usedmargin
+    from validationResults rv
+    inner join out_validationresult vr on vr.validationresultid = rv.validationresultid
+    inner join out_validationresultdetails vrd on vrd.validationresultid = vr.validationresultid
+    inner join io_state sd on vrd.stateid = sd.io_stateid
+    inner join operationVersion opv on opv.operationVid = vr.operationVid
+    inner join operation op on op.operationId = opv.operationId
+    inner join operationScope os on os.operationvid = opv.operationvid
+    inner join operationScopecomposition osc on osc.operationscopeid = os.operationscopeid and osc.modulevid = rv.modulevid
 )
 , resultsDetailsNotRunnedRules as (
     select
-        strftime('%Y-%m-%d', rv.refDate) AS referenceDate,
-		rv.module AS module,
-		rv.entity,
-		rv.domain,
-		rv.relatorio AS mapa,
-		op.code AS regraCode,
-		severity,
+        strftime('%Y-%m-%d', rv.refDate) referenceDate, rv.module module, rv.entity, rv.domain, rv.relatorio mapa, op.code regraCode, severity,
         null regraDomain, opv.expression as regra, null regraExecutada, 'EBA' as origem,
-        sr.description as resultado, null as dataProcessamento, null as difference, '0' as usedmargin
+        sr.description as resultado, null as dataProcessamento, null as difference, CAST('FALSE' AS TEXT) as usedmargin
     from validationResults rv
     inner join out_validationresult vr on vr.validationresultid = rv.validationresultid
     left join out_validationresultdetails vrd on vrd.validationresultid = vr.validationresultid

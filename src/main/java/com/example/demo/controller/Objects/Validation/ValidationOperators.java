@@ -45,7 +45,7 @@ public class ValidationOperators {
             case Constants.DIVISION: //3
                 return evaluateBinaryOperations(parent, OperationsUtils.getChildNode(childs, Constants.ARGUMENTLEFT), OperationsUtils.getChildNode(childs, Constants.ARGUMENTRIGHT), Constants.ARITHMETICSUBGROUP);
 
-            //subgrupo dos numéricos individuais
+            //subgrupo dos numericos individuais
             case Constants.UNARYPLUS: //1
             case Constants.ABSOLUTEVALUE: //6
             case Constants.UNARYMINUS: //4
@@ -61,7 +61,7 @@ public class ValidationOperators {
             case Constants.NOTEQUALTO: //20
                 return evaluateBinaryOperations(parent, OperationsUtils.getChildNode(childs, Constants.ARGUMENTLEFT), OperationsUtils.getChildNode(childs, Constants.ARGUMENTRIGHT), Constants.COMPARISONSUBGROUP);
 
-            //operadores de lógica
+            //operadores de logica
             case Constants.AND: //22
             case Constants.OR: //23
             case Constants.EXCLUSIVEOR: //25
@@ -84,7 +84,7 @@ public class ValidationOperators {
                 return evaluateAggregateNumericOperations(parent, childs);
                 
                 
-            //operadores com comportamentos próprios  
+            //operadores com comportamentos proprios  
             case Constants.ELEMENTOF: //16
                 return elementOf(parent, OperationsUtils.getChildNode(childs, Constants.ARGUMENTOPERAND),  OperationsUtils.getChildNode(childs, Constants.ARGUMENTSET));
             case Constants.MATCHCARACTERS: //21
@@ -113,7 +113,7 @@ public class ValidationOperators {
         }
     }
 
-    //Preparacao para as operacoes binárias
+    //Preparacao para as operacoes binarias
     private static boolean evaluateBinaryOperations(ValNode parent, ValNode leftChild, ValNode rightChild, int operationsSubgroup) {
         List<ValResult> leftValues = new ArrayList<>();
         List<ValResult> rightValues = new ArrayList<>();
@@ -122,7 +122,7 @@ public class ValidationOperators {
         boolean isToCompareToItem = false;
 
         try {
-            LOG.info("Avaliacao dos casos para operacoes binárias, no nó " + parent.getNode().getNodeID());
+            LOG.info("Avaliacao dos casos para operacoes binarias, no No " + parent.getNode().getNodeID());
             
             //Caso: Tem scalar
             leftIsScalar = leftChild.getNode().getScalar() != null;
@@ -130,7 +130,7 @@ public class ValidationOperators {
             isToCompareToItem = OperationsUtils.isToCompareWithItem(rightChild);
             
             if (OperationsUtils.isChildOfWhere(parent)) {
-                LOG.info("Caso em que é filho de um where encontrado, no nó " + parent.getNode().getNodeID());
+                LOG.info("Caso em que e filho de um where encontrado, no No " + parent.getNode().getNodeID());
                 return OperationsUtils.applyChildWhereLogic(parent, leftChild, rightChild);
             }
             
@@ -145,7 +145,7 @@ public class ValidationOperators {
                 rightValues.add(rightScalarResult);
                 rightChild.setResults(rightValues);
                 
-                LOG.info("Operacao binária aplicada sobre dois scalar, no nó " + parent.getNode().getNodeID());
+                LOG.info("Operacao binaria aplicada sobre dois scalar, no No " + parent.getNode().getNodeID());
 
                 return prepareBinaryOperation(parent, leftChild, rightChild, false, operationsSubgroup);
             } else if (leftIsScalar) {
@@ -157,7 +157,7 @@ public class ValidationOperators {
                 }
                 leftChild.setResults(leftValues);
                 
-                LOG.info("Operacao binária aplicada com um scalar à esquerda, no nó " + parent.getNode().getNodeID());
+                LOG.info("Operacao binaria aplicada com um scalar a esquerda, no NO " + parent.getNode().getNodeID());
                 return prepareBinaryOperation(parent, leftChild, rightChild, false, operationsSubgroup);
             } else if (rightIsScalar) {
                 ValValue scalarValue = new ValValue(rightChild.getNode().getScalar());
@@ -168,7 +168,7 @@ public class ValidationOperators {
                 }
                 rightChild.setResults(rightValues);
                 
-                LOG.info("Operacao binária aplicada com um scalar à direita, no nó " + parent.getNode().getNodeID());
+                LOG.info("Operacao binaria aplicada com um scalar a direita, no No " + parent.getNode().getNodeID());
                 return prepareBinaryOperation(parent, leftChild, rightChild, false, operationsSubgroup);
             } else if (isToCompareToItem) {
                 ValResult itemResult = rightChild.getResults().get(Constants.FIRSTRESULT);
@@ -178,7 +178,7 @@ public class ValidationOperators {
                 }
                 rightChild.setResults(rightValues);
                 
-                LOG.info("Operacao binária aplicada com um item à direita, no nó " + parent.getNode().getNodeID());
+                LOG.info("Operacao binaria aplicada com um item a direita, no No " + parent.getNode().getNodeID());
                 return prepareBinaryOperation(parent, leftChild, rightChild, false, operationsSubgroup);
             }
 
@@ -186,15 +186,15 @@ public class ValidationOperators {
             if (isToUseKeys == null){
                 return false;
             } else if (isToUseKeys) {
-                LOG.info("Operacao binária aplicada com chaves, no nó " + parent.getNode().getNodeID());
+                LOG.info("Operacao binaria aplicada com chaves, no No " + parent.getNode().getNodeID());
                 return prepareBinaryOperation(parent, leftChild, rightChild, true, operationsSubgroup);
             }
 
             //Caso: Normal, sem ser com scalar nem chaves
-            LOG.info("Operacao binária aplicada sem chaves, no nó " + parent.getNode().getNodeID());
+            LOG.info("Operacao binaria aplicada sem chaves, no No " + parent.getNode().getNodeID());
             return prepareBinaryOperation(parent, leftChild, rightChild, false, operationsSubgroup);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
         }
 
         return false;
@@ -209,7 +209,7 @@ public class ValidationOperators {
             isScalar = operandChild.getNode().getScalar() != null;
 
             if (isScalar) {
-                LOG.info("Operacao numérica individual será aplicada sobre um scalar, no nó " + parent.getNode().getNodeID());
+                LOG.info("Operacao numerica individual sera aplicada sobre um scalar, no No " + parent.getNode().getNodeID());
                 ValValue scalarValue = new ValValue(operandChild.getNode().getScalar());
                 ValResult scalarResult = new ValResult(scalarValue);
                 operandValues.add(scalarResult);
@@ -218,7 +218,7 @@ public class ValidationOperators {
 
             return prepareIndividualOperations(parent, operandChild, operationsSubgroup);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
         }
 
         return false;
@@ -235,7 +235,7 @@ public class ValidationOperators {
                 operandValues = operandChild.getResults();
                 
                 if (groupingClauseChild != null && groupingClauseChild.getResults() != null) {
-                    LOG.info("Operacao de agrupamento com chaves, no nó " + parent.getNode().getNodeID());
+                    LOG.info("Operacao de agrupamento com chaves, no No " + parent.getNode().getNodeID());
                     
                     //ir buscar a chave que agrupa os valores
                     ValResult resultFromGroup = groupingClauseChild.getResults().get(Constants.FIRSTRESULT);
@@ -244,7 +244,7 @@ public class ValidationOperators {
                     //agrupa os valores
                     Map<ValKey, List<ValResult>> valuesGroupedBy = OperationsUtils.groupValues(operandValues, key);
                     if(valuesGroupedBy == null || valuesGroupedBy.isEmpty()){
-                        LOG.log(Level.SEVERE,"Ocorreu um erro no agrupamento dos valores, no nó " + parent.getNode().getNodeID());
+                        LOG.log(Level.SEVERE,"Ocorreu um erro no agrupamento dos valores, no No " + parent.getNode().getNodeID());
                         return false;
                     }
 
@@ -257,7 +257,7 @@ public class ValidationOperators {
                         parentResult = strategy.evaluate(operandChild, resultsThatShareKey);
                         parentResult.setKey(keyThatGroupValues);
                                                 
-                        //verifica se o resultado é nulo, pois os nulos devem ser ignorados
+                        //verifica se o resultado e nulo, pois os nulos devem ser ignorados
                         if (!parentResult.valueIsNull()) {
                             parentResult.setExpression(expressionBuilder.aggregateOperationBuilder(parent.getOperatorSymbol(), operandChild, groupingClauseChild, resultsThatShareKey, resultFromGroup));
                             parentResult.setDomain(domainBuilder.groupOfResultsDomainBuilder(resultsThatShareKey));
@@ -265,7 +265,7 @@ public class ValidationOperators {
                         } 
                     }
                 } else {
-                    LOG.info("Operacao de agrupamento sem chaves, no nó " + parent.getNode().getNodeID());
+                    LOG.info("Operacao de agrupamento sem chaves, no No " + parent.getNode().getNodeID());
                     
                     //resultLog += parent.getNode().getOperator().getSymbol() + "("
                     //        +String.join(", ", operandValues.stream().map(ValResult::getRawValue).collect(Collectors.toList()))+")";
@@ -274,7 +274,7 @@ public class ValidationOperators {
                     AggregationStrategy strategy = AggregationStrategyFactory.getStrategy(parent.getNode().getOperator().getOperatorID());
                     parentResult = strategy.evaluate(operandChild, operandValues);
 
-                    //verifica se o resultado é nulo, pois os nulos devem ser ignorados
+                    //verifica se o resultado e nulo, pois os nulos devem ser ignorados
                     if (!parentResult.valueIsNull()) {
                         parentResult.setExpression(expressionBuilder.aggregateOperationBuilder(parent.getOperatorSymbol(), operandChild, null, operandValues, null));
                         parentResult.setDomain(domainBuilder.groupOfResultsDomainBuilder(operandValues));
@@ -282,7 +282,7 @@ public class ValidationOperators {
                     } 
                 }
                 
-                //Se o resultado dos pais for diferente de vazio, então adiciona os resultados no pai
+                //Se o resultado dos pais for diferente de vazio, entao adiciona os resultados no pai
                 if(!parentResults.isEmpty()){
                     parent.setResults(parentResults);
                     return true;
@@ -290,7 +290,7 @@ public class ValidationOperators {
                 return false;
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
         }
 
         return false;
@@ -313,7 +313,7 @@ public class ValidationOperators {
                 
                 if(!values.isEmpty()){
                     if(OperationsUtils.isToUseKeys(childs)){
-                        LOG.info("Operacao de agregacao de valores numéricos com chaves, no nó " + parent.getNode().getNodeID());
+                        LOG.info("Operacao de agregacao de valores numericos com chaves, no No " + parent.getNode().getNodeID());
                         
                         //agrupamento dos valores
                         ValKey groupingKey = OperationsUtils.determineGroupingKey(values);
@@ -328,7 +328,7 @@ public class ValidationOperators {
                             parentResults.add(parentResult);
                         }
                     } else {
-                        LOG.info("Operacao de agregacao de valores numéricos sem chaves, no nó " + parent.getNode().getNodeID());
+                        LOG.info("Operacao de agregacao de valores numericos sem chaves, no No " + parent.getNode().getNodeID());
                         Map<ValKey, List<Map.Entry<ValNode, ValResult>>> results = OperationsUtils.groupValuesOfNodes(childs, null);
                                               
                         ValResult parentResult = applyNumericAggregateOperation(parent, results.get(null) , null);
@@ -340,15 +340,15 @@ public class ValidationOperators {
                     parent.setResults(parentResults);
                     return true;
                 } else {
-                    LOG.log(Level.SEVERE,"Não foram encontrados valores no filho do nó " + parent.getNode().getNodeID());
+                    LOG.log(Level.SEVERE,"Nao foram encontrados valores no filho do No " + parent.getNode().getNodeID());
                     return false;
                 }
             } else {
-                LOG.log(Level.SEVERE,"Não foram encontrados filhos do nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"Nao foram encontrados filhos do No " + parent.getNode().getNodeID());
                 return false;
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
         }
         return false;
     }
@@ -366,7 +366,7 @@ public class ValidationOperators {
 
             //Vai percorrer a lista
             for (int i = 0; i < operandValues.size(); i++) {
-                LOG.info("Preparacao dos dados para operacao individual, no nó " + parent.getNode().getNodeID());
+                LOG.info("Preparacao dos dados para operacao individual, no No " + parent.getNode().getNodeID());
                 operandValue = operandValues.get(i);
 
                 //Caso seja nulo, deve usar o defaultvalue
@@ -390,7 +390,7 @@ public class ValidationOperators {
                     parentResult.setDomain(domainBuilder.individualResultDomainBuilder(operandValue));
                     resultsToParent.add(parentResult);
                 } else {
-                    LOG.log(Level.SEVERE,"Ocorreu um erro num dos applyOperations, no nó " + parent.getNode().getNodeID());
+                    LOG.log(Level.SEVERE,"Ocorreu um erro num dos applyOperations, no No " + parent.getNode().getNodeID());
 //                    Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes individuais com erros.", null, null, "Erro");
                 }
             }
@@ -399,14 +399,14 @@ public class ValidationOperators {
             return true;
 
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes individuais com erros.", null, null, "Erro");
         }
 
         return false;
     }
 
-    //Consoante a utilizacao de chaves ou não, percorre os valores e envia-os para eles serem avaliados com operacoes numéricas
+    //Consoante a utilizacao de chaves ou nao, percorre os valores e envia-os para eles serem avaliados com operacoes numericas
     private static boolean prepareBinaryOperation(ValNode parent, ValNode leftNode, ValNode rightNode, boolean isToUseKeys, int operationsSubgroup) {
         List<ValResult> resultsToParent = new ArrayList<>();
         List<ValResult> leftValues = new ArrayList<>();
@@ -427,13 +427,13 @@ public class ValidationOperators {
 
             //Caso seja para usar chaves (aplicar abordagem do "inner join"
             if (isToUseKeys) {
-                LOG.info("Preparacao dos dados para operacao binária, com chaves no nó " + parent.getNode().getNodeID());
+                LOG.info("Preparacao dos dados para operacao binaria, com chaves no No " + parent.getNode().getNodeID());
                 
                 ValKey innerJoinKey = OperationsUtils.defineInnerJoinKeys(leftValues, rightValues);
 
                 if (innerJoinKey == null || innerJoinKey.hasKeysPropertiesIndexsNull()) {
-                    LOG.log(Level.SEVERE,"Não foi encontrada uma 'inner key', no nó " + parent.getNode().getNodeID());
-//                    Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritméticas com erros.", null, null, "Erro");
+                    LOG.log(Level.SEVERE,"Nao foi encontrada uma 'inner key', no No " + parent.getNode().getNodeID());
+//                    Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritmeticas com erros.", null, null, "Erro");
                     return false;
                 }
 
@@ -441,8 +441,8 @@ public class ValidationOperators {
                 groupedValues = OperationsUtils.groupValuesByInnerJoin(leftValues, rightValues, innerJoinKey);
 
                 if (groupedValues.isEmpty()) {
-                    LOG.log(Level.SEVERE,"Não conseguiu agrupar os valores, no nó " + parent.getNode().getNodeID());
-//                    Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritméticas com erros.", null, null, "Erro");
+                    LOG.log(Level.SEVERE,"Nao conseguiu agrupar os valores, no No " + parent.getNode().getNodeID());
+//                    Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritmeticas com erros.", null, null, "Erro");
                     return false;
                 }
 
@@ -484,15 +484,15 @@ public class ValidationOperators {
                             parentResult.setDomain(domainBuilder.binaryOperationDomainBuilder(leftValue, rightValue));
                             resultsToParent.add(parentResult);
                         } else {
-                            LOG.log(Level.SEVERE,"Ocorreu um erro num dos applyOperations, no nó " + parent.getNode().getNodeID());
-//                            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritméticas com erros.", null, null, "Erro");
+                            LOG.log(Level.SEVERE,"Ocorreu um erro num dos applyOperations, no No " + parent.getNode().getNodeID());
+//                            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritmeticas com erros.", null, null, "Erro");
                         }
 
                     }
                 }
             } else {
-                LOG.info("Operacao binária, sem chaves no nó " + parent.getNode().getNodeID());
-                //Caso em que não se usa chaves (Ou são comparados dois valores apenas, ou são comparados valores com scalars)
+                LOG.info("Operacao binaria, sem chaves no No " + parent.getNode().getNodeID());
+                //Caso em que nao se usa chaves (Ou sao comparados dois valores apenas, ou sao comparados valores com scalars)
                 for (int i = 0; i < leftValues.size(); i++) {
                     //Caso o da eaquerda seja null, usar o default
                     leftValue = leftValues.get(i);
@@ -527,8 +527,8 @@ public class ValidationOperators {
                         parentResult.setDomain(domainBuilder.binaryOperationDomainBuilder(leftValue, rightValue));
                         resultsToParent.add(parentResult);
                     } else {
-                        LOG.log(Level.SEVERE,"Ocorreu um erro num dos applyOperations, no nó " + parent.getNode().getNodeID());
-//                        Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritméticas com erros.", null, null, "Erro");
+                        LOG.log(Level.SEVERE,"Ocorreu um erro num dos applyOperations, no No " + parent.getNode().getNodeID());
+//                        Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritmeticas com erros.", null, null, "Erro");
                     }
                 }
             }
@@ -542,14 +542,14 @@ public class ValidationOperators {
             return true;
 
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritméticas com erros.", null, null, "Erro");
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
+//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritmeticas com erros.", null, null, "Erro");
         }
 
         return false;
     }
 
-    //Aplicacao das operacoes numéricas sobre os valores enviados como parâmetros
+    //Aplicacao das operacoes numericas sobre os valores enviados como parâmetros
     private static ValResult applyNumericOperations(ValNode parent, ValNode leftNode, ValNode rightNode, ValResult leftValue, ValResult rightValue) {
         BigDecimal leftMargin = null;
         BigDecimal rightMargin = null;
@@ -562,16 +562,16 @@ public class ValidationOperators {
         String marginsLog = null;
         
         try {
-            LOG.info("Aplicacao de uma operacao aritmética, no nó " + parent.getNode().getNodeID());
+            LOG.info("Aplicacao de uma operacao aritmetica, no No " + parent.getNode().getNodeID());
             precisionOfDivision = Integer.valueOf(Info.getInstance().getConfigValueByKey(Constants.PRECISIONOFDIVISION));
 
-            //Caso sejam diferentes de nulo, constrói o big decimal com o valor, senão mantém a nulo
+            //Caso sejam diferentes de nulo, constroi o big decimal com o valor, senao mantem a nulo
             BigDecimal left = (leftValue == null) ? null : (leftValue.getRawValue() == null) ? null : new BigDecimal(leftValue.getRawValue());
             BigDecimal right = (rightValue.getRawValue() == null) ? null : new BigDecimal(rightValue.getRawValue());
 
             //Caso algum seja nulo, o resultado deve ser nulo
             if (left == null || right == null) {
-                LOG.info("Valor esquerdo ou direito vêem a null, no nó " + parent.getNode().getNodeID());
+                LOG.info("Valor esquerdo ou direito veem a null, no No " + parent.getNode().getNodeID());
                 
                 keyToUse = OperationsUtils.buildSharedKey(leftValue, rightValue);
                 parentResult = new ValResult(keyToUse, null);
@@ -584,7 +584,7 @@ public class ValidationOperators {
                 //Caso seja para utilizar margem de erro
                 isToUseIntervals = OperationsUtils.isToUseMargin(leftNode, leftValue) || OperationsUtils.isToUseMargin(rightNode, rightValue);
                 if (isToUseIntervals) {
-                    LOG.info("Utilizada a margem, no nó " + parent.getNode().getNodeID());
+                    LOG.info("Utilizada a margem, no No " + parent.getNode().getNodeID());
                     
                     BigDecimal fixMargin = new BigDecimal(Info.getInstance().getConfigValueByKey(Constants.TOLERANCE));
 
@@ -636,14 +636,14 @@ public class ValidationOperators {
                     try {
                         //Faz a operacao
                         if (right == BigDecimal.ZERO) {
-                            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID());
-//                            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacao de divisão com zero no denominador.", null, null, "Erro");
+                            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID());
+//                            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacao de divisao com zero no denominador.", null, null, "Erro");
                         } else {
                             valueParentResult = new ValValue(OperationsUtils.getDataTypeByID(Constants.DECIMAL), left.divide(right, precisionOfDivision, RoundingMode.HALF_UP).toPlainString());
                         }
                     } catch (Exception e) {
-                        LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-//                        Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacao de divisão com erros.", null, null, "Erro");
+                        LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
+//                        Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacao de divisao com erros.", null, null, "Erro");
                     }
 
                     break;
@@ -672,7 +672,7 @@ public class ValidationOperators {
                     throw new AssertionError();
             }
 
-            //constrói a chave
+            //constroi a chave
             keyToUse = OperationsUtils.buildSharedKey(leftValue, rightValue);
             //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, marginsLog, (keyToUse != null) ? keyToUse.toString() : null, "Operacao");
 
@@ -680,8 +680,8 @@ public class ValidationOperators {
             parentResult = new ValResult(keyToUse, valueParentResult, finalMargin);
             return parentResult;
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritméticas com erros.", null, null, "Erro");
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
+//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes aritmeticas com erros.", null, null, "Erro");
         }
 
         return null;
@@ -705,13 +705,13 @@ public class ValidationOperators {
         String marginLog = "";
 
         try {
-            LOG.info("Aplicacao de uma operacao de comparacao, no nó " + parent.getNode().getNodeID());
+            LOG.info("Aplicacao de uma operacao de comparacao, no No " + parent.getNode().getNodeID());
             
             leftIsScalar = leftNode.getNode().getScalar() != null;
             rightIsScalar = rightNode.getNode().getScalar() != null;
 
             if (leftValue.getResult() == null || leftValue.valueIsNull() || rightValue.getResult() == null || rightValue.valueIsNull()) {
-                LOG.info("Valor esquerdo ou direito vêem a null, no nó " + parent.getNode().getNodeID());
+                LOG.info("Valor esquerdo ou direito veem a null, no No " + parent.getNode().getNodeID());
                 
                 keyToUse = OperationsUtils.buildSharedKey(leftValue, rightValue);
                 parentResult = new ValResult(keyToUse, null);
@@ -733,7 +733,7 @@ public class ValidationOperators {
                                 (leftValue.getMargin() != null && leftValue.getMargin() != BigDecimal.ZERO) ||
                                 (rightValue.getMargin() != null && rightValue.getMargin() != BigDecimal.ZERO);
             if (isToUseIntervals) {
-                LOG.info("Utilizada a margem, no nó " + parent.getNode().getNodeID());
+                LOG.info("Utilizada a margem, no No " + parent.getNode().getNodeID());
                 
                 leftMargin = OperationsUtils.setMarginValue(leftNode, leftValue);
                 rightMargin = OperationsUtils.setMarginValue(rightNode, rightValue);
@@ -746,7 +746,7 @@ public class ValidationOperators {
             ComparisonStrategy strategy = ComparisonStrategyFactory.getStrategy(valuesDataType.getDataTypeId(), parent.getNode().getOperator().getOperatorID());
             parentResult = strategy.compare(left, right, isToUseIntervals, leftMargin, rightMargin);
 
-            //constrói a chave
+            //constroi a chave
             keyToUse = OperationsUtils.buildSharedKey(leftValue, rightValue);
             //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, marginLog, (keyToUse != null) ? keyToUse.toString() : null, "Operacao");
             
@@ -754,14 +754,14 @@ public class ValidationOperators {
             parentResult.setKey(keyToUse);
             return parentResult;
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes de comparacao com erros.", null, null, "Erro");
         }
 
         return null;
     }
 
-    //Aplicacao das operacoes de lógicas sobre os valores enviados como parâmetros
+    //Aplicacao das operacoes de logicas sobre os valores enviados como parâmetros
     private static ValResult applyLogicalOperations(ValNode parent, ValNode leftNode, ValNode rightNode, ValResult leftValue, ValResult rightValue) {
         Boolean left = null;
         Boolean right = null;
@@ -772,10 +772,10 @@ public class ValidationOperators {
         String resultLog = "";
 
         try {
-            LOG.info("Aplicacao de uma operacao lógica, no nó " + parent.getNode().getNodeID());
+            LOG.info("Aplicacao de uma operacao logica, no No " + parent.getNode().getNodeID());
             
             if (leftValue.getResult() == null || leftValue.valueIsNull() || rightValue.getResult() == null || rightValue.valueIsNull()) {
-                LOG.info("Valor esquerdo ou direito vêem a null, no nó " + parent.getNode().getNodeID());
+                LOG.info("Valor esquerdo ou direito veem a null, no No " + parent.getNode().getNodeID());
                 
                 keyToUse = OperationsUtils.buildSharedKey(leftValue, rightValue);
                 parentResult = new ValResult(keyToUse, null);
@@ -796,7 +796,7 @@ public class ValidationOperators {
 
             valueParentResult = new ValValue(OperationsUtils.getDataTypeByID(Constants.BOOLEAN), (result != null) ? result.toString() : null);
 
-            //constrói a chave
+            //constroi a chave
             keyToUse = OperationsUtils.buildSharedKey(leftValue, rightValue);
             //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, (keyToUse != null) ? keyToUse.toString() : null, "Operacao");
             
@@ -804,8 +804,8 @@ public class ValidationOperators {
             parentResult = new ValResult(keyToUse, valueParentResult);
             return parentResult;
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes de lógica com erros.", null, null, "Erro");
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
+//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes de logica com erros.", null, null, "Erro");
         }
 
         return null;
@@ -819,7 +819,7 @@ public class ValidationOperators {
         Boolean result = null;
         
         try {
-            LOG.info("Aplicacao de uma operacao booleana individual, no nó " + parent.getNode().getNodeID());
+            LOG.info("Aplicacao de uma operacao booleana individual, no No " + parent.getNode().getNodeID());
             
             operand = operandValue.getRawValue();
 
@@ -834,28 +834,28 @@ public class ValidationOperators {
             return parentResult;
         
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes booleanos individuais com erros.", null, null, "Erro");
         }
 
         return null;
     }
 
-    //Aplicacao das operacoes sobre operandos individuais que retornam numéricos
+    //Aplicacao das operacoes sobre operandos individuais que retornam numericos
     private static ValResult applyIndividualNumericOperation(ValNode parent, ValResult operandValue, ValKey keyToUse) {
         String resultLog = "";
         ValValue valueParentResult = new ValValue();
 
         try {
-            LOG.info("Aplicacao de uma operacao numérica individual, no nó " + parent.getNode().getNodeID());
+            LOG.info("Aplicacao de uma operacao numerica individual, no No " + parent.getNode().getNodeID());
             
-            //Caso sejam diferentes de nulo, constrói o big decimal com o valor, senão mantém a nulo
+            //Caso sejam diferentes de nulo, constroi o big decimal com o valor, senao mantem a nulo
             BigDecimal operand = (operandValue.getRawValue() == null) ? null : new BigDecimal(operandValue.getRawValue());
 
             //Caso algum seja nulo, o resultado deve ser nulo
             resultLog = parent.getNode().getOperator().getSymbol() + " " +operand;
             if (operand == null) {
-                LOG.info("Operando a null', no nó " + parent.getNode().getNodeID());
+                LOG.info("Operando a null', no No " + parent.getNode().getNodeID());
                 //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, (keyToUse != null) ? keyToUse.toString() : null, "Operacao");
                 return new ValResult(keyToUse, null);
             }
@@ -889,8 +889,8 @@ public class ValidationOperators {
             //adiciona o resultado ao pai
             return new ValResult(keyToUse, valueParentResult);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
-//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes numéricas individuais com erros.", null, null, "Erro");
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
+//            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacoes numericas individuais com erros.", null, null, "Erro");
         }
 
         return null;
@@ -916,7 +916,7 @@ public class ValidationOperators {
                 return parentResult;
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Avaliacao dos casos nas operacoes de agrupamento com erros.", null, null, "Erro");
         }
 
@@ -936,7 +936,7 @@ public class ValidationOperators {
 
         try {
             if (conditionChild != null) {
-                LOG.info("Execucao de um 'Where', no nó " + parent.getNode().getNodeID());
+                LOG.info("Execucao de um 'Where', no No " + parent.getNode().getNodeID());
                 
                 conditionOperatorID = conditionChild.getNode().getOperator().getOperatorID();
 
@@ -954,13 +954,13 @@ public class ValidationOperators {
                         respectFilter = false;
                         operandResults = operandChild.getResults();
 
-                        //vai verificar se os filhos respeitam ou não as condicoes
+                        //vai verificar se os filhos respeitam ou nao as condicoes
                         for (ValResult operand : operandResults) {
                             if (operand != null) {
                                 if(operand.valueIsNull()){
                                     operand = OperationsUtils.applyDefaultValue(operandChild, operand, operand.getDomain());
                                 }
-                                //resultLog = "Operando: " + operand.getRawValue() + " | Condicoes resultantes do nó: " + conditionChild.getNode().getNodeID();
+                                //resultLog = "Operando: " + operand.getRawValue() + " | Condicoes resultantes do No: " + conditionChild.getNode().getNodeID();
                                 //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, operand.getKey() != null ? operand.getKey().toString() : null, "Operacao");
 
                                 WhereStrategy strategy = AggregatorStrategyFactory.getStrategy(conditionOperatorID);
@@ -987,14 +987,14 @@ public class ValidationOperators {
                         return true;
                     }
                 }
-                LOG.log(Level.SEVERE,"O nó que trazia as condicoes ou os operandos do operador 'Where' vêem vazios, no nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"O No que trazia as condicoes ou os operandos do operador 'Where' veem vazios, no No " + parent.getNode().getNodeID());
                 return false;
             } else {
-                LOG.log(Level.SEVERE,"O nó que trazia as condicoes do operador 'Where' vem null, no nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"O No que trazia as condicoes do operador 'Where' vem null, no No " + parent.getNode().getNodeID());
                 return false;
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Where', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Where', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Where com erros.", null, null, "Erro");
         }
 
@@ -1010,8 +1010,8 @@ public class ValidationOperators {
         String property = "";
 
         try {
-            //Vai percorrer os filhos que contém as propriedades pela qual deve agrupar os valores
-            LOG.info("Execucao de um 'Group By', no nó " + parent.getNode().getNodeID());
+            //Vai percorrer os filhos que contem as propriedades pela qual deve agrupar os valores
+            LOG.info("Execucao de um 'Group By', no No " + parent.getNode().getNodeID());
             if (childs != null && !childs.isEmpty()) {
                 for (ValNode child : childs) {
                     if (child.getResults() != null && !child.getResults().isEmpty()) {
@@ -1045,12 +1045,12 @@ public class ValidationOperators {
                 return true;
             }
 
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Group By', no nó " + parent.getNode().getNodeID());
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Group By', no No " + parent.getNode().getNodeID());
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Group By sem filhos para agrupar.", null, null, "Erro");
             
             return false;
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Group By', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Group By', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Group By com erros.", null, null, "Erro");
         }
 
@@ -1087,13 +1087,13 @@ public class ValidationOperators {
                 elseNodeId = elseChild.getNode().getNodeID();
             }
             
-            //avalia se é para usar chaves
+            //avalia se e para usar chaves
             isToUseKeys = OperationsUtils.isToUseKeys(conditionChild);
             if(isToUseKeys){
-                LOG.info("Execucao de um 'If Then Else' com chaves, no nó " + parent.getNode().getNodeID());
+                LOG.info("Execucao de um 'If Then Else' com chaves, no No " + parent.getNode().getNodeID());
                 
                 for (ValResult ifResultFromResults : ifResults) {
-                    //obtém os resultados
+                    //obtem os resultados
                     ifResult = ifResultFromResults;
                     ValKey resultKey = ifResult.getKey();
 
@@ -1110,9 +1110,9 @@ public class ValidationOperators {
                     //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, (resultKey != null) ? resultKey.toString() : null, "Operacao");
                 }
             } else {
-                LOG.info("Execucao de um 'If Then Else' sem chaves, no nó " + parent.getNode().getNodeID());
+                LOG.info("Execucao de um 'If Then Else' sem chaves, no No " + parent.getNode().getNodeID());
                 
-                //obtém os resultados
+                //obtem os resultados
                 ifResult = (!ifResults.isEmpty()) ? ifResults.get(Constants.FIRSTRESULT) : null;
                 thenResult = (!thenResults.isEmpty()) ? thenResults.get(Constants.FIRSTRESULT) : null;
                 elseResult = (!elseResults.isEmpty()) ? elseResults.get(Constants.FIRSTRESULT) : null;
@@ -1131,11 +1131,11 @@ public class ValidationOperators {
                 parent.setResults(parentResults);
                 return true;
             } else {
-                LOG.log(Level.SEVERE,"Não foi encontrados resultados para acrescentar no pai, no operador 'If Then Else', no nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"Nao foi encontrados resultados para acrescentar no pai, no operador 'If Then Else', no No " + parent.getNode().getNodeID());
                 return false;
             }
         } catch (Exception e){
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'If Then Else', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'If Then Else', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "If then else com erros.", null, null, "Erro");
         }
         return false;
@@ -1186,14 +1186,14 @@ public class ValidationOperators {
                     //DEU UM ERRO
                     return false;
                 } else if (OperationsUtils.isToUseKeys(selectionChild, conditionChild)) {
-                    LOG.info("Agrupamento de dados para operador 'Filter', usando lógica da 'innerJoin' no nó " + parent.getNode().getNodeID());
+                    LOG.info("Agrupamento de dados para operador 'Filter', usando logica da 'innerJoin' no No " + parent.getNode().getNodeID());
 
                     ValKey innerJoinKey = OperationsUtils.defineInnerJoinKeys(selectionResults, conditionResults);
 
                     if (innerJoinKey == null || innerJoinKey.hasKeysPropertiesIndexsNull()) {
-                        LOG.log(Level.SEVERE,"Não foi encontrada uma 'inner key', no nó " + parent.getNode().getNodeID());
+                        LOG.log(Level.SEVERE,"Nao foi encontrada uma 'inner key', no No " + parent.getNode().getNodeID());
 //                        Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacao 'Filter' com erros.", null, null, "Erro");
-                        Info.getInstance().getValidationsLogs().add(new LogValidationProcess("Estão em falta valores importados para a operacao " + parent.getNode().getOperationVersion().getOperation().getCode() + ".", LocalDateTime.MAX));
+                        Info.getInstance().getValidationsLogs().add(new LogValidationProcess("Estao em falta valores importados para a operacao " + parent.getNode().getOperationVersion().getOperation().getCode() + ".", LocalDateTime.MAX));
                         return false;
                     }
 
@@ -1204,7 +1204,7 @@ public class ValidationOperators {
                 }
                 
                 if (groupedValues.isEmpty()) {
-                    LOG.log(Level.SEVERE,"Não conseguiu agrupar os valores, no nó " + parent.getNode().getNodeID());
+                    LOG.log(Level.SEVERE,"Nao conseguiu agrupar os valores, no No " + parent.getNode().getNodeID());
 //                    Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Operacao 'Filter' com erros.", null, null, "Erro");
                     return false;
                 }
@@ -1240,7 +1240,7 @@ public class ValidationOperators {
                             }
                         }
                     } else {
-                        LOG.log(Level.SEVERE,"No operador 'Filter' algum valor tem mais que uma condicao, no nó " + parent.getNode().getNodeID());
+                        LOG.log(Level.SEVERE,"No operador 'Filter' algum valor tem mais que uma condicao, no No " + parent.getNode().getNodeID());
 //                        Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Filter com erros.", null, null, "Erro");
                         return false;
                     }
@@ -1259,11 +1259,11 @@ public class ValidationOperators {
                 parent.setResults(parentResults);
                 return true;
             } else {
-                LOG.log(Level.SEVERE,"No operador 'Filter' os valores ou as condicoes vem a null ou vazios, no nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"No operador 'Filter' os valores ou as condicoes vem a null ou vazios, no No " + parent.getNode().getNodeID());
 //                Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Filter com erros.", null, null, "Erro");
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Filter', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Filter', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Filter com erros.", null, null, "Erro");
         }
 
@@ -1280,11 +1280,11 @@ public class ValidationOperators {
         
         try {
             if(OperationsUtils.isChildOfWhere(parent)){
-                LOG.info("Caso em que é filho de um where encontrado, no nó " + parent.getNode().getNodeID());
+                LOG.info("Caso em que e filho de um where encontrado, no No " + parent.getNode().getNodeID());
                 return OperationsUtils.applyChildWhereLogic(parent, operandChild, setChild);
             }
             
-            LOG.info("Apliacao de operacao 'Element Of' no nó " + parent.getNode().getNodeID());
+            LOG.info("Apliacao de operacao 'Element Of' no No " + parent.getNode().getNodeID());
             
             if (operandChild != null && operandChild.getResults() != null && !operandChild.getResults().isEmpty()) {
                 operandResults = operandChild.getResults();
@@ -1317,11 +1317,11 @@ public class ValidationOperators {
                 parent.setResults(parentResults);
                 return true;
             } else {
-                LOG.log(Level.SEVERE,"No operador 'Element Of' os valores importados ou os possíveis vem a null ou vazios, no nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"No operador 'Element Of' os valores importados ou os possíveis vem a null ou vazios, no No " + parent.getNode().getNodeID());
 //                Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Element Of com erros.", null, null, "Erro");
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Element Of', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Element Of', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Element Of com erros.", null, null, "Erro");
         }
 
@@ -1370,11 +1370,11 @@ public class ValidationOperators {
                 parent.setResults(parentResults);
                 return true;
             } else {
-                LOG.log(Level.SEVERE,"No operador 'Match' os valores ou o padrão vem a null ou vazios, no nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"No operador 'Match' os valores ou o padrao vem a null ou vazios, no No " + parent.getNode().getNodeID());
 //                Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Match com erros.", null, null, "Erro");
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Match', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Match', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Match com erros.", null, null, "Erro");
         }
         
@@ -1421,11 +1421,11 @@ public class ValidationOperators {
                 return true;
 
             } else {
-                LOG.log(Level.SEVERE,"No operador 'Get' os valores ou o component vem a null ou vazios, no nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"No operador 'Get' os valores ou o component vem a null ou vazios, no No " + parent.getNode().getNodeID());
 //                Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Get com erros.", null, null, "Erro");
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Get', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Get', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Get com erros.", null, null, "Erro");
         }
         
@@ -1507,19 +1507,19 @@ public class ValidationOperators {
                         parent.setResults(parentResults);
                         return true;
                     } else {
-                        LOG.log(Level.SEVERE,"No operador 'Timeshift' não encontrou resultados para o pai, no nó " + parent.getNode().getNodeID());
+                        LOG.log(Level.SEVERE,"No operador 'Timeshift' nao encontrou resultados para o pai, no No " + parent.getNode().getNodeID());
 //                        Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Time shift com erros.", null, null, "Erro");
                     }
                 } else {
-                    LOG.log(Level.SEVERE,"No operador 'Timeshift' a dimension é desconhecida, no nó " + parent.getNode().getNodeID());
+                    LOG.log(Level.SEVERE,"No operador 'Timeshift' a dimension e desconhecida, no No " + parent.getNode().getNodeID());
 //                    Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Time shift com erros.", null, null, "Erro");
                 }
             } else {
-                LOG.log(Level.SEVERE,"No operador 'Timeshift' os valores ou os parametros vem a null ou vazios, no nó " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE,"No operador 'Timeshift' os valores ou os parametros vem a null ou vazios, no No " + parent.getNode().getNodeID());
 //                Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Time shift com erros.", null, null, "Erro");
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Time shift', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Time shift', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Time shift com erros.", null, null, "Erro");
         }
         
@@ -1546,11 +1546,11 @@ public class ValidationOperators {
 
                 return true;
             } else {
-                LOG.log(Level.SEVERE,"No operador 'Parenthesis' o nó " + parent.getNode().getNodeID() + " vem a null");
+                LOG.log(Level.SEVERE,"No operador 'Parenthesis' o No " + parent.getNode().getNodeID() + " vem a null");
 //                Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Parenthesis com erros.", null, null, "Erro");
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Parenthesis', no nó " + parent.getNode().getNodeID() + " | ", e);
+            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'Parenthesis', no No " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "Parenthesis com erros.", null, null, "Erro");
         }
 

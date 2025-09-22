@@ -23,11 +23,16 @@ with preconditionReferences as (
 , tablesImported as (
     select max(it.importedtableid) importedtableid, it.tablevid, it.importkeyid, it.variablevid
     from importedTabledFiltered itF
-    inner join  in_importedtablestemp it on itF.tablevid = it.tablevid
-    where it.io_stateid = 1
+    inner join in_importedtablestemp it on itF.tablevid = it.tablevid
     group by it.tablevid, it.importKeyId, it.variablevid
 )
 
+, tablesImportedOk as (
+    select ti.* 
+    from tablesImported ti
+    inner join in_importedtablestemp it on it.importedtableid = ti.importedtableid
+    where it.io_stateid = 1
+)
 
 , nodeValues as (
     select opr.nodeid, opr.variablevid, CASE WHEN ti.variablevid IS NOT NULL THEN 'true' ELSE 'false' END as existsInTablesImported

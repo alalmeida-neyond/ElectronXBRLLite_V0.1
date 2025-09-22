@@ -33,7 +33,7 @@ import com.example.demo.controller.Objects.Import.InFileHistory;
 
 
 
-public abstract class DefaultBean {
+public abstract class DefaultBean<T> {
 
     private final Logger LOG = Logger.getLogger(DefaultBean.class);
 

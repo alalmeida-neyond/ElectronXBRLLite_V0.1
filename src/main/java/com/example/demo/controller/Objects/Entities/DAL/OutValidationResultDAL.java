@@ -95,7 +95,7 @@ public class OutValidationResultDAL {
         try {
             listOfResultstemp = jpa.getNativeResultList(Utils.getResource("SQL_Queries/GetValidationsResultsDetailsForGenDownload.sql"),
                 "stateOk", Constants.processoOk,
-                "ioId", String.valueOf(ioIdValidate.getIoId()),
+                "ioid", String.valueOf(ioIdValidate.getIoId()),
                 "typeStateOk", Constants.tipoStateOK,                   
                 "actionValidateId", Constants.actionValidation);
 

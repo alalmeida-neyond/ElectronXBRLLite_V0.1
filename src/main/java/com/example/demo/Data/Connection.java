@@ -59,6 +59,7 @@ public final class Connection {
             em.reset();
             if (processException) {
                 System.out.println(e.getCause());
+                e.printStackTrace();
                 return false;
             } else {
                 throw e;

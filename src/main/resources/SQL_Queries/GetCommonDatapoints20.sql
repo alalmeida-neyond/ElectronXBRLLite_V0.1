@@ -18,25 +18,33 @@ with tableVIDThatCanCross as (
 	where it.ioid = :ioId
 )
 , allValidTables as (
-    Select max(it.importedTableID) as importedTableID, it.TableVID,tv.code as MapCode,GROUP_CONCAT(ka.PropertyValue, '|') AS desagregationcodeAlt
-    from allImportedTables it
-    inner join TableVersion tv on tv.TableVID = it.TableVID and tv.tableid <> :tableID
-    inner join tableVIDThatCanCross tvcc on tv.TableVID = tvcc.TableVID
-    left join IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
-    where it.TableVID <> :tableVID 
-    group by it.importedTableID,it.TableVID,tv.code
+    select max(importedTableID) as importedTableID, TableVID, MapCode, desagregationcodeAlt
+    from (
+        Select it.importedTableID as importedTableID, it.TableVID,tv.code as MapCode,GROUP_CONCAT(ka.PropertyValue, '|' ORDER BY ka.propertyName) AS desagregationcodeAlt
+		from allImportedTables it
+		inner join TableVersion tv on tv.TableVID = it.TableVID and tv.tableid <> :tableID
+		inner join tableVIDThatCanCross tvcc on tv.TableVID = tvcc.TableVID
+		left join IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
+		where it.TableVID <> :tableVID 
+		group by it.importedTableID,it.TableVID,tv.code
+	) results
+    group by TableVID, MapCode, desagregationcodeAlt
 )
 , validCurrentTable as (
-    Select max(it.importedTableID) as importedTableID, it.TableVID,tv.code as MapCode,GROUP_CONCAT(ka.PropertyValue, '|') AS desagregationcodeAlt
-    from allImportedTables it
-    inner join TableVersion tv on tv.TableVID = it.TableVID and tv.tableid = :tableID
-    left join IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
-    where it.TableVID = :tableVID 
-    group by it.importedTableID,it.TableVID,tv.code
+    select max(importedTableID) as importedTableID, TableVID, MapCode, desagregationcodeAlt
+	from (
+        Select it.importedTableID as importedTableID, it.TableVID,tv.code as MapCode,GROUP_CONCAT(ka.PropertyValue, '|' ORDER BY ka.propertyName) AS desagregationcodeAlt
+		from allImportedTables it
+		inner join TableVersion tv on tv.TableVID = it.TableVID and tv.tableid = :tableID
+		left join IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
+		where it.TableVID = :tableVID 
+		group by it.importedTableID,it.TableVID,tv.code
+	) results 
+    group by TableVID, MapCode, desagregationcodeAlt
 )
 ,importedCurrentValues as (
     Select it.MapCode, cel.cellID,cel."RowID",cel.columnID,cel.sheetID,
-            it.tableVID,iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID ,GROUP_CONCAT(ka.PropertyValue, '|') AS rowKeyAlt,it.desagregationcodeAlt
+            it.tableVID,iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID ,GROUP_CONCAT(ka.PropertyValue, '|' ORDER BY ka.propertyName) AS rowKeyAlt,it.desagregationcodeAlt
     from IN_ImportedValuesTemp iv
     inner join validCurrentTable it  on iv.IMPORTEDTABLEID = it.importedTableID
     inner join variableVIDThatCanCross vv on vv.variablevid = iv.VARIABLEVID
@@ -49,7 +57,7 @@ with tableVIDThatCanCross as (
         it.tableVID,iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID,it.desagregationcodeAlt
 )
 ,otherTableValues as (
-    Select vt.mapCode, cel.cellID,cel."RowID",cel.columnID,cel.sheetID,vt.tableVID, iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID ,vt.desagregationcodeAlt, GROUP_CONCAT(ka.PropertyValue, '|') AS rowKeyAlt
+    Select vt.mapCode, cel.cellID,cel."RowID",cel.columnID,cel.sheetID,vt.tableVID, iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID ,vt.desagregationcodeAlt, GROUP_CONCAT(ka.PropertyValue, '|' ORDER BY ka.propertyName) AS rowKeyAlt
     from IN_ImportedValuesTemp iv
     inner join allValidTables vt on iv.IMPORTEDTABLEID = vt.importedTableID
     inner join variableVIDThatCanCross vv on vv.variablevid = iv.VARIABLEVID

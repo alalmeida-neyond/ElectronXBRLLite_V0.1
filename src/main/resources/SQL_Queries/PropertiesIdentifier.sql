@@ -20,7 +20,7 @@ with tableColumns as (
     left join release sr on sr.releaseid = ic.startreleaseid
     left join release er on er.releaseid = ic.endreleaseid
     where h.iskey = 1 and i.isactive = 1
-        and (sr."Date" <= :referenceDate and (er."Date" >= :referenceDate or er.releaseid is null))
+        and (sr."Date" <= strftime(:format, :referenceDate) and (er."Date" >= strftime(:format, :referenceDate) or er.releaseid is null))
 )
 
 select *
