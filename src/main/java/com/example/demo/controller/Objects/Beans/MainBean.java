@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.demo.DTOs.ConfTemplateSpecsDTO;
 import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
@@ -12,6 +13,8 @@ import com.example.demo.Verification.LicenseVerification;
 import com.example.demo.controller.Objects.Entities.Conf.ConfAppConfigs;
 import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.Conf.ConfImportRules;
+import com.example.demo.controller.Objects.Entities.Conf.ConfTemplate;
+import com.example.demo.controller.Objects.Entities.DAL.ConfTemplateDAL;
 import com.example.demo.controller.Objects.Entities.DAL.IODAL;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.IO.IO;
@@ -26,13 +29,19 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 
 import java.io.*;
@@ -378,7 +387,6 @@ public class MainBean extends DefaultBean{
                 .toString();
     }
 
-    // Metodo modificado para Thymeleaf
     @GetMapping("/download")
     public ResponseEntity<?> downloadFile(String filename) {
         List<ConfAppConfigs> configs = new ArrayList<>();
@@ -522,6 +530,81 @@ public class MainBean extends DefaultBean{
         return modelAndView;
     }
 
+    @GetMapping("/templates")
+    public ModelAndView templates(@RequestParam(required = false) Integer moduleVid,@RequestParam(required = false) Integer year,@RequestParam(required = false) Integer month, @RequestParam(required = false) String version) {
+        ModelAndView modelAndView = new ModelAndView();
+        List<ConfTemplate> listOfTemplates;
+
+        String referenceDate = null;
+        LocalDate dateaux = null;
+        if (year != null && month != null) {
+            referenceDate = getDateAtLastDayFormatted(getYear(), getMonth());
+            dateaux = LocalDate.parse(referenceDate,Constants.dateFormat);
+        }
+        listOfTemplates = ConfTemplateDAL.getTemplates(moduleVid != null ? moduleVid + "":null, dateaux, version != null ? version + "":null);
+
+        modelAndView.addObject("currentModuleVid", moduleVid);
+        modelAndView.addObject("currentYear", year);
+        modelAndView.addObject("currentMonth", month);
+        modelAndView.addObject("currentVersion", version);
+
+        modelAndView.addObject("templateList", listOfTemplates);
+            
+        return modelAndView;
+    }
+    @PostMapping("/templates/download")
+    public ResponseEntity<Map<String,Object>> downloadByFilename(
+            @RequestParam("filename") String filename) {
+        Map<String,Object> body = new HashMap<>();
+        try {
+            if (filename == null || filename.isBlank()) {
+                body.put("ok", false);
+                body.put("message", "Nome do ficheiro em falta.");
+                return ResponseEntity.badRequest().body(body);
+            }
+
+            String safeName = Paths.get(filename).getFileName().toString();
+
+            Path sourceBase = Paths.get("AdditionalFiles").toAbsolutePath().normalize();
+            Path source = sourceBase.resolve(safeName).normalize();
+
+            if (!source.startsWith(sourceBase)) {
+                body.put("ok", false);
+                body.put("message", "Nome de ficheiro inválido.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+            }
+
+            if (!Files.exists(source) || !Files.isRegularFile(source)) {
+                body.put("ok", false);
+                body.put("message", "Ficheiro não encontrado em AdditionalFiles.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+            }
+
+            String destDir = getStoredPathOrFallback();
+            Path destBase = Paths.get(destDir).toAbsolutePath().normalize();
+            Files.createDirectories(destBase);
+
+            Path dest = destBase.resolve(safeName).normalize();
+            if (!dest.startsWith(destBase)) {
+                body.put("ok", false);
+                body.put("message", "Destino inválido.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+            }
+
+            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+
+            body.put("ok", true);
+            body.put("message", "Ficheiro copiado para: " + dest.toAbsolutePath());
+            return ResponseEntity.ok(body);
+
+        } catch (Exception ex) {
+            Map<String,Object> err = new HashMap<>();
+            err.put("ok", false);
+            err.put("message", "Erro ao copiar o ficheiro.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+        }
+    }
+
     private String getStoredPathOrFallback() {
         try {
             Path filePath = Paths.get("path.dat");
@@ -636,6 +719,14 @@ public class MainBean extends DefaultBean{
         List<String> validationResults = new ArrayList<String>();
         validationResults = validationService.getModules();
         return validationResults;
+    }
+
+    @GetMapping("/importFile/versions")
+    @ResponseBody
+    public List<String> getVersionsPage() {
+        List<String> versions = new ArrayList<String>();
+        versions = getVersions();
+        return versions;
     }
 
 

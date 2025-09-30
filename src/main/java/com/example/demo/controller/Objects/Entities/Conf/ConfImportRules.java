@@ -3,8 +3,9 @@ package com.example.demo.controller.Objects.Entities.Conf;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.example.demo.Converter.LocalDateOracleStringConverter;
 import com.example.demo.Converter.LocalDatePersistenceConverter;
-import com.example.demo.Converter.LocalDateTimePersistenceConverter;
+import com.example.demo.Converter.LocalDateTimeOracleStringConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Immutable;
 
@@ -42,7 +43,8 @@ public class ConfImportRules {
     @JsonIgnore
     @Column(name = "CREATIONDATE")
     @NotNull
-    @Convert(converter = LocalDateTimePersistenceConverter.class)
+    //@Convert(converter = LocalDateTimePersistenceConverter.class)
+    @Convert(converter = LocalDateTimeOracleStringConverter.class)
     private LocalDateTime creationDate;
     
     @JsonIgnore
@@ -53,7 +55,8 @@ public class ConfImportRules {
     @JsonIgnore
     @Column(name = "FROMDATE")
     @NotNull
-    @Convert(converter = LocalDatePersistenceConverter.class)    
+    //@Convert(converter = LocalDatePersistenceConverter.class)    
+    @Convert(converter = LocalDateOracleStringConverter.class)
     private LocalDate fromdate;
     
     @JsonIgnore

@@ -502,6 +502,8 @@ public class Constants {
     
     public static String folderUrl = "https://blobstoragexbrl.blob.core.windows.net/xbrldatabaseblob/JSONs";
 
+    public static String folderTemplateUrl = "https://blobstoragexbrl.blob.core.windows.net/xbrldatabaseblob/Templates";
+
     public static String sourceFilePath = System.getProperty("user.dir") + File.separator + "/src/UNMANAGEDPROCESS.db";
     public static String targetFilePath = System.getProperty("user.dir") + File.separator + "UNMANAGEDPROCESS.db";
 

@@ -234,7 +234,7 @@ public abstract class DefaultBean<T> {
         this.resultList = resultList;
     }
     
-    public List<ConfEntities> getVersions() {
+    public List<String> getVersions() {
         return Info.getInstance().refDataGet(Constants.VersionsAll);
     }
 

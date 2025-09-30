@@ -84,6 +84,7 @@ public class Info {
             this.refData.put(Constants.ModuleVersionAll.toLowerCase(), em.createNamedQuery("ModuleVersion.findAll", ModuleVersion.class).getResultList());
         } catch (Exception e) {
             LOG.error("Erro na obtencao dos objetos ModuleVersion:" + e.getMessage());
+            e.printStackTrace();
         }
     }
 

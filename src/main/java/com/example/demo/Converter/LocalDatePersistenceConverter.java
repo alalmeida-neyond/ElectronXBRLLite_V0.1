@@ -4,9 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import jakarta.persistence.*;
 
-/**
- * Converter to provide Java 8 Date/Time API Support to JPA
- */
+
 @Converter
 public class LocalDatePersistenceConverter implements AttributeConverter<LocalDate, Timestamp> {
 

@@ -1,8 +1,0 @@
-{
-    "documentInfo": {
-        "documentType": "https://xbrl.org/2021/xbrl-csv",
-        "extends": [
-            "http://www.eba.europa.eu/eu/fr/xbrl/crr/fws/mrel/its-006-2020/2024-07-11/mod/mrel_tlac.json"
-        ]
-    }
-}

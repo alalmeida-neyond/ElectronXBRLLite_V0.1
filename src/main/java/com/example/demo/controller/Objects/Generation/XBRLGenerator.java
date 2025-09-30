@@ -314,7 +314,7 @@ public class XBRLGenerator implements Runnable {
             }
         }
 
-        String moduleVersionCodeSearchJSONUpperCase = moduleVersionCodeSearchJSON.toUpperCase();
+        /*String moduleVersionCodeSearchJSONUpperCase = moduleVersionCodeSearchJSON.toUpperCase();
         Path destinationFileSpecificOffline = pathDirectoryOffline.resolve(moduleVersionCodeSearchJSONUpperCase + ".json"); 
         Path destinationFileSpecific = Path.of(xbrlFolder).resolve("report.json");
 
@@ -363,7 +363,7 @@ public class XBRLGenerator implements Runnable {
                     exc.printStackTrace();
                 }
             }
-        }
+        }*/
         
     }
 
@@ -755,7 +755,7 @@ public class XBRLGenerator implements Runnable {
             writer.append(domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3).toUpperCase() : domain.toUpperCase());
             writer.append("\n");
             writer.append(Constants.PARAMETERSKEYREFERENCEDATE);
-            writer.append(getReferenceDate().toString()); //TODO: Normalize date
+            writer.append(getReferenceDate().toString()); 
             writer.append("\n");
             
             boolean isMonetaryAlreadyFound = false;

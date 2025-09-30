@@ -56,5 +56,31 @@ replay_pid*
 /server/jre/
 /build/win-unpacked/
 
+# Electron / builder outputs
+/build/
+/build-*/
+/build-out*/
+/win-unpacked/
+/dist/
+/out/
+/*.asar
+
+# Node
+/node_modules/
+/npm-debug.log*
+/yarn-error.log*
+
+# Java / Maven
+/target/
+/*.jar
+
+# IDEs
+/.idea/
+/.vscode/
+/*.iml
+.classpath
+.project
+.settings/
+
 
 

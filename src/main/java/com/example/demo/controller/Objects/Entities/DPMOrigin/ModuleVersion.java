@@ -27,7 +27,8 @@ public class ModuleVersion implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private ModuleDPM moduleDPM;
 
-    @JoinColumn(referencedColumnName = "KEYID", name = "GLOBALKEYID", insertable = false, updatable = false)
+    //@JoinColumn(referencedColumnName = "KEYID", name = "GLOBALKEYID", insertable = false, updatable = false)
+    @JoinColumn(referencedColumnName = "KEYID", name = "GLOBALKEYID")
     @ManyToOne(fetch = FetchType.LAZY)
     private CompoundKey globalKey;
 
@@ -59,11 +60,13 @@ public class ModuleVersion implements Serializable {
 
     @Column(name = "FROMREFERENCEDATE")
     @NotNull
-    @Convert(converter = LocalDatePersistenceConverter.class)
+    //@Convert(converter = LocalDatePersistenceConverter.class)
+    @Convert(converter = LocalDateStringConverter.class)
     private LocalDate fromReferenceDate;
 
     @Column(name = "TOREFERENCEDATE")
-    @Convert(converter = LocalDatePersistenceConverter.class)
+    //@Convert(converter = LocalDatePersistenceConverter.class)
+    @Convert(converter = LocalDateStringConverter.class)
     private LocalDate toReferenceDate;
 
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")

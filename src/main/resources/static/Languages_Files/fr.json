@@ -74,5 +74,15 @@
   "septemberSelect.label":"Septembre",
   "octoberSelect.label":"Octobre",
   "novemberSelect.label":"Novembre",
-  "decemberSelect.label":"Décembre"
+  "decemberSelect.label":"Décembre",
+  "filename.label": "Fichier",
+  "version.label": "Version",
+  "fromReferenceDate.label": "Date de Début",
+  "toReferenceDate.label": "Date de Fin",
+  "noFilesFound.label": "Aucun fichier trouvé, veuillez contacter Neyond pour résoudre cette situation",
+  "current.label": "Actuel",
+  "downloadMissingFile.label": "Fichier introuvable. Veuillez contacter Neyond pour résoudre cette situation",
+  "downloadFailedWithReason.label": "Échec de la copie du fichier. Veuillez contacter Neyond pour résoudre cette situation",
+  "downloadSuccess.label": "Fichier copié avec succès",
+  "networkError.label": "Erreur de communication avec le serveur. Veuillez contacter Neyond pour résoudre cette situation"
 }

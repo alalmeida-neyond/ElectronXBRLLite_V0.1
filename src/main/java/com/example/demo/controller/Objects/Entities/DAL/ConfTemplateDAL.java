@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jboss.logging.Logger;
+
 import com.example.demo.Data.ConnectionManager;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.Resources.Constants;
@@ -11,15 +13,19 @@ import com.example.demo.controller.Objects.Entities.Conf.ConfTemplate;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 
 public class ConfTemplateDAL {
+    
 
     public static List<ConfTemplate> getTemplates(String moduleID, LocalDate referenceDate, String version) {
-
+        final Logger LOG = Logger.getLogger(ConfTemplateDAL.class);
         JPA<ConfTemplate> jpa = new JPA<ConfTemplate>(ConfTemplate.class);
         List<ConfTemplate> result = new ArrayList();
 
         StringBuilder queryString = new StringBuilder("Select a.* from Conf_Template a ");
         queryString.append(" inner join moduleversion b on a.TemplateID = b.moduleVID ");
         queryString.append(" where 1=1 ");
+        LOG.info("ModuleID:" + moduleID);
+        LOG.info("Reference Date:" + referenceDate);
+        LOG.info("Version:" + version);
         if (moduleID != null) {
             queryString.append(" and b.moduleid = " + moduleID);
         }
@@ -32,9 +38,16 @@ public class ConfTemplateDAL {
             queryString.append(" and (b.TOREFERENCEDATE is null or b.TOREFERENCEDATE > strftime('YYYYMMDD'),"+referenceDate.format(Constants.dateFormat)+") ");
 
         }
-        queryString.append(" Order by TO_NUMBER(REGEXP_SUBSTR(b.VERSIONNUMBER, '^[0-9]+', 1, 1)) desc, ");
-        queryString.append(" TO_NUMBER(REGEXP_SUBSTR(b.VERSIONNUMBER, '[0-9]+', 1, 2)) desc, ");
-        queryString.append(" TO_NUMBER(REGEXP_SUBSTR(b.VERSIONNUMBER, '[0-9]+', 1, 3)) desc, b.code");
+        queryString.append(" ORDER BY CAST(substr(b.VERSIONNUMBER,1,CASE WHEN instr(b.VERSIONNUMBER,'.')=0 THEN length(b.VERSIONNUMBER) ELSE instr(b.VERSIONNUMBER,'.')-1 END)");
+        queryString.append("AS INTEGER) DESC, CAST(CASE WHEN instr(b.VERSIONNUMBER,'.')=0 THEN '0' ELSE substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1,");
+        queryString.append("CASE WHEN instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')=0 THEN length(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1))");
+        queryString.append("ELSE instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')-1 END) END AS INTEGER) DESC, CAST(CASE WHEN instr(b.VERSIONNUMBER,'.')=0");
+        queryString.append(" OR instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')=0 THEN '0' ELSE substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+");
+        queryString.append("instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')+1,CASE WHEN instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+");
+        queryString.append("instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')+1),'.')=0 THEN length(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+");
+        queryString.append("instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')+1)) ELSE instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+");
+        queryString.append("instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')+1),'.')-1 END) END AS INTEGER) DESC, b.code");
+        
 
         try {
 
