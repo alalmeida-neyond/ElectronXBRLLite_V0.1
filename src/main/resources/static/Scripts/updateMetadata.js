@@ -1,22 +1,22 @@
 function downloadMetadata(event) {
     event.preventDefault();
-    
-    var formData = new FormData(document.getElementById("metadataForm"));
-    let uploadButton = document.getElementById("uploadButtonMetadata");
+
+    const form = document.getElementById("metadataForm");
+    const formData = new FormData(form);
+
+    const uploadButton = document.getElementById("uploadButtonMetadata");
+    const loadingButton = document.getElementById("loadingButton");
+    const alertUpdate = document.getElementById("alert-success");
+
     uploadButton.style.display = "none";
-    
-    let loadingButton = document.getElementById("loadingButton");
     loadingButton.style.display = "inline-block";
-    
-    let alertUpdate = document.getElementById("alert-success");
-    
+
     fetch("/processMetaData", {
-        method: "POST"
+        method: "POST",
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
-        alert(data.message);
-        
         if (data.enabled) {
             uploadButton.style.display = "inline-block";
         }
@@ -45,34 +45,26 @@ function updateLanguageLabels(language) {
             document.querySelectorAll(".internationalization").forEach(element => {
                 const key = element.getAttribute("data-key");
                 let translation = data[key];
-                
+
                 const value = element.getAttribute("data-value");
-                if (value) {
+                if (value && typeof translation === "string") {
                     translation = translation.replace("{0}", value);
                 }
-                element.textContent = translation;
-                
-                if (translation) {
-                    if (element.tagName === "INPUT") {
-                        const type = element.getAttribute("type")?.toLowerCase();
-                        if (type === "submit") {
-                            element.value = translation;
-                        } else if (type === "button") {
-                            element.value = translation;
-                        } else {
-                            element.placeholder = translation;
-                        }
-                    } else if (element.tagName === "I") {
-                        element.title = translation;
+
+                if (!translation) return;
+
+                if (element.tagName === "INPUT") {
+                    const type = element.getAttribute("type")?.toLowerCase();
+                    if (type === "submit" || type === "button") {
+                        element.value = translation;
                     } else {
-                        const firstChild = element.firstChild;
-                        if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
-                            firstChild.nodeValue = translation + " ";
-                        } else {
-                            const textNode = document.createTextNode(translation + " ");
-                            element.insertBefore(textNode, element.firstChild);
-                        }
+                        element.placeholder = translation;
                     }
+                } else if (element.tagName === "I") {
+                    element.title = translation;
+                } else {
+                    // Set once; avoid duplicating text nodes
+                    element.textContent = translation;
                 }
             });
         })
@@ -81,16 +73,19 @@ function updateLanguageLabels(language) {
         });
 }
 
+// (legacy, still used by the <input webkitdirectory> fallback)
 function selectFolder() {
     const folderInput = document.getElementById('folderInput');
     const directoryDisplay = document.getElementById('directoryDisplay');
-    
+
     if (folderInput.files.length > 0) {
         const firstFile = folderInput.files[0];
         const folderPath = firstFile.webkitRelativePath.split('/')[0];
-        
-        directoryDisplay.innerHTML = `${folderPath}`;
-        directoryDisplay.style.display = 'block';
+
+        if (directoryDisplay) {
+            directoryDisplay.innerHTML = `${folderPath}`;
+            directoryDisplay.style.display = 'block';
+        }
     }
 }
 
@@ -98,31 +93,83 @@ function openFolderSelector() {
     document.getElementById('folderInput').click();
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-
+// Universal chooser that works in Electron and browsers
+async function chooseFolderAndPersist() {
     const folderPathTextarea = document.getElementById('folderPath');
-    const button = document.getElementById('chooseFolder');
 
-    button.addEventListener('click', async () => {
-      const folderPath = await window.api.selectFolder();
-      if (folderPath) {
-        folderPathTextarea.value = folderPath;
-      }
-    });
+    // A) Electron via preload bridge
+    if (window.api && typeof window.api.selectFolder === 'function') {
+        try {
+            const folderPath = await window.api.selectFolder();
+            if (folderPath) {
+                folderPathTextarea.value = folderPath;
+            }
+            return;
+        } catch (e) {
+            console.error('Electron selectFolder failed:', e);
+            // fallthrough to browser strategies
+        }
+    }
+
+    // B) Chromium browsers: File System Access API
+    if (typeof window.showDirectoryPicker === 'function') {
+        try {
+            const dirHandle = await window.showDirectoryPicker();
+
+            // Optional: write a small marker file into the chosen folder
+            try {
+                const fileHandle = await dirHandle.getFileHandle('path.dat', { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(`Selected at: ${new Date().toISOString()}\nFolder: ${dirHandle.name}\n`);
+                await writable.close();
+            } catch (writeErr) {
+                console.warn('Could not write path.dat (permission or user canceled):', writeErr);
+            }
+
+            // Browsers don’t expose absolute OS paths
+            folderPathTextarea.value = `[Browser] ${dirHandle.name}`;
+            return;
+        } catch (e) {
+            console.warn('Directory picker canceled or failed:', e);
+            // fallthrough to legacy
+        }
+    }
+
+    // C) Legacy fallback (Safari/Firefox): <input type="file" webkitdirectory>
+    const input = document.getElementById('folderInput'); // ensure it exists in HTML
+    input.onchange = () => {
+        if (!input.files || input.files.length === 0) return;
+        const first = input.files[0];
+        const top = (first.webkitRelativePath || '').split('/')[0] || '(folder)';
+        folderPathTextarea.value = `[Browser] ${top}`;
+    };
+    input.click();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const button = document.getElementById('chooseFolder');
+    if (button) {
+        // Always enabled; handler picks the right strategy at runtime
+        button.disabled = false;
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            chooseFolderAndPersist();
+        });
+    }
+
     const langSelect = document.getElementById("languageSelect");
-    
     if (langSelect) {
         langSelect.addEventListener("change", function () {
             const selectedLang = langSelect.value;
             updateLanguageLabels(selectedLang);
         });
-        
+
         const initialLang = langSelect.value || "pt";
         updateLanguageLabels(initialLang);
     } else {
         console.warn("Elemento #languageSelect não encontrado");
     }
-    
+
     const folderInput = document.getElementById('folderInput');
     if (folderInput) {
         folderInput.addEventListener('change', selectFolder);

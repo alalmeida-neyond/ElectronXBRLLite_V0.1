@@ -4,21 +4,19 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.time.*;
 
-@Converter(autoApply = false)
-public class EpochMillisToLocalDateTimeReadOnly
+@Converter(autoApply = false) // set true only if ALL your LDTs use epoch millis
+public class LocalDateTimeEpochMillisConverter
         implements AttributeConverter<LocalDateTime, Long> {
 
-    // Not used because the field is insertable=false, updatable=false
     @Override
     public Long convertToDatabaseColumn(LocalDateTime attribute) {
-        return null; // or throw UnsupportedOperationException if you prefer
+        if (attribute == null) return null;
+        return attribute.atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
     }
 
     @Override
     public LocalDateTime convertToEntityAttribute(Long dbData) {
         if (dbData == null) return null;
-        return Instant.ofEpochMilli(dbData)
-                      .atZone(ZoneId.systemDefault())
-                      .toLocalDateTime();
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(dbData), ZoneOffset.UTC);
     }
 }

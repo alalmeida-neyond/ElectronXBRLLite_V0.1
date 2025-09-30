@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "electronxbrllite",
   "version": "1.0.0",
   "description": "This application is a desktop app that imports Excel files used to create XBRL files, validates them, generates and transfers XBRL files to a default or a user specified directory",
@@ -67,7 +67,7 @@
   "devDependencies": {
     "concurrently": "^9.2.0",
     "cross-spawn": "^7.0.6",
-    "electron": "^37.2.6",
+    "electron": "^31.7.7",
     "electron-builder": "^26.0.12",
     "wait-on": "^8.0.4"
   },

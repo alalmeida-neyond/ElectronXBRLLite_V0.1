@@ -16,20 +16,6 @@
     <div id="mainHeader">
       <div th:replace="~{Layouts/xbrl2_header1}"></div>
     </div>
-    <div class="container">
-      <div class="alert alert-success" id="alert-success" role="alert" style="display: none;">
-        <h4 class="alert-heading internationalization" data-key="updateCompleted1.label">Atualização dos Metadados Concluído!</h4>
-        <p class="internationalization" data-key="updateCompleted2.label">Para concluir a atualização dos metadados, por favor, feche a aplicacao e volte a abrir!</p>
-      </div>
-    </div>
-    <div class="container">
-      <br><br>
-        <form id="metadataForm" enctype="multipart/form-data" onsubmit="downloadMetadata(event)">
-          <span>
-            <button type="submit" onclick="downloadMetadata(event)" class="btn btn-info internationalization" data-key="updateMetadata.label" value="{{updateMetadata.label}}" id="uploadButtonMetadata" style="margin: 0 5px; width: auto">Submit</button>
-          </span>
-        </form>
-    </div>
 
     <div class="container">
         <button class="btn btn-info internationalization" id="loadingButton" type="button" data-key="loading.label" disabled style="display: none;">
