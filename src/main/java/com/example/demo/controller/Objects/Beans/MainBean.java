@@ -455,16 +455,10 @@ public class MainBean extends DefaultBean{
         ProgressService progressService = new ProgressService();
 
         init();
-        licenseValidated = licenseVerification.licenseValidationFile();
         modelAndView.addObject(Constants.LEICodeKeyString, licenseVerification.getLEICode());
-        if (licenseValidated) {
-            modelAndView.setViewName("test");
-        } else {
-            modelAndView.setViewName("licensepage");
-            if (licenseVerification.isExpired()) {
-                modelAndView.addObject("expired", true);
-            }
-        }
+
+        modelAndView.setViewName("test");
+        
         
         return modelAndView;
     }
@@ -511,22 +505,12 @@ public class MainBean extends DefaultBean{
     @GetMapping("/settings")
     public ModelAndView settings() {
         ModelAndView modelAndView = new ModelAndView();
-        try {
-            licenseValidated = licenseVerification.licenseValidationFile();
-            modelAndView.addObject("LEICode", licenseVerification.getLEICode());
-        } catch (Exception e) {
-            licenseValidated = false;
-        }
+
         String storedPath = getStoredPathOrFallback();
         modelAndView.addObject("storedPath", storedPath);
-        if (licenseValidated)
-        {
-            modelAndView.setViewName("settings");
-        }
-        else
-        {
-            modelAndView.setViewName("licensepage");
-        }
+       
+        modelAndView.setViewName("settings");
+       
         return modelAndView;
     }
 
