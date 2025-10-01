@@ -111,7 +111,6 @@ async function chooseFolderAndPersist() {
         }
     }
 
-    // B) Chromium browsers: File System Access API
     if (typeof window.showDirectoryPicker === 'function') {
         try {
             const dirHandle = await window.showDirectoryPicker();
@@ -120,22 +119,19 @@ async function chooseFolderAndPersist() {
             try {
                 const fileHandle = await dirHandle.getFileHandle('path.dat', { create: true });
                 const writable = await fileHandle.createWritable();
-                await writable.write(`Selected at: ${new Date().toISOString()}\nFolder: ${dirHandle.name}\n`);
+                await writable.write(`${dirHandle.name}`);
                 await writable.close();
             } catch (writeErr) {
                 console.warn('Could not write path.dat (permission or user canceled):', writeErr);
             }
 
-            // Browsers don’t expose absolute OS paths
             folderPathTextarea.value = `[Browser] ${dirHandle.name}`;
             return;
         } catch (e) {
             console.warn('Directory picker canceled or failed:', e);
-            // fallthrough to legacy
         }
     }
 
-    // C) Legacy fallback (Safari/Firefox): <input type="file" webkitdirectory>
     const input = document.getElementById('folderInput'); // ensure it exists in HTML
     input.onchange = () => {
         if (!input.files || input.files.length === 0) return;

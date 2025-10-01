@@ -452,8 +452,6 @@ public class MainBean extends DefaultBean{
     public ModelAndView greeting() throws FileNotFoundException {
         ModelAndView modelAndView = new ModelAndView();
 
-        ProgressService progressService = new ProgressService();
-
         init();
         modelAndView.addObject(Constants.LEICodeKeyString, licenseVerification.getLEICode());
 

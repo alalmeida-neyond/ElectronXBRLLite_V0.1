@@ -139,6 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
   ["filterYear", "filterMonth"].forEach((id) => {
     const input = document.getElementById(id);
     input.addEventListener("input", () => {
+      console.log("Input Value:" + input.value);
       input.value = input.value.replace(/\D/g, "");
       autoSubmit();
     });
@@ -563,32 +564,64 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   const pageStates = {};
-  
 
   function renderPagination(container, renderPageCallback) {
     const totalPages = Math.ceil(currentDetailFilteredData.length / currentDetailRowsPerPage);
     container.innerHTML = "";
 
-    for (let i = 1; i <= totalPages; i++) {
+    if (totalPages <= 1) return;
+
+    const selectedLang = document.getElementById("languageSelect")?.value || "pt";
+
+    const makeBtn = (label, page = null, { active = false, disabled = false, extraClass = "" } = {}) => {
       const btn = document.createElement("button");
-      btn.textContent = i;
-      btn.className = "page-btn btn btn-sm btn-light m-1 roundButton";
-      if (i === currentDetailCurrentPage) btn.classList.add("active");
+      btn.textContent = label;
+      btn.className = `page-btn btn btn-sm btn-light m-1 roundButton ${extraClass}`;
+      if (active) btn.classList.add("active");
+      btn.disabled = !!disabled;
 
-      btn.addEventListener("click", () => {
-        currentDetailCurrentPage = i;
+      if (!disabled && page !== null) {
+        btn.addEventListener("click", () => {
+          currentDetailCurrentPage = page;
+          updateLanguageLabels(selectedLang); 
+          renderPageCallback();
+        });
+      }
+      return btn;
+    };
 
-        const selectedLang = document.getElementById("languageSelect")?.value || "pt";
-        updateLanguageLabels(selectedLang);
+    container.appendChild(
+      makeBtn("«", currentDetailCurrentPage > 1 ? currentDetailCurrentPage - 1 : null, {
+        disabled: currentDetailCurrentPage === 1,
+      })
+    );
 
-        renderPageCallback();
-      });
+    const start = Math.max(1, currentDetailCurrentPage - 1);
+    const end = Math.min(totalPages, currentDetailCurrentPage + 3);
 
-      container.appendChild(btn);
+    for (let p = start; p <= end; p++) {
+      container.appendChild(
+        makeBtn(String(p), p, { active: p === currentDetailCurrentPage })
+      );
     }
+
+    if (end < totalPages) {
+      if (end + 1 < totalPages) {
+        container.appendChild(
+          makeBtn("…", null, { disabled: true})
+        );
+      }
+      container.appendChild(
+        makeBtn(String(totalPages), totalPages, { active: currentDetailCurrentPage === totalPages })
+      );
+    }
+
+    container.appendChild(
+      makeBtn("»", currentDetailCurrentPage < totalPages ? currentDetailCurrentPage + 1 : null, {
+        disabled: currentDetailCurrentPage === totalPages,
+      })
+    );
   }
-
-
 
   function toggleDetails(ioid, button) {
     let fetchedDetails =  [];
@@ -908,33 +941,40 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchModulesFromBackend();
   fetchIOs();
 
+  function extractYearMonth(dateStr) {
+    if (!dateStr) return { y: "", m: "" };
+    const m = String(dateStr).match(/^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?/);
+    if (!m) return { y: "", m: "" };
+    const y = m[1];
+    const month = m[2].padStart(2, "0");
+    return { y, m: month };
+  }
+
   function autoSubmit() {
     const moduleFilter = document
       .getElementById("filterModule")
       .value.trim()
       .toLowerCase();
 
-    const year = document.getElementsByName("filterYear")[0].value;
-    const month = document.getElementById("filterMonth").value.padStart(2, "0");
-
-    const monthSumOne = parseInt(month) + 1;
-
-    const dayDate = new Date(year, monthSumOne, 0);
-
-    const day = dayDate.getDay();
-
-    const fullDate = year && month && day ? `${year}-${month}-${day}` : "";
+    const selectedYear = (document.getElementsByName("filterYear")[0].value || "").trim();
+    const selectedMonthRaw = document.getElementById("filterMonth").value || "";
+    const selectedMonth = selectedMonthRaw ? String(selectedMonthRaw).padStart(2, "0") : "";
 
     const filtered = allIOs.filter((io) => {
       const moduleValue = (io[2] ?? "").toLowerCase().trim();
       const dateValue = (io[5] ?? "").trim();
 
       const moduleMatch = !moduleFilter || moduleValue.includes(moduleFilter);
-      const dateMatch = !fullDate || dateValue.startsWith(fullDate);
 
-      return moduleMatch && dateMatch;
+      const { y, m } = extractYearMonth(dateValue);
+
+      const yearMatch = !selectedYear || y === selectedYear;
+      const monthMatch = !selectedMonth || m === selectedMonth;
+
+      return moduleMatch && yearMatch && monthMatch;
     });
 
     populateMainTable(filtered);
   }
+
 });

@@ -1,14 +1,11 @@
 package com.example.demo;
 
-import org.jboss.logging.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 import com.example.config.ReplacementDB;
-import com.example.demo.Data.Access.Info;
 import com.example.demo.Data.Access.JPA;
-import com.example.demo.Verification.LicenseVerification;
 
 @SpringBootApplication
 public class DemoApplication {
@@ -17,17 +14,6 @@ public class DemoApplication {
 	public static void main(String[] args) {
         ReplacementDB replacementDB = new ReplacementDB();
 		replacementDB.replacementDBEvent();
-		final Logger LOG = Logger.getLogger(DemoApplication.class);
-		LicenseVerification licenseVerification = new LicenseVerification();
-
-        try {
-			licenseVerification.licenseValidationFile();
-		} catch (Exception e) {
-			LOG.error("Error verifying license:" + e.getMessage());
-			e.printStackTrace();
-		}
-        
-		
 		
 		if (!replacementDB.isValidSQLiteFile()) {
 			System.err.println("The SQLite file is invalid. Application will not start.");

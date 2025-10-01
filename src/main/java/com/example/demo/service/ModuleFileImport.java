@@ -28,7 +28,6 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.VariableVersion;
 import com.example.demo.controller.Objects.Entities.Logs.LogImportProcess;
-import com.example.demo.controller.Objects.Entities.Logs.LogOperationTemp;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.IO.IOTypeState;
@@ -146,7 +145,6 @@ public class ModuleFileImport extends RunnableExtension{
         boolean hasOk = false;
         boolean hasNotOk = false;
         boolean hasEmpty = false;
-        LOG.info("Entered Main Import");
         try {
             cm = new ConnectionManager(em);
             ExcelPoints excelPointStruct = new ExcelPoints();
@@ -217,9 +215,7 @@ public class ModuleFileImport extends RunnableExtension{
                             sheetValueAsHeaderCode = HeaderService.getHeaderDTOFromList(headerDTOList,desagregationCode.trim(),Constants.SheetCoordinateAsChar,false);
                         }
                     desagregationCodeKey = buildDesagregationCode(desagregationCode,singleFillingIndicatorAsTableVersion.getTableVID(),singleFillingIndicatorAsTableVersion.getTable().getTableId(), io.getReferenceDate(),cm);
-                    /*if (desagregationCodeKey != null) {
-                        em.persist(desagregationCodeKey);
-                    }*/
+                    
                     if (desagregationCodeKey != null && ((sheetValueAsHeaderCode != null && Utils.isNumeric(desagregationCode)) || !Utils.isNumeric(desagregationCode))) {
                         List<InKeyAssociation> keyAssociationsDesagCode = desagregationCodeKey.getListPropertyValues();
                         Optional<InKeyAssociation> keyAssociationWithNull = keyAssociationsDesagCode.stream().filter(keyAssociation -> keyAssociation.getPropertyValue() == null).findAny();
@@ -267,7 +263,7 @@ public class ModuleFileImport extends RunnableExtension{
                         continue;
                     }
                     List<DatapointItensDTO> ListItems = null;
-                    TreeMap <String, List<DatapointItensDTO>> ListItemsMapped = null;
+                    TreeMap <String, List<DatapointItensDTO>> listItemsMapped = null;
                     rowKeyImportKey = null;
                     openRowAuxListForPersiste.clear();
                     boolean isOpenRow = false;
@@ -275,7 +271,7 @@ public class ModuleFileImport extends RunnableExtension{
                         if (!"".equals(rowValue)) {
                             ListItems = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(singleFillingIndicatorAsTableVersion.getTableVID(), Constants.ColumnCoordinate, null, io.getReferenceDate());
                             if(ListItems != null && !ListItems.isEmpty()){
-                                ListItemsMapped = ListItems.stream().collect(
+                                listItemsMapped = ListItems.stream().collect(
                                                                  Collectors.groupingBy(
                                                                              DatapointItensDTO::getHeaderCode,
                                                                              TreeMap::new,
@@ -366,26 +362,28 @@ public class ModuleFileImport extends RunnableExtension{
                                     if (cellType == Constants.ENUMERATION || (cellType == Constants.NOTAPPLICABLE && isOpenRow)) {
                                         String valueTemp = value; 
                                         //Error
-                                        if (!ListItemsMapped.get(columnValue).isEmpty()) {
+                                        if (!listItemsMapped.get(columnValue).isEmpty()) {
                                             List<DatapointItensDTO> auxDatapointDTOListOfColumn = new ArrayList<>();
                                             
-                                            if(ListItemsMapped.get(columnValue).get(0).getValueCode() != null){
-                                                auxDatapointDTOListOfColumn = ListItemsMapped.get(columnValue)
-                                                    .stream().filter(p -> p.getValueCode().equalsIgnoreCase(valueTemp)
-                                                    || p.getSignature().equalsIgnoreCase(Constants.EBASEPARATOR + valueTemp)
-                                                    || p.getName().equalsIgnoreCase(valueTemp))
-                                                    .collect(Collectors.toList());
+                                            if (listItemsMapped.get(columnValue).get(0).getValueCode() != null) {
+                                                auxDatapointDTOListOfColumn = listItemsMapped.get(columnValue)
+                                                        .stream().filter(p -> (p.getValueCode() != null && p.getValueCode().trim().equalsIgnoreCase(valueTemp))
+                                                        || (p.getSignature() != null && p.getSignature().trim().equalsIgnoreCase(Constants.EBASEPARATOR + valueTemp))
+                                                        || (p.getSignature() != null && p.getSignature().trim().equalsIgnoreCase(valueTemp))
+                                                        || (p.getName() != null && p.getName().trim().equalsIgnoreCase(valueTemp)))
+                                                        .collect(Collectors.toList());
                                             }
                                             
-                                            List<DatapointItensDTO> ListItemsForRow = null;
+                                            List<DatapointItensDTO> listItemsForRow = null;
                                             if (!isOpenRow) {
                                                 if(auxDatapointDTOListOfColumn != null && (auxDatapointDTOListOfColumn.isEmpty() || auxDatapointDTOListOfColumn.get(0).getSignature() == null)){
                                                     //significa que para a coluna, ele nao encontrou valores possiveis e de verificar na row
-                                                    ListItemsForRow = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(singleFillingIndicatorAsTableVersion.getTableVID(), Constants.RowCoordinate, rowValue, io.getReferenceDate());
-                                                    List<DatapointItensDTO> auxDatapointDTOListOfRow = ListItemsForRow.stream().filter(p -> p.getValueCode().equalsIgnoreCase(valueTemp)
-                                                                                                                || p.getSignature().equalsIgnoreCase(Constants.EBASEPARATOR + valueTemp)
-                                                                                                                || p.getName().equalsIgnoreCase(valueTemp))
-                                                                                                                .collect(Collectors.toList());
+                                                    listItemsForRow = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(singleFillingIndicatorAsTableVersion.getTableVID(), Constants.RowCoordinate, rowValue, io.getReferenceDate());
+                                                    List<DatapointItensDTO> auxDatapointDTOListOfRow = listItemsForRow.stream().filter(p -> (p.getValueCode() != null && p.getValueCode().trim().equalsIgnoreCase(valueTemp))
+                                                            || (p.getSignature() != null && p.getSignature().trim().equalsIgnoreCase(Constants.EBASEPARATOR + valueTemp))
+                                                            || (p.getSignature() != null && p.getSignature().trim().equalsIgnoreCase(valueTemp))
+                                                            || (p.getName() != null && p.getName().trim().equalsIgnoreCase(valueTemp)))
+                                                            .collect(Collectors.toList());
                                                     if(auxDatapointDTOListOfRow != null && !auxDatapointDTOListOfRow.isEmpty() && auxDatapointDTOListOfRow.get(0).getSignature()!= null){
                                                         auxDatapointDTOListOfColumn = auxDatapointDTOListOfRow;
                                                     }
@@ -424,7 +422,7 @@ public class ModuleFileImport extends RunnableExtension{
                                         
                                         InKeyAssociation desagregationCodeAssociation = new InKeyAssociation();
                                         desagregationCodeAssociation.setImportedKey(rowKeyImportKey);
-                                        desagregationCodeAssociation.setPropertyName(ListItemsMapped.get(columnValue).get(Constants.FIRSTRESULT).getXBRLHeader());
+                                        desagregationCodeAssociation.setPropertyName(listItemsMapped.get(columnValue).get(Constants.FIRSTRESULT).getXBRLHeader());
                                         desagregationCodeAssociation.setPropertyValue((Utils.isNumericWithComma(value)? (value.contains(",") ? value.replace(",", ".") : value) : valueEdited));
 
                                         rowKeyImportKey.getListPropertyValues().add(desagregationCodeAssociation);
@@ -518,7 +516,7 @@ public class ModuleFileImport extends RunnableExtension{
                         
                         importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
                         
-                        hasNotOk = true;
+                        //hasNotOk = true;
                     } else if (!errorMsgPerTables.isEmpty()) {
                         importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
 
@@ -625,19 +623,19 @@ public class ModuleFileImport extends RunnableExtension{
             }
             return null;
         }
-        TreeMap <String, List<DatapointItensDTO>> ListItemsMapped = ListItems.stream().collect(
+        TreeMap <String, List<DatapointItensDTO>> listItemsMapped = ListItems.stream().collect(
                                                                  Collectors.groupingBy(
                                                                              DatapointItensDTO::getHeaderCode,
                                                                              TreeMap::new,
                                                                              Collectors.toList()
                                                                          )
                                                                  );
-        String currentKey  = ListItemsMapped.firstKey();
+        String currentKey  = listItemsMapped.firstKey();
         String[] ExcelDesagregationCodeList = rawDesagregationCode.split("\\|");
         boolean firstLoop = true;
         for(String stringSplittedDesagregation : ExcelDesagregationCodeList){
-            List<DatapointItensDTO> possibleCurrentValues =  ListItemsMapped.get(currentKey);
-            currentKey  = ListItemsMapped.higherKey(currentKey);
+            List<DatapointItensDTO> possibleCurrentValues =  listItemsMapped.get(currentKey);
+            currentKey  = listItemsMapped.higherKey(currentKey);
             if(firstLoop){
                 firstLoop = false;
                 desagregationImportKey = new InImportKey();

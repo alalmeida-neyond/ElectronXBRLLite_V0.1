@@ -335,7 +335,7 @@ public class Validator_2_0 extends RunnableExtension {
                 OutValidationTable outValTable = new OutValidationTable(table, ioValidation,Info.getInstance().getIOStateByID(Constants.processoPending));
                 Connection.persist(cm, outValTable);
                 
-                LOG.info("Buscar de nós por id de Table Version"); 
+                LOG.info("Buscar de nos por id de Table Version"); 
                 Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = getNodes(tableVId);
                 
                 LOG.info("Buscar de possiveis conflitos com Datapoints"); 
@@ -348,6 +348,7 @@ public class Validator_2_0 extends RunnableExtension {
 
                 if (nodesMappedByOperationVIdByLevel.isEmpty() && possibleDatapointsConflicts.isEmpty()) {
                     outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+                    progressService.setValidationProgress(completedTables++, Integer.valueOf(getTables().size()) + 1);
                     continue;
                 }
 

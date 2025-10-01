@@ -94,14 +94,20 @@
 #validationTable thead {
   position: sticky;
   top: 0;
+  display: table-header-group; 
   z-index: 5;
   background-color: #033d51;
   color: white;
 }
 
+#validationTableBody{
+  display: table-row-group; 
+}
+
 .fixed-header-table {
   border-spacing: 0 10px; 
-  border-collapse: separate;
+  table-layout: fixed;     
+  border-collapse: collapse;
   width: 100%;
   background-color: transparent;
   table-layout: fixed;
@@ -109,7 +115,8 @@
 
 .fixed-header-table th,
 .fixed-header-table td {
-  background-color: #f1f1f1; 
+  background-color: #f1f1f1;
+  
   padding: 12px;
   text-align: center;
   vertical-align: middle;
@@ -177,6 +184,9 @@ td.last-cell {
   width: 100%;
   border-spacing: 0 3px;
   border-collapse: separate;
+  max-height: calc(86.5vh - 300px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .validationTable th,
@@ -335,3 +345,4 @@ html, body {
   overflow-x: hidden;
   display: block;
 }
+
