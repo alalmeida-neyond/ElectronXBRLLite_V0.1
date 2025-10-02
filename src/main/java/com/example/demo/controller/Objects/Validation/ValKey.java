@@ -79,27 +79,34 @@ public class ValKey {
             return false;
         }
         final ValKey other = (ValKey) obj;
-        
-        if(this.indexs == null){
-            if(other.indexs != null){
-                if(!other.indexs.equals(this.indexs)){
+
+        if (this.indexs == null) {
+            if (other.indexs != null) {
+                if (!other.indexs.equals(this.indexs)) {
                     return false;
                 }
             }
         } else {
-            if(!this.indexs.equals(other.indexs)){
+            if (!this.indexs.equals(other.indexs)) {
                 return false;
             }
         }
-        
-        return Objects.equals(this.dpmKeys, other.dpmKeys);
+
+        if (this.dpmKeys != null && !this.dpmKeys.isEmpty() && this.dpmKeys.containsKey(Constants.SHEETCODE)) {
+            this.dpmKeys.remove(Constants.SHEETCODE);
+        }
+        if (other.getDpmKeys() != null && !other.getDpmKeys().isEmpty() && other.getDpmKeys().containsKey(Constants.SHEETCODE)) {
+            other.getDpmKeys().remove(Constants.SHEETCODE);
+        }
+
+        return ((this.dpmKeys == null || this.dpmKeys.isEmpty()) && (other.dpmKeys == null || other.dpmKeys.isEmpty())) || Objects.equals(this.dpmKeys, other.dpmKeys);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        if (indexs != null && indexs.getxIndex() != null && indexs.getyIndex() != null && indexs.getzIndex() != null) {
+        if (indexs != null && (indexs.getxIndex() != null || indexs.getyIndex() != null || indexs.getzIndex() != null)) {
             sb.append("Índices -> ");
             String indexX = (indexs.getxIndex() != null) ? "x: " + indexs.getxIndex() + " " : "x: null ";
             String indexY = (indexs.getyIndex() != null) ? "y: " + indexs.getyIndex() + " " : "y: null ";

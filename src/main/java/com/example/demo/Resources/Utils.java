@@ -38,6 +38,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import java.io.Reader;
 
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
+import com.example.demo.controller.Objects.Validation.ValResult;
 
 public final class Utils {
 
@@ -445,5 +446,14 @@ public final class Utils {
             return windowsDisk+mainPath;
         }
         return mainPath;
+    }
+
+    public static boolean valuesAreAllNull(List<ValResult> values) {
+        for(ValResult value : values){
+            if(value != null && !value.valueIsNull()){
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -26,7 +26,7 @@ public class OperationExpressionBuilder {
             String leftString = getValue(left, leftResult);
             String rightString = getValue(right, rightResult);
 
-            sb.append(leftString).append(" ").append(symbol).append(" ").append(rightString);
+            sb.append((leftString != null) ? leftString : "null").append(" ").append(symbol).append(" ").append((rightString != null) ? rightString : "null");
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro a construir expressão binária. | ", e);
         }
@@ -53,9 +53,9 @@ public class OperationExpressionBuilder {
         
         try {
             String operandString = joinOperandResults(operand, operandResults);
-            String groupingString = getValue(grouping, groupingResult);
+            //String groupingString = getValue(grouping, groupingResult);
 
-            sb.append(symbol).append(" (").append(operandString).append(") ").append(groupingString);
+            sb.append(symbol).append(" (").append(operandString).append(") ");//.append(groupingString);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro a construir expressão de agregacao. | ", e);
         }
@@ -164,7 +164,7 @@ public class OperationExpressionBuilder {
         
         try {
             String operandString = getValue(operandNode, operand);
-            sb.append(operandString).append(" where (").append(expression).append(")");
+            sb.append(operandString);//.append(" where (").append(expression).append(")");
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro a construir expressão do operador \"Where\". | ", e);
         }
@@ -226,9 +226,9 @@ public class OperationExpressionBuilder {
         
         try {
             String leftString = getValue(left, leftResult);
-            String rightString = getValue(right, rightResult);
+            //String rightString = getValue(right, rightResult);
 
-            sb.append(leftString).append(" filter ").append(rightString);
+            sb.append(leftString);//.append(" filter ").append(rightString);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro a construir expressão de \"Filter\". | ", e);
         }
@@ -267,7 +267,15 @@ public class OperationExpressionBuilder {
     }
     
     private String getValue(ValNode node, ValResult result) {
-        if (nodeIsLeaf(node)) {
+        boolean isScalar = false;
+        
+        if(node != null) {
+            isScalar = node.getNode().getScalar() != null;
+        }
+        
+        if (isScalar) {
+            return node.getNode().getScalar();
+        } else if (nodeIsLeaf(node) || (result != null && result.getExpression() == null && !result.valueIsNull())) {
             return result.getRawValue();
         } else if (result != null && result.getExpression() != null && !result.getExpression().isEmpty()){
             return "(" + result.getExpression() + ")";

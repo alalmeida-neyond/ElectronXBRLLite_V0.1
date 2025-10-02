@@ -136,7 +136,7 @@ with modulesApplicable as (
 )
 
 , valuesImportedModulesApplied as (
-    select tia.importedtableid as "TableID", tia.tablevid as "TableVID", iv.variablevid as "VariableVID", iv.rulevalue as "Value", tia.importkeyid as "DesagregationCode", iv.importkeyid as "RowKey"
+    select tia.importedtableid as "TableID", tia.tablevid as "TableVID", iv.variablevid as "VariableVID", iv.rulevalue as "Value", tia.importkeyid as "DesagregationCode", iv.importkeyid as "RowKey", iv.cellid as "CellID"
     from tablesImportedApplicable tia
     inner join in_importedvaluestemp iv on tia.importedtableid = iv.importedtableid
 )
@@ -207,6 +207,7 @@ with modulesApplicable as (
         left join operandreference opr on ar."OperandReferenceID" = opr.operandreferenceid
         left join valuesImportedModulesApplied vima 
             on ar."VariableVID" = vima."VariableVID"
+            and ar."CellID" = vima."CellID"
             and ar."TableVID" = vima."TableVID"
             and (ar."DesagregationCode" = vima."DesagregationCode" or (ar."DesagregationCode" is null and vima."DesagregationCode" is null))
             and (ar."RowKey" = vima."RowKey" or (ar."RowKey" is null and vima."RowKey" is null) )

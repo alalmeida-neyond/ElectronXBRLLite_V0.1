@@ -37,7 +37,7 @@ with preconditionReferences as (
 , nodeValues as (
     select opr.nodeid, opr.variablevid, CASE WHEN ti.variablevid IS NOT NULL THEN 'true' ELSE 'false' END as existsInTablesImported
     from operandReferencesVariableVID opr
-    left join tablesImported ti on opr.variablevid = ti.variablevid
+    left join tablesImportedOk ti on opr.variablevid = ti.variablevid
     group by opr.nodeid, opr.variablevid, ti.variablevid
 ) 
 

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,10 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.DataType;
 import com.example.demo.controller.Objects.Import.*;
 
 import java.util.AbstractMap;
+
 import org.jboss.logging.Logger;
+
+import com.example.demo.Resources.Utils;
 
 
 public class OperationsUtils {
@@ -147,7 +151,7 @@ public class OperationsUtils {
         return valuesOfNodes;
     }
 
-    protected static Map<ValKey, List<ValResult>> groupValues(List<ValResult> values, ValKey groupingKey) {
+    protected static Map<ValKey, List<ValResult>> groupValues(List<ValResult> values, ValKey groupingKey, ValNode operandChild) {
         Map<String, String> propertiesToGroup = new HashMap<>();
         Map<ValKey, List<ValResult>> groupedItems = new HashMap<>();
         Map<ValKey, List<ValResult>> groupedItemsFiltered = new HashMap<>();
@@ -189,6 +193,20 @@ public class OperationsUtils {
                     groupedItemsFiltered = groupedItems.entrySet().stream()
                         .filter(entry -> !entry.getKey().hasKeysPropertiesIndexsNull())
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                    if((groupedItemsFiltered == null || groupedItemsFiltered.isEmpty()) && Utils.valuesAreAllNull(values)){
+                        //para obter o data type do valor como default
+                        ValResult nullResult = values.get(Constants.FIRSTRESULT);
+                        nullResult.setKey(keyToGroup);
+
+                        ValResult resultDefault = OperationsUtils.applyDefaultValue(operandChild, nullResult, null);
+                        List<ValResult> results = new ArrayList<>();
+                        results.add(resultDefault);
+                        if(groupedItemsFiltered == null){
+                            groupedItemsFiltered = new HashMap<>();
+                        }
+                        groupedItemsFiltered.put(keyToGroup, results);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -208,7 +226,7 @@ public class OperationsUtils {
             if (groupingKey != null) {
                 final ValKey keyToGroup = groupingKey;
                 propertiesToGroup = keyToGroup.getDpmKeys();
-                final Set<String> setKeys = propertiesToGroup.keySet();
+                final Set<String> setKeys = (propertiesToGroup != null) ? propertiesToGroup.keySet() : new HashSet<>();
 
                 nodes.stream().forEach(node -> {
                     if(node.getResults() != null && !node.getResults().isEmpty()){
@@ -253,7 +271,9 @@ public class OperationsUtils {
             } else {
                 nodes.stream().forEach(node -> {
                     if(node.getResults() == null && node.getNode().getScalar() != null){
-                        allResults.add(new AbstractMap.SimpleEntry<>(node, new ValResult(new ValValue(OperationsUtils.getDataTypeByID(Constants.DECIMAL), node.getNode().getScalar()))));
+                        DataType dataType = new DataType();
+                        dataType.setDataTypeId(Constants.DATATYPENOTAPPLICABLE);
+                        allResults.add(new AbstractMap.SimpleEntry<>(node, new ValResult(new ValValue(dataType, node.getNode().getScalar()))));
                     }
                     if(node.getResults() != null && !node.getResults().isEmpty()){
                         for(ValResult result : node.getResults()){
@@ -275,6 +295,29 @@ public class OperationsUtils {
         return (node.getParentOperator() != null) ? node.getParentOperator().getOperatorID() == Constants.WHERE : false;
     }
 
+    protected static Boolean hasKeys(ValNode child){
+        List<ValResult> values = new ArrayList<>();
+        boolean hasKeys = false;
+        
+        try {
+            if(child != null){
+                values = child.getResults();
+                if(values != null && !values.isEmpty()){
+                    for (ValResult value : values) {
+                        if (value.getKey() != null && !value.getKey().hasKeysPropertiesIndexsNull() && !value.getKey().hasOnlyKeyOfSheetCode()) {
+                            hasKeys = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            return hasKeys;
+        } catch (Exception e){
+            LOG.error("Ocorreu um erro no método hasKeys, no nó " + child.getNode().getNodeID() + " | " + e.getMessage());
+        }
+        return false;
+    }
+
     //Verificacao se existem chaves num dos valores
     protected static Boolean isToUseKeys(ValNode leftChild, ValNode rightChild) {
         List<ValResult> leftValues = new ArrayList<>();
@@ -286,24 +329,8 @@ public class OperationsUtils {
             leftValues = leftChild.getResults();
             rightValues = rightChild.getResults();
 
-            //Caso os valores não sejam nulos, ele verifica se algum valor tem alguma chave
-            if (leftValues != null && !leftValues.isEmpty()) {
-                for (ValResult value : leftValues) {
-                    if (value.getKey() != null && !value.getKey().hasKeysPropertiesIndexsNull() && !value.getKey().hasOnlyKeyOfSheetCode()) {
-                        leftHasKeys = true;
-                        break;
-                    }
-                }
-            }
-
-            if (rightValues != null && !rightValues.isEmpty()) {
-                for (ValResult value : rightValues) {
-                    if (value.getKey() != null && !value.getKey().hasKeysPropertiesIndexsNull() && !value.getKey().hasOnlyKeyOfSheetCode()) {
-                        rightHasKeys = true;
-                        break;
-                    }
-                }
-            }
+            leftHasKeys = hasKeys(leftChild);
+            rightHasKeys = hasKeys(rightChild);
             
             if(leftHasKeys && rightHasKeys){
                 return true;
@@ -312,12 +339,10 @@ public class OperationsUtils {
             } else {
                 if(leftValues != null && leftValues.size() == 1 && rightValues != null && rightValues.size() == 1){
                     return false;
-                } else if (leftValues != null && rightValues != null && leftValues.size() != rightValues.size()) {
+                } else if (leftValues.size() != rightValues.size()) {
                     return null;
                 }
-            }
-            
-            
+            }            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -445,11 +470,8 @@ public class OperationsUtils {
         ValKey innerJoinKey = new ValKey();
 
         try {
-            leftValue = leftValues.get(0);
-            rightValue = rightValues.get(0);
-
-            ValKey leftKey = leftValue.getKey();
-            ValKey rightKey = rightValue.getKey();
+            ValKey leftKey = determineSharedKeyBasedOnValuesOfNode(leftValues);
+            ValKey rightKey = determineSharedKeyBasedOnValuesOfNode(rightValues);
 
             //Caso as chaves sejam diferentes de null
             if (leftKey.getIndexs() != null && !leftKey.getIndexs().isNull() && rightKey.getIndexs() != null && !rightKey.getIndexs().isNull()) {
@@ -500,14 +522,20 @@ public class OperationsUtils {
     }
 
     //Agrupar os valores pela innerJoinKey
-    protected static Map<ValResult, List<ValResult>> groupValuesByInnerJoin(List<ValResult> leftValues, List<ValResult> rightValues, ValKey innerJoinKey) {
+    protected static Map<ValResult, List<ValResult>> groupValuesByInnerJoin(List<ValResult> leftValues, List<ValResult> rightValues, ValNode leftNode, ValNode rightNode, ValKey innerJoinKey) {
         Map<ValResult, List<ValResult>> groupedValues = new HashMap<>();
+        
         ValMLKey joinIndexs = new ValMLKey();
         Map<String, String> joinPropertys = new HashMap<>();
+        
         ValMLKey leftIndexs = new ValMLKey();
         ValMLKey rightIndexs = new ValMLKey();
+        
         Map<String, String> leftPropertys = new HashMap<>();
         Map<String, String> rightPropertys = new HashMap<>();
+        
+        List<Map.Entry<ValResult, Boolean>> rightValuesNotMatched = rightValues.stream().map(v -> new AbstractMap.SimpleEntry<>(v, false)).collect(Collectors.toList());
+        boolean alreadyGrouped = false;
 
         try {
             if (innerJoinKey != null) {
@@ -521,11 +549,14 @@ public class OperationsUtils {
                         leftIndexs = leftValue.getKey().getIndexs();
                         leftPropertys = leftValue.getKey().getDpmKeys();
 
-                        for (ValResult rightValue : rightValues) {
-                            rightIndexs = rightValue.getKey().getIndexs();
-                            rightPropertys = rightValue.getKey().getDpmKeys();
+                        alreadyGrouped = false;
+                        
+                        for (Map.Entry<ValResult, Boolean> rightValue : rightValuesNotMatched) {
+                            rightIndexs = rightValue.getKey().getKey().getIndexs();
+                            rightPropertys = rightValue.getKey().getKey().getDpmKeys();
 
                             boolean isToGroup = true;
+                            boolean indexsIsOk = false;
 
                             //Caso os indíces da innerJoinKey sejam diferentes de null, verifica se algum dos indexs entre esquerda e direita são diferentes
                             if (joinIndexs != null && !joinIndexs.isNull()) {
@@ -556,32 +587,66 @@ public class OperationsUtils {
                                         isToGroup = false;
                                         continue;
                                     }
+                                    
+                                    indexsIsOk = true;
                                 }
 
                             }
 
+                            boolean skipChecks = false;
                             //Caso as propertys da "innerJoinKey" sejam diferentes de null
                             if (joinPropertys != null && !joinPropertys.isEmpty()) {
-                                if((leftPropertys == null || leftPropertys.isEmpty()) || (rightPropertys == null || rightPropertys.isEmpty())){
-                                    continue;
+                                if(indexsIsOk && ((leftPropertys == null || leftPropertys.isEmpty()) && (rightPropertys == null || rightPropertys.isEmpty()))){
+                                    skipChecks = true;
                                 }
-                                for (Map.Entry<String, String> property : joinPropertys.entrySet()) {
-                                    if(property.getKey().equals(Constants.SHEETCODE)){
+                                
+                                if(!skipChecks){
+                                    if((leftPropertys == null || leftPropertys.isEmpty()) || (rightPropertys == null || rightPropertys.isEmpty())){
                                         continue;
                                     }
-                                    
-                                    if ((leftPropertys.get(property.getKey()) == null || rightPropertys.get(property.getKey()) == null )|| 
-                                            (leftPropertys.get(property.getKey()).compareTo(rightPropertys.get(property.getKey())) != 0)) {
-                                        isToGroup = false;
-                                        break;
+                                    for (Map.Entry<String, String> property : joinPropertys.entrySet()) {
+                                        if(property.getKey().equals(Constants.SHEETCODE)){
+                                            continue;
+                                        }
+
+                                        //caso em que vem de duas somas com group by e que os valores não foram importados, logo a chave vem a null mesmo tendo a property
+                                        if(leftPropertys.containsKey(property.getKey()) && rightPropertys.containsKey(property.getKey()) && leftPropertys.get(property.getKey()) == null && rightPropertys.get(property.getKey()) == null ){
+                                            continue;
+                                        }
+
+                                        if ((leftPropertys.get(property.getKey()) == null || rightPropertys.get(property.getKey()) == null )|| 
+                                                (leftPropertys.get(property.getKey()).compareTo(rightPropertys.get(property.getKey())) != 0)) {
+                                            isToGroup = false;
+                                            break;
+                                        }
                                     }
                                 }
                             }
 
                             //Caso se mantenha como true, então agrupa os valores
                             if (isToGroup) {
-                                groupedValues.computeIfAbsent(leftValue, x -> new ArrayList<>()).add(rightValue);
+                                groupedValues.computeIfAbsent(leftValue, x -> new ArrayList<>()).add(rightValue.getKey());
+                                alreadyGrouped = true;
+                                if(!rightValue.getValue()){
+                                    rightValue.setValue(true);
+                                }
                             }
+                        }
+                        
+                        if(!alreadyGrouped){
+                            ValKey defaultKey = buildKeyToDefault(leftValue.getKey(), innerJoinKey);
+                            ValResult defaultResult = applyDefaultValue(rightNode, defaultKey, rightValues.get(0));
+                            groupedValues.computeIfAbsent(leftValue, x -> new ArrayList<>()).add(defaultResult);
+                        }
+                        
+                    }
+                    
+                    
+                    for(Map.Entry<ValResult, Boolean> rightValueNotMatched : rightValuesNotMatched){
+                        if(!rightValueNotMatched.getValue()){
+                            ValKey defaultKey = buildKeyToDefault(rightValueNotMatched.getKey().getKey(), innerJoinKey);
+                            ValResult defaultResult = applyDefaultValue(leftNode, defaultKey, leftValues.get(0));
+                            groupedValues.computeIfAbsent(defaultResult, x -> new ArrayList<>()).add(rightValueNotMatched.getKey());
                         }
                     }
                 }
@@ -589,7 +654,7 @@ public class OperationsUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return new HashMap<ValResult, List<ValResult>>();
+            return new HashMap<>();
         }
 
         return groupedValues;
@@ -692,19 +757,47 @@ public class OperationsUtils {
 
     }
 
+    public static ValResult createNullResult(ValResult leftValue, ValResult rightValue, boolean leftIsScalar, boolean rightIsScalar){
+        ValKey keyToUse = OperationsUtils.buildSharedKey(leftValue, rightValue);
+        DataType resultDataType = OperationsUtils.determineDataType(leftValue, rightValue, leftIsScalar, rightIsScalar);
+        String refDate = (leftValue != null && leftValue.getRefDate()!= null) ? leftValue.getRefDate(): null;
+        ValValue result = new ValValue(resultDataType, null);
+        List<String> rightDomain = (!rightIsScalar && rightValue != null && rightValue.getDomain() != null) ? rightValue.getDomain() : new ArrayList<>();
+        List<String> leftDomain = (!leftIsScalar && leftValue != null && leftValue.getDomain() != null) ? leftValue.getDomain() : new ArrayList<>();
+        
+        rightDomain.addAll(leftDomain);
+        
+        return new ValResult(keyToUse, result, refDate, BigDecimal.ZERO, rightDomain);
+    }
+
     public static ValResult applyDefaultValue(ValNode node, ValResult nullResult, List<String> domain) {
         String defaultValue = node.getNode().getFallbackValue();
         ValKey key = (nullResult != null && nullResult.getKey() != null) ? nullResult.getKey() : null;
         DataType dataType = (nullResult != null && nullResult.getResult() != null) ? nullResult.getResult().getDatatype(): null;
         BigDecimal margin = (nullResult != null && nullResult.getMargin() != null) ? nullResult.getMargin() : BigDecimal.ZERO;
         String refDate = (nullResult != null && nullResult.getRefDate()!= null) ? nullResult.getRefDate(): null;
+        String expression = (nullResult != null && nullResult.getExpression()!= null) ? nullResult.getExpression(): null;
         
         ValValue result = new ValValue(dataType, defaultValue);
-        return new ValResult(key, result, refDate, margin, domain);
+        ValResult valResult = new ValResult(key, result, refDate, margin, domain);
+        valResult.setExpression(expression);
+        return valResult;
+    }
+    
+    public static ValResult applyDefaultValue(ValNode node, ValKey key, ValResult basedResult) {
+        String defaultValue = node.getNode().getFallbackValue();
+        DataType dataType = (basedResult != null && basedResult.getResult() != null) ? basedResult.getResult().getDatatype(): null;
+        BigDecimal margin = BigDecimal.ZERO;
+        String refDate = (basedResult != null && basedResult.getRefDate()!= null) ? basedResult.getRefDate(): null;
+        String expression = defaultValue;
+        
+        ValValue result = new ValValue(dataType, defaultValue);
+        ValResult valResult = new ValResult(key, result, refDate, margin, null);
+        valResult.setExpression(expression);
+        return valResult;
     }
 
     public static BigDecimal setMarginValue(ValNode node, ValResult result) {
-        //BigDecimal fixMargin = new BigDecimal(Info.getInstance().getConfigValueByKey(Constants.TOLERANCE));
         boolean isLeaf = (node != null) ? node.getNode().isLeaf() : false;
 
         DataType dataTypeOfValue = (result != null) ? ((result.getResult() != null ) ? result.getResult().getDatatype() : null) : null;
@@ -716,15 +809,6 @@ public class OperationsUtils {
             radius = result.getMargin();
         }
 
-        //Caso estejam a zero (valor idêntico a null vindo da base de dados), deve ser para utilizar margem de erro parametrizada
-        /*if (node != null && (node.getNode().isUseIntervalArithmetics() || (result.getMargin() != null && result.getMargin() != BigDecimal.ZERO))){
-            if(node.getNode().isUseIntervalArithmetics() && isLeaf){
-                return (node.getNode().getRelativeTolerance() == 0.0) ? fixMargin : new BigDecimal(node.getNode().getRelativeTolerance());
-            } else if (!isLeaf && result.getMargin() != null && result.getMargin() != BigDecimal.ZERO) {
-                return result.getMargin();
-            }          
-        }*/
-        //return BigDecimal.ZERO;
         return radius;
     }
 
@@ -751,6 +835,8 @@ public class OperationsUtils {
                 case Constants.DATATYPESTRINGINCLUDINGEMPTY:
                 case Constants.DATATYPEDATE:
                 case Constants.DATATYPEDATETIME:
+                case Constants.DATATYPEBOOLEAN:
+                case Constants.DATATYPETRUE:
                     return BigDecimal.ZERO;                    
                 default:
                     throw new AssertionError();
@@ -771,12 +857,14 @@ public class OperationsUtils {
         return false;
     }
 
-    protected static DataType determineDataType(ValResult leftValue, ValResult rightValue, boolean leftIsScalar, boolean rightIsScalar, ValNode node) {
-        DataType valueDataType = new DataType();
+    protected static DataType determineDataType(ValResult leftValue, ValResult rightValue, boolean leftIsScalar, boolean rightIsScalar) {
+        DataType valueDataType = null;
 
         try {
             if (leftIsScalar && rightIsScalar) {
-                // Decidir DataType quando ambos são scalars
+                DataType dataType = new DataType();
+                dataType.setDataTypeId(Constants.DATATYPENOTAPPLICABLE);
+                return dataType;
             } else if (leftIsScalar) {
                 valueDataType = rightValue.getResult().getDatatype();
             } else if (rightIsScalar) {
@@ -788,34 +876,37 @@ public class OperationsUtils {
             }
 
             switch (valueDataType.getDataTypeId()) {
-                case Constants.INTEGER:
-                case Constants.DECIMAL:
-                case Constants.MONETARY:
-                case Constants.PERCENTAGE:
-                    return getDataTypeByID(Constants.DECIMAL);
+                case Constants.DATATYPEINTEGER:
+                case Constants.DATATYPEDECIMAL:
+                case Constants.DATATYPEMONETARY:
+                case Constants.DATATYPEPERCENTAGE:
+                    return valueDataType;
 
-                case Constants.STRINGNONEMPTY:
-                case Constants.ENUMERATION:
-                case Constants.URI:
-                case Constants.ORDINALS:
-                case Constants.STRINGINCLUDINGEMPTY:
-                    return getDataTypeByID(Constants.STRINGINCLUDINGEMPTY);
+                case Constants.DATATYPESTRINGNONEMPTY:
+                case Constants.DATATYPEENUMERATION:
+                case Constants.DATATYPEURI:
+                case Constants.DATATYPEORDINALS:
+                case Constants.DATATYPESTRINGINCLUDINGEMPTY:
+                    return getDataTypeByID(Constants.DATATYPESTRINGINCLUDINGEMPTY);
 
-                case Constants.BOOLEAN:
-                case Constants.TRUE:
-                    return getDataTypeByID(Constants.BOOLEAN);
+                case Constants.DATATYPEBOOLEAN:
+                case Constants.DATATYPETRUE:
+                    return getDataTypeByID(Constants.DATATYPEBOOLEAN);
 
-                case Constants.DATE:
-                case Constants.DATETIME:
-                    return getDataTypeByID(Constants.DATETIME);
+                case Constants.DATATYPEDATE:
+                case Constants.DATATYPEDATETIME:
+                    return getDataTypeByID(Constants.DATATYPEDATETIME);
 
                 default:
+                    //TODO:
+//                    Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro porque não encontrou o id do datatype", null, null, "Erro");
                     LOG.error("DetermineDataType a dar erro");
                     return null;
             }
 
         } catch (Exception e) {
-            LOG.error("DetermineDataType a dar erro" + e.getMessage());
+            LOG.error("DetermineDataType a dar erro " + e.getMessage());
+//            Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro", null, null,  "Erro");
         }
         return null;
     }
@@ -823,25 +914,25 @@ public class OperationsUtils {
     protected static Object transformValue(ValResult value, DataType dataType, ValNode node) {
         try {
             switch (dataType.getDataTypeId()) {
-                case Constants.INTEGER:
-                case Constants.DECIMAL:
-                case Constants.MONETARY:
-                case Constants.PERCENTAGE:
+                case Constants.DATATYPEINTEGER:
+                case Constants.DATATYPEDECIMAL:
+                case Constants.DATATYPEMONETARY:
+                case Constants.DATATYPEPERCENTAGE:
                     return (value.getResult() != null) ? new BigDecimal(value.getResult().getValue()) : new BigDecimal(node.getNode().getFallbackValue());
 
-                case Constants.STRINGNONEMPTY:
-                case Constants.ENUMERATION:
-                case Constants.URI:
-                case Constants.ORDINALS:
-                case Constants.STRINGINCLUDINGEMPTY:
+                case Constants.DATATYPESTRINGNONEMPTY:
+                case Constants.DATATYPEENUMERATION:
+                case Constants.DATATYPEURI:
+                case Constants.DATATYPEORDINALS:
+                case Constants.DATATYPESTRINGINCLUDINGEMPTY:
                     return (value.getResult() != null) ? value.getResult().getValue() : node.getNode().getFallbackValue();
 
-                case Constants.BOOLEAN:
-                case Constants.TRUE:
+                case Constants.DATATYPEBOOLEAN:
+                case Constants.DATATYPETRUE:
                     return (value.getResult() != null) ? Boolean.valueOf(value.getResult().getValue()) : Boolean.valueOf(node.getNode().getFallbackValue());
 
-                case Constants.DATETIME:
-                case Constants.DATE:
+                case Constants.DATATYPEDATETIME:
+                case Constants.DATATYPEDATE:
                     return (value.getResult() != null) ? LocalDate.parse(value.getResult().getValue(), Constants.DATEFORMATUSEDBYVALIDATIONS) : LocalDate.parse(node.getNode().getFallbackValue(), Constants.DATEFORMATUSEDBYVALIDATIONS);
                 
                     
@@ -936,6 +1027,124 @@ public class OperationsUtils {
     
     protected static boolean nodeIsNotNull(ValNode node) {
         return node != null && node.getNode() != null;
+    }
+
+    protected static DataType determineNumericDataType(ValResult leftValue, ValResult rightValue) {
+        DataType leftDataType = (leftValue != null) ? ((leftValue.getResult() != null) ? leftValue.getResult().getDatatype() : null ) : null;
+        DataType rightDataType = (rightValue != null) ? ((rightValue.getResult() != null) ? rightValue.getResult().getDatatype() : null ) : null;
+        
+        return determineDataType(leftDataType, rightDataType);
+    }
+    
+    protected static DataType determineDataType(DataType leftDataType, DataType rightDataType){
+        if(leftDataType != null && rightDataType != null){
+            int leftDataTypeId = leftDataType.getDataTypeId();
+            int rightDataTypeId = rightDataType.getDataTypeId();
+            
+            if(leftDataTypeId == rightDataTypeId){
+                return leftDataType;
+            } else if (leftDataTypeId == Constants.DATATYPEMONETARY || rightDataTypeId == Constants.DATATYPEMONETARY){
+                return OperationsUtils.getDataTypeByID(Constants.DATATYPEMONETARY);
+            } else if (leftDataTypeId == Constants.DATATYPEDECIMAL || rightDataTypeId == Constants.DATATYPEDECIMAL){
+                return OperationsUtils.getDataTypeByID(Constants.DATATYPEDECIMAL);
+            } else if (leftDataTypeId == Constants.DATATYPEINTEGER || rightDataTypeId == Constants.DATATYPEINTEGER){
+                return OperationsUtils.getDataTypeByID(Constants.DATATYPEINTEGER);
+            } else {
+                return leftDataType;
+            }
+        } 
+        
+        return null;
+    }
+
+    private static ValKey determineSharedKeyBasedOnValuesOfNode(List<ValResult> leftValues) {
+        ValKey sharedKey = new ValKey();
+        ValMLKey sharedIndexs = new ValMLKey();
+        Map<String, String> sharedPropertys = new HashMap<>();
+        
+        for(ValResult value : leftValues){
+            if(value != null && value.getKey() != null && !value.getKey().hasKeysPropertiesIndexsNull()){
+                ValKey valueKey = value.getKey();
+                ValMLKey valueIndexs = valueKey.getIndexs();
+                Map<String, String> valuePropertys = valueKey.getDpmKeys();
+                
+                if(valueIndexs != null && !valueIndexs.isNull()){
+                    if(valueIndexs.getxIndex() != null && sharedIndexs.getxIndex() == null){
+                        sharedIndexs.setxIndex(0);
+                    }
+                    
+                    if(valueIndexs.getyIndex() != null && sharedIndexs.getyIndex() == null){
+                        sharedIndexs.setyIndex(0);
+                    }
+                    
+                    if(valueIndexs.getzIndex() != null && sharedIndexs.getzIndex() == null){
+                        sharedIndexs.setzIndex(0);
+                    }
+                }
+                
+                if(valuePropertys != null && !valuePropertys.isEmpty()){
+                    for(Map.Entry<String, String> property : valuePropertys.entrySet()){
+                        if(property.getKey().equals(Constants.SHEETCODE)){
+                            continue;
+                        }
+                        if (!sharedPropertys.containsKey(property.getKey())) {
+                            sharedPropertys.put(property.getKey(), null);
+                        }
+                    }
+                }
+            }
+        }
+        
+        if(!sharedIndexs.isNull()){
+            sharedKey.setIndexs(sharedIndexs);
+        }
+        
+        if(!sharedPropertys.isEmpty()){
+            sharedKey.setDpmKeys(sharedPropertys);
+        }
+        
+        return sharedKey;
+    }
+
+    private static ValKey buildKeyToDefault(ValKey otherValueKey, ValKey innerJoinKey) {
+        ValMLKey defaultValueIndexs = new ValMLKey();
+        Map<String, String> defaultValuePropertys = new HashMap<>();
+        
+        ValMLKey otherValueIndexs = otherValueKey.getIndexs();
+        
+        Map<String, String> otherValuePropertys = otherValueKey.getDpmKeys();;
+       
+        if (!innerJoinKey.hasKeysPropertiesIndexsNull()) {
+            ValMLKey joinIndexs = innerJoinKey.getIndexs();
+            Map<String, String> joinPropertys = innerJoinKey.getDpmKeys(); 
+                            
+            if (joinIndexs != null && !joinIndexs.isNull()) {
+                if (joinIndexs.getxIndex() != null && otherValueIndexs.getxIndex() != null) {
+                    defaultValueIndexs.setxIndex(otherValueIndexs.getxIndex());
+                }
+
+                if (joinIndexs.getyIndex() != null && otherValueIndexs.getyIndex() != null) {
+                    defaultValueIndexs.setyIndex(otherValueIndexs.getyIndex());
+                }
+                if (joinIndexs.getzIndex() != null && otherValueIndexs.getzIndex() != null) {
+                    defaultValueIndexs.setzIndex(otherValueIndexs.getzIndex());
+                }
+            }
+            
+            //Caso as propertys da "innerJoinKey" sejam diferentes de null
+            if (joinPropertys != null && !joinPropertys.isEmpty()) {
+                for (Map.Entry<String, String> property : joinPropertys.entrySet()) {
+                    if(property.getKey().equals(Constants.SHEETCODE)){
+                        continue;
+                    }
+
+                    if (otherValuePropertys.get(property.getKey()) != null) {
+                        defaultValuePropertys.put(property.getKey(), otherValuePropertys.get(property.getKey()));
+                    }
+                }
+            }
+        }
+        return new ValKey(defaultValueIndexs, defaultValuePropertys);
     }
 
 }

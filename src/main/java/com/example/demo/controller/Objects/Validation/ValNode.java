@@ -51,18 +51,15 @@ public class ValNode {
         else 
             return null;
     }
-    
-    public Integer getPreconditonOperationVId(){
-        return node.getOperationVersion() != null && node.getOperationVersion().getPreConditionOperationVersion() != null 
-                ? node.getOperationVersion().getPreConditionOperationVersion().getOperationVID() 
-                : null;
+
+    public Integer getPreconditonOperationVId(){																											  
+        return node.getOperationVersion().getPreConditionOperationVersion() != null ? node.getOperationVersion().getPreConditionOperationVersion().getOperationVID() : null;			   
     }
     
     public OperationVersion getOperationVersion(){
-        return node.getOperationVersion() != null && node.getOperationVersion().getPreConditionOperationVersion() != null 
-                    ? node.getOperationVersion()
-                    : null;
+        return node.getOperationVersion() != null ? node.getOperationVersion() : null;
     }
+
 
     public List<ValResult> getResults() {
         return results;

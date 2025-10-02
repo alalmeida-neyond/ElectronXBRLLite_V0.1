@@ -59,6 +59,17 @@ with ioValidation as (
     inner join operationScope os on os.operationvid = opv.operationvid
     inner join operationScopecomposition osc on osc.operationscopeid = os.operationscopeid and osc.modulevid = rv.modulevid
 )
+, resultsDetailsCommonDatapointRules as (
+    select to_char(trunc(rv.refDate), 'yyyy-mm-dd') referenceDate, rv.module module, rv.entity, rv.domain, rv.relatorio mapa, 'Common Datapoint' regraCode, 'Error',
+    vrd.domain regraDomain, to_clob('Common Datapoint') as regra, vrd.expression regraExecutada, '-' as origem,
+    sd.description as resultado, to_char(vrd.timestamp, 'yyyy-MM-dd HH24?MI?SS') dataProcessamento, coalesce(TO_CHAR(vrd.difference),'-') as difference,
+    'FALSE' as usedmargin
+    from validationResults rv
+    inner join dpm_ed.out_validationresult vr on vr.validationresultid = rv.validationresultid
+    inner join dpm_ed.out_validationresultdetails vrd on vrd.validationresultid = vr.validationresultid
+    inner join dpm_ed.io_state sd on vrd.stateid = sd.io_stateid
+    where vr.operationVid is null
+)										 
 , resultsDetailsNotRunnedRules as (
     select
         strftime('%Y-%m-%d', rv.refDate) referenceDate, rv.module module, rv.entity, rv.domain, rv.relatorio mapa, op.code regraCode, severity,
@@ -77,3 +88,5 @@ with ioValidation as (
 select * from resultsDetailsRunnedRules
 union all
 select * from resultsDetailsNotRunnedRules
+union all
+Select * from resultsDetailsCommonDatapointRules 

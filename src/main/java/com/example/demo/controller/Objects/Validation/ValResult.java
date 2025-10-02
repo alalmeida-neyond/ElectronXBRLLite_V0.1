@@ -27,6 +27,7 @@ public class ValResult {
         this.key = key;
         this.result = result;
         this.margin = margin;
+        this.refDate = refDate;
         
         this.domain = new ArrayList<>();
         if(domain != null){
@@ -83,7 +84,7 @@ public class ValResult {
     }
     
     public boolean isItem(){
-        return refDate == null && result.getDatatype().getDataTypeId() == Constants.ENUMERATION;
+        return refDate == null && result.getDatatype().getDataTypeId() == Constants.DATATYPEENUMERATION;
     }
     
     public ValKey getKey() {
