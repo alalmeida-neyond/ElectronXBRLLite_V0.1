@@ -65,9 +65,9 @@ with ioValidation as (
     sd.description as resultado, to_char(vrd.timestamp, 'yyyy-MM-dd HH24?MI?SS') dataProcessamento, coalesce(TO_CHAR(vrd.difference),'-') as difference,
     'FALSE' as usedmargin
     from validationResults rv
-    inner join dpm_ed.out_validationresult vr on vr.validationresultid = rv.validationresultid
-    inner join dpm_ed.out_validationresultdetails vrd on vrd.validationresultid = vr.validationresultid
-    inner join dpm_ed.io_state sd on vrd.stateid = sd.io_stateid
+    inner join out_validationresult vr on vr.validationresultid = rv.validationresultid
+    inner join out_validationresultdetails vrd on vrd.validationresultid = vr.validationresultid
+    inner join io_state sd on vrd.stateid = sd.io_stateid
     where vr.operationVid is null
 )										 
 , resultsDetailsNotRunnedRules as (
