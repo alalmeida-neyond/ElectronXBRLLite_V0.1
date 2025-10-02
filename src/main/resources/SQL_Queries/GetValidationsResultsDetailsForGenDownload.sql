@@ -61,7 +61,7 @@ with ioValidation as (
 )
 , resultsDetailsCommonDatapointRules as (
     select to_char(trunc(rv.refDate), 'yyyy-mm-dd') referenceDate, rv.module module, rv.entity, rv.domain, rv.relatorio mapa, 'Common Datapoint' regraCode, 'Error',
-    vrd.domain regraDomain, to_clob('Common Datapoint') as regra, vrd.expression regraExecutada, '-' as origem,
+    vrd.domain regraDomain, 'Common Datapoint' as regra, vrd.expression regraExecutada, '-' as origem,
     sd.description as resultado, to_char(vrd.timestamp, 'yyyy-MM-dd HH24?MI?SS') dataProcessamento, coalesce(TO_CHAR(vrd.difference),'-') as difference,
     'FALSE' as usedmargin
     from validationResults rv

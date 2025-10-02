@@ -27,7 +27,7 @@ with ioValidation as (
     group by operationvid, tv.code
 )
 ,maxValidationResultForCommonDatapoint as (
-    select max(vr.validationresultid) validationresultid, operationvid, 'Common Datapoint' as regraCode, to_clob('Common Datapoint') as regra, 'Error' as severity, '-' as origem, tv.code
+    select max(vr.validationresultid) validationresultid, operationvid, 'Common Datapoint' as regraCode, 'Common Datapoint' as regra, 'Error' as severity, '-' as origem, tv.code
     from tablesValidated tv
     inner join out_validationtableresult vtr on tv.validationtableid = vtr.validationtableid
     inner join out_validationresult vr on vtr.validationresultid = vr.validationresultid
