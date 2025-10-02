@@ -4,7 +4,7 @@ with importedIOs as (
     inner join io_state ioe on ioe.io_stateid = io.io_stateid 
     where ioe.io_typestateid = :typeStateOk
     and io.actionId = :actionId
-    and (io.referencedate = strftime(:format, :referenceDate) OR :referenceDate IS NULL)
+    and (strftime(:format, io.referencedate) = :referenceDate OR :referenceDate IS NULL)
     and (io.domain = :domain OR :domain IS NULL)
     and (io.entityId = :entityId OR :entityId IS NULL)
     and (io.moduleVID = :moduleVID OR :moduleVID IS NULL)
