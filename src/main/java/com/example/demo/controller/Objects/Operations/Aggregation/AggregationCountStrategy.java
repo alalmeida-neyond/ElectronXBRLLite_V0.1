@@ -3,6 +3,9 @@ package com.example.demo.controller.Objects.Operations.Aggregation;
 import java.math.BigDecimal;
 import java.util.List;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.example.demo.Resources.Constants;
 import com.example.demo.controller.Objects.Validation.OperationsUtils;
 import com.example.demo.controller.Objects.Validation.ValNode;
@@ -10,6 +13,8 @@ import com.example.demo.controller.Objects.Validation.ValResult;
 import com.example.demo.controller.Objects.Validation.ValValue;
 
 public class AggregationCountStrategy implements AggregationStrategy {
+
+    private final static Logger LOG = Logger.getLogger(AggregationCountStrategy.class.getName());
 
     @Override
     public ValResult evaluate(ValNode operandChild, List<ValResult> resultsGrouped) {
@@ -30,11 +35,11 @@ public class AggregationCountStrategy implements AggregationStrategy {
                     valueParentResult.setValue(countResult.toPlainString());
                 }
                 
-                valueParentResult.setDatatype(OperationsUtils.getDataTypeByID(Constants.DECIMAL));
+                valueParentResult.setDatatype(OperationsUtils.getDataTypeByID(Constants.DATATYPEINTEGER));
                 return new ValResult(valueParentResult);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.SEVERE,"Ocorreu um erro ao realizar a operação de count no nó " + operandChild.getOperationVersion().getOperationVID(),e);
         }
         
         return null;

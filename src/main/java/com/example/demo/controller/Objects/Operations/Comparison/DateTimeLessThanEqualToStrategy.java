@@ -23,7 +23,7 @@ public class DateTimeLessThanEqualToStrategy implements ComparisonStrategy {
             } 
         }
         
-        ValValue valueParentResult = new ValValue(OperationsUtils.getDataTypeByID(Constants.BOOLEAN), result != null ? result.toString() : null);
+        ValValue valueParentResult = new ValValue(OperationsUtils.getDataTypeByID(Constants.DATATYPEBOOLEAN), result != null ? result.toString() : null);
         ValResult valResult = new ValResult(valueParentResult);
         valResult.setUsedMargin(false);
         return valResult;

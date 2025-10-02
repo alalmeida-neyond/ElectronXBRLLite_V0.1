@@ -3,20 +3,24 @@ package com.example.demo.controller.Objects.Operations.Where;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.jboss.logging.Logger;
 
+import com.example.demo.controller.Objects.Operations.Aggregation.AggregationSumStrategy;
 import com.example.demo.controller.Objects.Validation.ValKey;
 import com.example.demo.controller.Objects.Validation.ValResult;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class WhereNotEqualsToStrategy implements WhereStrategy {
 
+    private final static Logger LOG = Logger.getLogger(AggregationSumStrategy.class.getName());
+
+    
     @Override
-    public boolean filterResultsUsingWhere(ValResult result, List<Map.Entry<String, String>> allConditions) {
+    public boolean filterResultsUsingWhere(ValResult result, List<Map.Entry<String, String>> allConditions/*, boolean isChildOfFilter*/) {
         Map<String, String> propertiesValues = new HashMap<>();
         ValKey keyFromResult = new ValKey();
         boolean respectFilter = true;
-
-        final Logger LOG = Logger.getLogger(WhereNotEqualsToStrategy.class);
         
         try {
             if (result != null && result.getKey() != null && !result.getKey().hasKeysPropertiesIndexsNull()) {
@@ -32,14 +36,17 @@ public class WhereNotEqualsToStrategy implements WhereStrategy {
                             respectFilter = false;
                             break;
                         }
+                        
+                        /*if(isChildOfFilter){
+                            result.getKey().getDpmKeys().remove(condition.getKey());
+                        }*/
                     }
                     return respectFilter;
                 }
             }
             return false;
         } catch (Exception e) {
-            e.printStackTrace();
-            LOG.error("Erro em filterResultsUsingWhere: " + e.getMessage());
+            LOG.log(Level.SEVERE,"Ocorreu um erro ao realizar a operação de Where & Not Equals",e);
         }
         return false;
     }

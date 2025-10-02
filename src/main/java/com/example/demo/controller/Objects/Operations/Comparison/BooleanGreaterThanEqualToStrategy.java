@@ -18,7 +18,7 @@ public class BooleanGreaterThanEqualToStrategy implements ComparisonStrategy {
             result = ((Boolean) left).compareTo((Boolean) right) >= 0;   
         }
         
-        ValValue valueParentResult = new ValValue(OperationsUtils.getDataTypeByID(Constants.BOOLEAN), (result != null) ? result.toString() : null);
+        ValValue valueParentResult = new ValValue(OperationsUtils.getDataTypeByID(Constants.DATATYPEBOOLEAN), (result != null) ? result.toString() : null);
         ValResult valResult = new ValResult(valueParentResult);
         valResult.setUsedMargin(false);
         return valResult;

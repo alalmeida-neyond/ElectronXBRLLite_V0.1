@@ -31,15 +31,11 @@ public class DecimalEqualsStrategy implements ComparisonStrategy{
         
         if (result != null) {
             if (!result) { 
-                if (left != null && right != null) {
-                    difference = ((BigDecimal) left).subtract((BigDecimal) right).abs(); 
-                    usedMargin = false; 
-                }
+                difference = ((BigDecimal) left).subtract((BigDecimal) right).abs(); 
+                usedMargin = false; 
             } else {
                 if (usedMargin) {
-                    if (left != null && right != null) {
-                        difference = ((BigDecimal) left).subtract((BigDecimal) right).abs(); 
-                    }
+                    difference = ((BigDecimal) left).subtract((BigDecimal) right).abs(); 
                 } else {
                     usedMargin = false;
                     difference = null; 
@@ -49,7 +45,7 @@ public class DecimalEqualsStrategy implements ComparisonStrategy{
             usedMargin = false;
         }
         
-        ValValue valueParentResult = new ValValue(OperationsUtils.getDataTypeByID(Constants.BOOLEAN), result != null ? result.toString() : null);
+        ValValue valueParentResult = new ValValue(OperationsUtils.getDataTypeByID(Constants.DATATYPEBOOLEAN), result != null ? result.toString() : null);
         ValResult valResult = new ValResult(valueParentResult);
         
         valResult.setUsedMargin(usedMargin);
