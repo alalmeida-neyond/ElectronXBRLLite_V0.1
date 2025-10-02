@@ -106,7 +106,7 @@ public class InImportedTablesDAL {
                     "actionId", String.valueOf(Constants.actionImport),
                     "typeStateOk", String.valueOf(Constants.tipoStateOK),
                     "referenceDate", referenceDate != null ? referenceDate.format(Constants.dateFormat) : null,
-                    "format", Constants.ISOBASEFORMAT,
+                    "format", Constants.ISOBASEFORMATSQlite,
                     "domain", domain != null ? domain.toUpperCase() : null,
                     "moduleVID", module != null ? String.valueOf(module.getModuleVID()) : null,
                     "entityId", entity != null ? String.valueOf(entity.getEntityID()) : null,

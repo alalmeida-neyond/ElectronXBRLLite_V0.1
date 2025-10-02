@@ -34,8 +34,8 @@ public class TableVersionDAL {
             StringBuilder queryString = new StringBuilder("Select c.* from MODULEVERSIONCOMPOSITION b ");
             queryString.append(" inner join MODULEVERSION a on b.ModuleVID = a.ModuleVID ");
             queryString.append(" inner join tableversion c on c.TableVid = b.TableVid and c.Tableid = b.Tableid ");
-            queryString.append(" where a.ModuleVID = :moduleVID and (datetime(a.fromreferencedate / 1000, 'unixepoch') <= :referencedate ");
-            queryString.append(" and (a.toreferencedate is null or datetime(a.toreferencedate / 1000, 'unixepoch') >= :referencedate)) ");
+            queryString.append(" where a.ModuleVID = :moduleVID and (a.fromreferencedate <= :referencedate ");
+            queryString.append(" and (a.toreferencedate is null or a.toreferencedate >= :referencedate)) ");
 
             listOfFiles = jpa.getTypedNativeResultList(queryString.toString(),
                     "moduleVID", module.getModuleVID(),
@@ -94,7 +94,9 @@ public class TableVersionDAL {
         
         Set<Integer> resultSet = new HashSet<>();
         for(Object resultRow : resultList){
-            Integer variableVID = ((BigDecimal)resultRow).intValueExact();
+            // Change in SQL Lite is default Integer not BigDecimal
+            //Integer variableVID = ((BigDecimal)resultRow).intValueExact();
+            Integer variableVID = (Integer)resultRow;
             resultSet.add(variableVID);
         }
         

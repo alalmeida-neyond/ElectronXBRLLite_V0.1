@@ -173,14 +173,6 @@ public class XBRLGenerator implements Runnable {
             }
             progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
             //HERE
-            /*for (Map.Entry<String, List<InImportedTablesTemp>> entry : listOfTableGroupedByTheTableVID.entrySet()) {
-
-                Thread t = new Thread(new XBRLGeneratorMap(finalFolder, entry.getValue(), ioImport.getReferenceDate(), altGeneration));
-                threadList.add(t);
-                t.start();
-                completedSteps++;
-                progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
-            }*/
             
             //Filling Indicators
             Set<String> filteredMapWithoutEmpty = listOfTableGroupedByTheTableVID.entrySet().stream()
@@ -193,42 +185,7 @@ public class XBRLGenerator implements Runnable {
             completedSteps++;
             progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
             createFillingIndicatorCSV(finalFolder, filteredMapWithoutEmpty);
-            /*boolean waitingForAllThread = true;
-            Thread auxVariableToCheck = null;
-            while (waitingForAllThread) {
-                if (auxVariableToCheck == null) {
-                    auxVariableToCheck = threadList.poll();
-                    if (auxVariableToCheck == null && threadList.isEmpty()) {
-                        waitingForAllThread = false;
-                    }
-                } else if (!auxVariableToCheck.isAlive()) {
-                    auxVariableToCheck = null;
-                }
-                if (Thread.currentThread().isInterrupted()) {
-                    break;
-                }
-            }
-            if (waitingForAllThread) {
-                //Cancel Happen
-                if (auxVariableToCheck != null) {
-                    auxVariableToCheck.interrupt();
-                }
-                while (!threadList.isEmpty()) {
-                    auxVariableToCheck = threadList.poll();
-                    auxVariableToCheck.interrupt();
-                }
-                //Add to the Log Generation Canceled
-                GenerateLogDAL.createNewGenerationLog("Geracao Cancelada com sucesso", outXBRLGenerated.getIdXBRLGenerate());
-                generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoCanceled));
-                Connection.merge(generationIo);
-            } else {
-                //Add to the Log Generation Conclude sucesufully
-                GenerateLogDAL.createNewGenerationLog("Geracao Concluída com sucesso", outXBRLGenerated.getIdXBRLGenerate());
-                generationIo.setEndTimestamp(LocalDateTime.now());
-                generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
-                Connection.merge(generationIo);                
-            }*/
+           
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -666,64 +623,23 @@ public class XBRLGenerator implements Runnable {
         for (String map : maps) {
             if (mapNameChecker.containsKey(map)) {
                 mapNameChecker.replace(map, Boolean.TRUE);
-            } else {
-                if (abstractNameChecker.containsKey(map)) {
-                    mapNameChecker.replace(abstractNameChecker.get(map), Boolean.TRUE);
-                }
+            } else  if (abstractNameChecker.containsKey(map)) {
+                mapNameChecker.replace(abstractNameChecker.get(map), Boolean.TRUE);
             }
         }
 
         try (FileWriter writer = new FileWriter(fillingCSVPath.toFile())) {
-            //writer.append("templateID,reported");
             writer.append(Constants.FILLINGINDICATORSLABELS);
             for (Map.Entry<String, Boolean> entry : mapNameChecker.entrySet()) {
                 writer.append("\n");
                 writer.append(entry.getKey());
                 writer.append(",");
-                //writer.append((entry.getValue() ? "true" : "false"));
                 writer.append((entry.getValue() ? Constants.TRUERESULT : Constants.FALSERESULT));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-    /*public void createParametersCSV(String path) {
-        Path paramCSVPath = Paths.get(path + Utils.getSeparator(), Constants.PARAMETERSFILENAME);
-        String currency = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGCURRENCY);
-        String monetary = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGMONETARY);
-        String percentage = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGPERCENTAGE);
-        String decimal = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGDECIMAL);
-        String integer = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGINTEGER);
-        try (FileWriter writer = new FileWriter(paramCSVPath.toFile())) {
-            writer.append(Constants.PARAMETERSLABELS);
-            writer.append("\n");
-            writer.append(Constants.PARAMETERSKEYENTITY);
-            writer.append(getEntity().getLeiCode());
-            writer.append(".");
-            writer.append(domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3).toUpperCase() : domain.toUpperCase());
-            writer.append("\n");
-            writer.append(Constants.PARAMETERSKEYREFERENCEDATE);
-            writer.append(getReferenceDate().toString()); 
-            writer.append("\n");
-            writer.append(Constants.PARAMETERSKEYCURRENCY);
-            writer.append(currency);
-            writer.append("\n");
-            writer.append(Constants.PARAMETERSKEYINTEGER);
-            writer.append(integer);
-            writer.append("\n");
-            writer.append(Constants.PARAMETERSKEYMONETARY);
-            writer.append(monetary);
-            writer.append("\n");
-            writer.append(Constants.PARAMETERSKEYPERCENTAGE);
-            writer.append(percentage);
-            writer.append("\n");
-            writer.append(Constants.PARAMETERSKEYDECIMAL);
-            writer.append(decimal);
-        } catch (IOException e) {
-            
-        }
-    }*/
 
     private Map<Integer, Map.Entry<String, String>> createParametersMap(){
         String monetary = ConfAppConfigsDAL.getValueOfAppConfigurationKey(Constants.APPCONFIGMONETARY);
