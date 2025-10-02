@@ -60,9 +60,9 @@ with ioValidation as (
     inner join operationScopecomposition osc on osc.operationscopeid = os.operationscopeid and osc.modulevid = rv.modulevid
 )
 , resultsDetailsCommonDatapointRules as (
-    select to_char(trunc(rv.refDate), 'yyyy-mm-dd') referenceDate, rv.module module, rv.entity, rv.domain, rv.relatorio mapa, 'Common Datapoint' regraCode, 'Error',
+    SELECT strftime('%Y-%m-%d', rv.refDate) AS referenceDate, rv.module module, rv.entity, rv.domain, rv.relatorio mapa, 'Common Datapoint' regraCode, 'Error',
     vrd.domain regraDomain, 'Common Datapoint' as regra, vrd.expression regraExecutada, '-' as origem,
-    sd.description as resultado, to_char(vrd.timestamp, 'yyyy-MM-dd HH24?MI?SS') dataProcessamento, coalesce(TO_CHAR(vrd.difference),'-') as difference,
+    sd.description as resultado, strftime('%Y-%m-%d %H:%M:%S', vrd.timestamp / 1000, 'unixepoch','localtime') dataProcessamento, coalesce(CAST(vrd.difference as TEXT),'-') as difference,
     'FALSE' as usedmargin
     from validationResults rv
     inner join out_validationresult vr on vr.validationresultid = rv.validationresultid
