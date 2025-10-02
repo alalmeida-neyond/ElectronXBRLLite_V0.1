@@ -25,6 +25,9 @@ public class InKeyAssociation implements Serializable {
     @Column(name = "PROPERTYVALUE")
     private String propertyValue;
     
+    @Column(name = "PROPERTYORIGINALVALUE")
+    private String propertyOriginalValue;
+
     @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID")
     @ManyToOne
     private InImportKey importedKey;
@@ -59,5 +62,13 @@ public class InKeyAssociation implements Serializable {
 
     public void setImportedKey(InImportKey importedKey) {
         this.importedKey = importedKey;
+    }
+
+    public String getPropertyOriginalValue() {
+        return propertyOriginalValue;
+    }
+
+    public void setPropertyOriginalValue(String propertyOriginalValue) {
+        this.propertyOriginalValue = propertyOriginalValue;
     }
 }

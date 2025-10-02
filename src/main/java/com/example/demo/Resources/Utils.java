@@ -81,7 +81,19 @@ public final class Utils {
         }
         return String.format("%04d", number);
     }
-
+    
+    public static String booleanTreatment(String value, int datatype){
+        
+        if(validateFromARegex(value.trim(), Constants.TRUEBOOLEANPATTERN)){
+            return Constants.TRUERESULT;
+        }
+        
+        if(validateFromARegex(value.trim(), Constants.FALSEBOOLEANPATTERN) && datatype == Constants.DATATYPEBOOLEAN){
+            return Constants.FALSERESULT;
+        }
+        
+        return null;
+    }
     /**
      * Method to get the List of Months in a written form (Janeiro / Fevereiro /
      * etc)
@@ -360,7 +372,7 @@ public final class Utils {
 
     public static String roundToZero(String value) throws Exception {
         double num = Double.parseDouble(value);
-        return Math.abs(num) < 1e-6 ? "0" : value;
+        return Math.abs(num) < 1e-6 ? "0" : BigDecimal.valueOf(num).stripTrailingZeros().toPlainString();
     }
 
     public static Map<Integer, Object[]> createHashMapForExcel(List<Object[]> data, Object[] header) {

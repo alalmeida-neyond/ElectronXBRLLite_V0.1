@@ -176,7 +176,6 @@ public class ModuleFileImport extends RunnableExtension{
             boolean hasInsertedValue;
             List<String> errorMsgPerTables = new ArrayList<>();
 
-
             int totalNumberSheets = workBook.getNumberOfSheets();
             int completedTables = 1;
             progressService.setImportProgress(completedTables, Integer.valueOf(totalNumberSheets) + 1);
@@ -327,31 +326,46 @@ public class ModuleFileImport extends RunnableExtension{
                                     
                                     boolean valid = true;
                                     
+                                    if (valueEdited.contains(Constants.LESSTHANOREQUALSCHAR)) {
+                                        valueEdited = valueEdited.replaceAll(Constants.LESSTHANOREQUALSCHAR, Constants.LESSTHANOREQUALSSTRING);
+                                    }
+
+                                    if (valueEdited.contains(Constants.GREATERTHANOREQUALSCHAR)) {
+                                        valueEdited = valueEdited.replaceAll(Constants.GREATERTHANOREQUALSCHAR, Constants.GREATERTHANOREQUALSSTRING);
+                                    }
+
                                     try {
-                                        if (cellType == Constants.MONETARY || cellType == Constants.PERCENTAGE) {
+                                        if (cellType == Constants.DATATYPEMONETARY || cellType == Constants.DATATYPEPERCENTAGE) {
                                             valueEdited = Utils.roundToZero(value);
                                         }
                                     } catch (Exception e) {
                                         errorMsgPerTables.add("Erro a normalizar valor numérico, na linha " + rowValue + " e na coluna " + columnValue + ".");
                                         valid = false;
                                     }
-
-                                    if (cellType == Constants.DATE && listOfIDImportRules.contains(Constants.IMPORTRULEDATE)) {
+                                    
+                                     if (cellType == Constants.DATATYPEDATE && listOfIDImportRules.contains(Constants.IMPORTRULEDATE)) {
                                         valueEdited = Utils.dateTreatment(value);
-                                        if(valueEdited == null){
+                                        if (valueEdited == null) {
                                             errorMsgPerTables.add("Erro a normalizar valor de data, na linha " + rowValue + " e na coluna " + columnValue + ".");
                                             valid = false;
                                         }
                                     }
-                                    
-                                    if (cellType == Constants.DATETIME && listOfIDImportRules.contains(Constants.IMPORTRULEDATETIME)) {
+
+                                    if (cellType == Constants.DATATYPEDATETIME && listOfIDImportRules.contains(Constants.IMPORTRULEDATETIME)) {
                                         valueEdited = Utils.dateTimeTreatment(value);
-                                        if(valueEdited == null){
+                                        if (valueEdited == null) {
                                             errorMsgPerTables.add("Erro a normalizar valor temporal, na linha " + rowValue + " e na coluna " + columnValue + ".");
                                             valid = false;
                                         }
                                     }
                                     
+                                    if ((cellType == Constants.DATATYPEBOOLEAN || cellType == Constants.DATATYPETRUE) && listOfIDImportRules.contains(Constants.IMPORTRULEBOOLEAN)) {
+                                        valueEdited = Utils.booleanTreatment(value, cellType);
+                                        if (valueEdited == null) {
+                                            errorMsgPerTables.add("Erro a normalizar valor booleano, na linha " + rowValue + " e na coluna " + columnValue + ".");                                    
+                                            valid = false;
+                                        }
+                                    }
                                     if(valid){
                                         valid = validateValue(valueEdited,cellType);
                                         if(!valid){
@@ -359,8 +373,8 @@ public class ModuleFileImport extends RunnableExtension{
                                         }
                                     }
                                     
-                                    if (cellType == Constants.ENUMERATION || (cellType == Constants.NOTAPPLICABLE && isOpenRow)) {
-                                        String valueTemp = value; 
+                                    if (cellType == Constants.DATATYPEENUMERATION || (cellType == Constants.NOTAPPLICABLE && isOpenRow)) {
+                                        String valueTemp = valueEdited;
                                         //Error
                                         if (!listItemsMapped.get(columnValue).isEmpty()) {
                                             List<DatapointItensDTO> auxDatapointDTOListOfColumn = new ArrayList<>();
@@ -424,6 +438,7 @@ public class ModuleFileImport extends RunnableExtension{
                                         desagregationCodeAssociation.setImportedKey(rowKeyImportKey);
                                         desagregationCodeAssociation.setPropertyName(listItemsMapped.get(columnValue).get(Constants.FIRSTRESULT).getXBRLHeader());
                                         desagregationCodeAssociation.setPropertyValue((Utils.isNumericWithComma(value)? (value.contains(",") ? value.replace(",", ".") : value) : valueEdited));
+                                        desagregationCodeAssociation.setPropertyOriginalValue(value);
 
                                         rowKeyImportKey.getListPropertyValues().add(desagregationCodeAssociation);
                                         /*em.persist(desagregationCodeAssociation);
@@ -435,7 +450,7 @@ public class ModuleFileImport extends RunnableExtension{
                                     } 
                                     continue;
                                 }
-                                if(cellListCategory != null && cellListCategory.size() > 1 && !Utils.isNumericWithComma(value) && cellType == Constants.ENUMERATION){
+                                if(cellListCategory != null && cellListCategory.size() > 1 && !Utils.isNumericWithComma(value) && cellType == Constants.DATATYPEENUMERATION){
                                     valueEdited = itemCategoryCellLastFilter(value,cellListCategory,aux.getVariableVid());
                                 }
                                 
@@ -489,13 +504,7 @@ public class ModuleFileImport extends RunnableExtension{
                             Connection.persist(cm, importedValue);
                         }
                     }
-                    /*if (nRegistos % 1000 == 0) {
-                        if (!em.getTransaction().isActive()) {
-                            em.getTransaction().begin();
-                        }
-                        em.flush();
-                        em.clear();
-                    }*/
+
                     if (nRegistos % 1000 == 0) {
                         if (!cm.em.getTransaction().isActive()) {
                             cm.em.getTransaction().begin();
@@ -513,10 +522,6 @@ public class ModuleFileImport extends RunnableExtension{
                         hasOk = true;
                     } else if (!errorMsgPerTables.isEmpty() && !hasInsertedValue) {
                         hasEmpty = true;
-                        
-                        importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
-                        
-                        //hasNotOk = true;
                     } else if (!errorMsgPerTables.isEmpty()) {
                         importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
 
@@ -652,8 +657,11 @@ public class ModuleFileImport extends RunnableExtension{
                     desagregationCodeAssociation.setPropertyName(possibleCurrentValues.get(Constants.FIRSTRESULT).getXBRLHeader());
                     if(possibleCurrentValues.get(Constants.FIRSTRESULT).getSignature() != null){
                         //Validate Against the ListList<Person> filteredPeople = people.stream()
-                        possibleCurrentValues = possibleCurrentValues.stream().filter(p -> p.getValueCode().equalsIgnoreCase(stringSplittedDesagregation) || p.getSignature().equalsIgnoreCase(Constants.EBASEPARATOR+stringSplittedDesagregation) || p.getName().equalsIgnoreCase(stringSplittedDesagregation))
-                        .collect(Collectors.toList());
+                         possibleCurrentValues = possibleCurrentValues.stream().filter(p -> (p.getValueCode() != null && p.getValueCode().trim().equalsIgnoreCase(stringSplittedDesagregation))
+                            || (p.getSignature() != null && p.getSignature().trim().equalsIgnoreCase(Constants.EBASEPARATOR + stringSplittedDesagregation))
+                            || (p.getSignature() != null && p.getSignature().trim().equalsIgnoreCase(stringSplittedDesagregation))
+                            || (p.getName() != null && p.getName().trim().equalsIgnoreCase(stringSplittedDesagregation)))
+                            .collect(Collectors.toList());
                         if(possibleCurrentValues.size() == Constants.UNIQUEELEMENTONLIST){
                             desagregationCodeAssociation.setPropertyValue(possibleCurrentValues.get(Constants.FIRSTRESULT).getSignature());
                         }else{
@@ -734,40 +742,41 @@ public class ModuleFileImport extends RunnableExtension{
         return null;
     }
     
-    public boolean validateValue(String value, int cellType){
+    public boolean validateValue(String value, int cellType) {
         switch (cellType) {
-            case Constants.DECIMAL:
-            case Constants.MONETARY:
-            case Constants.PERCENTAGE:
-                if(Utils.isNumeric(value)){
+            case Constants.DATATYPEDECIMAL:
+            case Constants.DATATYPEMONETARY:
+            case Constants.DATATYPEPERCENTAGE:
+                if (Utils.isNumeric(value)) {
                     return true;
                 }
                 break;
-            case Constants.INTEGER:
-                if(Utils.isNumeric(value) && !value.contains(".")){
+            case Constants.DATATYPEINTEGER:
+                if (Utils.isNumeric(value) && !value.contains(".")) {
                     return true;
                 }
                 break;
-            case Constants.BOOLEAN:
-                return Utils.validateFromARegex(value,Constants.BOOLEANPATTERN);
-            case Constants.TRUE:
-                return Utils.validateFromARegex(value,Constants.TRUEPATTERN);
-            case Constants.DATETIME:
-                return Utils.validateFromARegex(value,Constants.DATETIMEPATTERN);
-            case Constants.DATE:
-                return Utils.validateFromARegex(value,Constants.DATEPATTERN);
-            case Constants.URI:
-                return Utils.validateFromARegex(value,Constants.URIPATTERN);
-            case Constants.ORDINALS:
+            case Constants.DATATYPEBOOLEAN:
+                return Utils.validateFromARegex(value, Constants.BOOLEANPATTERN);
+            case Constants.DATATYPETRUE:
+                return Utils.validateFromARegex(value, Constants.TRUEPATTERN);
+            case Constants.DATATYPEDATETIME:
+                return Utils.validateFromARegex(value, Constants.DATETIMEPATTERN);
+            case Constants.DATATYPEDATE:
+                return Utils.validateFromARegex(value, Constants.DATEPATTERN);
+            case Constants.DATATYPEURI:
+                return Utils.validateFromARegex(value, Constants.URIPATTERN);
+            case Constants.DATATYPEORDINALS:
+                //Validate ORDINALS (No Ideia what it is)
                 break;
-            case Constants.STRINGINCLUDINGEMPTY:
-            case Constants.ENUMERATION: //Enumeration Validates Later to check if exists in List
+            case Constants.DATATYPESTRINGINCLUDINGEMPTY:
+            case Constants.DATATYPEENUMERATION: //Enumeration Validates Later to check if exists in List
                 return true;
-            case Constants.STRINGNONEMPTY:
-                if(value != null && value != ""){
+            case Constants.DATATYPESTRINGNONEMPTY:
+                if (value != null && value != "") {
                     return true;
                 }
-            case Constants.NOTAPPLICABLE:
+            case Constants.DATATYPENOTAPPLICABLE:
                 return true;
         }
         return false;

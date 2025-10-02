@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,7 @@ import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.Logs.*;
 import com.example.demo.service.ProgressService;
+
 
 import org.jboss.logging.Logger;
 
@@ -102,7 +104,10 @@ public class Validator_2_0 extends RunnableExtension {
         Set<TableVersionDPM> sortedTables = tablesToValidate.stream().collect(Collectors.toCollection(() -> 
                                                     new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
                                                 ));
-        setTables(sortedTables);
+        /* 
+        AQUIXXX
+        setTables(sortedTables); */
+        setTables(new HashSet<>()); 
         LOG.info("Validacao Iniciada | " + "Processo de validacao iniciada.");
         
         try {
