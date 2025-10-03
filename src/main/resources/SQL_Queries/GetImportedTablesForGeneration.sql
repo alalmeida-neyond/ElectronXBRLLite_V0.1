@@ -48,3 +48,4 @@ from (
     union 
     select * from tablesImportedWithoutCode
 ) impTable
+where impTable.io_stateid != :processOkDeleted and impTable.io_stateid != :processOkEmpty

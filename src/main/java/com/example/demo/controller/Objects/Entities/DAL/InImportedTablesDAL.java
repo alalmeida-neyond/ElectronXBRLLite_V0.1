@@ -29,6 +29,8 @@ public class InImportedTablesDAL {
         List<InImportedTablesTemp> listOfMaps = new ArrayList<>();
         try {
             listOfMaps = jpa.getTypedNativeResultList(queryStr,
+                                "processOkEmpty",String.valueOf(Constants.processoOkEmpty),
+                    "processOkDeleted", String.valueOf(Constants.processoOkDeleted),
                     "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE),
                     "ioId", io.getIoId());
         } catch (Exception ex) {
