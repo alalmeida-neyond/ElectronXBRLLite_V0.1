@@ -669,6 +669,7 @@ public class ModuleFileImport extends RunnableExtension{
                     }else{
                         desagregationCodeAssociation.setPropertyValue(stringSplittedDesagregation);
                     }
+                    desagregationCodeAssociation.setPropertyOriginalValue(stringSplittedDesagregation);
                     desagregationImportKey.getListPropertyValues().add(desagregationCodeAssociation);
                     cm.em.persist(desagregationCodeAssociation);
                     cm.em.persist(desagregationImportKey);
@@ -678,6 +679,7 @@ public class ModuleFileImport extends RunnableExtension{
                     desagregationCodeAssociation.setImportedKey(desagregationImportKey);
                     desagregationCodeAssociation.setPropertyName(Constants.SHEETCODE);
                     desagregationCodeAssociation.setPropertyValue(stringSplittedDesagregation);
+                    desagregationCodeAssociation.setPropertyOriginalValue(stringSplittedDesagregation);
                     desagregationImportKey.getListPropertyValues().add(desagregationCodeAssociation);
                     cm.em.persist(desagregationCodeAssociation);
                     cm.em.persist(desagregationImportKey);
