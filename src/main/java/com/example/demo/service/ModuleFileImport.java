@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jboss.logging.Logger;
@@ -55,6 +56,8 @@ public class ModuleFileImport extends RunnableExtension{
         this.alterFilename = filenameWithTimestamp;
         this.listOfImportRulesToApply = ruleIdsToApply;
         this.progressService = progressService;
+
+        ZipSecureFile.setMaxFileCount(50_000);
     }
     
     private List<Integer> typeListToExclude = Arrays.asList(Constants.INTEGER, Constants.DECIMAL, Constants.MONETARY, Constants.PERCENTAGE);
