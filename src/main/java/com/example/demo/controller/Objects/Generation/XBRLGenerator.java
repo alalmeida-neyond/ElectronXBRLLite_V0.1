@@ -5,7 +5,6 @@
 package com.example.demo.controller.Objects.Generation;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -51,8 +50,11 @@ import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 import com.example.demo.controller.Objects.IO.IO;
+import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.Import.*;
 import com.example.demo.service.ProgressService;
+
+import jakarta.persistence.EntityManager;
 
 public class XBRLGenerator implements Runnable {
 
@@ -146,6 +148,7 @@ public class XBRLGenerator implements Runnable {
             //Get Object from NULL
             boolean altGeneration = Info.getInstance().checkIfUsesAltGeneration(module.getModuleVID(),Constants.GENERATIONBASEDONCOLLUMN);
             List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain, ioImport);
+            progressService.setGenerationProgress(completedSteps,tempList.size() + 3);
 
             //Create Report JSON
             boolean wasReportsJsonCreatedSucessufuly = createReportJSON(finalFolder, getModule().getModuleVID());
@@ -159,6 +162,8 @@ public class XBRLGenerator implements Runnable {
             // Create Parameter CSV
             List<DataTypeHasUnitDTO> importedDatatypes = InImportedTablesDAL.getListOfImportedDatatypes(module, referenceDate, entity, domain);
             createParametersCSV(finalFolder, importedDatatypes);
+            completedSteps++;
+            progressService.setGenerationProgress(completedSteps,tempList.size() + 3);
 
             //Create Map
             Map<String, List<InImportedTablesTemp>> listOfTableGroupedByTheTableVID = tempList.stream()
@@ -171,6 +176,7 @@ public class XBRLGenerator implements Runnable {
                         altGeneration
                 );
             }
+            completedSteps++;
             progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
             //HERE
             
@@ -198,7 +204,7 @@ public class XBRLGenerator implements Runnable {
             Connection.merge(generationIo); 
         } 
 
-        startDownload(finalFolder, ioValidation);
+        startDownload(finalFolder, ioValidation, generationIo);
     }
 
     public List<OutValidationsDashboardDTO> getLastValidationResult() {
@@ -351,9 +357,12 @@ public class XBRLGenerator implements Runnable {
         return null;
     }
 
-    public void startDownload(String finalFolder, IO ioValidation) {
+    public void startDownload(String finalFolder, IO ioValidation, IO ioGeneration) {
         SXSSFWorkbook validationsWorkbook = null;
+        EntityManager em = Connection.getEm();
+        ConnectionManager cm = null;
         try {
+            cm = new ConnectionManager(em);
             Path excelFilePath = Paths.get(finalFolder + Utils.getSeparator(), "ResultsValidation.csv");
 
 
@@ -408,6 +417,11 @@ public class XBRLGenerator implements Runnable {
 
             cleanUp();
             progressService.setGenerationProgress(1, 1);
+            IOState ioState = Info.getInstance().getIOStateByID(Constants.processoOk);
+            ioGeneration.setIoState(ioState);
+            ioGeneration.setEndTimestamp(LocalDateTime.now());
+            //Connection.merge(io);
+            Connection.merge(cm, ioGeneration);
 
         } catch (Exception e) {
             e.printStackTrace();

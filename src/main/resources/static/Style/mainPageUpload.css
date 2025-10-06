@@ -346,3 +346,10 @@ html, body {
   display: block;
 }
 
+.isDisabled {
+  color: currentColor;
+  cursor: not-allowed;
+  text-decoration: none;
+  pointer-events: none;
+}
+

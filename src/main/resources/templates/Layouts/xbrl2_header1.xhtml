@@ -8,7 +8,7 @@
 <body>
   <div id="dvPageHeader">
     <div id="dvlogo">
-      <a th:href="@{/}" title="Homepage"><img th:src="@{/Images/logo-branco.png}"
+      <a th:href="@{/}" title="Homepage" id="homepage"><img th:src="@{/Images/logo-branco.png}"
           style="height: auto; width: 45%" /></a>
     </div>
     <div id="dvheaderGroup">
@@ -16,9 +16,9 @@
       </div>
 
       <div id="dvheaderRightDown">
-        <a th:href="@{/templates}" class="internationalization" data-key="templates.label" title="Templates">{{templates.label}}</a>
+        <a th:href="@{/templates}" class="internationalization" data-key="templates.label" title="Templates" id="templatesPage">{{templates.label}}</a>
        <!--<a th:href="@{/}" class="internationalization" data-key="manual.label" title="Manual">{{manual.label}}</a> -->
-        <a th:href="@{/settings}" class="internationalization" data-key="settings.label" title="Settings">{{settings.label}}</a>
+        <a th:href="@{/settings}" class="internationalization" data-key="settings.label" title="Settings" id = settingsPage>{{settings.label}}</a>
         <div class="language-switcher">
           <select id="languageSelect" class="form-select form-select-sm w-auto">
             <option value="pt" selected>Português</option>

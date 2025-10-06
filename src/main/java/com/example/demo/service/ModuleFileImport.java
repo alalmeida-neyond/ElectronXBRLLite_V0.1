@@ -18,6 +18,7 @@ import org.jboss.logging.Logger;
 import com.example.demo.DTOs.*;
 import com.example.demo.Data.*;
 import com.example.demo.Data.Access.Info;
+import com.example.demo.Data.Access.JPA;
 import com.example.demo.Finrep.*;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
@@ -70,6 +71,7 @@ public class ModuleFileImport extends RunnableExtension{
     private String alterFilename;
     private List<Integer> listOfImportRulesToApply;
     private final Logger LOG = Logger.getLogger(ModuleFileImport.class);
+    
 
     private final ProgressService progressService;
 
@@ -130,6 +132,27 @@ public class ModuleFileImport extends RunnableExtension{
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    private void cleanUpDatabase(IO io)
+    {
+        ModuleVersion moduleVersion = io.getModule();
+        int ioID = io.getIoId();
+
+        JPA<String> jpa = new JPA<String>(String.class);
+        List<String> result = new ArrayList<String>();
+
+        try {
+            StringBuilder queryString = new StringBuilder("Select io.modulevid as moduleVID");
+            queryString.append(" from IO io where ioid = :ioid ");
+            result = jpa.getTypedNativeResultList(queryString.toString(),
+                    "ioid", ioID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            jpa.close();
+        }
+
     }
     
     /**

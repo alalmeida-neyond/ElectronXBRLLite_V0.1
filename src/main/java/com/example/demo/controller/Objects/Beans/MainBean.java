@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.example.demo.DTOs.ConfTemplateSpecsDTO;
 import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
@@ -38,10 +37,6 @@ import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.ui.Model;
 
 import java.io.*;
@@ -452,7 +447,7 @@ public class MainBean extends DefaultBean{
     public ModelAndView greeting() throws FileNotFoundException {
         ModelAndView modelAndView = new ModelAndView();
 
-        init();
+        //init();
         modelAndView.addObject(Constants.LEICodeKeyString, licenseVerification.getLEICode());
 
         modelAndView.setViewName("test");

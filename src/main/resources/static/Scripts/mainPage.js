@@ -139,7 +139,6 @@ document.addEventListener("DOMContentLoaded", function () {
   ["filterYear", "filterMonth"].forEach((id) => {
     const input = document.getElementById(id);
     input.addEventListener("input", () => {
-      console.log("Input Value:" + input.value);
       input.value = input.value.replace(/\D/g, "");
       autoSubmit();
     });
@@ -207,17 +206,14 @@ document.addEventListener("DOMContentLoaded", function () {
       fetch("/importProgress")
         .then((response) => response.json())
         .then((progressImport) => {
-          console.log("Import Progress:" + progressImport);
           if (progressImport === 100) {
             fetch("/validationProgress")
               .then((response) => response.json())
               .then((progressValidation) => {
-                console.log("Validation Progress:" + progressValidation);
                 if (progressValidation === 100) {
                   fetch("/generationProgress")
                     .then((response) => response.json())
                     .then((progressGeneration) => {
-                      console.log("Generation Progress:" + progressGeneration);
                       if (progressGeneration === 100) {
                         clearInterval(progressInterval);
                         document.getElementById(
@@ -229,7 +225,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         document.getElementById(
                           "generationProgressBar"
                         ).style.display = "none";
-                        console.log("Done");
                       } else {
                         showGenerationProgress(progressGeneration);
                       }
@@ -253,6 +248,13 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("upload-text").style.display = "none";
     document.getElementById("loading-container").style.display = "flex";
     document.getElementById("file").disabled = true;
+    const homepageButton = document.getElementById("homepage");
+    const templatesPageButton = document.getElementById("templatesPage");
+    const settingsPageButton = document.getElementById("settingsPage");
+
+    homepageButton.classList.add("isDisabled");
+    templatesPageButton.classList.add("isDisabled");
+    settingsPageButton.classList.add("isDisabled");
 
     showImportProgress(0);
 
@@ -277,11 +279,13 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("upload-error").style.display = "none";
         document.getElementById("file").disabled = false;
 
+        homepageButton.classList.add("isDisabled")?.classList.remove("isDisabled");
+        templatesPageButton.classList.add("isDisabled")?.classList.remove("isDisabled");
+        settingsPageButton.classList.add("isDisabled")?.classList.remove("isDisabled");
+
         document.getElementById("file").value = null;
 
         clearInterval(progressInterval);
-
-        console.log("Only appears in the final");
 
         const importBar = document.getElementById("importProgressBar");
         const validationBar = document.getElementById("validationProgressBar");
@@ -346,7 +350,11 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (ioStateId == 3) {
       icon.classList.add("bi-x-circle-fill", "text-danger");
       backgroundColor = "#f8d7da";
-    } else {
+    } else if (ioStateId == 4) {
+      icon.classList.add("bi-clock-fill", "text-primary");
+      backgroundColor = "#lightgrey";
+    }
+    else {
       icon.classList.add("bi-x-circle-fill", "text-danger");
       backgroundColor = "lightGrey";
     }
@@ -823,6 +831,8 @@ document.addEventListener("DOMContentLoaded", function () {
             iconSeverity.classList.add("bi", "me-2");
 
             let severityLabel = "";
+
+            
 
             if (severityKey === "ok") {
               iconSeverity.classList.add(
