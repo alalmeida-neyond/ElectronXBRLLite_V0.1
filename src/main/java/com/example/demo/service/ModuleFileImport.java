@@ -205,8 +205,11 @@ public class ModuleFileImport extends RunnableExtension{
             int totalNumberSheets = workBook.getNumberOfSheets();
             int completedTables = 1;
             progressService.setImportProgress(completedTables, Integer.valueOf(totalNumberSheets) + 1);
+			/* ----- GLOBAL VARIABLES ----- */
+            DesagregationCodeBuilder desagCodeBuilder = new DesagregationCodeBuilder(io, cm, Constants.IMPORTNORMAL);
             for (int sheet = 0; sheet < workBook.getNumberOfSheets(); sheet++) {
                 hasInsertedValue = false;
+				sheetValueAsHeaderCode = null;							  
                 //In case of Error, only required to upload sheets missing
                 if (!em.getTransaction().isActive()) {
                     em.getTransaction().begin();
@@ -220,7 +223,7 @@ public class ModuleFileImport extends RunnableExtension{
                 String sheetName = workSheet.getSheetName().trim();
                 String fillingIndicator = sheetName;
                 String desagregationCode = null;
-                if(sheetName.contains("(")){
+                if (sheetName.contains("(")) {
                     desagregationCode = sheetName.substring(sheetName.indexOf("(") + 1, sheetName.indexOf(")")).trim();
                     fillingIndicator = sheetName.substring(0, sheetName.indexOf("(")).trim();
                 }
@@ -228,36 +231,85 @@ public class ModuleFileImport extends RunnableExtension{
                 String fillingIndicatorWithUnderScores = fillingIndicator.replaceAll(" ", "_").trim();
 
                 //Check if the filling indicator is possible
-                singleFillingIndicatorAsTableVersion = FillingIndicatorModuleService.getTableVersionFromList(fillingIndicatorModuleList,fillingIndicatorWithUnderScores);
-                if(singleFillingIndicatorAsTableVersion == null){
+                singleFillingIndicatorAsTableVersion = FillingIndicatorModuleService.getTableVersionFromList(fillingIndicatorModuleList, fillingIndicatorWithUnderScores);
+                if(singleFillingIndicatorAsTableVersion == null) {
                     continue;
                 }
                 headerDTOList = TableVersionHeaderDAL.getListOfHeaderForATableVid(singleFillingIndicatorAsTableVersion.getTableVID());
-                sheetValueAsHeaderCode = null;
+				/*---------- DESAGREGATION CODE TREATMENT ----------*/
                 InImportKey desagregationCodeKey = null;
-                if(desagregationCode != null){
-                    if(Utils.isNumeric(desagregationCode)){
-                            sheetValueAsHeaderCode = HeaderService.getHeaderDTOFromList(headerDTOList,desagregationCode.trim(),Constants.SheetCoordinateAsChar,false);
-                        }
-                    desagregationCodeKey = buildDesagregationCode(desagregationCode,singleFillingIndicatorAsTableVersion.getTableVID(),singleFillingIndicatorAsTableVersion.getTable().getTableId(), io.getReferenceDate(),cm);
-                    
+                
+                if(desagCodeBuilder.isOpenSheets(singleFillingIndicatorAsTableVersion.getTableVID())){
+                    desagregationCodeKey = desagCodeBuilder.buildDesagCodeKey(singleFillingIndicatorAsTableVersion.getTableVID(), desagregationCode, sheetName);
+                    if(desagregationCodeKey == null){
+                        errorMsgPerTables.addAll(desagCodeBuilder.getErrorMessages());
+                        desagCodeBuilder.clearErrorMessages();
+                    } else if(desagregationCodeKey.getKeyType().getKeyTypeID() == Constants.DESAGREGATIONCODEFIXEDTYPE){
+                        //REVER ISTO -- DE MOMENTO ESTÁ POR NECESSIDADE MAIS A FRENTE.
+                        sheetValueAsHeaderCode = HeaderService.getHeaderDTOFromList(headerDTOList, desagregationCode.trim(), Constants.SheetCoordinateAsChar, false);
+                    }
+                } else {
+                    if(desagregationCode != null && !desagregationCode.isEmpty()){
+                        errorMsgPerTables.add(Constants.MESSAGEERRORUNEXPECTEDDESAGCODE(sheetName));
+                    }
+                }
+                
+                /*--------------------------------------------------*/
+                
+                /*---------- OLD DESAGREGATION CODE TREATMENT ----------
+                sheetValueAsHeaderCode = null;
+                //InImportKey desagregationCodeKey = null;
+                if (desagregationCode != null) {
+                    if (Utils.isNumeric(desagregationCode)) {
+//TODO pensar em outra forma de fazer isto? (getHeaderDTOFromList)
+                        sheetValueAsHeaderCode = HeaderService.getHeaderDTOFromList(headerDTOList, desagregationCode.trim(), Constants.SheetCoordinateAsChar, false);
+                    }
+                    desagregationCodeKey = buildDesagregationCode(desagregationCode, singleFillingIndicatorAsTableVersion.getTableVID(), singleFillingIndicatorAsTableVersion.getTable().getTableId(), io.getReferenceDate(), cm);
+
                     if (desagregationCodeKey != null && ((sheetValueAsHeaderCode != null && Utils.isNumeric(desagregationCode)) || !Utils.isNumeric(desagregationCode))) {
                         List<InKeyAssociation> keyAssociationsDesagCode = desagregationCodeKey.getListPropertyValues();
                         Optional<InKeyAssociation> keyAssociationWithNull = keyAssociationsDesagCode.stream().filter(keyAssociation -> keyAssociation.getPropertyValue() == null).findAny();
 
-                        if (!keyAssociationWithNull.isPresent()) {
+                        if (keyAssociationWithNull.isPresent()) {
+                            errorMsgPerTables.add(Constants.MESSAGEERRORDESAGCODE + sheetName);
+                        } else {
+//                            incrementJavaOperationTime();    
+//                            restartTimeOracleInsert();
                             Connection.persist(cm, desagregationCodeKey);
+//                            logsList.add(new LogOperationTemp("Tempo de Inserir InImportKey:" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));    
+//                            incrementOracleInsertOperationTime();
+//                            restartTimeJava();              
                         }
 
+                    } else {
+                        errorMsgPerTables.add(Constants.MESSAGEERRORDESAGCODE + sheetName);
                     }
                 }
+                ---------- OLD DESAGREGATION CODE TREATMENT ----------*/														
                 VariableVersion variableVersionOfMap = null;
-                if(singleFillingIndicatorAsTableVersion.getAbstractTable() != null){
+                if (singleFillingIndicatorAsTableVersion.getAbstractTable() != null) {
                     variableVersionOfMap = VariableVersionDAL.getVariableVersionFromAbstract(singleFillingIndicatorAsTableVersion.getAbstractTable().getTableId());
-                }else{
+                } else {
                     String codeTemp = singleFillingIndicatorAsTableVersion.getCode();
                     variableVersionOfMap = varVersionMapList.stream().filter(varVersion -> varVersion.getCode().equals(codeTemp)).findFirst().orElse(null);
                 }
+				if (!errorMsgPerTables.isEmpty()) {
+                    List<LogImportProcess> errorLogs = new ArrayList<>();
+                    for (String error : errorMsgPerTables) {
+                        LogImportProcess errorLog = new LogImportProcess(io.getIoId(),null, error);
+                        errorLogs.add(errorLog);
+                    }
+
+                    errorMsgPerTables.clear();
+                    if (!errorLogs.isEmpty()) {
+                        for(LogImportProcess log : errorLogs){
+                            Connection.persist(cm, log);
+                        }
+                        hasNotOk = true;
+                    }
+
+                    continue;
+                }						  
                 
                 InImportedTablesTemp importedTableTemp = new InImportedTablesTemp();
                 importedTableTemp.setIo(io);
@@ -565,6 +617,9 @@ public class ModuleFileImport extends RunnableExtension{
                 }
                 cm.em.flush();
                 cm.em.clear();
+
+                LogImportProcess logMapImportEnd = new LogImportProcess(io.getIoId(), importedTableTemp.getImportedTableId(), "Importação do mapa - " + sheetName + " concluido");
+                Connection.persist(cm, logMapImportEnd);
                 
                 progressService.setImportProgress(completedTables++, Integer.valueOf(totalNumberSheets) + 1);
 
@@ -631,9 +686,9 @@ public class ModuleFileImport extends RunnableExtension{
             Connection.merge(cm, io);
         }
         progressService.setImportProgress(1,1);
-        Validator_2_0 validationAction = new Validator_2_0(moduleVersion, referenceDate, entity, domain,progressService);
+        //Validator_2_0 validationAction = new Validator_2_0(moduleVersion, referenceDate, entity, domain,progressService);
 
-        validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
+        //validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
     }
 
     /**
@@ -647,7 +702,7 @@ public class ModuleFileImport extends RunnableExtension{
        InImportKey desagregationImportKey = null;
        try {
         em = Connection.getEm();
-        List<DatapointItensDTO> ListItems = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(tableVID, Constants.SheetCoordinate, null, referenceDate);
+        List<DatapointItensDTO> ListItems = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(tableVID, Constants.SHEETCOORDINATE, null, referenceDate);
         if(ListItems.isEmpty()){
             //Don't Have desagregationCode
             if(rawDesagregationCode != null && !rawDesagregationCode.trim().equals("") && !Utils.isNumeric(rawDesagregationCode)){

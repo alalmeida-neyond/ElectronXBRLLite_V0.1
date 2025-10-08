@@ -44,7 +44,7 @@ public class OperationsUtils {
                     "typeStateOk", String.valueOf(Constants.tipoStateOK),
                     "stateOk", String.valueOf(Constants.processoOk),
                     "desagregationTypeFixed", String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE),
-                    "directionZ", String.valueOf(Constants.SheetCoordinate),
+                    "directionZ", String.valueOf(Constants.SHEETCOORDINATE),
                     "stateOk", String.valueOf(Constants.processoOk),
                     "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE)
             );

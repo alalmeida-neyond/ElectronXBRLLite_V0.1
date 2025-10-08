@@ -8,7 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.jboss.logging.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.example.demo.Data.Connection;
 import com.example.demo.Data.Access.*;
@@ -40,8 +41,7 @@ public class TableVersionDAL {
                     "referencedate", referenceDate.toString());
 
         } catch (Exception e) {
-            LOG.error("Erro na query TableVersionDAL:" + e.getMessage(), e);
-            e.printStackTrace();
+            LOG.log(Level.SEVERE,"Erro na query TableVersionDAL:" + e.getMessage(), e);
         } finally {
             jpa.close();
         }
@@ -65,7 +65,7 @@ public class TableVersionDAL {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Erro na query getPropertiesKeyTypes", e);
+            LOG.log(Level.SEVERE,"Erro na query getPropertiesKeyTypes", e);
         } finally {
             Connection.close(jpa.getEm().em);
         }
@@ -99,6 +99,36 @@ public class TableVersionDAL {
         }
         
         return resultSet;
+    }
+
+    public static Map<Integer, Integer> getDesagregationCodeTypeOfMaps(ModuleVersion module){
+        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
+        List<Object[]> resultList = new ArrayList<>();
+        Map<Integer, Integer> mapsWithDesagCodeTypes = new HashMap<>();
+        
+        try {
+            resultList = jpa.getFileQueryResultList("SQL_Queries/GetDesagregationCodeTypeOfMaps.sql",
+                    "moduleVID", module.getModuleVID(),
+                    "desagregationCodeTypeFix", Constants.DESAGREGATIONCODEFIXEDTYPE,
+                    "directionZ", Constants.SHEETCOORDINATE,
+                    "falseNumber", Constants.FALSEASNUMBER,
+                    "desagregationCodeTypeNormal", Constants.DESAGREGATIONCODETYPE,
+                    "trueNumber", Constants.TRUEASNUMBER
+            );
+
+            if (resultList != null && !resultList.isEmpty()) {
+                for (Object[] resultRow : resultList) {
+                    mapsWithDesagCodeTypes.put(Integer.valueOf(resultRow[0].toString()), Integer.valueOf(resultRow[1].toString()));
+                }
+            }
+            
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query GetDesagregationCodeTypeOfMaps", e);
+        } finally {
+            jpa.close();
+        }
+        
+        return mapsWithDesagCodeTypes;
     }
 
 }
