@@ -50,6 +50,17 @@ public class LogOperationTemp implements Serializable{
     public LogOperationTemp() {
     }
 
+    public LogOperationTemp(String result) {
+        this.result = result;
+        this.timestamp = new Timestamp(System.currentTimeMillis());
+    }
+    
+    public LogOperationTemp(String result, Integer ioid) {
+        this.result = result;
+        this.operationvid = ioid;
+        this.timestamp = new Timestamp(System.currentTimeMillis());
+    }
+
     public LogOperationTemp(Integer operationvid, Integer operationnodeid, String result, String margins, String key, String type, Timestamp timestamp) {
         this.operationvid = operationvid;
         this.operationnodeid = operationnodeid;

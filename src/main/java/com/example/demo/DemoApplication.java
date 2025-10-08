@@ -20,7 +20,7 @@ public class DemoApplication {
 			System.exit(1);
 		}
         //ATIVAR EM PROD
-        deleteRecords();
+        //deleteRecords();
 
         //Info.getInstance().loadRefData(true);
 		SpringApplication.run(DemoApplication.class, args);

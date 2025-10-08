@@ -61,7 +61,7 @@ public class IODAL {
         return result;
     }
 
-    public static List<IO> getIOsByAction(Integer moduleVID, LocalDate referenceDate, Integer entityID, String domain, short actionId, Integer privilegio) {
+    public static List<IO> getIOsByAction(Integer moduleVID, LocalDate referenceDate, Integer entityID, String domain, short actionId) {
 
         List<IO> listOfGenerateLogs = new ArrayList<>();
         JPA<IO> jpa = new JPA<IO>(IO.class);
@@ -85,6 +85,31 @@ public class IODAL {
                     "referenceDate", referenceDate,
                     "entityID", entityID,
                     "domain", domain,
+                    "moduleVId", moduleVID);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            jpa.close();
+        }
+        return listOfGenerateLogs;
+    }
+
+    public static List<IO> getIOsByActionAndModule(Integer moduleVID, short actionId) {
+
+        List<IO> listOfGenerateLogs = new ArrayList<>();
+        JPA<IO> jpa = new JPA<IO>(IO.class);
+
+        try {
+
+            StringBuilder queryString = new StringBuilder("select io.* from io ");
+            queryString.append(" where actionid = :actionId ");
+            queryString.append(" and (modulevid = :moduleVId OR :moduleVId IS NULL) ");
+            queryString.append(" order by io.ioid desc");
+            //queryString.append(!triggeredByUser ? " FETCH FIRST 25 ROWS ONLY " : "");
+
+            listOfGenerateLogs = jpa.getMappedQueryResultList(queryString.toString(), IO.class,
+                    "actionId", String.valueOf(actionId),
                     "moduleVId", moduleVID);
 
         } catch (Exception ex) {

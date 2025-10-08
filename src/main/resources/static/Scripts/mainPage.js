@@ -413,50 +413,113 @@ document.addEventListener("DOMContentLoaded", function () {
       const tr = document.createElement("tr");
 
       const td0 = createCellCustomIOState(io[1], io[1]);
+
+      const tdEmpty1 = document.createElement("td");
+      const tdEmpty2 = document.createElement("td");
       td0.classList.add("first-cell");
 
       tr.appendChild(td0);
+      tr.appendChild(tdEmpty1);
+      tr.appendChild(tdEmpty2);
       tr.appendChild(createCellCustom(io[2], io[1]));
       tr.appendChild(createCellCustom(io[3], io[1]));
       tr.appendChild(createCellCustom(io[4], io[1]));
       tr.appendChild(createCellCustom(io[5], io[1]));
 
-      const detailBtnTd = document.createElement("td");
-      detailBtnTd.classList.add("last-cell");
-      const btn = document.createElement("span");
-      btn.innerHTML = `
-          <span class= 'internationalization' data-key='details.label' style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
-            <i class="bi bi-box-arrow-up-right"></i>
+      const detailImportBtnTd = document.createElement("td");
+
+      const detailValidationBtnTd = document.createElement("td");
+
+      const detailGenerationBtnTd = document.createElement("td");
+      detailGenerationBtnTd.classList.add("last-cell");
+      const btnImport = document.createElement("span");
+      btnImport.innerHTML = `
+          <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
+            <i class="bi bi-arrow-up-right-square-fill"></i>
           </span>`;
 
-      detailBtnTd.appendChild(btn);
-      tr.appendChild(detailBtnTd);
-      btn.onclick = () => toggleDetails(io[0], btn);
-      detailBtnTd.style.backgroundColor = "lightGrey";
+      const btnValidation = document.createElement("span");
+      btnValidation.innerHTML = `
+          <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
+            <i class="bi bi-arrow-up-right-square-fill"></i>
+          </span>`;
+
+      const btnGeneration = document.createElement("span");
+      btnGeneration.innerHTML = `
+          <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
+            <i class="bi bi-arrow-up-right-square-fill"></i>
+          </span>`;
+
+      detailImportBtnTd.appendChild(btnImport);
+      detailValidationBtnTd.appendChild(btnValidation);
+      detailGenerationBtnTd.appendChild(btnGeneration);
+      tr.appendChild(detailImportBtnTd);
+      tr.appendChild(detailValidationBtnTd);
+      tr.appendChild(detailGenerationBtnTd);
+      btnImport.onclick = () => toggleValidationDetails(io[0], btnImport);
+      btnValidation.onclick = () => toggleValidationDetails(io[0], btnValidation);
+      btnGeneration.onclick = () => toggleValidationDetails(io[0], btnGeneration);
+      detailImportBtnTd.style.backgroundColor = "lightGrey";
+      detailValidationBtnTd.style.backgroundColor = "lightGrey";
+      detailGenerationBtnTd.style.backgroundColor = "lightGrey";
       if (io[1] == 2) {
-        detailBtnTd.style.backgroundColor = "#fff3cd";
+        detailImportBtnTd.style.backgroundColor = "#fff3cd";
+        detailValidationBtnTd.style.backgroundColor = "#fff3cd";
+        detailGenerationBtnTd.style.backgroundColor = "#fff3cd";
       } else if (io[1] == 3) {
-        detailBtnTd.style.backgroundColor = "#f8d7da";
+        detailImportBtnTd.style.backgroundColor = "#f8d7da";
+        detailValidationBtnTd.style.backgroundColor = "#f8d7da";
+        detailGenerationBtnTd.style.backgroundColor = "#f8d7da";
       }
       tableBody.appendChild(tr);
 
-      const detailRow = document.createElement("tr");
+      const detailImportRow = document.createElement("tr");
+      const detailValidationRow = document.createElement("tr");
+      const detailGenerationRow = document.createElement("tr");
 
-      detailRow.style.display = "none";
-      detailRow.className = "detail-row";
+      detailImportRow.style.display = "none";
+      detailImportRow.className = "detail-row";
 
-      const detailTd = document.createElement("td");
-      detailTd.colSpan = 7;
-      detailTd.style.padding = 10;
-      const loadingDiv = document.createElement("div");
-      loadingDiv.id = `detail-${io[0]}`;
-      loadingDiv.classList.add("internationalization");
-      loadingDiv.setAttribute("data-key", "loading.label");
-      detailTd.appendChild(loadingDiv);
+      detailValidationRow.style.display = "none";
+      detailValidationRow.className = "detail-row";
 
-      detailRow.appendChild(detailTd);
+      detailGenerationRow.style.display = "none";
+      detailGenerationRow.className = "detail-row";
 
-      tableBody.appendChild(detailRow);
+      const detailImportTd = document.createElement("td");
+      detailImportTd.colSpan = 10;
+      detailImportTd.style.padding = 10;
+      const loadingImportDiv = document.createElement("div");
+      loadingImportDiv.id = `detail-validation-${io[0]}`;
+      loadingImportDiv.classList.add("internationalization");
+      loadingImportDiv.setAttribute("data-key", "loading.label");
+      detailImportTd.appendChild(loadingImportDiv);
+
+      const detailValidationTd = document.createElement("td");
+      detailValidationTd.colSpan = 10;
+      detailValidationTd.style.padding = 10;
+      const loadingValidationDiv = document.createElement("div");
+      loadingValidationDiv.id = `detail-validation-${io[0]}`;
+      loadingValidationDiv.classList.add("internationalization");
+      loadingValidationDiv.setAttribute("data-key", "loading.label");
+      detailValidationTd.appendChild(loadingValidationDiv);
+
+      const detailGenerationTd = document.createElement("td");
+      detailGenerationTd.colSpan = 10;
+      detailGenerationTd.style.padding = 10;
+      const loadingGenerationDiv = document.createElement("div");
+      loadingGenerationDiv.id = `detail-validation-${io[0]}`;
+      loadingGenerationDiv.classList.add("internationalization");
+      loadingGenerationDiv.setAttribute("data-key", "loading.label");
+      detailGenerationTd.appendChild(loadingGenerationDiv);
+
+      detailImportRow.appendChild(detailImportTd);
+      detailValidationRow.appendChild(detailValidationTd);
+      detailGenerationRow.appendChild(detailGenerationTd);
+
+      tableBody.appendChild(detailImportRow);
+      tableBody.appendChild(detailValidationRow);
+      tableBody.appendChild(detailGenerationRow);
     });
   }
 
@@ -631,17 +694,15 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  function toggleDetails(ioid, button) {
+  function toggleImportDetails (ioid, button){
     let fetchedDetails =  [];
 
     const row = button.closest("tr").nextElementSibling;
-    const container = document.getElementById(`detail-${ioid}`);
+    const container = document.getElementById(`detail-import-${ioid}`);
 
     const isHidden = row.style.display === "none";
 
     row.style.display = isHidden ? "table-row" : "none";
-
-    
 
     if (isHidden) {
       document.getElementById("upload-area")?.classList.add("collapsed");
@@ -655,17 +716,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const span = button.querySelector("span");
 
-    const newKey = isHidden ? "retreat.label" : "details.label";
-    span.setAttribute("data-key", newKey);
-    span.classList.add("internationalization");
-
     span.innerHTML = "";
 
-    const labelText = document.createTextNode(
-      languageLabels[newKey] || (isHidden ? "Recolher" : "Detalhes")
-    );
     const icon = document.createElement("i");
-    icon.className = "bi bi-box-arrow-up-right";
+    icon.className = "bi bi-arrow-up-right-square-fill";
     icon.style.marginLeft = "6px";
 
     span.appendChild(labelText);
@@ -678,7 +732,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.createElement("tbody");
 
     if (isHidden && !container.dataset.loaded) {
-      fetch(`/importFile/results/${ioid}`)
+      fetch(`/importFile/import/results/${ioid}`)
         .then((res) => res.json())
         .then((details) => {
           currentOpenDetailIOId = ioid;
@@ -702,13 +756,12 @@ document.addEventListener("DOMContentLoaded", function () {
           const headerRow = document.createElement("tr");
 
           const header = [
-            { key: "ruleCode.label", className: "firstItemDetails" },
-            { key: "severity.label" },
-            { key: "ruleDomain.label" },
-            { key: "rule.label" },
-            { key: "ruleValues.label" },
-            { key: "result.label" },
-            { key: "processDate.label", className: "lastItemDetails" },
+            { key: "module.label", className: "firstItemDetails" },
+            { key: "entity.label" },
+            { key: "domain.label" },
+            { key: "referenceDate.label" },
+            { key: "description.label" },
+            { key: "date.label", className: "lastItemDetails" },
           ];
 
           header.forEach(({ key, className }) => {
@@ -911,6 +964,201 @@ document.addEventListener("DOMContentLoaded", function () {
             tbody.appendChild(bodyRow);
           });
 
+          table.appendChild(tbody);
+
+          scrollContainer.appendChild(filterContainer);
+          scrollContainer.appendChild(table);
+
+          
+
+          container.innerHTML = "";
+          container.classList.remove("internationalization");
+          container.removeAttribute("data-key");
+
+
+          container.appendChild(scrollContainer);
+
+          container.dataset.loaded = "true";
+
+          const selectedLang =
+            document.getElementById("languageSelect")?.value || "pt";
+          updateLanguageLabels(selectedLang);
+        })
+        .catch((err) => {
+          container.textContent =
+            languageLabels["errorDetails.label"] || "Error loading details.";
+          container.classList.add("internationalization");
+          container.setAttribute("data-key", "errorDetails.label");
+
+          console.error(err);
+        });
+    }
+  }
+
+  function toggleValidationDetails(ioid, button) {
+    let fetchedDetails =  [];
+
+    const row = button.closest("tr").nextElementSibling;
+    const container = document.getElementById(`detail-validation-${ioid}`);
+
+    const isHidden = row.style.display === "none";
+
+    row.style.display = isHidden ? "table-row" : "none";
+
+    if (isHidden) {
+      document.getElementById("upload-area")?.classList.add("collapsed");
+      document.getElementById("paginationDiv").style.display = "block";
+    } else {
+      document.getElementById("upload-area")?.classList.remove("collapsed");
+      currentOpenDetailIOId = null;
+      currentDetailFilteredData = [];
+      document.getElementById("paginationDiv").style.display = "none";
+    }
+
+    const span = button.querySelector("span");
+
+    span.innerHTML = "";
+
+    const icon = document.createElement("i");
+    icon.className = "bi bi-arrow-up-right-square-fill";
+    icon.style.marginLeft = "6px";
+
+    span.appendChild(icon);
+
+    const selectedLang =
+      document.getElementById("languageSelect")?.value || "pt";
+    updateLanguageLabels(selectedLang);
+    
+    const tbody = document.createElement("tbody");
+
+    if (isHidden && !container.dataset.loaded) {
+      fetch(`/importFile/validation/results/${ioid}`)
+        .then((res) => res.json())
+        .then((details) => {
+          currentOpenDetailIOId = ioid;
+          fetchedDetails = details;
+          currentDetailFilteredData = [...fetchedDetails];
+          currentDetailCurrentPage = 1;
+
+          const doRender = () => {
+            renderRows(tbody, currentDetailFilteredData, currentDetailCurrentPage, currentDetailRowsPerPage);
+            renderPagination(document.getElementById("sharedPaginationContainer"), doRender);
+          };
+
+          const scrollContainer = document.createElement("div");
+          scrollContainer.className = "detailsTable";
+          scrollContainer.classList.add("detailsTable");
+          const table = document.createElement("table");
+          table.className = "fixed-header-table table table-borderless";
+
+          const thead = document.createElement("thead");
+          thead.style.zIndex = 4;
+          const headerRow = document.createElement("tr");
+
+          const header = [
+            { key: "ruleCode.label", className: "firstItemDetails" },
+            { key: "severity.label" },
+            { key: "ruleDomain.label" },
+            { key: "rule.label" },
+            { key: "ruleValues.label" },
+            { key: "result.label" },
+            { key: "processDate.label", className: "lastItemDetails" },
+          ];
+
+          header.forEach(({ key, className }) => {
+            const th = document.createElement("th");
+            th.classList.add("internationalization");
+            th.setAttribute("data-key", key);
+            th.style.fontSize = "0.9rem";
+            if (className) {
+              th.classList.add(className);
+            }
+            headerRow.appendChild(th);
+          });
+          const resultadoCounts = {};
+
+          details.forEach((d) => {
+            const key = d.resultado ?? "-";
+            resultadoCounts[key] = (resultadoCounts[key] || 0) + 1;
+          });
+
+          const uniqueResultados = [
+            ...new Set(details.map((d) => d.resultado ?? "-")),
+          ];
+
+          const labelKeyMap = {
+            "RULE OK": "ruleOK",
+            "RULE NOT OK": "ruleNotOK",
+            "RULE DO NOT RUN": "ruleSkip",
+            "RULE DO NOT RUN PREREQUISITE": "ruleSkipPre",
+            "RULE OK WITH NOT OK": "ruleOKNotOK",
+          };
+
+          const filterContainer = document.createElement("div");
+          filterContainer.className = "resultado-filter-group";
+
+          const totalCount = details.length;
+
+          const allButton = document.createElement("div");
+          allButton.className =
+            "resultado-filter-button active internationalization";
+          allButton.setAttribute("data-key", "all.label");
+          allButton.setAttribute("data-value", "__all__");
+          allButton.setAttribute("data-count", totalCount);
+          allButton.textContent = `All (${totalCount})`;
+          filterContainer.appendChild(allButton);
+          
+          uniqueResultados.forEach((value) => {
+            const keyBase = labelKeyMap[value] || "";
+            const count = resultadoCounts[value] ?? 0;
+
+            const labelText = languageLabels[`${keyBase}.label`] || value;
+            const tooltipText =
+              languageLabels[`${keyBase}.tooltip`] || labelText;
+
+            const button = document.createElement("div");
+            button.className = "resultado-filter-button internationalization";
+            button.setAttribute("data-key", `${keyBase}.label`);
+            button.setAttribute("data-tooltip-key", `${keyBase}.tooltip`);
+            button.setAttribute("data-value", value);
+            button.setAttribute("data-count", count);
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "top");
+            button.textContent = count ? `${labelText} (${count})` : labelText;
+            filterContainer.appendChild(button);
+          });
+
+          filterContainer.querySelectorAll(".resultado-filter-button").forEach(button => {
+            button.addEventListener("click", function () {
+              const selected = this.getAttribute("data-value").toLowerCase();
+
+              filterContainer.querySelectorAll(".resultado-filter-button").forEach(btn => btn.classList.remove("active"));
+              this.classList.add("active");
+
+              currentDetailFilteredData = details.filter(d => {
+                const result = (d.resultado ?? "").toLowerCase();
+                return selected === "__all__" || result === selected;
+              });
+
+              currentDetailCurrentPage = 1;
+
+              doRender();
+
+              const selectedLang = document.getElementById("languageSelect")?.value || "pt";
+              updateLanguageLabels(selectedLang);
+            });
+          });
+
+
+
+          doRender();
+
+          reinitTooltips(filterContainer);
+
+          thead.appendChild(headerRow);
+          table.appendChild(thead);
+
+          doRender();
           table.appendChild(tbody);
 
           scrollContainer.appendChild(filterContainer);

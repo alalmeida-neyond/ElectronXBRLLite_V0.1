@@ -84,5 +84,13 @@
   "downloadMissingFile.label": "Archivo no encontrado. Por favor, contacte con Neyond para resolver esta situación",
   "downloadFailedWithReason.label": "Error al copiar el archivo. Por favor, contacte con Neyond para resolver esta situación",
   "downloadSuccess.label": "Archivo copiado con éxito",
-  "networkError.label": "Error al comunicarse con el servidor. Por favor, contacte con Neyond para resolver esta situación"
+  "networkError.label": "Error al comunicarse con el servidor. Por favor, contacte con Neyond para resolver esta situación",
+  "importAbbreviatedTitle.label": "Imp",
+  "validationAbbreviatedTitle.label": "Val",
+  "generationAbbreviatedTitle.label": "Gen",
+  "importDetailsText.label": "Det Imp",
+  "validationDetailsText.label": "Det Val",
+  "generationDetailsText.label": "Det Gen",
+  "description.label": "Descripción",
+  "date.label": "Fecha"
 }

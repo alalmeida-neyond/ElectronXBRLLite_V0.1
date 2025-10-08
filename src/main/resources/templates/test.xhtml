@@ -115,15 +115,32 @@
             </div>
 
             <div class="table-wrapper" id ="table-wrapper">
+              
               <table id="validationTable" class="table table-borderless validationTable w-100">
+                <colgroup>
+                  <col style="width:1.2rem;">  
+                  <col style="width:1.2rem;">                         
+                  <col style="width:1.2rem;">                        
+                  <col style="width:4rem;">                      
+                  <col style="width:6rem;">                      
+                  <col style="width:3rem;">                        
+                  <col style="width:5rem;">                       
+                  <col style="width:2.2rem;">  
+                  <col style="width:2.2rem;">  
+                  <col style="width:2.2rem;">  
+                </colgroup>
                 <thead class="tableHeadValidation">
                   <tr>
-                    <th class="mainTableHeaderFirst internationalization" data-key="state.label">{{state.label}}</th>
+                    <th class="mainTableHeaderFirst internationalization" data-key="importAbbreviatedTitle.label">{{importAbbreviatedTitle.label}}</th>
+                    <th class="mainTableHeader internationalization" data-key="validationAbbreviatedTitle.label">{{validationAbbreviatedTitle.label}}</th>
+                    <th class="mainTableHeader internationalization" data-key="generationAbbreviatedTitle.label">{{generationAbbreviatedTitle.label}}</th>
                     <th class="mainTableHeader internationalization" data-key="module.label">{{module.label}}</th>
                     <th class="mainTableHeader internationalization" data-key="entity.label">{{entity.label}}</th>
                     <th class="mainTableHeader internationalization" data-key="domain.label">{{domain.label}}</th>
                     <th class="mainTableHeader internationalization" data-key="referenceDate.label">{{referenceDate.label}}</th>
-                    <th class="mainTableHeaderLast internationalization" data-key="details.label">{{details.label}}</th>
+                    <th class="mainTableHeader internationalization" data-key="importDetailsText.label">{{importDetailsText.label}}</th>
+                    <th class="mainTableHeader internationalization" data-key="validationDetailsText.label">{{validationDetailsText.label}}</th>
+                    <th class="mainTableHeaderLast internationalization" data-key="generationDetailsText.label">{{generationDetailsText.label}}</th>
                   </tr>
                 </thead>
                 <tbody id="validationTableBody"></tbody>

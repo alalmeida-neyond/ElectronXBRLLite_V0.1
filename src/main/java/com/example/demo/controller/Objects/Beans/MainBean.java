@@ -110,8 +110,7 @@ public class MainBean extends DefaultBean{
 
         importIOs = IODAL.getIOsByAction(getModuleVersion() == null ? null : getModuleVersion().getModuleVID(),
                 referenceDate,
-                getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionImport,
-                Constants.VALIDATEID);
+                getEntity() == null ? null : getEntity().getEntityID(), getDomain(), Constants.actionImport);
 
         setImportIOs(importIOs);
 
@@ -673,9 +672,21 @@ public class MainBean extends DefaultBean{
         return modelAndView;
     }
 
-    @GetMapping("/importFile/results/{id}")
+    @GetMapping("/importFile/validation/results/{id}")
     @ResponseBody
     public List<ValidationResultsDetailsDTO> getValidationResults(@PathVariable("id") Integer ioId) {
+        ValidationService validationService = new ValidationService();
+        return validationService.getValidationResults(ioId);
+    }
+    @GetMapping("/importFile/import/results/{id}")
+    @ResponseBody
+    public List<ValidationResultsDetailsDTO> getImportResults(@PathVariable("id") Integer ioId) {
+        ValidationService validationService = new ValidationService();
+        return validationService.getValidationResults(ioId);
+    }
+    @GetMapping("/importFile/generation/results/{id}")
+    @ResponseBody
+    public List<ValidationResultsDetailsDTO> getGenerationResults(@PathVariable("id") Integer ioId) {
         ValidationService validationService = new ValidationService();
         return validationService.getValidationResults(ioId);
     }
