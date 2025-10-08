@@ -8,43 +8,68 @@
     <persistence-unit name="UNMANAGEDPROCESS" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <!-- Add your entity classes -->
-        <class>com.example.demo.controller.Objects.Entities.Category</class>
-		<class>com.example.demo.controller.Objects.Entities.CompoundKey</class>
-		<class>com.example.demo.controller.Objects.Entities.Concept</class>
-		<class>com.example.demo.controller.Objects.Entities.Context</class>
-		<class>com.example.demo.controller.Objects.Entities.Category</class>
-		<class>com.example.demo.controller.Objects.Entities.DataType</class>
-		<class>com.example.demo.controller.Objects.Entities.DPMClass</class>
-		<class>com.example.demo.controller.Objects.Entities.Framework</class>
-		<class>com.example.demo.controller.Objects.Entities.InFileHistory</class>
-		<class>com.example.demo.controller.Objects.Entities.IO</class>
-		<class>com.example.demo.controller.Objects.Entities.IOState</class>
-		<class>com.example.demo.controller.Objects.Entities.IOTypeState</class>
-		<class>com.example.demo.controller.Objects.Entities.Item</class>
-		<class>com.example.demo.controller.Objects.Entities.ItemCategory</class>
-		<class>com.example.demo.controller.Objects.Entities.KeyComposition</class>
-		<class>com.example.demo.controller.Objects.Entities.LogImportProcess</class>
-		<class>com.example.demo.controller.Objects.Entities.LogOperationTemp</class>
-		<class>com.example.demo.controller.Objects.Entities.ModuleDPM</class>
-		<class>com.example.demo.controller.Objects.Entities.ModuleVersion</class>
 		<class>com.example.demo.controller.Objects.Entities.OperationsRunning</class>
-		<class>com.example.demo.controller.Objects.Entities.Operator</class>
-		<class>com.example.demo.controller.Objects.Entities.OperatorArgument</class>
-		<class>com.example.demo.controller.Objects.Entities.Organisation</class>
-		<class>com.example.demo.controller.Objects.Entities.Property</class>
-		<class>com.example.demo.controller.Objects.Entities.Release</class>
-		<class>com.example.demo.controller.Objects.Entities.SubCategory</class>
-		<class>com.example.demo.controller.Objects.Entities.SubCategoryVersion</class>
-		<class>com.example.demo.controller.Objects.Entities.TableDPM</class>
-		<class>com.example.demo.controller.Objects.Entities.TableVersionDPM</class>
-		<class>com.example.demo.controller.Objects.Entities.Variable</class>
-		<class>com.example.demo.controller.Objects.Entities.VariableVersion</class>
-		<class>com.example.demo.controller.Objects.ConfAction</class>
-		<class>com.example.demo.controller.Objects.ConfAppConfigs</class>
-		<class>com.example.demo.controller.Objects.ConfEntities</class>
-		<class>com.example.demo.controller.Objects.ConfImportRules</class>
-		<class>com.example.demo.controller.Objects.Profiles_UserGroup</class>
+
+		<class>com.example.demo.controller.Objects.Entities.Conf.ConfAction</class>
+		<class>com.example.demo.controller.Objects.Entities.Conf.ConfAppConfigs</class>
+		<class>com.example.demo.controller.Objects.Entities.Conf.ConfEntities</class>
+		<class>com.example.demo.controller.Objects.Entities.Conf.ConfImportRules</class>
+		<class>com.example.demo.controller.Objects.Entities.Conf.ConfPeriodicity</class>
+		<class>com.example.demo.controller.Objects.Entities.Conf.ConfTemplate</class>
+
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Category</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Cell</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.CompoundKey</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Concept</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Context</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.DPMClass</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.DataType</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Framework</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Header</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Item</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.ItemCategory</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.KeyComposition</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleDPM</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Operation</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.OperationNode</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.OperationVersion</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Operator</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.OperatorArgument</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Organisation</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Property</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Release</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.SubCategory</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.SubCategoryVersion</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.TableDPM</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.Variable</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.VariableVersion</class>
+		<class>com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM</class>
+
+		<class>com.example.demo.controller.Objects.Entities.Logs.LogImportProcess</class>
+		<class>com.example.demo.controller.Objects.Entities.Logs.LogOperationTemp</class>
+
+		<class>com.example.demo.controller.Objects.Generation.OutXBRLGenerated</class>
+
+		<class>com.example.demo.controller.Objects.Import.InFileHistory</class>
+		<class>com.example.demo.controller.Objects.Import.InImportedTablesTemp</class>
+		<class>com.example.demo.controller.Objects.Import.InImportedValuesTemp</class>
+		<class>com.example.demo.controller.Objects.Import.InImportKey</class>
+		<class>com.example.demo.controller.Objects.Import.InKeyType</class>
+		<class>com.example.demo.controller.Objects.Import.InKeyAssociation</class>
+
+		<class>com.example.demo.controller.Objects.IO.IO</class>
+		<class>com.example.demo.controller.Objects.IO.IOState</class>
+		<class>com.example.demo.controller.Objects.IO.IOTypeState</class>
+
+		<class>com.example.demo.controller.Objects.Logs.GenerateLog</class>
+		<class>com.example.demo.controller.Objects.Logs.LogValidationProcess</class>
+
+		<class>com.example.demo.controller.Objects.Validation.OutValidationDashboard</class>
+		<class>com.example.demo.controller.Objects.Validation.OutValidationResult</class>
+		<class>com.example.demo.controller.Objects.Validation.OutValidationResultDetails</class>
+		<class>com.example.demo.controller.Objects.Validation.OutValidationTable</class>
+		<class>com.example.demo.controller.Objects.Validation.OutValidationTableResult</class>
         <!-- or use classpath scanning with Hibernate config -->
 
         <properties>

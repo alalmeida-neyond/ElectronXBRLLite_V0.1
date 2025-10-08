@@ -22,6 +22,8 @@
 *.exe
 
 *.db 
+*.db-shm
+*.db-wal
 *.xlsx
 *.csv
 *.ist

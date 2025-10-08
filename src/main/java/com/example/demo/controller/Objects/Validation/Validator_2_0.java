@@ -105,9 +105,11 @@ public class Validator_2_0 extends RunnableExtension {
                                                     new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
                                                 ));
         /* 
-        AQUIXXX setTables(new HashSet<>()); 
+        AQUIXXX  
+        setTables(new HashSet<>());
         */
         setTables(sortedTables); 
+        
         LOG.info("Validacao Iniciada | " + "Processo de validacao iniciada.");
         
         try {

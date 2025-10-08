@@ -25,6 +25,7 @@ public class InKeyAssociation implements Serializable {
     @Column(name = "PROPERTYVALUE")
     private String propertyValue;
     
+    @NotNull
     @Column(name = "PROPERTYORIGINALVALUE")
     private String propertyOriginalValue;
 

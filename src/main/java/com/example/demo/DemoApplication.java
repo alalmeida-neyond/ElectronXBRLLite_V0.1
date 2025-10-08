@@ -57,6 +57,15 @@ public class DemoApplication {
             jpa.rollback();
         }  
 
+        query = new StringBuilder(" DELETE FROM IN_IMPORTKEY where IMPORTKEYID != -1 ");
+        
+        try {
+            jpa.executeNativeQuery(query.toString());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            jpa.rollback();
+        }  
+
         query = new StringBuilder(" DELETE FROM IO ");
         
         try {
