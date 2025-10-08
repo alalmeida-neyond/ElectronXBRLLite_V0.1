@@ -435,19 +435,19 @@ document.addEventListener("DOMContentLoaded", function () {
       const btnImport = document.createElement("span");
       btnImport.innerHTML = `
           <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
-            <i class="bi bi-arrow-up-right-square-fill"></i>
+            <i class="bi bi-box-arrow-up-right"></i>
           </span>`;
 
       const btnValidation = document.createElement("span");
       btnValidation.innerHTML = `
           <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
-            <i class="bi bi-arrow-up-right-square-fill"></i>
+            <i class="bi bi-box-arrow-up-right"></i>
           </span>`;
 
       const btnGeneration = document.createElement("span");
       btnGeneration.innerHTML = `
           <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
-            <i class="bi bi-arrow-up-right-square-fill"></i>
+            <i class="bi bi-box-arrow-up-right"></i>
           </span>`;
 
       detailImportBtnTd.appendChild(btnImport);
@@ -719,7 +719,7 @@ document.addEventListener("DOMContentLoaded", function () {
     span.innerHTML = "";
 
     const icon = document.createElement("i");
-    icon.className = "bi bi-arrow-up-right-square-fill";
+    icon.className = "bi bi-box-arrow-up-right";
     icon.style.marginLeft = "6px";
 
     span.appendChild(labelText);
@@ -1020,7 +1020,7 @@ document.addEventListener("DOMContentLoaded", function () {
     span.innerHTML = "";
 
     const icon = document.createElement("i");
-    icon.className = "bi bi-arrow-up-right-square-fill";
+    icon.className = "bi bi-box-arrow-up-right";
     icon.style.marginLeft = "6px";
 
     span.appendChild(icon);
@@ -1148,8 +1148,6 @@ document.addEventListener("DOMContentLoaded", function () {
               updateLanguageLabels(selectedLang);
             });
           });
-
-
 
           doRender();
 
