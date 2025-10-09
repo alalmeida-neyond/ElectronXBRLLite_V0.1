@@ -11,6 +11,14 @@ function reinitTooltips(container = document) {
   });
 }
 
+function hidePager() {
+  const wrap = document.getElementById("paginationDiv");
+  const container = document.getElementById("sharedPaginationContainer");
+  if (wrap) wrap.style.display = "none";
+  if (container) container.innerHTML = "";
+}
+
+
 function updateLanguageLabels(language) {
   fetch(`./Languages_Files/${language}.json`, { cache: "no-store" })
     .then((r) => {
@@ -499,18 +507,24 @@ document.addEventListener("DOMContentLoaded", function () {
   function openCloseRow(container, open) {
     const row = container.closest("tr");
     row.style.display = open ? "table-row" : "none";
-    const pagerWrap = document.getElementById("paginationDiv");
-    if (!open && pagerWrap) pagerWrap.style.display = "none";
-    document
-      .getElementById("upload-area")
-      ?.classList[open ? "add" : "remove"]("collapsed");
+    document.getElementById("upload-area")?.classList[open ? "add" : "remove"]("collapsed");
+    if (!open) hidePager();
   }
+
 
   function toggleValidationDetails(ioid, button) {
     const container = document.getElementById(`detail-validation-${ioid}`);
     if (!container) return;
-    const currentlyHidden = container.closest("tr").style.display === "none";
-    openCloseRow(container, currentlyHidden);
+    const row = container.closest("tr");
+    const isHidden = row.style.display === "none";
+
+    if (!isHidden) {
+      row.style.display = "none";
+      document.getElementById("upload-area")?.classList.remove("collapsed");
+      hidePager();
+      return;
+    }
+    openCloseRow(container, true);
     const span = button.querySelector("span");
     if (span) {
       span.innerHTML = "";
@@ -716,8 +730,16 @@ document.addEventListener("DOMContentLoaded", function () {
   function toggleImportDetails(ioid, button) {
     const container = document.getElementById(`detail-import-${ioid}`);
     if (!container) return;
-    const currentlyHidden = container.closest("tr").style.display === "none";
-    openCloseRow(container, currentlyHidden);
+    const row = container.closest("tr");
+    const isHidden = row.style.display === "none";
+
+    if (!isHidden) {
+      row.style.display = "none";
+      document.getElementById("upload-area")?.classList.remove("collapsed");
+      hidePager();                 
+      return;
+    }
+    openCloseRow(container, true);
     const span = button.querySelector("span");
     if (span) {
       span.innerHTML = "";
@@ -831,8 +853,16 @@ document.addEventListener("DOMContentLoaded", function () {
   function toggleGenerationDetails(ioid, button) {
     const container = document.getElementById(`detail-generation-${ioid}`);
     if (!container) return;
-    const currentlyHidden = container.closest("tr").style.display === "none";
-    openCloseRow(container, currentlyHidden);
+    const row = container.closest("tr");
+    const isHidden = row.style.display === "none";
+
+    if (!isHidden) {
+      row.style.display = "none";
+      document.getElementById("upload-area")?.classList.remove("collapsed");
+      hidePager();                 
+      return;
+    }
+    openCloseRow(container, true);
     const span = button.querySelector("span");
     if (span) {
       span.innerHTML = "";
