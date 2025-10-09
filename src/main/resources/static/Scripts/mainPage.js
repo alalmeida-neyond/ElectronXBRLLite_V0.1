@@ -330,7 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(() => { });
   }
 
-  function createCellCustomIOStateINOUT(ioStateIdVal, ioStateId) {
+  function createCellCustomIOStateINOUT(ioStateId, ioStateIdVal) {
     const td = document.createElement("td");
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
@@ -338,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (ioStateIdVal == 1) bg = "lightgrey";
     else if (ioStateIdVal == 2) bg = "#fff3cd";
     else if (ioStateIdVal == 3) bg = "#f8d7da";
-    else if (ioStateIdVal == 4) bg = "#lightgrey";
+    else if (ioStateIdVal == 4) bg = "lightgrey";
     if (ioStateId == 1)
       icon.classList.add("bi-check-circle-fill", "text-success");
     else if (ioStateId == 2)
@@ -368,7 +368,7 @@ document.addEventListener("DOMContentLoaded", function () {
       bg = "#f8d7da";
     } else if (ioStateId == 4) {
       icon.classList.add("bi-clock-fill", "text-primary");
-      bg = "#lightgrey";
+      bg = "lightgrey";
     } else {
       icon.classList.add("bi-x-circle-fill", "text-danger");
     }
@@ -425,21 +425,29 @@ document.addEventListener("DOMContentLoaded", function () {
       const tdVal = document.createElement("td");
       const tdGen = document.createElement("td");
       tdGen.classList.add("last-cell");
+      
+      const hasImportLogs = io[6]===1;
+      const hasValidationLogs = io[9]===1;
+      const ihasGenerationLogs = io[12]===1;
+
       const bImp = document.createElement("span");
-      bImp.innerHTML = `<span style="color:#0d6efd;cursor:pointer;text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      bImp.innerHTML = `<span style="color:${hasImportLogs?"#0d6efd":"#676b72ff"};cursor:${hasImportLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
       const bVal = document.createElement("span");
-      bVal.innerHTML = `<span style="color:#0d6efd;cursor:pointer;text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      bVal.innerHTML = `<span style="color:${hasValidationLogs?"#0d6efd":"#676b72ff"};cursor:${hasValidationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
       const bGen = document.createElement("span");
-      bGen.innerHTML = `<span style="color:#0d6efd;cursor:pointer;text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      bGen.innerHTML = `<span style="color:${ihasGenerationLogs?"#0d6efd":"#676b72ff"};cursor:${ihasGenerationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      
       tdImp.appendChild(bImp);
       tdVal.appendChild(bVal);
       tdGen.appendChild(bGen);
       tr.appendChild(tdImp);
       tr.appendChild(tdVal);
       tr.appendChild(tdGen);
-      bImp.onclick = () => toggleImportDetails(io[4], bImp);
-      bVal.onclick = () => toggleValidationDetails(io[7], bVal);
-      bGen.onclick = () => toggleGenerationDetails(io[10], bGen);
+
+      bImp.onclick = () => hasImportLogs? toggleImportDetails(io[4], bImp): ()=>{};
+      bVal.onclick = () => hasValidationLogs? toggleValidationDetails(io[7], bVal): ()=>{};
+      bGen.onclick = () => ihasGenerationLogs? toggleGenerationDetails(io[10], bGen): ()=>{};
+
       [tdImp, tdVal, tdGen].forEach(
         (td) => (td.style.backgroundColor = "lightGrey")
       );
