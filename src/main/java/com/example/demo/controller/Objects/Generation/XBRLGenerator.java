@@ -143,7 +143,7 @@ public class XBRLGenerator implements Runnable {
 
             Connection.persist(em, generationIo);
 
-            OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("Generatate", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), ioImport);
+            OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("Generatate", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), generationIo);
             Connection.persist(em, outXBRLGenerated);
 
             GenerateLogDAL.createNewGenerationLog(Constants.generationStartedDesc, outXBRLGenerated.getIdXBRLGenerate(), em);
