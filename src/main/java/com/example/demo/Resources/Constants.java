@@ -27,6 +27,7 @@ public class Constants {
 
     public static String ISOBASEFORMAT8601 = "yyyy-MM-dd";
     public static String ISOBASEFORMAT8601SQLite = "%Y-%m-%d";
+    public static String DATETIMEFORMATSQLite = "%Y-%m-%d %H:%M:%S";
     public static final DateTimeFormatter[] DATEFORMATTERARRAY = new DateTimeFormatter[]{
         dateFormat,
         DateTimeFormatter.ofPattern("yyyy-MM-dd"),
@@ -157,6 +158,8 @@ public class Constants {
     public static final String concurrentOperationsDesc = "Existem operacoes relacionadas com o módulo escolhido em progresso. Tente mais tarde, contacte um administrador ou cancele a operacao a ser realizada";
     public static final String generationStarted = "Geracao Iniciada";
     public static final String generationStartedDesc = "Geracao iniciada com sucesso";
+    public static final String generationConfigError = "Erro no processo de Geração, não foi possivel obter o ponto de entrada para a Taxonomia! Contacte o admistrador";
+    public static final String generationEndedDesc = "Geração Concluída com sucesso";
     public static final String missingData = "Não existe dados para os filtros selecionados";
     public static final String dataInvalida = "Data inválida.";
     public static final String moduloInvalido = "Módulo inválido.";

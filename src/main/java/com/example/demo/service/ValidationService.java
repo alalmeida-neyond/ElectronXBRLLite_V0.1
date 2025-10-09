@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.example.demo.DTOs.GenerateXBRLDetailsDTO;
+import com.example.demo.DTOs.ImportedDetailsDTO;
 import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.JPA;
+import com.example.demo.Resources.Constants;
 import com.example.demo.controller.Objects.Beans.DefaultBean;
+import com.example.demo.controller.Objects.Entities.Logs.LogImportProcess;
 public class ValidationService extends DefaultBean<ValidationResultsDetailsDTO>{
     private final static Logger LOG = Logger.getLogger(ValidationService.class.getName());
 
@@ -36,12 +40,14 @@ public class ValidationService extends DefaultBean<ValidationResultsDetailsDTO>{
         }
     }
 
-    public List<ValidationResultsDetailsDTO> getImportResults(Integer ioId) {
-        JPA<ValidationResultsDetailsDTO> jpa = new JPA<>(ValidationResultsDetailsDTO.class);
-        List<ValidationResultsDetailsDTO> results = new ArrayList<>();
+    public List<ImportedDetailsDTO> getImportResults(Integer ioId) {
+        JPA<ImportedDetailsDTO> jpa = new JPA<>(ImportedDetailsDTO.class);
+        List<ImportedDetailsDTO> results = new ArrayList<>();
         try {
             results = jpa.getMappedFileQueryResultList("SQL_Queries/GetImportedDetails.sql",
-                    "ValidationResultsDetailsRow",
+                    "ImportedDetailsDTOMapping",
+                    "format",Constants.ISOBASEFORMAT8601SQLite,
+                    "dateTimeFormat",Constants.DATETIMEFORMATSQLite,
                     "ioid", ioId);
 
             
@@ -57,16 +63,18 @@ public class ValidationService extends DefaultBean<ValidationResultsDetailsDTO>{
         }
     }
 
-    public List<ValidationResultsDetailsDTO> getGenerationResults(Integer ioId) {
-        JPA<ValidationResultsDetailsDTO> jpa = new JPA<>(ValidationResultsDetailsDTO.class);
-        List<ValidationResultsDetailsDTO> results = new ArrayList<>();
+    public List<GenerateXBRLDetailsDTO> getGenerationResults(Integer ioId) {
+        JPA<GenerateXBRLDetailsDTO> jpa = new JPA<>(GenerateXBRLDetailsDTO.class);
+        List<GenerateXBRLDetailsDTO> results = new ArrayList<>();
         try {
             String moduleVersionFromIO = getModuleVersionFromIO(ioId);
 
             LOG.info("Module Version:" + moduleVersionFromIO);
             
             results = jpa.getMappedFileQueryResultList("SQL_Queries/GetGenerationDetails.sql",
-                    "ValidationResultsDetailsRow",
+                    "GenerateXBRLDetailsDTOMapping",
+                    "format",Constants.ISOBASEFORMAT8601SQLite,
+                    "dateTimeFormat",Constants.DATETIMEFORMATSQLite,
                     "ioid", ioId);
 
             

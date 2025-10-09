@@ -8,19 +8,43 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import com.example.demo.Converter.LocalDateTimePersistenceConverter;
+import com.example.demo.DTOs.ImportedDetailsDTO;
+
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SqlResultSetMapping;
+import jakarta.persistence.SqlResultSetMappings;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "LOG_IMPORTPROCESS")
+@SqlResultSetMappings({
+    @SqlResultSetMapping(
+            name = "ImportedDetailsDTOMapping",
+            classes = {
+                @ConstructorResult(
+                        targetClass = ImportedDetailsDTO.class,
+                        columns = {
+                            @ColumnResult(name = "code", type = String.class),
+                            @ColumnResult(name = "entity", type = String.class),
+                            @ColumnResult(name = "domain", type = String.class),
+                            @ColumnResult(name = "referenceDate", type = String.class),
+                            @ColumnResult(name = "description", type = String.class),
+                            @ColumnResult(name = "timestamp", type = String.class)
+                        }
+                )
+            })
+    
+})
 public class LogImportProcess implements Serializable{
     
     @Id

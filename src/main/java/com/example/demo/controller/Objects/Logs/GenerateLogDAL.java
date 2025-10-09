@@ -9,9 +9,7 @@ import com.example.demo.Data.*;
 import com.example.demo.controller.Objects.Generation.OutXBRLGenerated;
 
 public class GenerateLogDAL {
-
-    public static boolean createNewGenerationLog(String log, int xbrlID) {
-        ConnectionManager cm = new ConnectionManager();
+    public static boolean createNewGenerationLog(String log, int xbrlID, ConnectionManager cm) {
         try {
             cm.em.getTransaction().begin();
             GenerateLog generationLog = new GenerateLog();
@@ -25,8 +23,6 @@ public class GenerateLogDAL {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
-        } finally {
-            cm.em.close();
         }
         return true;
     }
