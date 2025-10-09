@@ -1,11 +1,17 @@
 package com.example.demo.controller.Objects.Entities.DAL;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.example.demo.DTOs.DatapointItensDTO;
@@ -13,12 +19,15 @@ import com.example.demo.Data.Connection;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.Resources.Constants;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ItemCategory;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Import.InImportedTablesTemp;
 
 import jakarta.persistence.*;
 
 
 public class ItemCategoryDAL {
+
+    private static final Logger LOG = Logger.getLogger(ItemCategoryDAL.class.getName());
  
     
     /** Método para obter todos os códigos (Utilizados em determinadas Celulas e no código de desagregacao), EX: portugal - PT**/
@@ -118,5 +127,77 @@ public class ItemCategoryDAL {
         }
 
         return listOfFiles;
+    }
+
+    public static Map<Integer, List<Map.Entry<String, Integer>>> getDataTypeOfDesagCodesOfMaps(ModuleVersion module, LocalDate referenceDate) {
+        JPA<Object[]> jpa = new JPA<>(Object[].class);
+        Map<Integer, List<Map.Entry<String, Integer>>> mapsWithDataTypeOfDesagCodes = new HashMap<>();
+        
+        try {
+            List<Object[]> resultList = jpa.getFileQueryResultList("SQL_Queries/GetDataTypeOfDesagCodesOfMaps.sql",
+                    "moduleVID", module.getModuleVID(),
+                    "directionZ", Constants.SHEETCOORDINATE,
+                    "desagregationCodeTypeNormal", Constants.DESAGREGATIONCODETYPE,
+                    "trueNumber", Constants.TRUEASNUMBER,
+                    "referenceDate", referenceDate.format(Constants.DATEFORMATISO8601),
+                    "formatDate", Constants.DATEFORMATISO8601STRING
+            );
+
+            if (resultList != null && !resultList.isEmpty()) {
+                for (Object[] resultRow : resultList) {
+                    Integer tableVId = Integer.valueOf(resultRow[0].toString());
+                    String property = resultRow[1].toString();
+                    Integer dataTypeId = Integer.valueOf(resultRow[2].toString());
+                    
+                    Map.Entry<String, Integer> propertyWithDatatype = new AbstractMap.SimpleEntry<>(property, dataTypeId);
+                    
+                    mapsWithDataTypeOfDesagCodes.computeIfAbsent(tableVId, t -> new ArrayList<>()).add(propertyWithDatatype);
+                }
+            }
+            
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query GetDesagregationCodeTypeOfMaps", e);
+        } finally {
+            jpa.close();
+        }
+        
+        return mapsWithDataTypeOfDesagCodes;
+    }
+    
+    public static Map<Integer, Map<String, List<DatapointItensDTO>>> getPossibleValuesForDesagCodes(ModuleVersion module, LocalDate referenceDate) {
+        JPA<Object[]> jpa = new JPA<>(Object[].class);
+        Map<Integer, Map<String, List<DatapointItensDTO>>> possibleValuesForDesagCodes = new HashMap<>();
+        
+        try {
+            List<Object[]> resultList = jpa.getMappedFileQueryResultList("SQL_Queries/GetPossibleValuesForDesagCodes.sql", "PossibleValuesForDesagCode",
+                    "moduleVID", module.getModuleVID(),
+                    "desagregationCodeTypeNormal", Constants.DESAGREGATIONCODETYPE,
+                    "trueNumber", Constants.TRUEASNUMBER,
+                    "directionZ", Constants.SHEETCOORDINATE,
+                    "dataTypeEnumeration", Constants.DATATYPEENUMERATION,
+                    "referenceDate", referenceDate.format(Constants.DATEFORMATISO8601),
+                    "formatDate", Constants.DATEFORMATISO8601STRING,
+                    "falseNumber", Constants.FALSEASNUMBER,
+                    "sheetCode", Constants.SHEETCODE
+            );
+
+            if (resultList != null && !resultList.isEmpty()) {
+                for (Object[] resultRow : resultList) {
+                    DatapointItensDTO possibleValue = (DatapointItensDTO) resultRow[0];
+                    Integer tableVId = ((Integer) resultRow[1]).intValue();
+                                        
+                    possibleValuesForDesagCodes.computeIfAbsent(tableVId, t -> new HashMap<>())
+                            .computeIfAbsent(possibleValue.getXBRLHeader(), p -> new ArrayList<>())
+                            .add(possibleValue);
+                }
+            }
+            
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query GetPossibleValuesForDesagCodes", e);
+        } finally {
+            jpa.close();
+        }
+        
+        return possibleValuesForDesagCodes;
     }
 }

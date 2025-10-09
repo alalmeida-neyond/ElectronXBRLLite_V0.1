@@ -263,7 +263,7 @@ public class Validator_2_0 extends RunnableExtension {
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
                     "format",Constants.ISOBASEFORMAT8601SQLite,
                     "desagregationTypeFixed", String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE),
-                    "directionZ", String.valueOf(Constants.SheetCoordinate),
+                    "directionZ", String.valueOf(Constants.SHEETCOORDINATE),
                     "dataTypeDate", String.valueOf(Constants.DATATYPEDATE),
                     "refPeriodString", String.valueOf(Constants.REFPERIOD),
                     "dataTypeEnumeration", String.valueOf(Constants.DATATYPEENUMERATION),

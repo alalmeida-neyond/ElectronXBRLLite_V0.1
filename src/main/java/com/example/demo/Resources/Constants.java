@@ -184,25 +184,29 @@ public class Constants {
     public static final String UPLOADFAILED = "Upload de Ficheiro falhou";
     public static final String UPLOADFAILEDDESC = "Falha na importação do ficheiro para a diretoria de importação!";
     public static final String FILENOTONSERVER = "Ficheiro não se encontra no servidor.";
-    public static final String TEMPLATENOTONSERVER = "Template não se encontra no servidor.";
-    public static final String MESSAGEINVALIDDESAGCODE = "Ocorreu um erro na leitura do DesagregationCode.";
-    public static final String MESSAGEERRORDESAGCODE = "Inseriu um valor inválido para o DesagregationCode, no mapa ";
-    public static final String MESSAGEINVALIDROWKEY = "Ocorreu um erro na leitura da RowKey";   
-    public static final String ERRORFILTERSTOREVOKEACESS = "Erro na obtenção dos filtros para revogar acessos.";
-    public static final String PRIVILEGESNOTREMOVED = "Os privilégios não foram removidos.";
-    public static final String SUCCESS = "Sucesso: ";
-    public static final String PRIVILEGESREMOVED = "Os privilégios foram removidos com sucesso.";
-    public static final String EXISTINGUSER = "Utilizador já existe. Selecione da lista.";
-    public static final String PRIVILEGESADDED = "Privilégios adicionados com sucesso";
-    public static final String ERRORFILTERS = "Os filtros não foram preenchidos corretamente";
-    public static final String EMPTYIOIMPORTMESSAGE = "Não foi importado nenhum relatório para o contexto selecionado.";
-    public static final String EMPTYIOIMPORTTITLE = "Relatórios por importar";
-    public static final String LOGIMPORTERROR = "Falha ao persistir log de erro de importação: ";
-    public static final String MAPNOTFOUNDMESSAGE = "Não foi encontrado mapa para a entrada ";
-    public static final String DUPLICATEENTYMESSAGE = "Foi detetada uma tentativa de inserção duplicada da célula ";
-    public static final String PROCESSCANCELEDMESSAGE = "O processo foi cancelado pelo utilizador.";
-    public static final String MESSAGEERRORGETTINGTABLESHASDESAGREGATIONCODE = "Falha a obter os mapas para o módulo, contacte os administradores.";
+    public static final String MESSAGEINVALIDDESAGCODE = "Ocorreu um erro no Desagregation Code.";
+    public static final String MESSAGEINVALIDROWKEY = "Ocorreu um erro na RowKey.";
+
+    public static final String MESSAGEERRORDESAGCODE(String mapcode){
+        return "Alerta! Inseriu um valor inválido para o DesagregationCode, no mapa "+mapcode+".";
+    }
+
+    public static final String MESSAGEERRORINCOMPLETEDESAGCODE(String mapcode){
+        return "Alerta! Inseriu valores insuficientess para o DesagregationCode, no mapa "+mapcode+".";
+    }
+
+    public static final String MESSAGEERRORUNKOWNDATATYPEDESAGCODE(String mapcode){
+        return "Alerta!  Tipo de dados desconhecido para o DesagregationCode, no mapa "+mapcode+". "+CONTACTADMIN+".";
+    }
+
+    public static final String MESSAGEERRORUNEXPECTEDDESAGCODE(String mapcode){
+        return "Alerta! Não é esperado um DesagregationCode, no mapa "+mapcode+".";
+    }
     
+	public static final int FALSEASNUMBER = 0;
+    public static final int TRUEASNUMBER = 1;
+    
+    public static final int INVALIDNUMBEROFROWS = 0;
     //AppConfigs
     public static final String TOLERANCE = "TOLERANCE";
     public static final String PRECISIONOFDIVISION = "PRECISIONOFDIVISION";
@@ -323,8 +327,9 @@ public class Constants {
     public static final String YEARMONTHDAY = "[0-9]{8}";
 
     //BOOLEAN
-    public static final String FALSEBOOLEANPATTERN = "(?i)^(false|n|n - no|no|não|0|n - não|nao|n - nao)$";
-    public static final String TRUEBOOLEANPATTERN = "(?i)^(true|y|y - yes|yes|sim|1|s - sim)$";
+    public static final String FALSEBOOLEANPATTERN = "(?i)^(false|'false|n|n - no|no|não|0|n - não|nao|n - nao)$";
+    public static final String TRUEBOOLEANPATTERN = "(?i)^(true|'true|y|y - yes|yes|sim|1|s - sim)$";
+
 
     //User
     public static final String ACTIVEUSER = "ActiveUser";
@@ -379,7 +384,7 @@ public class Constants {
     public static int ROWKEYTYPE = 2;
     
     //Coordinates
-    public static String SheetCoordinate = "Z";
+    public static String SHEETCOORDINATE = "Z";
     public static String ColumnCoordinate = "X";
     public static String RowCoordinate = "Y";
 
@@ -415,7 +420,9 @@ public class Constants {
     public static final short actionValidation = 2;
     public static final short actionGeneration = 3;
     public static final short actionLock = 4;
-    public static final short actionUnlock = 5;    
+    public static final short actionUnlock = 5;
+    
+    public static String IMPORTNORMAL = "IMPORTNORMAL";
     
     public static String EMPTTYROWSAS = "0000";
     

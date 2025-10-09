@@ -15,16 +15,38 @@ import org.springframework.data.annotation.Immutable;
 @Immutable
 @Entity
 @Table(name = "ITEMCATEGORY")
-@SqlResultSetMapping(
-        name = "DatapointItensDTO",
-        classes = @ConstructorResult(
-                targetClass = DatapointItensDTO.class,
-                columns = { 
-                            @ColumnResult(name = "xbrlHeader", type = String.class), 
-                            @ColumnResult(name = "HeaderCode", type = String.class), 
+@SqlResultSetMappings({
+    @SqlResultSetMapping(
+            name = "DatapointItensDTO",
+            classes = {
+                @ConstructorResult(
+                        targetClass = DatapointItensDTO.class,
+                        columns = {
+                            @ColumnResult(name = "xbrlHeader", type = String.class),
+                            @ColumnResult(name = "HeaderCode", type = String.class),
                             @ColumnResult(name = "ValueCode", type = String.class),
-                            @ColumnResult(name = "signature", type = String.class), 
-                            @ColumnResult(name = "name", type = String.class)}))
+                            @ColumnResult(name = "signature", type = String.class),
+                            @ColumnResult(name = "name", type = String.class)
+                        })
+            }),
+    @SqlResultSetMapping(
+            name = "PossibleValuesForDesagCode",
+            classes = {
+                @ConstructorResult(
+                        targetClass = DatapointItensDTO.class,
+                        columns = {
+                            @ColumnResult(name = "XBRLCode", type = String.class),
+                            @ColumnResult(name = "HeaderCode", type = String.class),
+                            @ColumnResult(name = "ValueCode", type = String.class),
+                            @ColumnResult(name = "signature", type = String.class),
+                            @ColumnResult(name = "name", type = String.class)
+                        })
+            },
+            columns = {
+                @ColumnResult(name = "TableVID", type = Integer.class),
+            }
+    )
+})
 public class ItemCategory implements Serializable{
     
     @Id

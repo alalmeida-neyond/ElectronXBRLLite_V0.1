@@ -1,11 +1,27 @@
 package com.example.demo.controller.Objects.Import;
 
 import java.io.Serializable;
+
+import com.example.demo.DTOs.KeyAssociationDTO;
+
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
 
+@SqlResultSetMapping(
+        name="KeyAssociationDTO",
+        classes = {
+            @ConstructorResult(
+                    targetClass = KeyAssociationDTO.class,
+                    columns = {
+                        @ColumnResult(name = "propertyName", type = String.class),
+                        @ColumnResult(name = "propertyValue", type = String.class),
+                        @ColumnResult(name = "propertyOriginalValue", type = String.class)
+                    }
+            )
+        }
+) 
 @Entity
 @Table(name = "IN_KEYASSOCIATION")
 public class InKeyAssociation implements Serializable {
@@ -33,6 +49,21 @@ public class InKeyAssociation implements Serializable {
     @ManyToOne
     private InImportKey importedKey;
 
+	public InKeyAssociation(String propertyName, String propertyValue, String propertyOriginalValue, InImportKey importedKey) {
+        this.propertyName = propertyName;
+        this.propertyValue = propertyValue;
+        this.propertyOriginalValue = propertyOriginalValue;
+        this.importedKey = importedKey;
+    }
+    
+    public InKeyAssociation(String propertyName, String propertyValue, String propertyOriginalValue) {
+        this.propertyName = propertyName;
+        this.propertyValue = propertyValue;
+        this.propertyOriginalValue = propertyOriginalValue;
+    }
+    
+    public InKeyAssociation(){}
+    
     public int getKeyAssociationID() {
         return keyAssociationID;
     }
