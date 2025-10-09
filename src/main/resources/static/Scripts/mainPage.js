@@ -1,8 +1,7 @@
 let languageLabels = {};
-let currentOpenDetailIOId = null;
-let currentDetailFilteredData = [];
-let currentDetailCurrentPage = 1;
-let currentDetailRowsPerPage = 15;
+const paginationState = {};
+const dataCache = {};
+const ROWS_PER_PAGE = 15;
 
 function reinitTooltips(container = document) {
   container.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
@@ -11,15 +10,15 @@ function reinitTooltips(container = document) {
     new bootstrap.Tooltip(el);
   });
 }
+
 function updateLanguageLabels(language) {
   fetch(`./Languages_Files/${language}.json`, { cache: "no-store" })
-    .then((response) => {
-      if (!response.ok) throw new Error("Ficheiro de idioma não encontrado");
-      return response.json();
+    .then((r) => {
+      if (!r.ok) throw new Error();
+      return r.json();
     })
     .then((data) => {
       languageLabels = data;
-
       document
         .querySelectorAll(".resultado-filter-button")
         .forEach((button) => {
@@ -27,114 +26,154 @@ function updateLanguageLabels(language) {
           const tooltipKey = button.getAttribute("data-tooltip-key");
           const value = button.getAttribute("data-value");
           const count = button.getAttribute("data-count");
-
           const label = data[labelKey] ?? value ?? "";
           const tooltip = data[tooltipKey] ?? "";
-
           button.textContent = count ? `${label} (${count})` : label;
-
           if (tooltip) {
             button.setAttribute("title", tooltip);
             button.setAttribute("data-bs-toggle", "tooltip");
             button.setAttribute("data-bs-placement", "top");
           }
         });
-
       document
         .querySelectorAll(".internationalization:not(.resultado-filter-button)")
-        .forEach((element) => {
-          const key = element.getAttribute("data-key");
-          let translation = data[key];
-
-          const value = element.getAttribute("data-value");
-
-          if (value) {
-            translation = translation.replace("{0}", value);
-          }
-
-          if (translation) {
-            if (element.tagName === "INPUT") {
-              element.placeholder = translation;
-            } else if (element.tagName === "OPTION") {
-              element.innerHTML = translation;
-            } else if (element.tagName === "I") {
-              element.title = translation;
-            } else {
-              const firstChild = element.firstChild;
-              if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
-                firstChild.nodeValue = translation + " ";
-              } else {
-                const textNode = document.createTextNode(translation + " ");
-                element.insertBefore(textNode, element.firstChild);
-              }
-            }
+        .forEach((el) => {
+          const key = el.getAttribute("data-key");
+          let t = data[key];
+          const v = el.getAttribute("data-value");
+          if (v && t) t = t.replace("{0}", v);
+          if (!t) return;
+          if (el.tagName === "INPUT") el.placeholder = t;
+          else if (el.tagName === "OPTION") el.innerHTML = t;
+          else if (el.tagName === "I") el.title = t;
+          else {
+            const first = el.firstChild;
+            if (first && first.nodeType === Node.TEXT_NODE)
+              first.nodeValue = t + " ";
+            else
+              el.insertBefore(document.createTextNode(t + " "), el.firstChild);
           }
         });
-
       reinitTooltips();
     })
-    .catch((error) => {
-      console.error("Erro ao carregar idioma:", error);
-    });
+    .catch(() => { });
 }
+
+function showOrUpdatePager(totalItems, stateKey, onPageChange) {
+  const wrap = document.getElementById("paginationDiv");
+  const container = document.getElementById("sharedPaginationContainer");
+  if (!wrap || !container) return;
+
+  const totalPages = Math.ceil(totalItems / ROWS_PER_PAGE);
+  wrap.style.display = totalPages > 1 ? "block" : "none";
+  container.innerHTML = "";
+  if (totalPages <= 1) return;
+
+  if (!paginationState[stateKey])
+    paginationState[stateKey] = { currentPage: 1, rowsPerPage: ROWS_PER_PAGE };
+  const state = paginationState[stateKey];
+  if (state.currentPage > totalPages) state.currentPage = totalPages;
+
+  const makeBtn = (label, page = null, opts = {}) => {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.className = "page-btn btn btn-sm btn-light m-1 roundButton";
+    if (opts.active) btn.classList.add("active");
+    btn.disabled = !!opts.disabled;
+    if (!btn.disabled && page !== null) {
+      btn.addEventListener("click", () => {
+        paginationState[stateKey].currentPage = page;
+        onPageChange(page, ROWS_PER_PAGE);
+        showOrUpdatePager(totalItems, stateKey, onPageChange);
+      });
+    }
+    return btn;
+  };
+
+  container.appendChild(
+    makeBtn("«", state.currentPage > 1 ? state.currentPage - 1 : null, {
+      disabled: state.currentPage === 1,
+    })
+  );
+
+  const start = Math.max(1, state.currentPage - 1);
+  const end = Math.min(totalPages, state.currentPage + 3);
+  for (let p = start; p <= end; p++)
+    container.appendChild(
+      makeBtn(String(p), p, { active: p === state.currentPage })
+    );
+
+  if (end < totalPages) {
+    if (end + 1 < totalPages)
+      container.appendChild(makeBtn("…", null, { disabled: true }));
+    container.appendChild(
+      makeBtn(String(totalPages), totalPages, {
+        active: state.currentPage === totalPages,
+      })
+    );
+  }
+
+  container.appendChild(
+    makeBtn(
+      "»",
+      state.currentPage < totalPages ? state.currentPage + 1 : null,
+      { disabled: state.currentPage === totalPages }
+    )
+  );
+}
+
+function renderRowsGeneric(tbody, list, stateKey, buildRow) {
+  const { currentPage, rowsPerPage } = paginationState[stateKey];
+  tbody.innerHTML = "";
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  list.slice(start, end).forEach((item) => tbody.appendChild(buildRow(item)));
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const importBar = document.getElementById("importProgress");
-  importBar.style.width = 0 + "%";
-  importBar.textContent = 0 + "%";
-
+  importBar.style.width = "0%";
+  importBar.textContent = "0%";
   const validationBar = document.getElementById("validationProgress");
-  validationBar.style.width = 0 + "%";
-  validationBar.textContent = 0 + "%";
-
+  validationBar.style.width = "0%";
+  validationBar.textContent = "0%";
   const generationBar = document.getElementById("generationProgress");
-  generationBar.style.width = 0 + "%";
-  generationBar.textContent = 0 + "%";
+  generationBar.style.width = "0%";
+  generationBar.textContent = "0%";
 
   const langSelect = document.getElementById("languageSelect");
-
   if (langSelect) {
     langSelect.addEventListener("change", function () {
-      const selectedLang = langSelect.value;
-      updateLanguageLabels(selectedLang);
+      updateLanguageLabels(langSelect.value);
     });
-
-    const initialLang = langSelect.value || "pt";
-    updateLanguageLabels(initialLang);
-  } else {
-    console.warn("Elemento #languageSelect não encontrado");
+    updateLanguageLabels(langSelect.value || "pt");
   }
 
   let allIOs = [];
   const uploadArea = document.getElementById("upload-area");
   const excelFileInput = document.getElementById("file");
 
-  var date = new Date();
-
-  const behindThreeYears = document.getElementById("behindThreeYears");
-  const behindTwoYears = document.getElementById("behindTwoYears");
-  const behindOneYear = document.getElementById("behindOneYear");
-  const currentYear = document.getElementById("currentYear");
-  const forwardOneYear = document.getElementById("forwardOneYear");
-  const forwardTwoYears = document.getElementById("forwardTwoYears");
-  const forwardThreeYears = document.getElementById("forwardThreeYears");
-
-  behindThreeYears.value = date.getFullYear() - 3;
-  behindTwoYears.value = date.getFullYear() - 2;
-  behindOneYear.value = date.getFullYear() - 1;
-  currentYear.value = date.getFullYear();
-  forwardOneYear.value = date.getFullYear() + 1;
-  forwardTwoYears.value = date.getFullYear() + 2;
-  forwardThreeYears.value = date.getFullYear() + 3;
-
-  var filterYearDropdown = document.getElementsByName("filterYear")[0];
-
-  filterYearDropdown.options[1].innerHTML = behindThreeYears.value;
-  filterYearDropdown.options[2].innerHTML = behindTwoYears.value;
-  filterYearDropdown.options[3].innerHTML = behindOneYear.value;
-  filterYearDropdown.options[4].innerHTML = currentYear.value;
-  filterYearDropdown.options[5].innerHTML = forwardOneYear.value;
-  filterYearDropdown.options[6].innerHTML = forwardTwoYears.value;
-  filterYearDropdown.options[7].innerHTML = forwardThreeYears.value;
+  const date = new Date();
+  const years = {
+    behindThreeYears: date.getFullYear() - 3,
+    behindTwoYears: date.getFullYear() - 2,
+    behindOneYear: date.getFullYear() - 1,
+    currentYear: date.getFullYear(),
+    forwardOneYear: date.getFullYear() + 1,
+    forwardTwoYears: date.getFullYear() + 2,
+    forwardThreeYears: date.getFullYear() + 3,
+  };
+  Object.entries(years).forEach(
+    ([id, v]) => (document.getElementById(id).value = v)
+  );
+  const filterYearDropdown = document.getElementsByName("filterYear")[0];
+  filterYearDropdown.options[1].innerHTML = years.behindThreeYears;
+  filterYearDropdown.options[2].innerHTML = years.behindTwoYears;
+  filterYearDropdown.options[3].innerHTML = years.behindOneYear;
+  filterYearDropdown.options[4].innerHTML = years.currentYear;
+  filterYearDropdown.options[5].innerHTML = years.forwardOneYear;
+  filterYearDropdown.options[6].innerHTML = years.forwardTwoYears;
+  filterYearDropdown.options[7].innerHTML = years.forwardThreeYears;
 
   ["filterYear", "filterMonth"].forEach((id) => {
     const input = document.getElementById(id);
@@ -145,76 +184,61 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   excelFileInput.addEventListener("change", () => {
-    if (excelFileInput.files.length > 0) {
-      uploadFile(excelFileInput.files[0]);
-    }
+    if (excelFileInput.files.length > 0) uploadFile(excelFileInput.files[0]);
   });
-
   uploadArea.addEventListener("dragover", (e) => {
     e.preventDefault();
     uploadArea.classList.add("dragover");
   });
-
-  uploadArea.addEventListener("dragleave", () => {
-    uploadArea.classList.remove("dragover");
-  });
-
+  uploadArea.addEventListener("dragleave", () =>
+    uploadArea.classList.remove("dragover")
+  );
   uploadArea.addEventListener("drop", (e) => {
     e.preventDefault();
     uploadArea.classList.remove("dragover");
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      uploadFile(file);
-    }
+    const f = e.dataTransfer.files[0];
+    if (f) uploadFile(f);
   });
-
   document
     .getElementById("filterModule")
     .addEventListener("change", autoSubmit);
 
-  function showImportProgress(value) {
+  let progressInterval;
+  function showImportProgress(v) {
     document.getElementById("importProgressBar").style.display = "block";
     document.getElementById("validationProgressBar").style.display = "none";
     document.getElementById("generationProgressBar").style.display = "none";
-    const bar = document.getElementById("importProgress");
-    bar.style.width = value + "%";
-    bar.textContent = value + "%";
+    importBar.style.width = v + "%";
+    importBar.textContent = v + "%";
   }
-
-  function showValidationProgress(value) {
+  function showValidationProgress(v) {
     document.getElementById("importProgressBar").style.display = "none";
     document.getElementById("validationProgressBar").style.display = "block";
     document.getElementById("generationProgressBar").style.display = "none";
-    const bar = document.getElementById("validationProgress");
-    bar.style.width = value + "%";
-    bar.textContent = value + "%";
+    validationBar.style.width = v + "%";
+    validationBar.textContent = v + "%";
   }
-
-  function showGenerationProgress(value) {
+  function showGenerationProgress(v) {
     document.getElementById("importProgressBar").style.display = "none";
     document.getElementById("validationProgressBar").style.display = "none";
     document.getElementById("generationProgressBar").style.display = "block";
-    const bar = document.getElementById("generationProgress");
-    bar.style.width = value + "%";
-    bar.textContent = value + "%";
+    generationBar.style.width = v + "%";
+    generationBar.textContent = v + "%";
   }
-
-  let progressInterval;
-
   function startProgressPolling() {
     progressInterval = setInterval(() => {
       fetch("/importProgress")
-        .then((response) => response.json())
-        .then((progressImport) => {
-          if (progressImport === 100) {
+        .then((r) => r.json())
+        .then((pI) => {
+          if (pI === 100) {
             fetch("/validationProgress")
-              .then((response) => response.json())
-              .then((progressValidation) => {
-                if (progressValidation === 100) {
+              .then((r) => r.json())
+              .then((pV) => {
+                if (pV === 100) {
                   fetch("/generationProgress")
-                    .then((response) => response.json())
-                    .then((progressGeneration) => {
-                      if (progressGeneration === 100) {
+                    .then((r) => r.json())
+                    .then((pG) => {
+                      if (pG === 100) {
                         clearInterval(progressInterval);
                         document.getElementById(
                           "importProgressBar"
@@ -226,90 +250,69 @@ document.addEventListener("DOMContentLoaded", function () {
                           "generationProgressBar"
                         ).style.display = "none";
                       } else {
-                        showGenerationProgress(progressGeneration);
+                        showGenerationProgress(pG);
                       }
                     });
                 } else {
-                  showValidationProgress(progressValidation);
+                  showValidationProgress(pV);
                 }
               });
-          } else if (progressImport >= 0 && progressImport < 100) {
-            showImportProgress(progressImport);
+          } else if (pI >= 0 && pI < 100) {
+            showImportProgress(pI);
           }
         })
-        .catch((err) => console.error("Progress fetch error:", err));
+        .catch(() => { });
     }, 100);
   }
 
   function uploadFile(file) {
     const formData = new FormData();
     formData.append("file", file);
-
     document.getElementById("upload-text").style.display = "none";
     document.getElementById("loading-container").style.display = "flex";
     document.getElementById("file").disabled = true;
-    const homepageButton = document.getElementById("homepage");
-    const templatesPageButton = document.getElementById("templatesPage");
-    const settingsPageButton = document.getElementById("settingsPage");
-
-    homepageButton.classList.add("isDisabled");
-    templatesPageButton.classList.add("isDisabled");
-    settingsPageButton.classList.add("isDisabled");
-
+    ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
+      document.getElementById(id).classList.add("isDisabled")
+    );
     showImportProgress(0);
-
     startProgressPolling();
-
-    fetch("/importFile/upload", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => {
-        if (!response.ok) {
-          return response.text().then((text) => {
-            throw new Error(text);
+    fetch("/importFile/upload", { method: "POST", body: formData })
+      .then((r) => {
+        if (!r.ok)
+          return r.text().then((t) => {
+            throw new Error(t);
           });
-        }
-        return response.text();
+        return r.text();
       })
-      .then((data) => {
+      .then(() => {
         document.getElementById("logContainer").style.display = "block";
         document.getElementById("upload-text").style.display = "block";
         document.getElementById("loading-container").style.display = "none";
         document.getElementById("upload-error").style.display = "none";
         document.getElementById("file").disabled = false;
-
-        homepageButton.classList.add("isDisabled")?.classList.remove("isDisabled");
-        templatesPageButton.classList.add("isDisabled")?.classList.remove("isDisabled");
-        settingsPageButton.classList.add("isDisabled")?.classList.remove("isDisabled");
-
+        ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
+          document.getElementById(id).classList.remove("isDisabled")
+        );
         document.getElementById("file").value = null;
-
         clearInterval(progressInterval);
-
-        const importBar = document.getElementById("importProgressBar");
-        const validationBar = document.getElementById("validationProgressBar");
-        const generationBar = document.getElementById("generationProgressBar");
-
-        importBar.style.display = "none";
-        validationBar.style.display = "none";
-        generationBar.style.display = "none";
-
+        [
+          "importProgressBar",
+          "validationProgressBar",
+          "generationProgressBar",
+        ].forEach((id) => (document.getElementById(id).style.display = "none"));
         fetchModulesFromBackend();
         fetchIOs();
       })
-      .catch((error) => {
-        console.error("Erro ao fazer upload:", error.message);
+      .catch((err) => {
         document.getElementById("upload-text").style.display = "block";
         document.getElementById("loading-container").style.display = "none";
         document.getElementById("file").disabled = false;
-
-        const errorBox = document.getElementById("upload-error");
-        if (errorBox) {
-          errorBox.innerText = error.message;
-          errorBox.style.display = "block";
+        const box = document.getElementById("upload-error");
+        if (box) {
+          box.innerText = err.message;
+          box.style.display = "block";
         } else {
-          alert("Erro: " + error.message);
+          alert("Erro: " + err.message);
         }
       });
   }
@@ -317,146 +320,100 @@ document.addEventListener("DOMContentLoaded", function () {
   function fetchIOs() {
     fetch("/importFile/results")
       .then((res) => {
-        if (res.ok != true) {
-          throw new Error("Erro ao obter os IOs");
-        }
+        if (!res.ok) throw new Error("Erro ao obter os IOs");
         return res.json();
       })
       .then((data) => {
         allIOs = data;
         populateMainTable(allIOs);
       })
-      .catch((err) => {
-        console.error("Erro ao buscar os IOs:", err);
-      });
+      .catch(() => { });
   }
+
   function createCellCustomIOStateINOUT(ioStateIdVal, ioStateId) {
     const td = document.createElement("td");
-
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
-
-    let label = "";
-    let backgroundColor = "";
-
-    if (ioStateIdVal == 1) {
-      backgroundColor = "lightgrey";
-    } else if (ioStateIdVal == 2) {
-      backgroundColor = "#fff3cd";
-    } else if (ioStateIdVal == 3) {
-      backgroundColor = "#f8d7da";
-    } else if (ioStateIdVal == 4) {
-      backgroundColor = "#lightgrey";
-    }
-    else {
-      backgroundColor = "lightGrey";
-    }
-
-    if (ioStateId == 1) {
+    let bg = "lightGrey";
+    if (ioStateIdVal == 1) bg = "lightgrey";
+    else if (ioStateIdVal == 2) bg = "#fff3cd";
+    else if (ioStateIdVal == 3) bg = "#f8d7da";
+    else if (ioStateIdVal == 4) bg = "#lightgrey";
+    if (ioStateId == 1)
       icon.classList.add("bi-check-circle-fill", "text-success");
-    } else if (ioStateId == 2) {
+    else if (ioStateId == 2)
       icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
-    } else if (ioStateId == 3) {
+    else if (ioStateId == 3)
       icon.classList.add("bi-x-circle-fill", "text-danger");
-    } else if (ioStateId == 4) {
+    else if (ioStateId == 4)
       icon.classList.add("bi-clock-fill", "text-primary");
-    }
-    else {
-      icon.classList.add("bi-x-circle-fill", "text-danger");
-    }
-
+    else icon.classList.add("bi-x-circle-fill", "text-danger");
     td.appendChild(icon);
-    td.style.backgroundColor = backgroundColor;
-
+    td.style.backgroundColor = bg;
     return td;
   }
   function createCellCustomIOState(ioStateId) {
     const td = document.createElement("td");
-
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
-
-    let label = "";
-    let backgroundColor = "";
-
+    let bg = "lightGrey";
     if (ioStateId == 1) {
       icon.classList.add("bi-check-circle-fill", "text-success");
-      backgroundColor = "lightgrey";
+      bg = "lightgrey";
     } else if (ioStateId == 2) {
       icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
-      backgroundColor = "#fff3cd";
+      bg = "#fff3cd";
     } else if (ioStateId == 3) {
       icon.classList.add("bi-x-circle-fill", "text-danger");
-      backgroundColor = "#f8d7da";
+      bg = "#f8d7da";
     } else if (ioStateId == 4) {
       icon.classList.add("bi-clock-fill", "text-primary");
-      backgroundColor = "#lightgrey";
-    }
-    else {
+      bg = "#lightgrey";
+    } else {
       icon.classList.add("bi-x-circle-fill", "text-danger");
-      backgroundColor = "lightGrey";
     }
-
     td.appendChild(icon);
-    td.style.backgroundColor = backgroundColor;
-
+    td.style.backgroundColor = bg;
     return td;
   }
-
   function createCellCustom(value, ioStateId) {
     const td = document.createElement("td");
-
-    let iconClass = "";
-    let text = value ?? "-";
-
-    if (ioStateId == 2) {
-      td.style.backgroundColor = "#fff3cd";
-    } else if (ioStateId == 3) {
-      td.style.backgroundColor = "#f8d7da";
-    } else {
-      td.style.backgroundColor = "lightGrey";
-    }
-
-    td.textContent = text;
+    let bg = "lightGrey";
+    if (ioStateId == 2) bg = "#fff3cd";
+    else if (ioStateId == 3) bg = "#f8d7da";
+    td.style.backgroundColor = bg;
+    td.textContent = value ?? "-";
     return td;
   }
 
   function fetchModulesFromBackend() {
     const moduleSelect = document.getElementById("filterModule");
     fetch("/importFile/modules")
-      .then((res) => res.json())
+      .then((r) => r.json())
       .then((modules) => {
         moduleSelect.innerHTML = `<option value="" class='internationalization' data-key='module.label'></option>`;
-        modules.forEach((module) => {
-          const option = document.createElement("option");
-          option.value = module;
-          option.textContent = module;
-          moduleSelect.appendChild(option);
-
-          const selectedLang =
-            document.getElementById("languageSelect")?.value || "pt";
-          updateLanguageLabels(selectedLang);
+        modules.forEach((m) => {
+          const o = document.createElement("option");
+          o.value = m;
+          o.textContent = m;
+          moduleSelect.appendChild(o);
         });
+        const selectedLang =
+          document.getElementById("languageSelect")?.value || "pt";
+        updateLanguageLabels(selectedLang);
       })
-      .catch((err) => {
-        console.error("Erro ao buscar módulos:", err);
-      });
+      .catch(() => { });
   }
 
   function populateMainTable(ioList) {
-    const tableBody = document.getElementById("validationTableBody");
-    tableBody.innerHTML = "";
-    
+    const tbody = document.getElementById("validationTableBody");
+    tbody.innerHTML = "";
     ioList.forEach((io) => {
-      console.log(io);
       const tr = document.createElement("tr");
-
       const td0 = createCellCustomIOState(io[8]);
-
       const tdIN = createCellCustomIOStateINOUT(io[5], io[8]);
-      const tdOUT = createCellCustomIOStateINOUT(io[11], io[8])
+      const tdOUT = createCellCustomIOStateINOUT(io[11], io[8]);
       tdIN.classList.add("first-cell");
-
       tr.appendChild(tdIN);
       tr.appendChild(td0);
       tr.appendChild(tdOUT);
@@ -464,814 +421,526 @@ document.addEventListener("DOMContentLoaded", function () {
       tr.appendChild(createCellCustom(io[1], io[8]));
       tr.appendChild(createCellCustom(io[2], io[8]));
       tr.appendChild(createCellCustom(io[3], io[8]));
-
-      const detailImportBtnTd = document.createElement("td");
-
-      const detailValidationBtnTd = document.createElement("td");
-
-      const detailGenerationBtnTd = document.createElement("td");
-      detailGenerationBtnTd.classList.add("last-cell");
-      const btnImport = document.createElement("span");
-      btnImport.innerHTML = `
-          <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
-            <i class="bi bi-box-arrow-up-right"></i>
-          </span>`;
-
-      const btnValidation = document.createElement("span");
-      btnValidation.innerHTML = `
-          <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
-            <i class="bi bi-box-arrow-up-right"></i>
-          </span>`;
-
-      const btnGeneration = document.createElement("span");
-      btnGeneration.innerHTML = `
-          <span style="color: #0d6efd; cursor: pointer; text-decoration: underline;">
-            <i class="bi bi-box-arrow-up-right"></i>
-          </span>`;
-
-      detailImportBtnTd.appendChild(btnImport);
-      detailValidationBtnTd.appendChild(btnValidation);
-      detailGenerationBtnTd.appendChild(btnGeneration);
-      tr.appendChild(detailImportBtnTd);
-      tr.appendChild(detailValidationBtnTd);
-      tr.appendChild(detailGenerationBtnTd);
-      btnImport.onclick = () => toggleImportDetails(io[4], btnImport);
-      btnValidation.onclick = () => toggleValidationDetails(io[7], btnValidation);
-      btnGeneration.onclick = () => toggleGenerationDetails(io[10], btnGeneration);
-      detailImportBtnTd.style.backgroundColor = "lightGrey";
-      detailValidationBtnTd.style.backgroundColor = "lightGrey";
-      detailGenerationBtnTd.style.backgroundColor = "lightGrey";
+      const tdImp = document.createElement("td");
+      const tdVal = document.createElement("td");
+      const tdGen = document.createElement("td");
+      tdGen.classList.add("last-cell");
+      const bImp = document.createElement("span");
+      bImp.innerHTML = `<span style="color:#0d6efd;cursor:pointer;text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      const bVal = document.createElement("span");
+      bVal.innerHTML = `<span style="color:#0d6efd;cursor:pointer;text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      const bGen = document.createElement("span");
+      bGen.innerHTML = `<span style="color:#0d6efd;cursor:pointer;text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      tdImp.appendChild(bImp);
+      tdVal.appendChild(bVal);
+      tdGen.appendChild(bGen);
+      tr.appendChild(tdImp);
+      tr.appendChild(tdVal);
+      tr.appendChild(tdGen);
+      bImp.onclick = () => toggleImportDetails(io[4], bImp);
+      bVal.onclick = () => toggleValidationDetails(io[7], bVal);
+      bGen.onclick = () => toggleGenerationDetails(io[10], bGen);
+      [tdImp, tdVal, tdGen].forEach(
+        (td) => (td.style.backgroundColor = "lightGrey")
+      );
       if (io[1] == 2) {
-        detailImportBtnTd.style.backgroundColor = "#fff3cd";
-        detailValidationBtnTd.style.backgroundColor = "#fff3cd";
-        detailGenerationBtnTd.style.backgroundColor = "#fff3cd";
+        tdImp.style.backgroundColor = "#fff3cd";
+        tdVal.style.backgroundColor = "#fff3cd";
+        tdGen.style.backgroundColor = "#fff3cd";
       } else if (io[1] == 3) {
-        detailImportBtnTd.style.backgroundColor = "#f8d7da";
-        detailValidationBtnTd.style.backgroundColor = "#f8d7da";
-        detailGenerationBtnTd.style.backgroundColor = "#f8d7da";
+        tdImp.style.backgroundColor = "#f8d7da";
+        tdVal.style.backgroundColor = "#f8d7da";
+        tdGen.style.backgroundColor = "#f8d7da";
       }
-      tableBody.appendChild(tr);
+      tbody.appendChild(tr);
 
-      const detailImportRow = document.createElement("tr");
-      const detailValidationRow = document.createElement("tr");
-      const detailGenerationRow = document.createElement("tr");
-
-      detailImportRow.style.display = "none";
-      detailImportRow.className = "detail-row";
-
-      detailValidationRow.style.display = "none";
-      detailValidationRow.className = "detail-row";
-
-      detailGenerationRow.style.display = "none";
-      detailGenerationRow.className = "detail-row";
-
-      const detailImportTd = document.createElement("td");
-      detailImportTd.colSpan = 10;
-      detailImportTd.style.padding = 10;
-      const loadingImportDiv = document.createElement("div");
-      loadingImportDiv.id = `detail-import-${io[4]}`;
-      loadingImportDiv.classList.add("internationalization");
-      loadingImportDiv.setAttribute("data-key", "loading.label");
-      detailImportTd.appendChild(loadingImportDiv);
-
-      const detailValidationTd = document.createElement("td");
-      detailValidationTd.colSpan = 10;
-      detailValidationTd.style.padding = 10;
-      const loadingValidationDiv = document.createElement("div");
-      loadingValidationDiv.id = `detail-validation-${io[7]}`;
-      loadingValidationDiv.classList.add("internationalization");
-      loadingValidationDiv.setAttribute("data-key", "loading.label");
-      detailValidationTd.appendChild(loadingValidationDiv);
-
-      const detailGenerationTd = document.createElement("td");
-      detailGenerationTd.colSpan = 10;
-      detailGenerationTd.style.padding = 10;
-      const loadingGenerationDiv = document.createElement("div");
-      loadingGenerationDiv.id = `detail-generation-${io[10]}`;
-      loadingGenerationDiv.classList.add("internationalization");
-      loadingGenerationDiv.setAttribute("data-key", "loading.label");
-      detailGenerationTd.appendChild(loadingGenerationDiv);
-
-      detailImportRow.appendChild(detailImportTd);
-      detailValidationRow.appendChild(detailValidationTd);
-      detailGenerationRow.appendChild(detailGenerationTd);
-
-      tableBody.appendChild(detailImportRow);
-      tableBody.appendChild(detailValidationRow);
-      tableBody.appendChild(detailGenerationRow);
+      const rImp = document.createElement("tr");
+      const rVal = document.createElement("tr");
+      const rGen = document.createElement("tr");
+      rImp.style.display = "none";
+      rVal.style.display = "none";
+      rGen.style.display = "none";
+      rImp.className = "detail-row";
+      rVal.className = "detail-row";
+      rGen.className = "detail-row";
+      const tdImpD = document.createElement("td");
+      tdImpD.colSpan = 10;
+      tdImpD.style.padding = 10;
+      const tdValD = document.createElement("td");
+      tdValD.colSpan = 10;
+      tdValD.style.padding = 10;
+      const tdGenD = document.createElement("td");
+      tdGenD.colSpan = 10;
+      tdGenD.style.padding = 10;
+      const divImp = document.createElement("div");
+      divImp.id = `detail-import-${io[4]}`;
+      divImp.classList.add("internationalization");
+      divImp.setAttribute("data-key", "loading.label");
+      const divVal = document.createElement("div");
+      divVal.id = `detail-validation-${io[7]}`;
+      divVal.classList.add("internationalization");
+      divVal.setAttribute("data-key", "loading.label");
+      const divGen = document.createElement("div");
+      divGen.id = `detail-generation-${io[10]}`;
+      divGen.classList.add("internationalization");
+      divGen.setAttribute("data-key", "loading.label");
+      tdImpD.appendChild(divImp);
+      tdValD.appendChild(divVal);
+      tdGenD.appendChild(divGen);
+      rImp.appendChild(tdImpD);
+      rVal.appendChild(tdValD);
+      rGen.appendChild(tdGenD);
+      tbody.appendChild(rImp);
+      tbody.appendChild(rVal);
+      tbody.appendChild(rGen);
     });
   }
 
-  function renderRows(tbody, filteredDetails, currentPage, rowsPerPage) {
-    tbody.innerHTML = "";
-
-    const start = (currentPage - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    const pageItems = filteredDetails.slice(start, end);
-
-    pageItems.forEach((d) => {
-      const bodyRow = document.createElement("tr");
-      const resultado = d.resultado ?? "-";
-      let rowStyle = "";
-
-      if (resultado === "RULE OK") {
-        rowStyle = `background-color: #d4edda`;
-      } else if (resultado === "RULE DO NOT RUN") {
-        rowStyle = `background-color: #fff3cd`;
-      } else if (resultado === "RULE NOT OK") {
-        rowStyle = `background-color: #f8d7da`;
-      }
-
-      const tdRuleCodeKey = document.createElement("td");
-      tdRuleCodeKey.setAttribute("style", rowStyle);
-      tdRuleCodeKey.textContent = d.regraCode ?? "-";
-      tdRuleCodeKey.style.fontSize = "0.7rem";
-
-      bodyRow.appendChild(tdRuleCodeKey);
-
-      const severityKey = ((d.severity ?? "unknown") + "").toLowerCase();
-      const tdSeverity = document.createElement("td");
-      tdSeverity.setAttribute("style", rowStyle);
-
-      const iconSeverity = document.createElement("i");
-      iconSeverity.classList.add("bi", "me-2");
-
-      let severityLabel = "";
-
-      if (severityKey === "ok") {
-        iconSeverity.classList.add("bi-check-circle-fill", "text-success");
-        severityLabel = "success.label";
-      } else if (severityKey === "warning") {
-        iconSeverity.classList.add(
-          "bi-exclamation-triangle-fill",
-          "text-warning"
-        );
-        severityLabel = "warning.label";
-      } else if (severityKey === "error") {
-        iconSeverity.classList.add("bi-x-circle-fill", "text-danger");
-        severityLabel = "error.label";
-      }
-      iconSeverity.classList.add("internationalization");
-      iconSeverity.setAttribute("data-key", severityLabel);
-      if (languageLabels[severityLabel]) {
-        iconSeverity.title = languageLabels[severityLabel];
-      }
-
-      tdSeverity.appendChild(iconSeverity);
-      bodyRow.appendChild(tdSeverity);
-
-      const tdRuleDomainKey = document.createElement("td");
-      tdRuleDomainKey.setAttribute("style", rowStyle);
-      tdRuleDomainKey.textContent = d.regraDomain ?? "-";
-      tdRuleDomainKey.style.fontSize = "0.7rem";
-      tdRuleDomainKey.style.overflowWrap = "break-word";
-      bodyRow.appendChild(tdRuleDomainKey);
-
-      const tdRule = document.createElement("td");
-      tdRule.textContent = d.regra ?? "-";
-      tdRule.classList.add("firstItemDetails");
-      tdRule.setAttribute("style", rowStyle);
-      tdRule.style.fontSize = "0.7rem";
-      bodyRow.appendChild(tdRule);
-
-      const tdRuleValuesKey = document.createElement("td");
-      tdRuleValuesKey.setAttribute("style", rowStyle);
-      tdRuleValuesKey.textContent = d.regraExecutada ?? "-";
-      tdRuleValuesKey.style.fontSize = "0.7rem";
-      bodyRow.appendChild(tdRuleValuesKey);
-
-      const tdResult = document.createElement("td");
-      tdResult.classList.add("internationalization");
-      tdResult.setAttribute(
-        "data-key",
-        resultado === "RULE OK"
-          ? "ruleOK.label"
-          : resultado === "RULE DO NOT RUN"
-          ? "ruleSkip.label"
-          : resultado === "RULE NOT OK"
-          ? "ruleNotOK.label"
-          : resultado === "RULE DO NOT RUN PREREQUISITE"
-          ? "ruleSkipPre.label"
-          : resultado === "RULE OK WITH NOT OK"
-          ? "ruleOKNotOK.label"
-          : ""
-      );
-      tdResult.setAttribute("style", rowStyle);
-      tdResult.textContent = resultado;
-      tdResult.setAttribute("data-raw", resultado.toLowerCase());
-      tdResult.style.fontSize = "0.7rem";
-      bodyRow.appendChild(tdResult);
-
-      const tdProcessDate = document.createElement("td");
-      tdProcessDate.textContent = d.dataProcessamento ?? "-";
-      tdProcessDate.classList.add("lastItemDetails");
-      tdProcessDate.setAttribute("style", rowStyle);
-      tdProcessDate.style.fontSize = "0.7rem";
-      bodyRow.appendChild(tdProcessDate);
-
-      tbody.appendChild(bodyRow);
-    });
-  }
-
-  const pageStates = {};
-
-  function renderPagination(container, renderPageCallback) {
-    const totalPages = Math.ceil(currentDetailFilteredData.length / currentDetailRowsPerPage);
-    container.innerHTML = "";
-
-    if (totalPages <= 1) return;
-
-    const selectedLang = document.getElementById("languageSelect")?.value || "pt";
-
-    const makeBtn = (label, page = null, { active = false, disabled = false, extraClass = "" } = {}) => {
-      const btn = document.createElement("button");
-      btn.textContent = label;
-      btn.className = `page-btn btn btn-sm btn-light m-1 roundButton ${extraClass}`;
-      if (active) btn.classList.add("active");
-      btn.disabled = !!disabled;
-
-      if (!disabled && page !== null) {
-        btn.addEventListener("click", () => {
-          currentDetailCurrentPage = page;
-          updateLanguageLabels(selectedLang); 
-          renderPageCallback();
-        });
-      }
-      return btn;
-    };
-
-    container.appendChild(
-      makeBtn("«", currentDetailCurrentPage > 1 ? currentDetailCurrentPage - 1 : null, {
-        disabled: currentDetailCurrentPage === 1,
-      })
-    );
-
-    const start = Math.max(1, currentDetailCurrentPage - 1);
-    const end = Math.min(totalPages, currentDetailCurrentPage + 3);
-
-    for (let p = start; p <= end; p++) {
-      container.appendChild(
-        makeBtn(String(p), p, { active: p === currentDetailCurrentPage })
-      );
-    }
-
-    if (end < totalPages) {
-      if (end + 1 < totalPages) {
-        container.appendChild(
-          makeBtn("…", null, { disabled: true})
-        );
-      }
-      container.appendChild(
-        makeBtn(String(totalPages), totalPages, { active: currentDetailCurrentPage === totalPages })
-      );
-    }
-
-    container.appendChild(
-      makeBtn("»", currentDetailCurrentPage < totalPages ? currentDetailCurrentPage + 1 : null, {
-        disabled: currentDetailCurrentPage === totalPages,
-      })
-    );
-  }
-
-  function toggleImportDetails (ioid, button){
-    let fetchedDetails =  [];
-
-    const container = document.getElementById(`detail-import-${ioid}`);
-
-    if(!container){
-      console.warn("Validation container not found for", ioid);
-      return;
-    }
-
+  function openCloseRow(container, open) {
     const row = container.closest("tr");
-
-    const isHidden = row.style.display === "none";
-
-    row.style.display = isHidden ? "table-row" : "none";
-
-    if (isHidden) {
-      document.getElementById("upload-area")?.classList.add("collapsed");
-      document.getElementById("paginationDiv").style.display = "block";
-    } else {
-      document.getElementById("upload-area")?.classList.remove("collapsed");
-      currentOpenDetailIOId = null;
-      currentDetailFilteredData = [];
-      document.getElementById("paginationDiv").style.display = "none";
-    }
-
-    const span = button.querySelector("span");
-
-    span.innerHTML = "";
-
-    const icon = document.createElement("i");
-    icon.className = "bi bi-box-arrow-up-right";
-    icon.style.marginLeft = "6px";
-
-    span.appendChild(icon);
-
-    const selectedLang =
-      document.getElementById("languageSelect")?.value || "pt";
-    updateLanguageLabels(selectedLang);
-    
-    const tbody = document.createElement("tbody");
-
-    if (isHidden && !container.dataset.loaded) {
-      fetch(`/importFile/import/results/${ioid}`)
-        .then((res) => res.json())
-        .then((details) => {
-          currentOpenDetailIOId = ioid;
-          fetchedDetails = details;
-          currentDetailFilteredData = [...fetchedDetails];
-          currentDetailCurrentPage = 1;
-
-          const doRender = () => {
-            renderRows(tbody, currentDetailFilteredData, currentDetailCurrentPage, currentDetailRowsPerPage);
-            renderPagination(document.getElementById("sharedPaginationContainer"), doRender);
-          };
-
-          const scrollContainer = document.createElement("div");
-          scrollContainer.className = "detailsTable";
-          scrollContainer.classList.add("detailsTable");
-          const table = document.createElement("table");
-          table.className = "fixed-header-table table table-borderless";
-
-          const thead = document.createElement("thead");
-          thead.style.zIndex = 4;
-          const headerRow = document.createElement("tr");
-
-          const header = [
-            { key: "module.label", className: "firstItemDetails" },
-            { key: "entity.label" },
-            { key: "domain.label" },
-            { key: "referenceDate.label" },
-            { key: "description.label" },
-            { key: "date.label", className: "lastItemDetails" },
-          ];
-
-          header.forEach(({ key, className }) => {
-            const th = document.createElement("th");
-            th.classList.add("internationalization");
-            th.setAttribute("data-key", key);
-            th.style.fontSize = "0.9rem";
-            if (className) {
-              th.classList.add(className);
-            }
-            headerRow.appendChild(th);
-          });
-
-          const filterContainer = document.createElement("div");
-          filterContainer.className = "resultado-import-filter-group";
-
-          doRender();
-
-          thead.appendChild(headerRow);
-          table.appendChild(thead);
-            details.forEach((d) => {
-              const bodyRow = document.createElement("tr");
-              const tdModuleCodeKey = document.createElement("td");
-              tdModuleCodeKey.setAttribute("style", rowStyle);
-              tdModuleCodeKey.textContent = d.code ?? "-";
-              tdModuleCodeKey.style.fontSize = "0.7rem";
-
-              bodyRow.appendChild(tdModuleCodeKey);
-
-              const tdEntityCodeKey = document.createElement("td");
-              tdEntityCodeKey.setAttribute("style", rowStyle);
-              tdEntityCodeKey.textContent = d.entity ?? "-";
-              tdEntityCodeKey.style.fontSize = "0.7rem";
-
-              bodyRow.appendChild(tdEntityCodeKey);
-
-              const tdDomainCodeKey = document.createElement("td");
-              tdDomainCodeKey.setAttribute("style", rowStyle);
-              tdDomainCodeKey.textContent = d.domain ?? "-";
-              tdDomainCodeKey.style.fontSize = "0.7rem";
-
-              bodyRow.appendChild(tdDomainCodeKey);
-
-              const tdReferenceDateCodeKey = document.createElement("td");
-              tdReferenceDateCodeKey.setAttribute("style", rowStyle);
-              tdReferenceDateCodeKey.textContent = d.referenceDate ?? "-";
-              tdReferenceDateCodeKey.style.fontSize = "0.7rem";
-              bodyRow.appendChild(tdReferenceDateCodeKey);
-
-              const tdDescriptionCodeKey = document.createElement("td");
-              tdDescriptionCodeKey.textContent = d.description ?? "-";
-              tdDescriptionCodeKey.setAttribute("style", rowStyle);
-              tdDescriptionCodeKey.style.fontSize = "0.7rem";
-              bodyRow.appendChild(tdDescriptionCodeKey);
-
-              const tdTimestampCodeKey = document.createElement("td");
-              tdTimestampCodeKey.setAttribute("style", rowStyle);
-              tdTimestampCodeKey.textContent = d.timestamp ?? "-";
-              tdTimestampCodeKey.style.fontSize = "0.7rem";
-              bodyRow.appendChild(tdTimestampCodeKey);
-
-              tbody.appendChild(bodyRow);
-            });
-
-            table.appendChild(tbody);
-
-            scrollContainer.appendChild(filterContainer);
-            scrollContainer.appendChild(table);
-
-          
-
-            container.innerHTML = "";
-            container.classList.remove("internationalization");
-            container.removeAttribute("data-key");
-
-
-            container.appendChild(scrollContainer);
-
-            container.dataset.loaded = "true";
-
-            const selectedLang =
-              document.getElementById("languageSelect")?.value || "pt";
-            updateLanguageLabels(selectedLang);
-        })
-        .catch((err) => {
-          container.textContent =
-            languageLabels["errorDetails.label"] || "Error loading details.";
-          container.classList.add("internationalization");
-          container.setAttribute("data-key", "errorDetails.label");
-
-          console.error(err);
-        });
-    }
+    row.style.display = open ? "table-row" : "none";
+    const pagerWrap = document.getElementById("paginationDiv");
+    if (!open && pagerWrap) pagerWrap.style.display = "none";
+    document
+      .getElementById("upload-area")
+      ?.classList[open ? "add" : "remove"]("collapsed");
   }
 
   function toggleValidationDetails(ioid, button) {
-    let fetchedDetails =  [];
-
     const container = document.getElementById(`detail-validation-${ioid}`);
-
-    if(!container){
-      console.warn("Validation container not found for", ioid);
-      return;
-    }
-
-    const row = container.closest("tr");
-
-    const isHidden = row.style.display === "none";
-
-    row.style.display = isHidden ? "table-row" : "none";
-
-    if (isHidden) {
-      document.getElementById("upload-area")?.classList.add("collapsed");
-      document.getElementById("paginationDiv").style.display = "block";
-    } else {
-      document.getElementById("upload-area")?.classList.remove("collapsed");
-      currentOpenDetailIOId = null;
-      currentDetailFilteredData = [];
-      document.getElementById("paginationDiv").style.display = "none";
-    }
-
+    if (!container) return;
+    const currentlyHidden = container.closest("tr").style.display === "none";
+    openCloseRow(container, currentlyHidden);
     const span = button.querySelector("span");
+    if (span) {
+      span.innerHTML = "";
+      const i = document.createElement("i");
+      i.className = "bi bi-box-arrow-up-right";
+      i.style.marginLeft = "6px";
+      span.appendChild(i);
+    }
+    const lang = document.getElementById("languageSelect")?.value || "pt";
+    updateLanguageLabels(lang);
 
-    span.innerHTML = "";
+    const stateKey = `validation-${ioid}`;
 
-    const icon = document.createElement("i");
-    icon.className = "bi bi-box-arrow-up-right";
-    icon.style.marginLeft = "6px";
+    const buildRow = (d) => {
+      const resultado = d.resultado ?? "-";
+      let rowStyle = "";
+      if (resultado === "RULE OK") rowStyle = "background-color:#d4edda";
+      else if (resultado === "RULE DO NOT RUN")
+        rowStyle = "background-color:#fff3cd";
+      else if (resultado === "RULE NOT OK")
+        rowStyle = "background-color:#f8d7da";
+      const tr = document.createElement("tr");
+      const td1 = document.createElement("td");
+      td1.style = rowStyle;
+      td1.textContent = d.regraCode ?? "-";
+      td1.style.fontSize = "0.7rem";
+      tr.appendChild(td1);
+      const td2 = document.createElement("td");
+      td2.style = rowStyle;
+      const icon = document.createElement("i");
+      icon.classList.add("bi", "me-2");
+      const sev = ((d.severity ?? "") + "").toLowerCase();
+      if (sev === "ok")
+        icon.classList.add("bi-check-circle-fill", "text-success");
+      else if (sev === "warning")
+        icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
+      else if (sev === "error")
+        icon.classList.add("bi-x-circle-fill", "text-danger");
+      td2.appendChild(icon);
+      tr.appendChild(td2);
+      const td3 = document.createElement("td");
+      td3.style = rowStyle;
+      td3.textContent = d.regraDomain ?? "-";
+      td3.style.fontSize = "0.7rem";
+      td3.style.overflowWrap = "break-word";
+      tr.appendChild(td3);
+      const td4 = document.createElement("td");
+      td4.style = rowStyle;
+      td4.textContent = d.regra ?? "-";
+      td4.style.fontSize = "0.7rem";
+      td4.classList.add("firstItemDetails");
+      tr.appendChild(td4);
+      const td5 = document.createElement("td");
+      td5.style = rowStyle;
+      td5.textContent = d.regraExecutada ?? "-";
+      td5.style.fontSize = "0.7rem";
+      tr.appendChild(td5);
+      const td6 = document.createElement("td");
+      td6.style = rowStyle;
+      td6.textContent = resultado;
+      td6.style.fontSize = "0.7rem";
+      tr.appendChild(td6);
+      const td7 = document.createElement("td");
+      td7.style = rowStyle;
+      td7.textContent = d.dataProcessamento ?? "-";
+      td7.style.fontSize = "0.7rem";
+      td7.classList.add("lastItemDetails");
+      tr.appendChild(td7);
+      return tr;
+    };
 
-    span.appendChild(icon);
+    const ensureUI = (list) => {
+      let filtered = list.slice();
+      const scroll = document.createElement("div");
+      scroll.className = "detailsTable";
+      const table = document.createElement("table");
+      table.className = "fixed-header-table table table-borderless";
+      const thead = document.createElement("thead");
+      thead.style.zIndex = 4;
+      const hr = document.createElement("tr");
+      [
+        "ruleCode.label",
+        "severity.label",
+        "ruleDomain.label",
+        "rule.label",
+        "ruleValues.label",
+        "result.label",
+        "processDate.label",
+      ].forEach((k, i) => {
+        const th = document.createElement("th");
+        th.classList.add("internationalization");
+        th.setAttribute("data-key", k);
+        th.style.fontSize = "0.9rem";
+        if (i === 0) th.classList.add("firstItemDetails");
+        if (i === 6) th.classList.add("lastItemDetails");
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      const tbody = document.createElement("tbody");
 
-    const selectedLang =
-      document.getElementById("languageSelect")?.value || "pt";
-    updateLanguageLabels(selectedLang);
-    
-    const tbody = document.createElement("tbody");
+      const counts = {};
+      list.forEach((d) => {
+        const k = d.resultado ?? "-";
+        counts[k] = (counts[k] || 0) + 1;
+      });
+      const unique = [...new Set(list.map((d) => d.resultado ?? "-"))];
+      const map = {
+        "RULE OK": "ruleOK",
+        "RULE NOT OK": "ruleNotOK",
+        "RULE DO NOT RUN": "ruleSkip",
+        "RULE DO NOT RUN PREREQUISITE": "ruleSkipPre",
+        "RULE OK WITH NOT OK": "ruleOKNotOK",
+      };
+      const filters = document.createElement("div");
+      filters.className = "resultado-filter-group";
+      const allBtn = document.createElement("div");
+      allBtn.className = "resultado-filter-button active internationalization";
+      allBtn.setAttribute("data-key", "all.label");
+      allBtn.setAttribute("data-value", "__all__");
+      allBtn.setAttribute("data-count", list.length);
+      allBtn.textContent = `All (${list.length})`;
+      filters.appendChild(allBtn);
+      unique.forEach((v) => {
+        const keyBase = map[v] || "";
+        const cnt = counts[v] || 0;
+        const label = languageLabels[`${keyBase}.label`] || v;
+        const b = document.createElement("div");
+        b.className = "resultado-filter-button internationalization";
+        b.setAttribute("data-key", `${keyBase}.label`);
+        b.setAttribute("data-value", v);
+        b.setAttribute("data-count", cnt);
+        b.setAttribute("data-bs-toggle", "tooltip");
+        b.setAttribute("data-bs-placement", "top");
+        b.textContent = cnt ? `${label} (${cnt})` : label;
+        filters.appendChild(b);
+      });
 
-    if (isHidden && !container.dataset.loaded) {
+      container.innerHTML = "";
+      container.classList.remove("internationalization");
+      container.removeAttribute("data-key");
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      scroll.appendChild(filters);
+      scroll.appendChild(table);
+      container.appendChild(scroll);
+
+      if (!paginationState[stateKey])
+        paginationState[stateKey] = {
+          currentPage: 1,
+          rowsPerPage: ROWS_PER_PAGE,
+        };
+
+      const doRender = () => {
+        renderRowsGeneric(tbody, filtered, stateKey, buildRow);
+        showOrUpdatePager(filtered.length, stateKey, (page, rpp) => {
+          renderRowsGeneric(tbody, filtered, stateKey, buildRow);
+        });
+      };
+
+      filters.querySelectorAll(".resultado-filter-button").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          filters
+            .querySelectorAll(".resultado-filter-button")
+            .forEach((x) => x.classList.remove("active"));
+          this.classList.add("active");
+          const sel = (this.getAttribute("data-value") || "").toLowerCase();
+          filtered = list.filter(
+            (d) =>
+              sel === "__all__" || (d.resultado || "").toLowerCase() === sel
+          );
+          paginationState[stateKey].currentPage = 1;
+          doRender();
+          updateLanguageLabels(
+            document.getElementById("languageSelect")?.value || "pt"
+          );
+        });
+      });
+
+      doRender();
+      updateLanguageLabels(
+        document.getElementById("languageSelect")?.value || "pt"
+      );
+    };
+
+    if (dataCache[stateKey]) {
+      ensureUI(dataCache[stateKey]);
+    } else {
       fetch(`/importFile/validation/results/${ioid}`)
-        .then((res) => res.json())
+        .then((r) => r.json())
         .then((details) => {
-          currentOpenDetailIOId = ioid;
-          fetchedDetails = details;
-          currentDetailFilteredData = [...fetchedDetails];
-          currentDetailCurrentPage = 1;
-
-          const doRender = () => {
-            renderRows(tbody, currentDetailFilteredData, currentDetailCurrentPage, currentDetailRowsPerPage);
-            renderPagination(document.getElementById("sharedPaginationContainer"), doRender);
-          };
-
-          const scrollContainer = document.createElement("div");
-          scrollContainer.className = "detailsTable";
-          scrollContainer.classList.add("detailsTable");
-          const table = document.createElement("table");
-          table.className = "fixed-header-table table table-borderless";
-
-          const thead = document.createElement("thead");
-          thead.style.zIndex = 4;
-          const headerRow = document.createElement("tr");
-
-          const header = [
-            { key: "ruleCode.label", className: "firstItemDetails" },
-            { key: "severity.label" },
-            { key: "ruleDomain.label" },
-            { key: "rule.label" },
-            { key: "ruleValues.label" },
-            { key: "result.label" },
-            { key: "processDate.label", className: "lastItemDetails" },
-          ];
-
-          header.forEach(({ key, className }) => {
-            const th = document.createElement("th");
-            th.classList.add("internationalization");
-            th.setAttribute("data-key", key);
-            th.style.fontSize = "0.9rem";
-            if (className) {
-              th.classList.add(className);
-            }
-            headerRow.appendChild(th);
-          });
-          const resultadoCounts = {};
-
-          details.forEach((d) => {
-            const key = d.resultado ?? "-";
-            resultadoCounts[key] = (resultadoCounts[key] || 0) + 1;
-          });
-
-          const uniqueResultados = [
-            ...new Set(details.map((d) => d.resultado ?? "-")),
-          ];
-
-          const labelKeyMap = {
-            "RULE OK": "ruleOK",
-            "RULE NOT OK": "ruleNotOK",
-            "RULE DO NOT RUN": "ruleSkip",
-            "RULE DO NOT RUN PREREQUISITE": "ruleSkipPre",
-            "RULE OK WITH NOT OK": "ruleOKNotOK",
-          };
-
-          const filterContainer = document.createElement("div");
-          filterContainer.className = "resultado-filter-group";
-
-          const totalCount = details.length;
-
-          const allButton = document.createElement("div");
-          allButton.className =
-            "resultado-filter-button active internationalization";
-          allButton.setAttribute("data-key", "all.label");
-          allButton.setAttribute("data-value", "__all__");
-          allButton.setAttribute("data-count", totalCount);
-          allButton.textContent = `All (${totalCount})`;
-          filterContainer.appendChild(allButton);
-          
-          uniqueResultados.forEach((value) => {
-            const keyBase = labelKeyMap[value] || "";
-            const count = resultadoCounts[value] ?? 0;
-
-            const labelText = languageLabels[`${keyBase}.label`] || value;
-            const tooltipText =
-              languageLabels[`${keyBase}.tooltip`] || labelText;
-
-            const button = document.createElement("div");
-            button.className = "resultado-filter-button internationalization";
-            button.setAttribute("data-key", `${keyBase}.label`);
-            button.setAttribute("data-tooltip-key", `${keyBase}.tooltip`);
-            button.setAttribute("data-value", value);
-            button.setAttribute("data-count", count);
-            button.setAttribute("data-bs-toggle", "tooltip");
-            button.setAttribute("data-bs-placement", "top");
-            button.textContent = count ? `${labelText} (${count})` : labelText;
-            filterContainer.appendChild(button);
-          });
-
-          filterContainer.querySelectorAll(".resultado-filter-button").forEach(button => {
-            button.addEventListener("click", function () {
-              const selected = this.getAttribute("data-value").toLowerCase();
-
-              filterContainer.querySelectorAll(".resultado-filter-button").forEach(btn => btn.classList.remove("active"));
-              this.classList.add("active");
-
-              currentDetailFilteredData = details.filter(d => {
-                const result = (d.resultado ?? "").toLowerCase();
-                return selected === "__all__" || result === selected;
-              });
-
-              currentDetailCurrentPage = 1;
-
-              doRender();
-
-              const selectedLang = document.getElementById("languageSelect")?.value || "pt";
-              updateLanguageLabels(selectedLang);
-            });
-          });
-
-          doRender();
-
-          reinitTooltips(filterContainer);
-
-          thead.appendChild(headerRow);
-          table.appendChild(thead);
-
-          doRender();
-          table.appendChild(tbody);
-
-          scrollContainer.appendChild(filterContainer);
-          scrollContainer.appendChild(table);
-
-          
-
-          container.innerHTML = "";
-          container.classList.remove("internationalization");
-          container.removeAttribute("data-key");
-
-
-          container.appendChild(scrollContainer);
-
-          container.dataset.loaded = "true";
-
-          const selectedLang =
-            document.getElementById("languageSelect")?.value || "pt";
-          updateLanguageLabels(selectedLang);
+          dataCache[stateKey] = details.slice();
+          ensureUI(dataCache[stateKey]);
         })
-        .catch((err) => {
+        .catch(() => {
           container.textContent =
             languageLabels["errorDetails.label"] || "Error loading details.";
           container.classList.add("internationalization");
           container.setAttribute("data-key", "errorDetails.label");
-
-          console.error(err);
         });
     }
   }
 
-  function toggleGenerationDetails (ioid, button){
-    let fetchedDetails =  [];
-
-    const container = document.getElementById(`detail-generation-${ioid}`);
-
-    if(!container){
-      console.warn("Validation container not found for", ioid);
-      return;
-    }
-
-    const row = container.closest("tr");
-
-    const isHidden = row.style.display === "none";
-
-    row.style.display = isHidden ? "table-row" : "none";
-
-    if (isHidden) {
-      document.getElementById("upload-area")?.classList.add("collapsed");
-      document.getElementById("paginationDiv").style.display = "block";
-    } else {
-      document.getElementById("upload-area")?.classList.remove("collapsed");
-      currentOpenDetailIOId = null;
-      currentDetailFilteredData = [];
-      document.getElementById("paginationDiv").style.display = "none";
-    }
-
+  function toggleImportDetails(ioid, button) {
+    const container = document.getElementById(`detail-import-${ioid}`);
+    if (!container) return;
+    const currentlyHidden = container.closest("tr").style.display === "none";
+    openCloseRow(container, currentlyHidden);
     const span = button.querySelector("span");
+    if (span) {
+      span.innerHTML = "";
+      const i = document.createElement("i");
+      i.className = "bi bi-box-arrow-up-right";
+      i.style.marginLeft = "6px";
+      span.appendChild(i);
+    }
+    const lang = document.getElementById("languageSelect")?.value || "pt";
+    updateLanguageLabels(lang);
 
-    span.innerHTML = "";
+    const stateKey = `import-${ioid}`;
 
-    const icon = document.createElement("i");
-    icon.className = "bi bi-box-arrow-up-right";
-    icon.style.marginLeft = "6px";
+    const buildRow = (d) => {
+      const tr = document.createElement("tr");
+      const td1 = document.createElement("td");
+      td1.textContent = d.code ?? "-";
+      td1.style.fontSize = "0.7rem";
+      tr.appendChild(td1);
+      const td2 = document.createElement("td");
+      td2.textContent = d.entity ?? "-";
+      td2.style.fontSize = "0.7rem";
+      tr.appendChild(td2);
+      const td3 = document.createElement("td");
+      td3.textContent = d.domain ?? "-";
+      td3.style.fontSize = "0.7rem";
+      tr.appendChild(td3);
+      const td4 = document.createElement("td");
+      td4.textContent = d.referenceDate ?? "-";
+      td4.style.fontSize = "0.7rem";
+      tr.appendChild(td4);
+      const td5 = document.createElement("td");
+      td5.textContent = d.description ?? "-";
+      td5.style.fontSize = "0.7rem";
+      tr.appendChild(td5);
+      const td6 = document.createElement("td");
+      td6.textContent = d.timestamp ?? "-";
+      td6.style.fontSize = "0.7rem";
+      tr.appendChild(td6);
+      return tr;
+    };
 
-    span.appendChild(icon);
+    const ensureUI = (list) => {
+      const scroll = document.createElement("div");
+      scroll.className = "detailsTable";
+      const table = document.createElement("table");
+      table.className = "fixed-header-table table table-borderless";
+      const thead = document.createElement("thead");
+      thead.style.zIndex = 4;
+      const hr = document.createElement("tr");
+      [
+        "module.label",
+        "entity.label",
+        "domain.label",
+        "referenceDate.label",
+        "description.label",
+        "date.label",
+      ].forEach((k, i) => {
+        const th = document.createElement("th");
+        th.classList.add("internationalization");
+        th.setAttribute("data-key", k);
+        th.style.fontSize = "0.9rem";
+        if (i === 0) th.classList.add("firstItemDetails");
+        if (i === 5) th.classList.add("lastItemDetails");
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      const tbody = document.createElement("tbody");
+      container.innerHTML = "";
+      container.classList.remove("internationalization");
+      container.removeAttribute("data-key");
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      scroll.appendChild(table);
+      container.appendChild(scroll);
+      if (!paginationState[stateKey])
+        paginationState[stateKey] = {
+          currentPage: 1,
+          rowsPerPage: ROWS_PER_PAGE,
+        };
+      const doRender = () => {
+        renderRowsGeneric(tbody, list, stateKey, buildRow);
+        showOrUpdatePager(list.length, stateKey, (page, rpp) => {
+          renderRowsGeneric(tbody, list, stateKey, buildRow);
+        });
+      };
+      doRender();
+      updateLanguageLabels(
+        document.getElementById("languageSelect")?.value || "pt"
+      );
+    };
 
-    const selectedLang =
-      document.getElementById("languageSelect")?.value || "pt";
-    updateLanguageLabels(selectedLang);
-    
-    const tbody = document.createElement("tbody");
-
-    if (isHidden && !container.dataset.loaded) {
-      fetch(`/importFile/generation/results/${ioid}`)
-        .then((res) => res.json())
+    if (dataCache[stateKey]) {
+      ensureUI(dataCache[stateKey]);
+    } else {
+      fetch(`/importFile/import/results/${ioid}`)
+        .then((r) => r.json())
         .then((details) => {
-          currentOpenDetailIOId = ioid;
-          fetchedDetails = details;
-          currentDetailFilteredData = [...fetchedDetails];
-          currentDetailCurrentPage = 1;
-
-          const doRender = () => {
-            renderRows(tbody, currentDetailFilteredData, currentDetailCurrentPage, currentDetailRowsPerPage);
-            renderPagination(document.getElementById("sharedPaginationContainer"), doRender);
-          };
-
-          const scrollContainer = document.createElement("div");
-          scrollContainer.className = "detailsTable";
-          scrollContainer.classList.add("detailsTable");
-          const table = document.createElement("table");
-          table.className = "fixed-header-table table table-borderless";
-
-          const thead = document.createElement("thead");
-          thead.style.zIndex = 4;
-          const headerRow = document.createElement("tr");
-
-          const header = [
-            { key: "module.label", className: "firstItemDetails" },
-            { key: "entity.label" },
-            { key: "domain.label" },
-            { key: "referenceDate.label" },
-            { key: "description.label" },
-            { key: "date.label", className: "lastItemDetails" },
-          ];
-
-          header.forEach(({ key, className }) => {
-            const th = document.createElement("th");
-            th.classList.add("internationalization");
-            th.setAttribute("data-key", key);
-            th.style.fontSize = "0.9rem";
-            if (className) {
-              th.classList.add(className);
-            }
-            headerRow.appendChild(th);
-          });
-
-          const filterContainer = document.createElement("div");
-          filterContainer.className = "resultado-import-filter-group";
-
-          doRender();
-
-          thead.appendChild(headerRow);
-          table.appendChild(thead);
-            details.forEach((d) => {
-              const bodyRow = document.createElement("tr");
-              const tdModuleCodeKey = document.createElement("td");
-              tdModuleCodeKey.setAttribute("style", rowStyle);
-              tdModuleCodeKey.textContent = d.code ?? "-";
-              tdModuleCodeKey.style.fontSize = "0.7rem";
-
-              bodyRow.appendChild(tdModuleCodeKey);
-
-              const tdEntityCodeKey = document.createElement("td");
-              tdEntityCodeKey.setAttribute("style", rowStyle);
-              tdEntityCodeKey.textContent = d.entity ?? "-";
-              tdEntityCodeKey.style.fontSize = "0.7rem";
-
-              bodyRow.appendChild(tdEntityCodeKey);
-
-              const tdDomainCodeKey = document.createElement("td");
-              tdDomainCodeKey.setAttribute("style", rowStyle);
-              tdDomainCodeKey.textContent = d.domain ?? "-";
-              tdDomainCodeKey.style.fontSize = "0.7rem";
-
-              bodyRow.appendChild(tdDomainCodeKey);
-
-              const tdReferenceDateCodeKey = document.createElement("td");
-              tdReferenceDateCodeKey.setAttribute("style", rowStyle);
-              tdReferenceDateCodeKey.textContent = d.referenceDate ?? "-";
-              tdReferenceDateCodeKey.style.fontSize = "0.7rem";
-              bodyRow.appendChild(tdReferenceDateCodeKey);
-
-              const tdDescriptionCodeKey = document.createElement("td");
-              tdDescriptionCodeKey.textContent = d.description ?? "-";
-              tdDescriptionCodeKey.setAttribute("style", rowStyle);
-              tdDescriptionCodeKey.style.fontSize = "0.7rem";
-              bodyRow.appendChild(tdDescriptionCodeKey);
-
-              const tdTimestampCodeKey = document.createElement("td");
-              tdTimestampCodeKey.setAttribute("style", rowStyle);
-              tdTimestampCodeKey.textContent = d.timestamp ?? "-";
-              tdTimestampCodeKey.style.fontSize = "0.7rem";
-              bodyRow.appendChild(tdTimestampCodeKey);
-
-              tbody.appendChild(bodyRow);
-            });
-
-            table.appendChild(tbody);
-
-            scrollContainer.appendChild(filterContainer);
-            scrollContainer.appendChild(table);
-
-          
-
-            container.innerHTML = "";
-            container.classList.remove("internationalization");
-            container.removeAttribute("data-key");
-
-
-            container.appendChild(scrollContainer);
-
-            container.dataset.loaded = "true";
-
-            const selectedLang =
-              document.getElementById("languageSelect")?.value || "pt";
-            updateLanguageLabels(selectedLang);
+          dataCache[stateKey] = details.slice();
+          ensureUI(dataCache[stateKey]);
         })
-        .catch((err) => {
+        .catch(() => {
           container.textContent =
             languageLabels["errorDetails.label"] || "Error loading details.";
           container.classList.add("internationalization");
           container.setAttribute("data-key", "errorDetails.label");
-
-          console.error(err);
         });
     }
   }
 
-  function createCell(value) {
-    const td = document.createElement("td");
-    td.textContent = value ?? "-";
-    return td;
+  function toggleGenerationDetails(ioid, button) {
+    const container = document.getElementById(`detail-generation-${ioid}`);
+    if (!container) return;
+    const currentlyHidden = container.closest("tr").style.display === "none";
+    openCloseRow(container, currentlyHidden);
+    const span = button.querySelector("span");
+    if (span) {
+      span.innerHTML = "";
+      const i = document.createElement("i");
+      i.className = "bi bi-box-arrow-up-right";
+      i.style.marginLeft = "6px";
+      span.appendChild(i);
+    }
+    const lang = document.getElementById("languageSelect")?.value || "pt";
+    updateLanguageLabels(lang);
+
+    const stateKey = `generation-${ioid}`;
+
+    const buildRow = (d) => {
+      const tr = document.createElement("tr");
+      const td1 = document.createElement("td");
+      td1.textContent = d.code ?? "-";
+      td1.style.fontSize = "0.7rem";
+      tr.appendChild(td1);
+      const td2 = document.createElement("td");
+      td2.textContent = d.entity ?? "-";
+      td2.style.fontSize = "0.7rem";
+      tr.appendChild(td2);
+      const td3 = document.createElement("td");
+      td3.textContent = d.domain ?? "-";
+      td3.style.fontSize = "0.7rem";
+      tr.appendChild(td3);
+      const td4 = document.createElement("td");
+      td4.textContent = d.referenceDate ?? "-";
+      td4.style.fontSize = "0.7rem";
+      tr.appendChild(td4);
+      const td5 = document.createElement("td");
+      td5.textContent = d.description ?? "-";
+      td5.style.fontSize = "0.7rem";
+      tr.appendChild(td5);
+      const td6 = document.createElement("td");
+      td6.textContent = d.timestamp ?? "-";
+      td6.style.fontSize = "0.7rem";
+      tr.appendChild(td6);
+      return tr;
+    };
+
+    const ensureUI = (list) => {
+      const scroll = document.createElement("div");
+      scroll.className = "detailsTable";
+      const table = document.createElement("table");
+      table.className = "fixed-header-table table table-borderless";
+      const thead = document.createElement("thead");
+      thead.style.zIndex = 4;
+      const hr = document.createElement("tr");
+      [
+        "module.label",
+        "entity.label",
+        "domain.label",
+        "referenceDate.label",
+        "description.label",
+        "date.label",
+      ].forEach((k, i) => {
+        const th = document.createElement("th");
+        th.classList.add("internationalization");
+        th.setAttribute("data-key", k);
+        th.style.fontSize = "0.9rem";
+        if (i === 0) th.classList.add("firstItemDetails");
+        if (i === 5) th.classList.add("lastItemDetails");
+        hr.appendChild(th);
+      });
+      thead.appendChild(hr);
+      const tbody = document.createElement("tbody");
+      container.innerHTML = "";
+      container.classList.remove("internationalization");
+      container.removeAttribute("data-key");
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      scroll.appendChild(table);
+      container.appendChild(scroll);
+      if (!paginationState[stateKey])
+        paginationState[stateKey] = {
+          currentPage: 1,
+          rowsPerPage: ROWS_PER_PAGE,
+        };
+      const doRender = () => {
+        renderRowsGeneric(tbody, list, stateKey, buildRow);
+        showOrUpdatePager(list.length, stateKey, (page, rpp) => {
+          renderRowsGeneric(tbody, list, stateKey, buildRow);
+        });
+      };
+      doRender();
+      updateLanguageLabels(
+        document.getElementById("languageSelect")?.value || "pt"
+      );
+    };
+
+    if (dataCache[stateKey]) {
+      ensureUI(dataCache[stateKey]);
+    } else {
+      fetch(`/importFile/generation/results/${ioid}`)
+        .then((r) => r.json())
+        .then((details) => {
+          dataCache[stateKey] = details.slice();
+          ensureUI(dataCache[stateKey]);
+        })
+        .catch(() => {
+          container.textContent =
+            languageLabels["errorDetails.label"] || "Error loading details.";
+          container.classList.add("internationalization");
+          container.setAttribute("data-key", "errorDetails.label");
+        });
+    }
   }
 
   fetchModulesFromBackend();
@@ -1285,32 +954,27 @@ document.addEventListener("DOMContentLoaded", function () {
     const month = m[2].padStart(2, "0");
     return { y, m: month };
   }
-
   function autoSubmit() {
     const moduleFilter = document
       .getElementById("filterModule")
       .value.trim()
       .toLowerCase();
-
-    const selectedYear = (document.getElementsByName("filterYear")[0].value || "").trim();
+    const selectedYear = (
+      document.getElementsByName("filterYear")[0].value || ""
+    ).trim();
     const selectedMonthRaw = document.getElementById("filterMonth").value || "";
-    const selectedMonth = selectedMonthRaw ? String(selectedMonthRaw).padStart(2, "0") : "";
-
+    const selectedMonth = selectedMonthRaw
+      ? String(selectedMonthRaw).padStart(2, "0")
+      : "";
     const filtered = allIOs.filter((io) => {
       const moduleValue = (io[2] ?? "").toLowerCase().trim();
       const dateValue = (io[5] ?? "").trim();
-
       const moduleMatch = !moduleFilter || moduleValue.includes(moduleFilter);
-
       const { y, m } = extractYearMonth(dateValue);
-
       const yearMatch = !selectedYear || y === selectedYear;
       const monthMatch = !selectedMonth || m === selectedMonth;
-
       return moduleMatch && yearMatch && monthMatch;
     });
-
     populateMainTable(filtered);
   }
-
 });
