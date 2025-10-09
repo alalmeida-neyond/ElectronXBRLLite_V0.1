@@ -330,10 +330,48 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Erro ao buscar os IOs:", err);
       });
   }
-
-  function createCellCustomIOState(value, ioStateId) {
+  function createCellCustomIOStateINOUT(ioStateIdVal, ioStateId) {
     const td = document.createElement("td");
-    td.classList.add("first-cell");
+
+    const icon = document.createElement("i");
+    icon.classList.add("bi", "me-2");
+
+    let label = "";
+    let backgroundColor = "";
+
+    if (ioStateIdVal == 1) {
+      backgroundColor = "lightgrey";
+    } else if (ioStateIdVal == 2) {
+      backgroundColor = "#fff3cd";
+    } else if (ioStateIdVal == 3) {
+      backgroundColor = "#f8d7da";
+    } else if (ioStateIdVal == 4) {
+      backgroundColor = "#lightgrey";
+    }
+    else {
+      backgroundColor = "lightGrey";
+    }
+
+    if (ioStateId == 1) {
+      icon.classList.add("bi-check-circle-fill", "text-success");
+    } else if (ioStateId == 2) {
+      icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
+    } else if (ioStateId == 3) {
+      icon.classList.add("bi-x-circle-fill", "text-danger");
+    } else if (ioStateId == 4) {
+      icon.classList.add("bi-clock-fill", "text-primary");
+    }
+    else {
+      icon.classList.add("bi-x-circle-fill", "text-danger");
+    }
+
+    td.appendChild(icon);
+    td.style.backgroundColor = backgroundColor;
+
+    return td;
+  }
+  function createCellCustomIOState(ioStateId) {
+    const td = document.createElement("td");
 
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
@@ -408,23 +446,24 @@ document.addEventListener("DOMContentLoaded", function () {
   function populateMainTable(ioList) {
     const tableBody = document.getElementById("validationTableBody");
     tableBody.innerHTML = "";
-
+    
     ioList.forEach((io) => {
+      console.log(io);
       const tr = document.createElement("tr");
 
-      const td0 = createCellCustomIOState(io[1], io[1]);
+      const td0 = createCellCustomIOState(io[8]);
 
-      const tdEmpty1 = document.createElement("td");
-      const tdEmpty2 = document.createElement("td");
-      td0.classList.add("first-cell");
+      const tdIN = createCellCustomIOStateINOUT(io[5], io[8]);
+      const tdOUT = createCellCustomIOStateINOUT(io[11], io[8])
+      tdIN.classList.add("first-cell");
 
+      tr.appendChild(tdIN);
       tr.appendChild(td0);
-      tr.appendChild(tdEmpty1);
-      tr.appendChild(tdEmpty2);
-      tr.appendChild(createCellCustom(io[2], io[1]));
-      tr.appendChild(createCellCustom(io[3], io[1]));
-      tr.appendChild(createCellCustom(io[4], io[1]));
-      tr.appendChild(createCellCustom(io[5], io[1]));
+      tr.appendChild(tdOUT);
+      tr.appendChild(createCellCustom(io[0], io[8]));
+      tr.appendChild(createCellCustom(io[1], io[8]));
+      tr.appendChild(createCellCustom(io[2], io[8]));
+      tr.appendChild(createCellCustom(io[3], io[8]));
 
       const detailImportBtnTd = document.createElement("td");
 
@@ -456,9 +495,9 @@ document.addEventListener("DOMContentLoaded", function () {
       tr.appendChild(detailImportBtnTd);
       tr.appendChild(detailValidationBtnTd);
       tr.appendChild(detailGenerationBtnTd);
-      btnImport.onclick = () => toggleValidationDetails(io[0], btnImport);
-      btnValidation.onclick = () => toggleValidationDetails(io[0], btnValidation);
-      btnGeneration.onclick = () => toggleValidationDetails(io[0], btnGeneration);
+      btnImport.onclick = () => toggleImportDetails(io[4], btnImport);
+      btnValidation.onclick = () => toggleValidationDetails(io[7], btnValidation);
+      btnGeneration.onclick = () => toggleGenerationDetails(io[10], btnGeneration);
       detailImportBtnTd.style.backgroundColor = "lightGrey";
       detailValidationBtnTd.style.backgroundColor = "lightGrey";
       detailGenerationBtnTd.style.backgroundColor = "lightGrey";
@@ -490,7 +529,7 @@ document.addEventListener("DOMContentLoaded", function () {
       detailImportTd.colSpan = 10;
       detailImportTd.style.padding = 10;
       const loadingImportDiv = document.createElement("div");
-      loadingImportDiv.id = `detail-validation-${io[0]}`;
+      loadingImportDiv.id = `detail-import-${io[4]}`;
       loadingImportDiv.classList.add("internationalization");
       loadingImportDiv.setAttribute("data-key", "loading.label");
       detailImportTd.appendChild(loadingImportDiv);
@@ -499,7 +538,7 @@ document.addEventListener("DOMContentLoaded", function () {
       detailValidationTd.colSpan = 10;
       detailValidationTd.style.padding = 10;
       const loadingValidationDiv = document.createElement("div");
-      loadingValidationDiv.id = `detail-validation-${io[0]}`;
+      loadingValidationDiv.id = `detail-validation-${io[7]}`;
       loadingValidationDiv.classList.add("internationalization");
       loadingValidationDiv.setAttribute("data-key", "loading.label");
       detailValidationTd.appendChild(loadingValidationDiv);
@@ -508,7 +547,7 @@ document.addEventListener("DOMContentLoaded", function () {
       detailGenerationTd.colSpan = 10;
       detailGenerationTd.style.padding = 10;
       const loadingGenerationDiv = document.createElement("div");
-      loadingGenerationDiv.id = `detail-validation-${io[0]}`;
+      loadingGenerationDiv.id = `detail-generation-${io[10]}`;
       loadingGenerationDiv.classList.add("internationalization");
       loadingGenerationDiv.setAttribute("data-key", "loading.label");
       detailGenerationTd.appendChild(loadingGenerationDiv);
@@ -697,8 +736,14 @@ document.addEventListener("DOMContentLoaded", function () {
   function toggleImportDetails (ioid, button){
     let fetchedDetails =  [];
 
-    const row = button.closest("tr").nextElementSibling;
     const container = document.getElementById(`detail-import-${ioid}`);
+
+    if(!container){
+      console.warn("Validation container not found for", ioid);
+      return;
+    }
+
+    const row = container.closest("tr");
 
     const isHidden = row.style.display === "none";
 
@@ -722,7 +767,6 @@ document.addEventListener("DOMContentLoaded", function () {
     icon.className = "bi bi-box-arrow-up-right";
     icon.style.marginLeft = "6px";
 
-    span.appendChild(labelText);
     span.appendChild(icon);
 
     const selectedLang =
@@ -860,8 +904,14 @@ document.addEventListener("DOMContentLoaded", function () {
   function toggleValidationDetails(ioid, button) {
     let fetchedDetails =  [];
 
-    const row = button.closest("tr").nextElementSibling;
     const container = document.getElementById(`detail-validation-${ioid}`);
+
+    if(!container){
+      console.warn("Validation container not found for", ioid);
+      return;
+    }
+
+    const row = container.closest("tr");
 
     const isHidden = row.style.display === "none";
 
@@ -1038,6 +1088,174 @@ document.addEventListener("DOMContentLoaded", function () {
           const selectedLang =
             document.getElementById("languageSelect")?.value || "pt";
           updateLanguageLabels(selectedLang);
+        })
+        .catch((err) => {
+          container.textContent =
+            languageLabels["errorDetails.label"] || "Error loading details.";
+          container.classList.add("internationalization");
+          container.setAttribute("data-key", "errorDetails.label");
+
+          console.error(err);
+        });
+    }
+  }
+
+  function toggleGenerationDetails (ioid, button){
+    let fetchedDetails =  [];
+
+    const container = document.getElementById(`detail-generation-${ioid}`);
+
+    if(!container){
+      console.warn("Validation container not found for", ioid);
+      return;
+    }
+
+    const row = container.closest("tr");
+
+    const isHidden = row.style.display === "none";
+
+    row.style.display = isHidden ? "table-row" : "none";
+
+    if (isHidden) {
+      document.getElementById("upload-area")?.classList.add("collapsed");
+      document.getElementById("paginationDiv").style.display = "block";
+    } else {
+      document.getElementById("upload-area")?.classList.remove("collapsed");
+      currentOpenDetailIOId = null;
+      currentDetailFilteredData = [];
+      document.getElementById("paginationDiv").style.display = "none";
+    }
+
+    const span = button.querySelector("span");
+
+    span.innerHTML = "";
+
+    const icon = document.createElement("i");
+    icon.className = "bi bi-box-arrow-up-right";
+    icon.style.marginLeft = "6px";
+
+    span.appendChild(icon);
+
+    const selectedLang =
+      document.getElementById("languageSelect")?.value || "pt";
+    updateLanguageLabels(selectedLang);
+    
+    const tbody = document.createElement("tbody");
+
+    if (isHidden && !container.dataset.loaded) {
+      fetch(`/importFile/generation/results/${ioid}`)
+        .then((res) => res.json())
+        .then((details) => {
+          currentOpenDetailIOId = ioid;
+          fetchedDetails = details;
+          currentDetailFilteredData = [...fetchedDetails];
+          currentDetailCurrentPage = 1;
+
+          const doRender = () => {
+            renderRows(tbody, currentDetailFilteredData, currentDetailCurrentPage, currentDetailRowsPerPage);
+            renderPagination(document.getElementById("sharedPaginationContainer"), doRender);
+          };
+
+          const scrollContainer = document.createElement("div");
+          scrollContainer.className = "detailsTable";
+          scrollContainer.classList.add("detailsTable");
+          const table = document.createElement("table");
+          table.className = "fixed-header-table table table-borderless";
+
+          const thead = document.createElement("thead");
+          thead.style.zIndex = 4;
+          const headerRow = document.createElement("tr");
+
+          const header = [
+            { key: "module.label", className: "firstItemDetails" },
+            { key: "entity.label" },
+            { key: "domain.label" },
+            { key: "referenceDate.label" },
+            { key: "description.label" },
+            { key: "date.label", className: "lastItemDetails" },
+          ];
+
+          header.forEach(({ key, className }) => {
+            const th = document.createElement("th");
+            th.classList.add("internationalization");
+            th.setAttribute("data-key", key);
+            th.style.fontSize = "0.9rem";
+            if (className) {
+              th.classList.add(className);
+            }
+            headerRow.appendChild(th);
+          });
+
+          const filterContainer = document.createElement("div");
+          filterContainer.className = "resultado-import-filter-group";
+
+          doRender();
+
+          thead.appendChild(headerRow);
+          table.appendChild(thead);
+            details.forEach((d) => {
+              const bodyRow = document.createElement("tr");
+              const tdModuleCodeKey = document.createElement("td");
+              tdModuleCodeKey.setAttribute("style", rowStyle);
+              tdModuleCodeKey.textContent = d.code ?? "-";
+              tdModuleCodeKey.style.fontSize = "0.7rem";
+
+              bodyRow.appendChild(tdModuleCodeKey);
+
+              const tdEntityCodeKey = document.createElement("td");
+              tdEntityCodeKey.setAttribute("style", rowStyle);
+              tdEntityCodeKey.textContent = d.entity ?? "-";
+              tdEntityCodeKey.style.fontSize = "0.7rem";
+
+              bodyRow.appendChild(tdEntityCodeKey);
+
+              const tdDomainCodeKey = document.createElement("td");
+              tdDomainCodeKey.setAttribute("style", rowStyle);
+              tdDomainCodeKey.textContent = d.domain ?? "-";
+              tdDomainCodeKey.style.fontSize = "0.7rem";
+
+              bodyRow.appendChild(tdDomainCodeKey);
+
+              const tdReferenceDateCodeKey = document.createElement("td");
+              tdReferenceDateCodeKey.setAttribute("style", rowStyle);
+              tdReferenceDateCodeKey.textContent = d.referenceDate ?? "-";
+              tdReferenceDateCodeKey.style.fontSize = "0.7rem";
+              bodyRow.appendChild(tdReferenceDateCodeKey);
+
+              const tdDescriptionCodeKey = document.createElement("td");
+              tdDescriptionCodeKey.textContent = d.description ?? "-";
+              tdDescriptionCodeKey.setAttribute("style", rowStyle);
+              tdDescriptionCodeKey.style.fontSize = "0.7rem";
+              bodyRow.appendChild(tdDescriptionCodeKey);
+
+              const tdTimestampCodeKey = document.createElement("td");
+              tdTimestampCodeKey.setAttribute("style", rowStyle);
+              tdTimestampCodeKey.textContent = d.timestamp ?? "-";
+              tdTimestampCodeKey.style.fontSize = "0.7rem";
+              bodyRow.appendChild(tdTimestampCodeKey);
+
+              tbody.appendChild(bodyRow);
+            });
+
+            table.appendChild(tbody);
+
+            scrollContainer.appendChild(filterContainer);
+            scrollContainer.appendChild(table);
+
+          
+
+            container.innerHTML = "";
+            container.classList.remove("internationalization");
+            container.removeAttribute("data-key");
+
+
+            container.appendChild(scrollContainer);
+
+            container.dataset.loaded = "true";
+
+            const selectedLang =
+              document.getElementById("languageSelect")?.value || "pt";
+            updateLanguageLabels(selectedLang);
         })
         .catch((err) => {
           container.textContent =
