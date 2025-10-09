@@ -774,215 +774,77 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             headerRow.appendChild(th);
           });
-          const resultadoCounts = {};
-
-          details.forEach((d) => {
-            const key = d.resultado ?? "-";
-            resultadoCounts[key] = (resultadoCounts[key] || 0) + 1;
-          });
-
-          const uniqueResultados = [
-            ...new Set(details.map((d) => d.resultado ?? "-")),
-          ];
-
-          const labelKeyMap = {
-            "RULE OK": "ruleOK",
-            "RULE NOT OK": "ruleNotOK",
-            "RULE DO NOT RUN": "ruleSkip",
-            "RULE DO NOT RUN PREREQUISITE": "ruleSkipPre",
-            "RULE OK WITH NOT OK": "ruleOKNotOK",
-          };
 
           const filterContainer = document.createElement("div");
-          filterContainer.className = "resultado-filter-group";
+          filterContainer.className = "resultado-import-filter-group";
 
-          const totalCount = details.length;
+          doRender();
 
-          const allButton = document.createElement("div");
-          allButton.className =
-            "resultado-filter-button active internationalization";
-          allButton.setAttribute("data-key", "all.label");
-          allButton.setAttribute("data-value", "__all__");
-          allButton.setAttribute("data-count", totalCount);
-          allButton.textContent = `All (${totalCount})`;
-          filterContainer.appendChild(allButton);
-          
-          uniqueResultados.forEach((value) => {
-            const keyBase = labelKeyMap[value] || "";
-            const count = resultadoCounts[value] ?? 0;
+          thead.appendChild(headerRow);
+          table.appendChild(thead);
+            details.forEach((d) => {
+              const bodyRow = document.createElement("tr");
+              const tdModuleCodeKey = document.createElement("td");
+              tdModuleCodeKey.setAttribute("style", rowStyle);
+              tdModuleCodeKey.textContent = d.code ?? "-";
+              tdModuleCodeKey.style.fontSize = "0.7rem";
 
-            const labelText = languageLabels[`${keyBase}.label`] || value;
-            const tooltipText =
-              languageLabels[`${keyBase}.tooltip`] || labelText;
+              bodyRow.appendChild(tdModuleCodeKey);
 
-            const button = document.createElement("div");
-            button.className = "resultado-filter-button internationalization";
-            button.setAttribute("data-key", `${keyBase}.label`);
-            button.setAttribute("data-tooltip-key", `${keyBase}.tooltip`);
-            button.setAttribute("data-value", value);
-            button.setAttribute("data-count", count);
-            button.setAttribute("data-bs-toggle", "tooltip");
-            button.setAttribute("data-bs-placement", "top");
-            button.textContent = count ? `${labelText} (${count})` : labelText;
-            filterContainer.appendChild(button);
-          });
+              const tdEntityCodeKey = document.createElement("td");
+              tdEntityCodeKey.setAttribute("style", rowStyle);
+              tdEntityCodeKey.textContent = d.entity ?? "-";
+              tdEntityCodeKey.style.fontSize = "0.7rem";
 
-          filterContainer.querySelectorAll(".resultado-filter-button").forEach(button => {
-            button.addEventListener("click", function () {
-              const selected = this.getAttribute("data-value").toLowerCase();
+              bodyRow.appendChild(tdEntityCodeKey);
 
-              filterContainer.querySelectorAll(".resultado-filter-button").forEach(btn => btn.classList.remove("active"));
-              this.classList.add("active");
+              const tdDomainCodeKey = document.createElement("td");
+              tdDomainCodeKey.setAttribute("style", rowStyle);
+              tdDomainCodeKey.textContent = d.domain ?? "-";
+              tdDomainCodeKey.style.fontSize = "0.7rem";
 
-              currentDetailFilteredData = details.filter(d => {
-                const result = (d.resultado ?? "").toLowerCase();
-                return selected === "__all__" || result === selected;
-              });
+              bodyRow.appendChild(tdDomainCodeKey);
 
-              currentDetailCurrentPage = 1;
+              const tdReferenceDateCodeKey = document.createElement("td");
+              tdReferenceDateCodeKey.setAttribute("style", rowStyle);
+              tdReferenceDateCodeKey.textContent = d.referenceDate ?? "-";
+              tdReferenceDateCodeKey.style.fontSize = "0.7rem";
+              bodyRow.appendChild(tdReferenceDateCodeKey);
 
-              doRender();
+              const tdDescriptionCodeKey = document.createElement("td");
+              tdDescriptionCodeKey.textContent = d.description ?? "-";
+              tdDescriptionCodeKey.setAttribute("style", rowStyle);
+              tdDescriptionCodeKey.style.fontSize = "0.7rem";
+              bodyRow.appendChild(tdDescriptionCodeKey);
 
-              const selectedLang = document.getElementById("languageSelect")?.value || "pt";
-              updateLanguageLabels(selectedLang);
+              const tdTimestampCodeKey = document.createElement("td");
+              tdTimestampCodeKey.setAttribute("style", rowStyle);
+              tdTimestampCodeKey.textContent = d.timestamp ?? "-";
+              tdTimestampCodeKey.style.fontSize = "0.7rem";
+              bodyRow.appendChild(tdTimestampCodeKey);
+
+              tbody.appendChild(bodyRow);
             });
-          });
 
+            table.appendChild(tbody);
 
-
-        doRender();
-
-        reinitTooltips(filterContainer);
-
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-          details.forEach((d) => {
-            const bodyRow = document.createElement("tr");
-            const resultado = d.resultado ?? "-";
-            let rowStyle = "";
-
-            if (resultado === "RULE OK") {
-              rowStyle = `background-color: #d4edda`;
-            } else if (resultado === "RULE DO NOT RUN") {
-              rowStyle = `background-color: #fff3cd`;
-            } else if (resultado === "RULE NOT OK") {
-              rowStyle = `background-color: #f8d7da`;
-            }
-
-            const tdRuleCodeKey = document.createElement("td");
-            tdRuleCodeKey.setAttribute("style", rowStyle);
-            tdRuleCodeKey.textContent = d.regraCode ?? "-";
-            tdRuleCodeKey.style.fontSize = "0.7rem";
-
-            bodyRow.appendChild(tdRuleCodeKey);
-
-            const severityKey = ((d.severity ?? "unknown") + "").toLowerCase();
-            const tdSeverity = document.createElement("td");
-            tdSeverity.setAttribute("style", rowStyle);
-
-            const iconSeverity = document.createElement("i");
-            iconSeverity.classList.add("bi", "me-2");
-
-            let severityLabel = "";
-
-            
-
-            if (severityKey === "ok") {
-              iconSeverity.classList.add(
-                "bi-check-circle-fill",
-                "text-success"
-              );
-              severityLabel = "success.label";
-            } else if (severityKey === "warning") {
-              iconSeverity.classList.add(
-                "bi-exclamation-triangle-fill",
-                "text-warning"
-              );
-              severityLabel = "warning.label";
-            } else if (severityKey === "error") {
-              iconSeverity.classList.add("bi-x-circle-fill", "text-danger");
-              severityLabel = "error.label";
-            }
-            iconSeverity.classList.add("internationalization");
-            iconSeverity.setAttribute("data-key", severityLabel);
-            if (languageLabels[severityLabel]) {
-              iconSeverity.title = languageLabels[severityLabel];
-            }
-
-            tdSeverity.appendChild(iconSeverity);
-            bodyRow.appendChild(tdSeverity);
-
-            const tdRuleDomainKey = document.createElement("td");
-            tdRuleDomainKey.setAttribute("style", rowStyle);
-            tdRuleDomainKey.textContent = d.regraDomain ?? "-";
-            tdRuleDomainKey.style.fontSize = "0.7rem";
-            tdRuleDomainKey.style.overflowWrap = "break-word";
-            bodyRow.appendChild(tdRuleDomainKey);
-
-            const tdRule = document.createElement("td");
-            tdRule.textContent = d.regra ?? "-";
-            tdRule.classList.add("firstItemDetails");
-            tdRule.setAttribute("style", rowStyle);
-            tdRule.style.fontSize = "0.7rem";
-            bodyRow.appendChild(tdRule);
-
-            const tdRuleValuesKey = document.createElement("td");
-            tdRuleValuesKey.setAttribute("style", rowStyle);
-            tdRuleValuesKey.textContent = d.regraExecutada ?? "-";
-            tdRuleValuesKey.style.fontSize = "0.7rem";
-            bodyRow.appendChild(tdRuleValuesKey);
-
-            const tdResult = document.createElement("td");
-            tdResult.classList.add("internationalization");
-            tdResult.setAttribute(
-              "data-key",
-              resultado === "RULE OK"
-                ? "ruleOK.label"
-                : resultado === "RULE DO NOT RUN"
-                ? "ruleSkip.label"
-                : resultado === "RULE NOT OK"
-                ? "ruleNotOK.label"
-                : resultado === "RULE DO NOT RUN PREREQUISITE"
-                ? "ruleSkipPre.label"
-                : resultado === "RULE OK WITH NOT OK"
-                ? "ruleOKNotOK.label"
-                : ""
-            );
-            tdResult.setAttribute("style", rowStyle);
-            tdResult.textContent = resultado;
-            tdResult.setAttribute("data-raw", resultado.toLowerCase());
-            tdResult.style.fontSize = "0.7rem";
-            bodyRow.appendChild(tdResult);
-
-            const tdProcessDate = document.createElement("td");
-            tdProcessDate.textContent = d.dataProcessamento ?? "-";
-            tdProcessDate.classList.add("lastItemDetails");
-            tdProcessDate.setAttribute("style", rowStyle);
-            tdProcessDate.style.fontSize = "0.7rem";
-            bodyRow.appendChild(tdProcessDate);
-
-            tbody.appendChild(bodyRow);
-          });
-
-          table.appendChild(tbody);
-
-          scrollContainer.appendChild(filterContainer);
-          scrollContainer.appendChild(table);
+            scrollContainer.appendChild(filterContainer);
+            scrollContainer.appendChild(table);
 
           
 
-          container.innerHTML = "";
-          container.classList.remove("internationalization");
-          container.removeAttribute("data-key");
+            container.innerHTML = "";
+            container.classList.remove("internationalization");
+            container.removeAttribute("data-key");
 
 
-          container.appendChild(scrollContainer);
+            container.appendChild(scrollContainer);
 
-          container.dataset.loaded = "true";
+            container.dataset.loaded = "true";
 
-          const selectedLang =
-            document.getElementById("languageSelect")?.value || "pt";
-          updateLanguageLabels(selectedLang);
+            const selectedLang =
+              document.getElementById("languageSelect")?.value || "pt";
+            updateLanguageLabels(selectedLang);
         })
         .catch((err) => {
           container.textContent =

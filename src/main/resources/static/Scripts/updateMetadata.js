@@ -1,38 +1,3 @@
-function downloadMetadata(event) {
-    event.preventDefault();
-
-    const form = document.getElementById("metadataForm");
-    const formData = new FormData(form);
-
-    const uploadButton = document.getElementById("uploadButtonMetadata");
-    const loadingButton = document.getElementById("loadingButton");
-    const alertUpdate = document.getElementById("alert-success");
-
-    uploadButton.style.display = "none";
-    loadingButton.style.display = "inline-block";
-
-    fetch("/processMetaData", {
-        method: "POST",
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.enabled) {
-            uploadButton.style.display = "inline-block";
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-    })
-    .finally(() => {
-        alertUpdate.style.display = "block";
-        uploadButton.style.display = "inline-block";
-        loadingButton.style.display = "none";
-    });
-}
-
-
-
 let languageLabels = {};
 
 function updateLanguageLabels(language) {

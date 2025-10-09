@@ -30,6 +30,7 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.VariableVersion;
 import com.example.demo.controller.Objects.Entities.Logs.LogImportProcess;
+import com.example.demo.controller.Objects.Entities.Logs.LogOperationTemp;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.IO.IOTypeState;
@@ -44,6 +45,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ModuleFileImport extends RunnableExtension{
+
+    private List<LogOperationTemp> logsList = new ArrayList<>();
+
+    private long startTimeJava = System.nanoTime();
+    private long startTimeJavaWithBreak = 0;
+    private long startTimeOracleInsertWithBreak = 0;
+    private long startTimeOracleSelectWithBreak = 0;
+    private long currentTimeJava = 0;
+    private long currentTimeOracleInsert = 0;
+    private long currentTimeOracleSelect = 0;
+    
+    public void restartTimeJava(){
+        startTimeJavaWithBreak = System.nanoTime();  
+    }
+    public void incrementJavaOperationTime(){
+        currentTimeJava += (System.nanoTime() - startTimeJavaWithBreak);                                      
+    }
+    public void restartTimeOracleInsert(){
+        startTimeOracleInsertWithBreak = System.nanoTime();  
+    }
+    public void incrementOracleInsertOperationTime(){
+        currentTimeOracleInsert += (System.nanoTime() - startTimeOracleInsertWithBreak);                                      
+    }
+    public void restartTimeOracleSelect(){
+        startTimeOracleSelectWithBreak = System.nanoTime();  
+    }
+    public void incrementOracleSelectOperationTime(){
+        currentTimeOracleSelect += (System.nanoTime() - startTimeOracleSelectWithBreak);                                      
+    }
     
     //main constructor to use in Import
     public ModuleFileImport(File inputFile, String filename, ConfEntities entity, String domain,LocalDate referenceDate,ModuleVersion moduleVersion, 
@@ -184,8 +214,16 @@ public class ModuleFileImport extends RunnableExtension{
             }
             //for each sheet in the imported file;
 
+            incrementJavaOperationTime(); 
+            restartTimeOracleSelect();
             List<VariableVersion> varVersionMapList = VariableVersionDAL.getListOfVariableVersionOfModuleSheets(moduleVersion.getModuleVID());
+            incrementOracleSelectOperationTime();
+            logsList.add(new LogOperationTemp("Tempo de Select para obter o VariableVersion de um módulo:" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));
+            restartTimeOracleSelect();
             List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(moduleVersion,referenceDate);
+            logsList.add(new LogOperationTemp("Tempo de Select para obter o TABLEVERSION de um módulo:" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));
+            incrementOracleSelectOperationTime();
+            restartTimeJava();
             TableVersionDPM singleFillingIndicatorAsTableVersion = null;
             List<HeaderDTO> headerDTOList;
             List<CellVariableDTO> cellVariablesList;
@@ -230,9 +268,23 @@ public class ModuleFileImport extends RunnableExtension{
                 //Check if the filling indicator is possible
                 singleFillingIndicatorAsTableVersion = FillingIndicatorModuleService.getTableVersionFromList(fillingIndicatorModuleList,fillingIndicatorWithUnderScores);
                 if(singleFillingIndicatorAsTableVersion == null){
+                    if (!fillingIndicatorWithUnderScores.toUpperCase().trim().equals("TOC") && !fillingIndicatorWithUnderScores.toUpperCase().trim().equals("PARAMETERS")) {
+                        LogImportProcess errorLog = new LogImportProcess(io.getIoId(), null, Constants.IMPOSSIBLEMAP);
+                        incrementJavaOperationTime(); 
+                        restartTimeOracleInsert();
+                        Connection.persist(cm, errorLog);
+                        logsList.add(new LogOperationTemp("Tempo de Inserir Log de erros:" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));
+                        incrementOracleInsertOperationTime();
+                        restartTimeJava();
+                    }
                     continue;
                 }
+                incrementJavaOperationTime(); 
+                restartTimeOracleSelect();
                 headerDTOList = TableVersionHeaderDAL.getListOfHeaderForATableVid(singleFillingIndicatorAsTableVersion.getTableVID());
+                logsList.add(new LogOperationTemp("Tempo de Select para os headerIds de um determinado TableVID:" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));    
+                incrementOracleSelectOperationTime();
+                restartTimeJava();
                 sheetValueAsHeaderCode = null;
                 InImportKey desagregationCodeKey = null;
                 if(desagregationCode != null){
@@ -245,18 +297,53 @@ public class ModuleFileImport extends RunnableExtension{
                         List<InKeyAssociation> keyAssociationsDesagCode = desagregationCodeKey.getListPropertyValues();
                         Optional<InKeyAssociation> keyAssociationWithNull = keyAssociationsDesagCode.stream().filter(keyAssociation -> keyAssociation.getPropertyValue() == null).findAny();
 
-                        if (!keyAssociationWithNull.isPresent()) {
+                        if (keyAssociationWithNull.isPresent()) {
+                            errorMsgPerTables.add(Constants.MESSAGEERRORDESAGCODE + sheetName);
+                        } else {
+                            incrementJavaOperationTime();    
+                            restartTimeOracleInsert();
                             Connection.persist(cm, desagregationCodeKey);
+                            logsList.add(new LogOperationTemp("Tempo de Inserir InImportKey:" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));    
+                            incrementOracleInsertOperationTime();
+                            restartTimeJava();              
                         }
 
+                    } else {
+                        errorMsgPerTables.add(Constants.MESSAGEERRORDESAGCODE + sheetName);
                     }
                 }
                 VariableVersion variableVersionOfMap = null;
                 if(singleFillingIndicatorAsTableVersion.getAbstractTable() != null){
+                    incrementJavaOperationTime();  
+                    restartTimeOracleSelect();
                     variableVersionOfMap = VariableVersionDAL.getVariableVersionFromAbstract(singleFillingIndicatorAsTableVersion.getAbstractTable().getTableId());
+                    logsList.add(new LogOperationTemp("Tempo de Select dos variableVersions dos Mapas :" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));          
+                    incrementOracleSelectOperationTime();
+                    restartTimeJava();
                 }else{
                     String codeTemp = singleFillingIndicatorAsTableVersion.getCode();
                     variableVersionOfMap = varVersionMapList.stream().filter(varVersion -> varVersion.getCode().equals(codeTemp)).findFirst().orElse(null);
+                }
+
+                if (!errorMsgPerTables.isEmpty()) {
+                    List<LogImportProcess> errorLogs = new ArrayList<>();
+                    for (String error : errorMsgPerTables) {
+                        LogImportProcess errorLog = new LogImportProcess(io.getIoId(),null, error);
+                        errorLogs.add(errorLog);
+                    }
+
+                    errorMsgPerTables.clear();
+                    if (!errorLogs.isEmpty()) {
+                        incrementJavaOperationTime();  
+                        restartTimeOracleInsert();
+                        Connection.persistList(cm, errorLogs);
+                        logsList.add(new LogOperationTemp("Tempo de Inserir Logs de Erro :" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));          
+                        incrementOracleInsertOperationTime();
+                        restartTimeJava();
+                        hasNotOk = true;
+                    }
+
+                    continue;
                 }
                 
                 InImportedTablesTemp importedTableTemp = new InImportedTablesTemp();
@@ -266,19 +353,39 @@ public class ModuleFileImport extends RunnableExtension{
                 importedTableTemp.setImportKey(desagregationCodeKey);
                 importedTableTemp.setInitTimestamp(LocalDateTime.now());
                 importedTableTemp.setDesagregationCode(desagregationCode);
-                importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));                
+                importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));
+                incrementJavaOperationTime(); 
+                restartTimeOracleInsert();                
                 Connection.persist(cm, importedTableTemp);
                 
-                LogImportProcess logMapImportInit = new LogImportProcess(io.getIoId(),importedTableTemp.getImportedTableId(), "Importacao do mapa - " + sheetName + " iniciado");
+                logsList.add(new LogOperationTemp("Tempo de inserir o InImportTable :" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));           
+                incrementOracleInsertOperationTime();
+                restartTimeJava();
+                LogImportProcess logMapImportInit = new LogImportProcess(io.getIoId(), importedTableTemp.getImportedTableId(), "Importação do mapa - " + sheetName + " iniciado");
+                incrementJavaOperationTime(); 
+                restartTimeOracleInsert();
                 Connection.persist(cm, logMapImportInit);
-                
+                logsList.add(new LogOperationTemp("Tempo de inserir o LogImportProcess (Logs de importação) :" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));           
+                incrementOracleInsertOperationTime();
+                restartTimeJava();  
+                incrementJavaOperationTime(); 
+                restartTimeOracleSelect();
                 Map<String, Integer> properties = TableVersionDAL.getPropertiesKeyTypes(singleFillingIndicatorAsTableVersion.getTableVID(), io.getReferenceDate());
+                logsList.add(new LogOperationTemp("Tempo de Select das propriedades existentes num determinado mapa :" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));           
+                incrementOracleSelectOperationTime();
+                restartTimeJava();
                 
                 boolean notInsertedInImportedValuesPerSheet = true;
                 // Insert into Table Imported_Tables and get the Id Value
                 ImportExcelValues.getExcelPoints(workSheet, excelPointStruct);
-            
+                
+                incrementJavaOperationTime(); 
+                restartTimeOracleSelect();
                 cellVariablesList = CellDAL.getListOfCellVariable(singleFillingIndicatorAsTableVersion);
+                logsList.add(new LogOperationTemp("Tempo de Select das células existentes num determinado mapa :" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));           
+                incrementOracleSelectOperationTime();
+                restartTimeJava();
+                
                 for (int i = excelPointStruct.getFirstRow() - 1; i < excelPointStruct.getLastRow(); i++) {
                     try {
                         rowValue = ImportExcelValues.getCellValue(workSheet, i, excelPointStruct.getFirstColumn() - 2);
@@ -287,16 +394,21 @@ public class ModuleFileImport extends RunnableExtension{
                         errorMsgPerTables.add("Erro na obtencao da linha.");
                         continue;
                     }
-                    List<DatapointItensDTO> ListItems = null;
+                    List<DatapointItensDTO> listItems = null;
                     TreeMap <String, List<DatapointItensDTO>> listItemsMapped = null;
                     rowKeyImportKey = null;
                     openRowAuxListForPersiste.clear();
                     boolean isOpenRow = false;
                     if (rowValue != null) {
                         if (!"".equals(rowValue)) {
-                            ListItems = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(singleFillingIndicatorAsTableVersion.getTableVID(), Constants.ColumnCoordinate, null, io.getReferenceDate());
-                            if(ListItems != null && !ListItems.isEmpty()){
-                                listItemsMapped = ListItems.stream().collect(
+                            incrementJavaOperationTime(); 
+                            restartTimeOracleSelect();
+                            listItems = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(singleFillingIndicatorAsTableVersion.getTableVID(), Constants.ColumnCoordinate, null, io.getReferenceDate());
+                            logsList.add(new LogOperationTemp("Tempo de Select dos enumerados de um determinado mapa (e a coluna que corresponde) (verticalmente):" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));           
+                            incrementOracleSelectOperationTime();
+                            restartTimeJava(); 
+                            if(listItems != null && !listItems.isEmpty()){
+                                listItemsMapped = listItems.stream().collect(
                                                                  Collectors.groupingBy(
                                                                              DatapointItensDTO::getHeaderCode,
                                                                              TreeMap::new,
@@ -341,7 +453,12 @@ public class ModuleFileImport extends RunnableExtension{
                                 CellVariableDTO aux = CellVariableService.getCellVariableServiceDTOFromList(cellVariablesList, rowValueAsHeaderCode, columnValueAsHeaderCode, sheetValueAsHeaderCode,isOpenRow);
                                 int cellType = 0;
                                 if(aux != null){
-                                    cellType = PropertyDAL.getListOfCellVariable(aux.getVariableVid());                              
+                                    incrementJavaOperationTime();
+                                    restartTimeOracleSelect();
+                                    cellType = PropertyDAL.getListOfCellVariable(aux.getVariableVid());
+                                    logsList.add(new LogOperationTemp("Tempo de obter o tipo de célula de um VariableVID" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));           
+                                    incrementOracleSelectOperationTime();
+                                    restartTimeJava();                              
                                 }
                                 if (value != null) {
                                     if (Utils.isNumericWithComma(value) && typeListToExclude.contains(cellType)) {
@@ -418,7 +535,12 @@ public class ModuleFileImport extends RunnableExtension{
                                             if (!isOpenRow) {
                                                 if(auxDatapointDTOListOfColumn != null && (auxDatapointDTOListOfColumn.isEmpty() || auxDatapointDTOListOfColumn.get(0).getSignature() == null)){
                                                     //significa que para a coluna, ele nao encontrou valores possiveis e de verificar na row
+                                                    incrementJavaOperationTime(); 
+                                                    restartTimeOracleSelect();
                                                     listItemsForRow = ItemCategoryDAL.getListOFPossibleItensOfDatapoit(singleFillingIndicatorAsTableVersion.getTableVID(), Constants.RowCoordinate, rowValue, io.getReferenceDate());
+                                                    logsList.add(new LogOperationTemp("Tempo de obter lista de enumurados (horizontalmente)" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));           
+                                                    incrementOracleSelectOperationTime();
+                                                    restartTimeJava();
                                                     List<DatapointItensDTO> auxDatapointDTOListOfRow = listItemsForRow.stream().filter(p -> (p.getValueCode() != null && p.getValueCode().trim().equalsIgnoreCase(valueTemp))
                                                             || (p.getSignature() != null && p.getSignature().trim().equalsIgnoreCase(Constants.EBASEPARATOR + valueTemp))
                                                             || (p.getSignature() != null && p.getSignature().trim().equalsIgnoreCase(valueTemp))
@@ -452,12 +574,19 @@ public class ModuleFileImport extends RunnableExtension{
                                         //BuildRowKey
                                         if(rowKeyImportKey == null){
                                             rowKeyImportKey = new InImportKey();
-                                            //rowKeyImportKey.setKeyType(em.getReference(InKeyType.class,Constants.ROWKEYTYPE));
-                                            InKeyType keyType = cm.em.getReference(InKeyType.class,Constants.ROWKEYTYPE);
-                                            rowKeyImportKey.setKeyType(keyType);
-
+                                            incrementJavaOperationTime(); 
+                                            restartTimeOracleSelect();
+                                            rowKeyImportKey.setKeyType(cm.em.getReference(InKeyType.class, Constants.ROWKEYTYPE));
+                                            logsList.add(new LogOperationTemp("Tempo de obter o tipo de chave (Desagregação ou rowkey)" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));           
+                                            incrementOracleSelectOperationTime();
+                                            restartTimeJava();
                                             rowKeyImportKey.setListPropertyValues(new ArrayList<>());
+                                            incrementJavaOperationTime(); 
+                                            restartTimeOracleInsert();
                                             Connection.persist(cm, rowKeyImportKey);
+                                            logsList.add(new LogOperationTemp("Tempo inserir inimportkey" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));           
+                                            incrementOracleInsertOperationTime();
+                                            restartTimeJava();
                                         }
                                         
                                         InKeyAssociation desagregationCodeAssociation = new InKeyAssociation();

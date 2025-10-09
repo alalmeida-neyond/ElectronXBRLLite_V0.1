@@ -116,26 +116,6 @@ public class MainBean extends DefaultBean{
 
     }
 
-    @PostMapping("/importFile/upload")
-    @ResponseBody
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
-        
-        try {
-            setFile(file);
-
-            if (!validateFileName(file.getOriginalFilename())) {
-                return ResponseEntity.badRequest().body(getStatusMessage());
-            }
-            //progressService.setImportProgress(10);
-            upload();
-            return ResponseEntity.ok("File uploaded successfully");
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("File upload failed: " + e.getMessage());
-        }
-    }
-
     public void upload() {
         if (file != null) {
             if (onFileChange(validateFileName(getFile().getOriginalFilename()))) {
@@ -380,6 +360,26 @@ public class MainBean extends DefaultBean{
                 .append(extension)
                 .toString();
     }
+    
+    @PostMapping("/importFile/upload")
+    @ResponseBody
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        
+        try {
+            setFile(file);
+
+            if (!validateFileName(file.getOriginalFilename())) {
+                return ResponseEntity.badRequest().body(getStatusMessage());
+            }
+            //progressService.setImportProgress(10);
+            upload();
+            return ResponseEntity.ok("File uploaded successfully");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("File upload failed: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/download")
     public ResponseEntity<?> downloadFile(String filename) {
@@ -453,45 +453,6 @@ public class MainBean extends DefaultBean{
         
         
         return modelAndView;
-    }
-
-    @PostMapping("/process")
-    @ResponseBody
-    public String handleFileUpload(@RequestParam("file") MultipartFile file, Model model) {
-        StringBuilder responseMessage = new StringBuilder();
-
-        String fileName = file.getOriginalFilename();
-        if (fileName == null || !fileName.toLowerCase().endsWith(".xlsx")) {
-            return "<p style='color:red;'>Tipo de ficheiro inválido</p>";
-        }
-
-        try {
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                return "<p style='color:red;'>Diretoria inválida</p>";
-            }
-            
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            /*List<String> extractedDataColumn1 = extractExcelColumn(filePath, 1);
-            List<String> extractedDataColumn2 = extractExcelColumn(filePath, 1);
-            List<String[]> fullList = new ArrayList<>();
-            int i = 0;
-            for (String extractedDataLine : extractedDataColumn1) {
-                fullList.add(new String[]{extractedDataLine, extractedDataColumn2.get(i)});
-                i++;
-            }
-            
-            insertIntoDatabase(fullList);*/
-            
-            
-            responseMessage.append("<p style='color:green;'>Ficheiro carrgado com sucesso!</p>");
-            
-        } catch (Exception e) {
-            return "<p style='color:red;'>Erro a processar o ficheiro: " + e.getMessage() + "</p>";
-        }
-        return responseMessage.toString();
     }
 
     @GetMapping("/settings")
@@ -610,47 +571,6 @@ public class MainBean extends DefaultBean{
         return fallback.toAbsolutePath().toString();
     }
 
-
-    @GetMapping("/licensing")
-    public ModelAndView licensing() {
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("licensepage");
-        return modelAndView;
-    }
-
-    @PostMapping("/licensing")
-    public ModelAndView insertingLicense(@RequestParam("licensingString") String licensingString) {
-        try {
-            licenseVerification.licenseVerificationString(licensingString);
-            return new ModelAndView("redirect:/");
-
-        } catch (Exception e) {
-           ModelAndView mv = new ModelAndView("licensepage");
-            mv.addObject("error", "Invalid license: " + e.getMessage());
-            return mv;
-        }
-    }
-
-    @PostMapping("/renewLicense")
-    public ModelAndView renewLicense() {
-        try {
-            return new ModelAndView("redirect:/");
-
-        } catch (Exception e) {
-           ModelAndView mv = new ModelAndView("licensepage");
-            mv.addObject("error", "Invalid license: " + e.getMessage());
-            return mv;
-        }
-    }
-
-    @PostMapping("/requestLicense")
-    public void requestingLicense(@RequestParam String inputEmailText,
-        @RequestParam String inputLEICODEText,
-        @RequestParam String inputHardwareIDText,
-        @RequestParam String inputBDPIDText,
-        @RequestParam String inputLicenseType ) {
-    }
-
     @GetMapping("/import_file")
     public ModelAndView importFile() throws FileNotFoundException {
         
@@ -730,20 +650,5 @@ public class MainBean extends DefaultBean{
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("index_Neyond");
         return modelAndView;
-    }
-
-    @PostMapping("/processMetaData")
-    public void handleMetaDataTransfer(Model model) {
-        try {
-            
-            URL url = URI.create(fileUrl).toURL();
-            try (InputStream inputStream = url.openStream()) {
-                Files.copy(inputStream, Path.of(localFilePath), StandardCopyOption.REPLACE_EXISTING);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Error replacing file: " + e.getMessage());
-        }
     }
 }

@@ -14,14 +14,6 @@ public class ValidationService extends DefaultBean<ValidationResultsDetailsDTO>{
         JPA<ValidationResultsDetailsDTO> jpa = new JPA<>(ValidationResultsDetailsDTO.class);
         List<ValidationResultsDetailsDTO> results = new ArrayList<>();
         try {
-            /*results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValidationsResultsDetails.sql",
-                    "ValidationResultsDetailsRow","ioId", ioId);
-
-            if(results == null)
-            {
-                return new ArrayList<>();
-            }*/
-
             String moduleVersionFromIO = getModuleVersionFromIO(ioId);
 
             LOG.info("Module Version:" + moduleVersionFromIO);
@@ -30,6 +22,52 @@ public class ValidationService extends DefaultBean<ValidationResultsDetailsDTO>{
                     "ValidationResultsDetailsRow",
                     "ioid", ioId,
                     "moduleVID", getModuleVersion() != null ? String.valueOf(getModuleVersion().getModuleVID()) : "");
+
+            
+            if(results == null)
+            {
+                return new ArrayList<>();
+            }
+
+            return results;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public List<ValidationResultsDetailsDTO> getImportResults(Integer ioId) {
+        JPA<ValidationResultsDetailsDTO> jpa = new JPA<>(ValidationResultsDetailsDTO.class);
+        List<ValidationResultsDetailsDTO> results = new ArrayList<>();
+        try {
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetImportedDetails.sql",
+                    "ValidationResultsDetailsRow",
+                    "ioid", ioId);
+
+            
+            if(results == null)
+            {
+                return new ArrayList<>();
+            }
+
+            return results;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public List<ValidationResultsDetailsDTO> getGenerationResults(Integer ioId) {
+        JPA<ValidationResultsDetailsDTO> jpa = new JPA<>(ValidationResultsDetailsDTO.class);
+        List<ValidationResultsDetailsDTO> results = new ArrayList<>();
+        try {
+            String moduleVersionFromIO = getModuleVersionFromIO(ioId);
+
+            LOG.info("Module Version:" + moduleVersionFromIO);
+            
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetGenerationDetails.sql",
+                    "ValidationResultsDetailsRow",
+                    "ioid", ioId);
 
             
             if(results == null)
