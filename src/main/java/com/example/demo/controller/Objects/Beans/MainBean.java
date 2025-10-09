@@ -20,6 +20,7 @@ import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.service.ModuleFileImport;
 import com.example.demo.service.ProgressService;
 import com.example.demo.service.ValidationService;
+
 import org.springframework.http.*;
 
 import jakarta.annotation.PostConstruct;
@@ -48,6 +49,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+
+import com.example.demo.DTOs.GenerateXBRLDetailsDTO;
+import com.example.demo.DTOs.ImportedDetailsDTO;
 
 @RestController
 public class MainBean extends DefaultBean{
@@ -600,15 +604,15 @@ public class MainBean extends DefaultBean{
     }
     @GetMapping("/importFile/import/results/{id}")
     @ResponseBody
-    public List<ValidationResultsDetailsDTO> getImportResults(@PathVariable("id") Integer ioId) {
+    public List<ImportedDetailsDTO> getImportResults(@PathVariable("id") Integer ioId) {
         ValidationService validationService = new ValidationService();
-        return validationService.getValidationResults(ioId);
+        return validationService.getImportResults(ioId);
     }
     @GetMapping("/importFile/generation/results/{id}")
     @ResponseBody
-    public List<ValidationResultsDetailsDTO> getGenerationResults(@PathVariable("id") Integer ioId) {
+    public List<GenerateXBRLDetailsDTO> getGenerationResults(@PathVariable("id") Integer ioId) {
         ValidationService validationService = new ValidationService();
-        return validationService.getValidationResults(ioId);
+        return validationService.getGenerationResults(ioId);
     }
 
     @GetMapping("/importFile/results")

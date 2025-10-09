@@ -52,6 +52,7 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.Import.*;
+import com.example.demo.controller.Objects.Logs.GenerateLogDAL;
 import com.example.demo.service.ProgressService;
 
 import jakarta.persistence.EntityManager;
@@ -134,7 +135,7 @@ public class XBRLGenerator implements Runnable {
                     LocalDateTime.now(),
                     null,
                     Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionGeneration)),
-                    "ABC",
+                    "Generatate",
                     folderName,
                     threadName,
                     folderName
@@ -142,9 +143,10 @@ public class XBRLGenerator implements Runnable {
 
             Connection.persist(em, generationIo);
 
-            OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("ABC", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), ioImport);
-
+            OutXBRLGenerated outXBRLGenerated = new OutXBRLGenerated("Generatate", folderName, getModule(), now, getEntity(), domain, getReferenceDate(), ioImport);
             Connection.persist(em, outXBRLGenerated);
+
+            GenerateLogDAL.createNewGenerationLog(Constants.generationStartedDesc, outXBRLGenerated.getIdXBRLGenerate(), em);
             //Get Object from NULL
             boolean altGeneration = Info.getInstance().checkIfUsesAltGeneration(module.getModuleVID(),Constants.GENERATIONBASEDONCOLLUMN);
             List<InImportedTablesTemp> tempList = InImportedTablesDAL.getListOfImportedMaps(module, referenceDate, entity, domain, ioImport);
@@ -153,6 +155,7 @@ public class XBRLGenerator implements Runnable {
             //Create Report JSON
             boolean wasReportsJsonCreatedSucessufuly = createReportJSON(finalFolder, getModule().getModuleVID());
             if (!wasReportsJsonCreatedSucessufuly){
+                GenerateLogDAL.createNewGenerationLog(Constants.generationConfigError, outXBRLGenerated.getIdXBRLGenerate(), em);
                 generationIo.setEndTimestamp(LocalDateTime.now());
                 generationIo.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
                 Connection.merge(em,generationIo);      
@@ -191,7 +194,7 @@ public class XBRLGenerator implements Runnable {
             completedSteps++;
             progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
             createFillingIndicatorCSV(finalFolder, filteredMapWithoutEmpty);
-           
+           GenerateLogDAL.createNewGenerationLog(Constants.generationEndedDesc, outXBRLGenerated.getIdXBRLGenerate(), em);
 
         } catch (Exception e) {
             e.printStackTrace();

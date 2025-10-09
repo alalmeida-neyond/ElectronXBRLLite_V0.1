@@ -7,9 +7,12 @@ package com.example.demo.controller.Objects.Logs;
 import java.time.LocalDateTime;
 
 import com.example.demo.Converter.LocalDateTimePersistenceConverter;
+import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.controller.Objects.Generation.OutXBRLGenerated;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,12 +21,32 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SqlResultSetMapping;
+import jakarta.persistence.SqlResultSetMappings;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
+import com.example.demo.DTOs.GenerateXBRLDetailsDTO;
 
 @Entity
 @Table(name = "GENERATELOG")
+@SqlResultSetMappings({
+    @SqlResultSetMapping(
+            name = "GenerateXBRLDetailsDTOMapping",
+            classes = {
+                @ConstructorResult(
+                        targetClass = GenerateXBRLDetailsDTO.class,
+                        columns = {
+                            @ColumnResult(name = "code", type = String.class),
+                            @ColumnResult(name = "entity", type = String.class),
+                            @ColumnResult(name = "domain", type = String.class),
+                            @ColumnResult(name = "referenceDate", type = String.class),
+                            @ColumnResult(name = "description", type = String.class),
+                            @ColumnResult(name = "timestamp", type = String.class)
+                        }
+                )
+            })
+    
+})
 public class GenerateLog {
 
     @Id
