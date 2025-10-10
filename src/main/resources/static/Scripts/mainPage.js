@@ -24,8 +24,6 @@ function closeAllDetailRows() {
   hidePager();
 }
 
-
-
 function updateLanguageLabels(language) {
   fetch(`./Languages_Files/${language}.json`, { cache: "no-store" })
     .then((r) => {
@@ -345,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(() => { });
   }
 
-  function createCellCustomIOStateINOUT(ioStateId, ioStateIdVal) {
+  // ✅ FIX: only one top-level definition (removed stray outer wrapper)
   function createCellCustomIOStateINOUT(ioStateId, ioStateIdVal) {
     const td = document.createElement("td");
     const icon = document.createElement("i");
@@ -370,6 +368,7 @@ document.addEventListener("DOMContentLoaded", function () {
     td.style.backgroundColor = bg;
     return td;
   }
+
   function createCellCustomIOState(ioStateId) {
     const td = document.createElement("td");
     const icon = document.createElement("i");
@@ -394,6 +393,7 @@ document.addEventListener("DOMContentLoaded", function () {
     td.style.backgroundColor = bg;
     return td;
   }
+
   function createCellCustom(value, ioStateId) {
     const td = document.createElement("td");
     let bg = "lightGrey";
@@ -529,7 +529,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("upload-area")?.classList[open ? "add" : "remove"]("collapsed");
     if (!open) hidePager();
   }
-
 
   function toggleValidationDetails(ioid, button) {
     const container = document.getElementById(`detail-validation-${ioid}`);
@@ -1035,6 +1034,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const month = m[2].padStart(2, "0");
     return { y, m: month };
   }
+  // Small alias to match existing calls
+  function referenceYearMonth(dateStr){ return extractYearMonth(dateStr); }
+
   function autoSubmit() {
     const moduleFilter = document
       .getElementById("filterModule")
