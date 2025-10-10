@@ -343,7 +343,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(() => { });
   }
 
-  // ✅ FIX: only one top-level definition (removed stray outer wrapper)
   function createCellCustomIOStateINOUT(ioStateId, ioStateIdVal) {
     const td = document.createElement("td");
     const icon = document.createElement("i");
@@ -1009,8 +1008,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const month = m[2].padStart(2, "0");
     return { y, m: month };
   }
-  // Small alias to match existing calls
-  function referenceYearMonth(dateStr){ return extractYearMonth(dateStr); }
 
   function autoSubmit() {
     const moduleFilter = document
