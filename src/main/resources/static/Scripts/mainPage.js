@@ -427,7 +427,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.getElementById("validationTableBody");
     tbody.innerHTML = "";
     ioList.forEach((io) => {
-      console.log(io);
       const tr = document.createElement("tr");
       const td0 = createCellCustomIOState(io[8]);
       const tdIN = createCellCustomIOStateINOUT(io[5], io[8]);
@@ -844,18 +843,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       };
 
-      const filterBar = createDetailsFilterBar(list, stateKey, ({module,year,month})=>{
-        filtered = list.filter(d => {
-          const modOk = !module || (d.code||"").toString() === module;
-          const {y,m} = referenceYearMonth(d.referenceDate);
-          const yearOk  = !year  || y === year;
-          const monthOk = !month || m === month;
-          return modOk && yearOk && monthOk;
-        });
-        doRender();
-      });
-
-      scroll.appendChild(filterBar);
       table.appendChild(thead);
       table.appendChild(tbody);
       scroll.appendChild(table);
@@ -983,18 +970,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       };
 
-      const filterBar = createDetailsFilterBar(list, stateKey, ({module,year,month})=>{
-        filtered = list.filter(d => {
-          const modOk = !module || (d.code||"").toString() === module;
-          const {y,m} = referenceYearMonth(d.referenceDate);
-          const yearOk  = !year  || y === year;
-          const monthOk = !month || m === month;
-          return modOk && yearOk && monthOk;
-        });
-        doRender();
-      });
-
-      scroll.appendChild(filterBar);
       table.appendChild(thead);
       table.appendChild(tbody);
       scroll.appendChild(table);
