@@ -92,5 +92,11 @@
   "validationDetailsText.label": "Val",
   "generationDetailsText.label": "Out",
   "description.label": "Description",
-  "date.label": "Date"
+  "date.label": "Date",
+  "importTitleDetailsState.label":"Import State",
+  "validationTitleDetailsState.label":"Validation State",
+  "generationTitleDetailsState.label":"Generation State",
+  "importTitleDetailsTooltip.label":"Import Details",
+  "validationTitleDetailsTooltip.label":"Validation Details",
+  "generationTitleDetailsTooltip.label":"Generation Details"
 }
