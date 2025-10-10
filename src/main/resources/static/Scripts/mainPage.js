@@ -18,6 +18,13 @@ function hidePager() {
   if (container) container.innerHTML = "";
 }
 
+function closeAllDetailRows() {
+  document.querySelectorAll('.detail-row').forEach(tr => tr.style.display = 'none');
+  document.getElementById('upload-area')?.classList.remove('collapsed');
+  hidePager();
+}
+
+
 
 function updateLanguageLabels(language) {
   fetch(`./Languages_Files/${language}.json`, { cache: "no-store" })
@@ -338,7 +345,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(() => { });
   }
 
-  function createCellCustomIOStateINOUT(ioStateIdVal, ioStateId) {
+  function createCellCustomIOStateINOUT(ioStateId, ioStateIdVal) {
     const td = document.createElement("td");
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
@@ -346,7 +353,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (ioStateIdVal == 1) bg = "lightgrey";
     else if (ioStateIdVal == 2) bg = "#fff3cd";
     else if (ioStateIdVal == 3) bg = "#f8d7da";
-    else if (ioStateIdVal == 4) bg = "#lightgrey";
+    else if (ioStateIdVal == 4) bg = "lightgrey";
+    else bg = "lightgrey";
+
     if (ioStateId == 1)
       icon.classList.add("bi-check-circle-fill", "text-success");
     else if (ioStateId == 2)
@@ -417,6 +426,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.getElementById("validationTableBody");
     tbody.innerHTML = "";
     ioList.forEach((io) => {
+      console.log(io);
       const tr = document.createElement("tr");
       const td0 = createCellCustomIOState(io[8]);
       const tdIN = createCellCustomIOStateINOUT(io[5], io[8]);
@@ -524,6 +534,7 @@ document.addEventListener("DOMContentLoaded", function () {
       hidePager();
       return;
     }
+    closeAllDetailRows();
     openCloseRow(container, true);
     const span = button.querySelector("span");
     if (span) {
@@ -739,6 +750,7 @@ document.addEventListener("DOMContentLoaded", function () {
       hidePager();                 
       return;
     }
+    closeAllDetailRows();
     openCloseRow(container, true);
     const span = button.querySelector("span");
     if (span) {
@@ -811,10 +823,7 @@ document.addEventListener("DOMContentLoaded", function () {
       container.innerHTML = "";
       container.classList.remove("internationalization");
       container.removeAttribute("data-key");
-      table.appendChild(thead);
-      table.appendChild(tbody);
-      scroll.appendChild(table);
-      container.appendChild(scroll);
+
       if (!paginationState[stateKey])
         paginationState[stateKey] = {
           currentPage: 1,
@@ -826,6 +835,24 @@ document.addEventListener("DOMContentLoaded", function () {
           renderRowsGeneric(tbody, list, stateKey, buildRow);
         });
       };
+
+      const filterBar = createDetailsFilterBar(list, stateKey, ({module,year,month})=>{
+        filtered = list.filter(d => {
+          const modOk = !module || (d.code||"").toString() === module;
+          const {y,m} = referenceYearMonth(d.referenceDate);
+          const yearOk  = !year  || y === year;
+          const monthOk = !month || m === month;
+          return modOk && yearOk && monthOk;
+        });
+        doRender();
+      });
+
+      scroll.appendChild(filterBar);
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      scroll.appendChild(table);
+      container.appendChild(scroll);
+      
       doRender();
       updateLanguageLabels(
         document.getElementById("languageSelect")?.value || "pt"
@@ -862,6 +889,7 @@ document.addEventListener("DOMContentLoaded", function () {
       hidePager();                 
       return;
     }
+    closeAllDetailRows();
     openCloseRow(container, true);
     const span = button.querySelector("span");
     if (span) {
@@ -934,10 +962,7 @@ document.addEventListener("DOMContentLoaded", function () {
       container.innerHTML = "";
       container.classList.remove("internationalization");
       container.removeAttribute("data-key");
-      table.appendChild(thead);
-      table.appendChild(tbody);
-      scroll.appendChild(table);
-      container.appendChild(scroll);
+      
       if (!paginationState[stateKey])
         paginationState[stateKey] = {
           currentPage: 1,
@@ -949,6 +974,23 @@ document.addEventListener("DOMContentLoaded", function () {
           renderRowsGeneric(tbody, list, stateKey, buildRow);
         });
       };
+
+      const filterBar = createDetailsFilterBar(list, stateKey, ({module,year,month})=>{
+        filtered = list.filter(d => {
+          const modOk = !module || (d.code||"").toString() === module;
+          const {y,m} = referenceYearMonth(d.referenceDate);
+          const yearOk  = !year  || y === year;
+          const monthOk = !month || m === month;
+          return modOk && yearOk && monthOk;
+        });
+        doRender();
+      });
+
+      scroll.appendChild(filterBar);
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      scroll.appendChild(table);
+      container.appendChild(scroll);
       doRender();
       updateLanguageLabels(
         document.getElementById("languageSelect")?.value || "pt"
