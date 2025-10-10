@@ -97,6 +97,7 @@ public class ValidationService extends DefaultBean<ValidationResultsDetailsDTO>{
 
         try {
             resultsIO = jpa.getNativeResultList(Utils.getResource("SQL_Queries/GetInformationIO.sql"),
+                    "ignoreActionID", Constants.actionIgnore,
                     "importActionID", Constants.actionImport,
                     "validationActionID", Constants.actionValidation,
                     "generationActionID", Constants.actionGeneration);

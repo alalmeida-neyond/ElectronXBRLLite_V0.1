@@ -424,6 +424,7 @@ public class Constants {
     public static final short actionGeneration = 3;
     public static final short actionLock = 4;
     public static final short actionUnlock = 5;
+    public static final short actionIgnore = 6;
     
     public static String IMPORTNORMAL = "IMPORTNORMAL";
     

@@ -780,6 +780,7 @@ public class ModuleFileImport extends RunnableExtension{
         IOState iostate = Info.getInstance().getIOStateByID(Constants.processoPending);//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending));
         ConfAction action = Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionImport));                       
         try {
+            ignorePreviousIOs(moduleVersion, entity, domain.toUpperCase(), referenceDate);
             io = new IO(iostate, referenceDate, moduleVersion, domain.toUpperCase(), entity, 
                     LocalDateTime.now(), null, action, "Import", filename, Constants.IMPORT+alterFilename, alterFilename);
             
@@ -805,6 +806,24 @@ public class ModuleFileImport extends RunnableExtension{
         validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
     }
 
+    public void ignorePreviousIOs(ModuleVersion module, ConfEntities entity, String domain, LocalDate referenceDate){
+        if (module == null || entity == null) {
+            return;
+        }
+        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
+        
+        try {
+            jpa.executeNativeQuery(Utils.getResource("SQL_Queries/UpdateIOActionIDToIgnore.sql"),  
+                "actionIgnoreID", String.valueOf(Constants.actionIgnore), 
+                "ModuleVID", String.valueOf(module.getModuleVID()), 
+                "Domain", domain, 
+                "EntityID", String.valueOf(entity.getEntityID()), 
+                "ReferenceDate", referenceDate.toString());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            jpa.rollback();
+        }
+    }
     /**
      * method used to build the desagregation code (code that some sheets have), it includes the value 
      * @param rawDesagregationCode RAW desagregationCodeAssociation from the Excel

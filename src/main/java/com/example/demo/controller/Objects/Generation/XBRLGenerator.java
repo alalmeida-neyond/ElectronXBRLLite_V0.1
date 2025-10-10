@@ -84,26 +84,6 @@ public class XBRLGenerator implements Runnable {
     private final String folderUrl = Constants.folderUrl;
     
     public void xbrlGenerationMain(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity,IO ioImport, IO ioValidation, String threadName) {
-
-        JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
-        
-        StringBuilder query = new StringBuilder(" DELETE FROM IO WHERE actionid IN (1, 2, 3) ");
-
-        query.append("AND modulevid = :moduleVID ")
-                    .append("AND ioid NOT IN ( ")
-                    .append("SELECT MAX(ioid) ")
-                    .append("FROM IO ")
-                    .append("WHERE actionid IN (1, 2, 3) ")
-                    .append("AND modulevid = :moduleVID ")
-                    .append("GROUP BY actionid ); ");
-        
-        try {
-            jpa.executeNativeQuery(query.toString(),"moduleVID", moduleVersion != null ? String.valueOf(moduleVersion.getModuleVID()) : null);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            jpa.rollback();
-        }
-        
         IO generationIo = null;
         ConnectionManager em = null;
         String path = "";

@@ -1,6 +1,7 @@
 with IOsPerModule as (
  select ModuleVID, Domain, EntityID, ReferenceDate 
  from io
+ where actionID != :ignoreActionID --6
  group by ModuleVID, Domain, EntityID, ReferenceDate 
 ),
 importIOsWithHasLog as(
