@@ -257,21 +257,21 @@ public class Validator_2_0 extends RunnableExtension {
         List<Object[]> results = new ArrayList<>();
 
         try {
-            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesUpdate.sql", "ValuesForOperationMapping",
+           results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesUpdate.sql", "ValuesForOperationMapping",
                     "operationVId", String.valueOf(operationVID),
                     "ioId", io.getIoId(),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
                     "format",Constants.ISOBASEFORMAT8601SQLite,
-                    "desagregationTypeFixed", String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE),
-                    "directionZ", String.valueOf(Constants.SHEETCOORDINATE),
-                    "dataTypeDate", String.valueOf(Constants.DATATYPEDATE),
-                    "refPeriodString", String.valueOf(Constants.REFPERIOD),
-                    "dataTypeEnumeration", String.valueOf(Constants.DATATYPEENUMERATION),
-                    "referenceRow", String.valueOf(Constants.PROPERTYROW),
-                    "referenceColumn", String.valueOf(Constants.PROPERTYCOLUMN),
-                    "referenceSheet", String.valueOf(Constants.PROPERTYSHEET),
-                    "stateOk", String.valueOf(Constants.processoOk),
-                    "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE)
+                    "desagregationTypeFixed", Constants.DESAGREGATIONCODEFIXEDTYPE,
+                    "directionZ", Constants.SHEETCOORDINATE,
+                    "dataTypeDate", Constants.DATATYPEDATE,
+                    "refPeriodString", Constants.REFPERIOD,
+                    "dataTypeEnumeration", Constants.DATATYPEENUMERATION,
+                    "referenceRow", Constants.PROPERTYROW,
+                    "referenceColumn", Constants.PROPERTYCOLUMN,
+                    "referenceSheet", Constants.PROPERTYSHEET,
+                    "stateOk", Constants.processoOk,
+                    "desagregationCodeType", Constants.DESAGREGATIONCODETYPE
             );
         } catch (Exception e) {
             LOG.error("Erro na query getResultsByNode: " + e.getMessage());

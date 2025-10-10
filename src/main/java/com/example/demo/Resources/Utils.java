@@ -410,7 +410,7 @@ public final class Utils {
                     BigDecimal objBigDecimal = (BigDecimal) obj;
                     objString = objBigDecimal.toString();
                 } else if (obj == null) {
-                    objString = "null";
+                    objString = "";
                 } else if (obj instanceof Clob) {
                     StringBuilder sb = new StringBuilder();
                     try (Reader reader = ((Clob) obj).getCharacterStream();
