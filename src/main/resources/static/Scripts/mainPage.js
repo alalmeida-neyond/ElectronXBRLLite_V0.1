@@ -67,6 +67,30 @@ function updateLanguageLabels(language) {
               el.insertBefore(document.createTextNode(t + " "), el.firstChild);
           }
         });
+
+        document.querySelectorAll('[data-has-tooltip="1"]').forEach((el) => {
+          const tooltipKey = el.getAttribute("data-tooltip-key");
+          const fallbackKey = el.getAttribute("data-key");
+          const tipLabelKey = tooltipKey || fallbackKey;
+          const tip = languageLabels[tipLabelKey] || "";
+
+          const inst = bootstrap.Tooltip.getInstance(el);
+          if (inst) inst.dispose();
+
+          el.removeAttribute("title");
+          el.removeAttribute("data-bs-original-title");
+
+          if (tip) {
+            el.setAttribute("data-bs-title", tip);
+            el.setAttribute("data-bs-toggle", "tooltip");
+            el.setAttribute("data-bs-placement", "top");
+
+            new bootstrap.Tooltip(el);
+          } else {
+            el.removeAttribute("data-bs-title");
+          }
+        });
+
       reinitTooltips();
     })
     .catch(() => { });
