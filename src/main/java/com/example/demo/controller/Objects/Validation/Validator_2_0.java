@@ -3,6 +3,7 @@ package com.example.demo.controller.Objects.Validation;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +26,6 @@ import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.Logs.*;
 import com.example.demo.service.ProgressService;
-
 
 import org.jboss.logging.Logger;
 
@@ -106,6 +106,7 @@ public class Validator_2_0 extends RunnableExtension {
                                                 ));
         /* 
         AQUIXXX  
+        
         setTables(new HashSet<>());
         */
         setTables(sortedTables); 
@@ -259,7 +260,10 @@ public class Validator_2_0 extends RunnableExtension {
         try {
            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesUpdate.sql", "ValuesForOperationMapping",
                     "operationVId", String.valueOf(operationVID),
-                    "ioId", io.getIoId(),
+                    "typeStateOk", Constants.tipoStateOK,
+                    "actionId", Constants.actionImport,
+                    "domain", io.getDomain(),
+                    "entityId", io.getEntity().getEntityID(),                   
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
                     "format",Constants.ISOBASEFORMAT8601SQLite,
                     "desagregationTypeFixed", Constants.DESAGREGATIONCODEFIXEDTYPE,
@@ -288,8 +292,12 @@ public class Validator_2_0 extends RunnableExtension {
         List<Object[]> results = new ArrayList<>();
         try {
             results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesForPreconditionsUpdate.sql", "ValuesForOperationMapping",
-                    "preconditionVId", String.valueOf(precondtionVId),
-                    "ioId", io.getIoId());
+                    "preconditionVId", precondtionVId,
+                    "typeStateOk", Constants.tipoStateOK,
+                    "actionId", Constants.actionImport,
+                    "refdate", io.getReferenceDate().toString(),
+                    "domain", io.getDomain(),
+                    "entityId", io.getEntity().getEntityID());
         } catch (Exception e) {
             LOG.error("Erro na query getResultsByNodeForPreconditions: " + e.getMessage());
         } finally {
@@ -307,7 +315,7 @@ public class Validator_2_0 extends RunnableExtension {
         
         IO ioValidation = null;
         
-        //List<Integer> operationVIDs = Arrays.asList(10684);
+        // List<Integer> operationVIDs = Arrays.asList(878);
 
         try {
             long initAllProcess = System.nanoTime();
@@ -360,11 +368,11 @@ public class Validator_2_0 extends RunnableExtension {
                 }
 
                 for (Integer operationVId : nodesMappedByOperationVIdByLevel.keySet()) {
-                    /* temp
-                        if(!operationVIDs.contains(operationVId)){
+                    // temp
+                    /*     if(!operationVIDs.contains(operationVId)){
                             continue;
-                        }
-                    */
+                        } */
+                   
 
                     //Verifica se a regra já foi validada
                     //LOG.info("Verificar se a regra já foi validada"); 

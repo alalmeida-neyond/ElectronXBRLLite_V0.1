@@ -82,7 +82,7 @@ public class OutValidationResultDetails implements Serializable {
                         outResDetail.ioState = Info.getInstance().getIOStateByID(Constants.RULEOK.getKey());//new IOState(Constants.RULEOK.getKey(), new IOTypeState(Constants.RULEOK.getValue()));
                     }
                     
-                    if(result.getDifference() != null){
+                    if(result.getDifference() != null && outResDetail.getIoState().getIoStateId() == Constants.RULENOTOK.getKey()){
                         outResDetail.difference = result.getDifference();
                     }
                     

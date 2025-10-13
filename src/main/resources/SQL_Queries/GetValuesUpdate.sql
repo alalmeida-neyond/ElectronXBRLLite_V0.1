@@ -43,11 +43,27 @@ with modulesApplicable as (
 )
 
 
+, importedIOs as ( 
+
+    select io.*
+    from io io
+    inner join io_state ioe on ioe.io_stateid = io.io_stateid 
+    where ioe.io_typestateid = :typeStateOk 
+        and actionId = :actionId
+        and referencedate = :refdate
+        and domain = :domain
+        and entityId = :entityId
+
+)
+ 
 , importedTabledFiltered as (
+
     select impTable.* 
     from in_importedtablestemp impTable
-	where impTable.ioid = :ioId
+    inner join importedIOs io on io.ioid = impTable.ioid
+
 )
+ 
 
 , maxImportedTableIdPerTableWithoutDesagCode as ( 
     select max(it.importedTableId) importedTableId, it.tablevid, it.importkeyid

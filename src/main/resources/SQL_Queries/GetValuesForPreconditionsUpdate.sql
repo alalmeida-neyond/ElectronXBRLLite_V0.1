@@ -14,10 +14,21 @@ with preconditionReferences as (
     inner join variableversion vv on v.variableid = vv.variableid
 )
 
+, importedIOs as ( 
+    select io.*
+    from io
+    inner join io_state ioe on ioe.io_stateid = io.io_stateid 
+    where ioe.io_typestateid = :typeStateOk 
+        and actionId = :actionId
+        and referencedate = :refdate
+        and domain = :domain
+        and entityId = :entityId
+)
+ 
 , importedTabledFiltered as (
     select impTable.* 
     from in_importedtablestemp impTable
-	where impTable.ioid = :ioId
+    inner join importedIOs io on io.ioid = impTable.ioid
 )
 
 , tablesImported as (
