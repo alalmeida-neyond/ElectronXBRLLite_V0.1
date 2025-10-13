@@ -6,6 +6,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.Info;
+import com.example.demo.Data.Access.JPA;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
 import com.example.demo.Verification.LicenseVerification;
@@ -451,7 +452,7 @@ public class MainBean extends DefaultBean{
         ModelAndView modelAndView = new ModelAndView();
 
         //init();
-        modelAndView.addObject(Constants.LEICodeKeyString, licenseVerification.getLEICode());
+        modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
 
         modelAndView.setViewName("test");
         
@@ -465,6 +466,8 @@ public class MainBean extends DefaultBean{
 
         String storedPath = getStoredPathOrFallback();
         modelAndView.addObject("storedPath", storedPath);
+
+        modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
        
         modelAndView.setViewName("settings");
        
@@ -490,6 +493,8 @@ public class MainBean extends DefaultBean{
         modelAndView.addObject("currentVersion", version);
 
         modelAndView.addObject("templateList", listOfTemplates);
+
+        modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
             
         return modelAndView;
     }
@@ -654,5 +659,23 @@ public class MainBean extends DefaultBean{
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("index_Neyond");
         return modelAndView;
+    }
+
+    private String getLEICodeUser()
+    {
+        JPA<String> jpa = new JPA<String>(String.class);
+        String result  = null;
+        try {
+            StringBuilder query = new StringBuilder("Select LEICODE from CONF_ENTITIES LIMIT 1");
+
+            Object aux = jpa.getNativeResultList(query.toString()).get(0);
+            result = aux.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }finally {
+            jpa.close();
+        }
+        
+        return result;
     }
 }
