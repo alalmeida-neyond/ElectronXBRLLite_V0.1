@@ -20,6 +20,7 @@ import com.example.demo.Resources.Constants;
 import com.example.demo.controller.Objects.Entities.Conf.*;
 import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.*;
+import com.example.demo.controller.Objects.Entities.Logs.LogOperationTemp;
 import com.example.demo.controller.Objects.Extensions.RunnableExtension;
 import com.example.demo.controller.Objects.Generation.XBRLGenerator;
 import com.example.demo.controller.Objects.IO.IO;
@@ -28,6 +29,8 @@ import com.example.demo.controller.Objects.Logs.*;
 import com.example.demo.service.ProgressService;
 
 import org.jboss.logging.Logger;
+
+import com.example.demo.Resources.Utils;
 
 
 public class Validator_2_0 extends RunnableExtension {
@@ -146,14 +149,6 @@ public class Validator_2_0 extends RunnableExtension {
         return estado;
     }
 
-    /*public List<InImportedTablesTemp> getImportedTables() {
-        return importedTables;
-    }
-
-    public void setImportedTables(List<InImportedTablesTemp> importedTables) {
-        this.importedTables = importedTables;
-    }*/
-
     public List<TableVersionDPM> getImportedTables() {
         return importedTables;
     }
@@ -215,7 +210,25 @@ public class Validator_2_0 extends RunnableExtension {
         return mapNodesFromDatabase(results);
     }
 
+    private Map<Integer, Map<Integer, List<ValNode>>> gettingNodesForPrecondtionsAndCalculateTime(IO io){
+        long initGetPreconditionsProcess = System.nanoTime();
+        Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
+        long endGetPreconditionsProcess = System.nanoTime();
+        
+        Connection.persist(this.cm, new LogOperationTemp("Obter Pré Condições | Duração: " + Utils.calculateTime(initGetPreconditionsProcess, endGetPreconditionsProcess) + " segundos", io.getIoId()));    
+        
+        return nodesMappedByPreconditionVIdByLevel;
+    }
     
+    private Map<Integer, Map<Integer, List<ValNode>>> gettingNodesForOperationsAndCalculateTime(int tableVId, String tableCode, IO io){
+        long initGetOperationsProcess = System.nanoTime();
+        Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = getNodes(tableVId);
+        long endGetOperationsProcess = System.nanoTime();
+        
+        Connection.persist(this.cm, new LogOperationTemp("Obter Operações para o Mapa: " + tableCode + " | Duração: " + Utils.calculateTime(initGetOperationsProcess, endGetOperationsProcess) + " segundos", io.getIoId()));    
+        
+        return nodesMappedByOperationVIdByLevel;
+    }
 
     /**
      * Mapeamento dos resultados em Nós por nível.
@@ -335,7 +348,7 @@ public class Validator_2_0 extends RunnableExtension {
             
             //Obtencao dos nós da árvore por operacao
             //LOG.info("Obtenção dos nós da arvore por operação"); 
-            Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
+            Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = gettingNodesForPrecondtionsAndCalculateTime(ioValidation);
             
             int completedTables = 1;
             progressService.setValidationProgress(completedTables, Integer.valueOf(getTables().size()) + 1);
@@ -351,7 +364,7 @@ public class Validator_2_0 extends RunnableExtension {
                 Connection.persist(cm, outValTable);
                 
 				//LOG.info("Buscar de nos por id de Table Version"); 
-                Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = getNodes(tableVId);
+                Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = gettingNodesForOperationsAndCalculateTime(tableVId, table.getCode(), ioValidation);
                 
                 //LOG.info("Buscar de possiveis conflitos com Datapoints"); 
                 List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity, ioImport);
@@ -410,8 +423,11 @@ public class Validator_2_0 extends RunnableExtension {
                             //LOG.info("Tempo: " + LocalDateTime.now());
                             //LOG.info("Avaliacao da regra: " + operationVId);
 
+                            long initGetValuesProcess = System.nanoTime();
                             Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId, ioImport);
-                            Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
+                            long endGetValuesProcess = System.nanoTime();
+
+                            String durationGetValues = Utils.calculateTime(initGetValuesProcess, endGetValuesProcess);Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
 
                             List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, operationVId);
 
@@ -441,11 +457,12 @@ public class Validator_2_0 extends RunnableExtension {
                                 OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
                                 Connection.persist(cm, outValTableResult);
 
-                                insertOperationLogs(ioValidation);
-                                Info.getInstance().getValidationsLogs().clear();
+                                //insertOperationLogs(ioValidation);
+                                //Info.getInstance().getValidationsLogs().clear();
                             }
 
-                            //long endPerRule = System.nanoTime();
+                            long endPerRule = System.nanoTime();
+                            Connection.persist(cm, new LogOperationTemp("Operação: " + operation.getOperationCode() + " | Obter Valores: " + durationGetValues + "s | Validação: " + Utils.calculateTime(initPerRule, endPerRule) + "s", ioValidation.getIoId()));
                             //float durationPerRule = ((float) (endPerRule - initPerRule) / 1000000000);
                             //String durationFormattedRule = String.format("%.2f", durationPerRule);
                             //LOG.info("Termino da avaliacao da regra: " + operationVId + " | Duracao: " + durationFormattedRule + " segundos");
@@ -454,7 +471,9 @@ public class Validator_2_0 extends RunnableExtension {
                     }
                 }
 
-                //long endPerMap = System.nanoTime();
+                long endPerMap = System.nanoTime();
+                Connection.persist(cm, new LogOperationTemp("Término da validação do mapa: " + table.getCode() + " | Duração: " + Utils.calculateTime(initPerMap, endPerMap) + " segundos", ioValidation.getIoId()));
+
                 //float durationPerMap = ((float) (endPerMap - initPerMap) / 1000000000);
                 //String durationFormatted = String.format("%.2f", durationPerMap);
                 //LOG.info("Termino da avaliacao do mapa: " + table.getCode() + " | Duracao: " + durationFormatted + " segundos");
@@ -474,7 +493,9 @@ public class Validator_2_0 extends RunnableExtension {
             //    Connection.merge(em, commonDatapointValidationResult);
             //}
             
-            //long endAllProcess = System.nanoTime();
+            long endAllProcess = System.nanoTime();
+            Connection.persist(cm, new LogOperationTemp("Término da validação | Duração: " + Utils.calculateTime(initAllProcess, endAllProcess) + " segundos", ioValidation.getIoId()));
+
             //float durationAllProcess = ((float) (endAllProcess - initAllProcess) / 1000000000);
             //String durationFormatted = String.format("%.2f", durationAllProcess);
 

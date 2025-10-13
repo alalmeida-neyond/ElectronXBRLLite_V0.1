@@ -63,6 +63,10 @@ public class OperationVersion implements Serializable{
     @Column(name = "ISVARIANTAPPROVED", columnDefinition = "CHAR(1)")
     private Boolean isVariantApproved;
 
+    public String getOperationCode(){
+        return operation != null ? operation.getCode() : null;
+    }
+
     public int getOperationVID() {
         return operationVID;
     }

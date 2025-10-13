@@ -468,4 +468,9 @@ public final class Utils {
         }
         return true;
     }
+
+    public static String calculateTime(long init, long end){
+        float durationAllProcess = ((float) (end - init) / 1000000000);
+        return String.format("%.2f", durationAllProcess);
+    }
 }
