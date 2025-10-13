@@ -85,7 +85,14 @@
 }
 
 .table-wrapper {
-  max-height: calc(86.5vh - 300px);
+  max-height: calc(72.5vh - 300px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
+}
+
+.table-wrapper.after {
+  max-height: calc(91.5vh - 300px);
   overflow-y: auto;
   overflow-x: hidden;
   display: block;

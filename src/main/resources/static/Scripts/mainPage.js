@@ -549,6 +549,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const row = container.closest("tr");
     row.style.display = open ? "table-row" : "none";
     document.getElementById("upload-area")?.classList[open ? "add" : "remove"]("collapsed");
+    document.getElementById("table-wrapper")?.classList[open ? "add" : "remove"]("after");
     if (!open) hidePager();
   }
 
@@ -561,6 +562,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isHidden) {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
+      document.getElementById("table-wrapper")?.classList.remove("after");
       hidePager();
       return;
     }
@@ -571,7 +573,6 @@ document.addEventListener("DOMContentLoaded", function () {
       span.innerHTML = "";
       const i = document.createElement("i");
       i.className = "bi bi-box-arrow-up-right";
-      i.style.marginLeft = "6px";
       span.appendChild(i);
     }
     const lang = document.getElementById("languageSelect")?.value || "pt";
@@ -777,6 +778,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isHidden) {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
+      document.getElementById("table-wrapper")?.classList.remove("after");
       hidePager();                 
       return;
     }
@@ -787,7 +789,6 @@ document.addEventListener("DOMContentLoaded", function () {
       span.innerHTML = "";
       const i = document.createElement("i");
       i.className = "bi bi-box-arrow-up-right";
-      i.style.marginLeft = "6px";
       span.appendChild(i);
     }
     const lang = document.getElementById("languageSelect")?.value || "pt";
@@ -904,6 +905,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isHidden) {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
+      document.getElementById("table-wrapper")?.classList.remove("after");
       hidePager();                 
       return;
     }
@@ -914,7 +916,6 @@ document.addEventListener("DOMContentLoaded", function () {
       span.innerHTML = "";
       const i = document.createElement("i");
       i.className = "bi bi-box-arrow-up-right";
-      i.style.marginLeft = "6px";
       span.appendChild(i);
     }
     const lang = document.getElementById("languageSelect")?.value || "pt";
