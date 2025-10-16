@@ -356,6 +356,9 @@ public class Validator_2_0 extends RunnableExtension {
             progressService.setValidationProgress(completedTables, Integer.valueOf(getTables().size()) + 1);
                     
             for (TableVersionDPM table : getTables()) {
+                TableDPM auxTable = TableVersionDAL.getTableDPM(table.getTableVID());
+                table.setTable(auxTable); 
+                
                 long initPerMap = System.nanoTime();
                 //LOG.info("Início do loop"); 
                 Integer tableVId = table.getTableVID();
@@ -373,7 +376,7 @@ public class Validator_2_0 extends RunnableExtension {
                 Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = gettingNodesForOperationsAndCalculateTime(tableVId, table.getCode(), ioValidation);
                 
                 
-                TableDPM auxTable = table.getTable();
+                
                 //LOG.info("Buscar de possiveis conflitos com Datapoints"); 
                 List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity, ioImport);
                 commonDatapointValidationResult = validateCommonDatapoints(possibleDatapointsConflicts, cm);

@@ -11,6 +11,11 @@ import org.springframework.data.annotation.Immutable;
 @Immutable
 @Entity
 @Table(name = "\"TABLE\"")
+@SqlResultSetMapping(
+    name = "TableDPMMapping",
+    entities = {
+        @EntityResult(entityClass = TableDPM.class )}
+)
 public class TableDPM implements Serializable{
     
     @Id

@@ -16,6 +16,7 @@ import com.example.demo.Data.Access.*;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
+import com.example.demo.controller.Objects.Entities.DPMOrigin.TableDPM;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
 
 
@@ -131,4 +132,20 @@ public class TableVersionDAL {
         return mapsWithDesagCodeTypes;
     }
 
+    public static TableDPM getTableDPM(Integer tableVid){
+        JPA<TableDPM> jpa = new JPA<TableDPM>(TableDPM.class);
+        List<TableDPM> results = new ArrayList();
+        try {
+            results = jpa.getNativeResultListWithMapping(
+            "select t.* from tableversion tv inner join \"TABLE\" t on t.tableid = tv.tableid where tv.tablevid = :tablevid",
+            "TableDPMMapping",
+                    "tablevid",tableVid
+            );
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE,"Erro na query GetDesagregationCodeTypeOfMaps", e);
+        } finally {
+            jpa.close();
+        }
+        return (results.size()>0)? results.get(0): null;
+    }
 }
