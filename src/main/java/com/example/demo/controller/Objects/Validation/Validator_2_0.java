@@ -3,10 +3,8 @@ package com.example.demo.controller.Objects.Validation;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +29,8 @@ import com.example.demo.service.ProgressService;
 import org.jboss.logging.Logger;
 
 import com.example.demo.Resources.Utils;
+
+import jakarta.persistence.EntityManager;
 
 
 public class Validator_2_0 extends RunnableExtension {
@@ -271,8 +271,9 @@ public class Validator_2_0 extends RunnableExtension {
         List<Object[]> results = new ArrayList<>();
 
         try {
-           results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesUpdate.sql", "ValuesForOperationMapping",
-                    "operationVId", String.valueOf(operationVID),
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesUpdate.sql", "ValuesForOperationMapping",
+            //results = jpa.getFileQueryResultList("SQL_Queries/GetValuesUpdate.sql",
+                    "operationVId", operationVID,
                     "typeStateOk", Constants.tipoStateOK,
                     "actionId", Constants.actionImport,
                     "domain", io.getDomain(),
@@ -328,7 +329,8 @@ public class Validator_2_0 extends RunnableExtension {
         
         IO ioValidation = null;
         
-        // List<Integer> operationVIDs = Arrays.asList(878);
+        // temp
+        // List<Integer> operationVIDs = Arrays.asList(4378);
 
         try {
             long initAllProcess = System.nanoTime();
@@ -363,9 +365,15 @@ public class Validator_2_0 extends RunnableExtension {
                 OutValidationTable outValTable = new OutValidationTable(table, ioValidation,Info.getInstance().getIOStateByID(Constants.processoPending));
                 Connection.persist(cm, outValTable);
                 
+                // temp
+                /* getResultsByNode(4378, ioImport);
+                if (true)return; */
+
 				//LOG.info("Buscar de nos por id de Table Version"); 
                 Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = gettingNodesForOperationsAndCalculateTime(tableVId, table.getCode(), ioValidation);
                 
+                
+                TableDPM auxTable = table.getTable();
                 //LOG.info("Buscar de possiveis conflitos com Datapoints"); 
                 List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity, ioImport);
                 commonDatapointValidationResult = validateCommonDatapoints(possibleDatapointsConflicts, cm);
@@ -382,9 +390,9 @@ public class Validator_2_0 extends RunnableExtension {
 
                 for (Integer operationVId : nodesMappedByOperationVIdByLevel.keySet()) {
                     // temp
-                    /*     if(!operationVIDs.contains(operationVId)){
-                            continue;
-                        } */
+                    /* if(!operationVIDs.contains(operationVId)){
+                        continue;
+                    } */
                    
 
                     //Verifica se a regra já foi validada
@@ -427,7 +435,8 @@ public class Validator_2_0 extends RunnableExtension {
                             Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId, ioImport);
                             long endGetValuesProcess = System.nanoTime();
 
-                            String durationGetValues = Utils.calculateTime(initGetValuesProcess, endGetValuesProcess);Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
+                            String durationGetValues = Utils.calculateTime(initGetValuesProcess, endGetValuesProcess);
+                            Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByOperationVIdByLevel.get(operationVId);
 
                             List<ValResult> results = validateOperation(nodesMappedByLevel, resultsMappedByNode, operationVId);
 

@@ -33,16 +33,19 @@ import jakarta.validation.constraints.NotNull;
 @SqlResultSetMappings({
     @SqlResultSetMapping(
             name = "ValuesForOperationMapping",
+            classes = @ConstructorResult(
+                targetClass = DesagregationImportKeyDTO.class, 
+                columns = {
+                    @ColumnResult(name = "DesagregationCodeID", type=Integer.class),
+                    @ColumnResult(name = "DesagregationCodeTypeID", type=Integer.class)
+                }),
             entities = {
                 @EntityResult(entityClass = DataType.class),
                 @EntityResult(entityClass = InImportKey.class, fields = {
-            @FieldResult(column = "RowKeyID", name = "importKeyID"),
-            @FieldResult(column = "RowKeyTypeID", name = "keyType")
-        }),
-                @EntityResult(entityClass = InImportKey.class, fields = {
-            @FieldResult(column = "DesagregationCodeID", name = "importKeyID"),
-            @FieldResult(column = "DesagregationCodeTypeID", name = "keyType")
-        })
+                    @FieldResult(column = "RowKeyID", name = "importKeyID"),
+                    @FieldResult(column = "RowKeyTypeID", name = "keyType")
+                }),
+                
             },
             columns = {
             @ColumnResult(name = "NodeID", type = Integer.class),

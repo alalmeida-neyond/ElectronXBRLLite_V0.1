@@ -9,13 +9,20 @@ import org.springframework.data.annotation.Immutable;
 @Immutable
 @Entity
 @Table(name = "TABLEVERSION")
-@SqlResultSetMapping(
-        name = "TablesByModuleMapping",
-        entities = {
-            @EntityResult(entityClass = TableVersionDPM.class),},
-        columns = {
-            @ColumnResult(name = "ModuleVId", type = Integer.class),}
-)
+@SqlResultSetMappings({
+    @SqlResultSetMapping(
+            name = "TableVersionDPMMapping",
+            entities = {
+                @EntityResult(entityClass = TableVersionDPM.class )}
+    ),
+    @SqlResultSetMapping(
+            name = "TablesByModuleMapping",
+            entities = {
+                @EntityResult(entityClass = TableVersionDPM.class),},
+            columns = {
+                @ColumnResult(name = "ModuleVId", type = Integer.class),}
+    )
+})
 public class TableVersionDPM implements Serializable {
 
     @Id

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.example.demo.DTOs.DesagregationImportKeyDTO;
 import com.example.demo.Data.Connection;
 import com.example.demo.Data.Access.*;
 import com.example.demo.Resources.Constants;
@@ -110,9 +111,8 @@ public class OperationsUtils {
 
                                 //"-1" é usado como Dummy para indicar que o valor não tem chave.
                                 //Result[2] -> DesagregationCode
-                                if (((InImportKey) result[2]).getImportKeyID() != -1) {
-                                    InImportKey desagregationCode = new InImportKey();
-                                    desagregationCode = (InImportKey) result[2];
+                                if (((DesagregationImportKeyDTO) result[2]).getImportKeyID() != -1) {
+                                    InImportKey desagregationCode = ((DesagregationImportKeyDTO) result[2]).convertToImportKey();
 
                                     for (InKeyAssociation keyAssociation : desagregationCode.getListPropertyValues()) {
                                         dpmKeys.put(keyAssociation.getPropertyName(), keyAssociation.getPropertyValue());
