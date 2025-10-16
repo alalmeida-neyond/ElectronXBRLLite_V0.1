@@ -85,9 +85,14 @@ public class InImportedTablesDAL {
         String queryStr = Utils.getResource("SQL_Queries/GetCommonDatapoints20.sql");
         try {
             possibleDatapointsConflictsList = jpa.getNativeResultListWithMapping(queryStr, "CommonDatapointValidation", 
-                    "ioId", io.getIoId(),
                     "tableVID", table.getTableVID(),
-                    "tableID",table.getTable().getTableId());
+                    "tableID",table.getTable().getTableId(),
+                    "typeStateOk", Constants.tipoStateOK,
+                    "actionId",   Constants.actionImport,
+                    "referenceDate", io.getReferenceDate().toString(), 
+                    "domain", io.getDomain(), 
+                    "entityId", io.getEntity().getEntityID()
+                );
             
         } catch (Exception e) {
             LOG.error("Erro na query GetCommonDatapoints20.sql:" + e.getMessage());

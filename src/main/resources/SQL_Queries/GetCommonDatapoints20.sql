@@ -1,4 +1,14 @@
-with tableVIDThatCanCross as (
+with importIOs as(
+    select io.ioid
+    from IO io 
+    inner join io_state ioe on ioe.io_stateid = io.io_stateid 
+    where ioe.io_typestateid = :typeStateOk 
+        and actionId = :actionId
+        and referencedate = :referenceDate
+        and domain = :domain 
+        and entityId = :entityId
+)
+, tableVIDThatCanCross as (
     Select tvcother.TableVID 
     from TableVersionCell tvc
     inner join TableVersionCell tvcother on tvc.variablevid = tvcother.variablevid
@@ -15,7 +25,9 @@ with tableVIDThatCanCross as (
 , allImportedTables as (
     Select it.*
     from IN_ImportedTablesTemp it
-	where it.ioid = :ioId
+    inner join importIOs ai on ai.ioid = it.ioid
+    inner join io_state st on it.io_stateid = st.io_stateid
+    where st.io_typestateid = :typeStateOk 
 )
 , allValidTables as (
     select max(importedTableID) as importedTableID, TableVID, MapCode, desagregationcodeAlt

@@ -44,16 +44,15 @@ with modulesApplicable as (
 
 
 , importedIOs as ( 
-
     select io.*
-    from io io
+	from modulesApplicable ma
+    left join io io on ma.modulevid = io.modulevid 
     inner join io_state ioe on ioe.io_stateid = io.io_stateid 
     where ioe.io_typestateid = :typeStateOk 
         and actionId = :actionId
         and referencedate = :refdate
         and domain = :domain
         and entityId = :entityId
-
 )
  
 , importedTabledFiltered as (
