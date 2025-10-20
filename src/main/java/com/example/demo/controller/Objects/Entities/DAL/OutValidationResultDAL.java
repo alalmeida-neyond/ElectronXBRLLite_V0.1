@@ -88,16 +88,14 @@ public class OutValidationResultDAL {
         return listOfResults;
     }
     
-    public static List<Object[]> getValidationResultsDetailsForGeneration(IO ioIdValidate) {
+    public static List<Object[]> getValidationResultsDetailsForGeneration(Integer ioid, ModuleVersion module, LocalDate referenceDate, ConfEntities entity, String domain) {
         JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
         List<Object[]> listOfResultstemp = new ArrayList<>();
 
         try {
-            listOfResultstemp = jpa.getNativeResultList(Utils.getResource("SQL_Queries/GetValidationsResultsDetailsForGenDownload.sql"),
-                "stateOk", Constants.processoOk,
-                "ioid", String.valueOf(ioIdValidate.getIoId()),
-                "typeStateOk", Constants.tipoStateOK,                   
-                "actionValidateId", Constants.actionValidation);
+                listOfResultstemp = jpa. getNativeResultList(Utils.getResource("SQL_Queries/GetValidationsResultsDetails.sql"),
+                "ioid", ioid,
+                "moduleVID", module != null ? String.valueOf(module.getModuleVID()) : null);
 
         } catch (Exception ex) {
             ex.printStackTrace();

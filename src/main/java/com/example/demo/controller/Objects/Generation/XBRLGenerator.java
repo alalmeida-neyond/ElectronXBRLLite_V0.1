@@ -300,10 +300,15 @@ public class XBRLGenerator implements Runnable {
 
             List<Object[]> validationData = new ArrayList<>();
             
-            validationData = OutValidationResultDAL.getValidationResultsDetailsForGeneration(ioValidation);
-            
-            Object[] validationHeader = new Object[]{"Ref. Date", "Módulo", "Entidade", "Domínio", "Relatório", "Regra Código","Severidade", "Domínio Regra",
-                 "Origem Regra", "Regra com valores", "Origem",	"Resultado", "Data processamento", "Diferença", "Margem"};
+            validationData = OutValidationResultDAL.getValidationResultsDetailsForGeneration(
+            ioValidation.getIoId(),
+            ioValidation.getModule(), 
+            ioValidation.getReferenceDate(),
+            ioValidation.getEntity(), 
+            ioValidation.getDomain());
+
+            Object[] validationHeader = new Object[]{"Módulo", "Entidade", "Relatório", "Domínio", "Ref. Date", "Regra Código", "Origem Regra", "Severidade", "Origem", "Domínio Regra",
+                "Regra com valores", "Resultado", "Data processamento", "Diferença", "Margem"};
             Map<Integer, Object[]> validationHashmap = Utils.createHashMapForExcel(validationData, validationHeader);
 
             validationsWorkbook = new SXSSFWorkbook();

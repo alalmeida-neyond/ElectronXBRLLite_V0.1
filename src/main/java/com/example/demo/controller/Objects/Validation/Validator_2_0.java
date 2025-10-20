@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import com.example.demo.DTOs.*;
@@ -330,7 +331,7 @@ public class Validator_2_0 extends RunnableExtension {
         IO ioValidation = null;
         
         // temp
-        // List<Integer> operationVIDs = Arrays.asList(4378);
+        // List<Integer> operationVIDs = Arrays.asList(7024);
 
         try {
             long initAllProcess = System.nanoTime();
@@ -356,6 +357,11 @@ public class Validator_2_0 extends RunnableExtension {
             progressService.setValidationProgress(completedTables, Integer.valueOf(getTables().size()) + 1);
                     
             for (TableVersionDPM table : getTables()) {
+                // temp
+                /* List<Integer> tableVIDs = Arrays.asList(2328, 2331, 5465, 5469, 6092, 6110, 6292, 6295);
+                if(!tableVIDs.contains(table.getTableVID())){
+                    continue;
+                } */
                 TableDPM auxTable = TableVersionDAL.getTableDPM(table.getTableVID());
                 table.setTable(auxTable); 
                 
@@ -369,7 +375,7 @@ public class Validator_2_0 extends RunnableExtension {
                 Connection.persist(cm, outValTable);
                 
                 // temp
-                /* getResultsByNode(4378, ioImport);
+                /* getResultsByNode(7445, ioImport);
                 if (true)return; */
 
 				//LOG.info("Buscar de nos por id de Table Version"); 
@@ -490,7 +496,7 @@ public class Validator_2_0 extends RunnableExtension {
                 //String durationFormatted = String.format("%.2f", durationPerMap);
                 //LOG.info("Termino da avaliacao do mapa: " + table.getCode() + " | Duracao: " + durationFormatted + " segundos");
                 
-                if(operationsResultsIds.isEmpty()){
+                if(operationsResultsIds.isEmpty() && possibleDatapointsConflicts.isEmpty()){
                     outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));//new IOState(Constants.processoOkEmpty, new IOTypeState(Constants.tipoStateOK)));
                 } else {
                     outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));

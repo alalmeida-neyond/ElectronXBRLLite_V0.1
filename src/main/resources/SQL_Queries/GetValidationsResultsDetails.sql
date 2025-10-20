@@ -61,7 +61,7 @@ with ioValidation as (
     cross join inputs
 )
 , resultsDetailsRunnedRules as (
-    select rv.module, rv.entity, rv.code as report, rv.domain, rv.referenceDate as referenceDate, rv.regraCode, rv.regra, rv.severity, 'EBA' as origem, 
+    select rv.module, rv.entity, rv.code as report, rv.domain, strftime('%Y-%m-%d', rv.referenceDate) as referenceDate, rv.regraCode, rv.regra, rv.severity, 'EBA' as origem, 
         vrd.domain regraDomain, vrd.expression regraExecutada, sd.description as resultado,
         strftime('%Y-%m-%d %H:%M:%S', vrd.timestamp / 1000, 'unixepoch','localtime') as dataProcessamento, coalesce(CAST(vrd.difference as TEXT),'-') as difference, 
         case when vrd.usedmargin = '1' then 'TRUE' else 'FALSE' end as usedmargin
@@ -71,7 +71,7 @@ with ioValidation as (
 )
 --select * from resultsDetailsRunnedRules;
 , resultsDetailsNotRunnedRules as (
-    select rv.module, rv.entity, rv.code as report, rv.domain, rv.referenceDate as referenceDate, rv.regraCode, rv.regra, rv.severity, 'EBA' as origem, 
+    select rv.module, rv.entity, rv.code as report, rv.domain, strftime('%Y-%m-%d', rv.referenceDate) as referenceDate, rv.regraCode, rv.regra, rv.severity, 'EBA' as origem, 
         null regraDomain, null regraExecutada, sr.description as resultado, 
         coalesce(CAST(vrd.difference as TEXT),'-') as dataProcessamento, coalesce(CAST(vrd.difference as TEXT),'-') as difference, CAST('FALSE' AS TEXT) as usedmargin
     from validationResults rv
