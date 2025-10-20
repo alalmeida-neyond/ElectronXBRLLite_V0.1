@@ -58,7 +58,6 @@ import com.example.demo.DTOs.ImportedDetailsDTO;
 public class MainBean extends DefaultBean{
     private String directory;
 
-    private final String fileUrl = Constants.fileUrl;
     private final String localFilePath = Constants.localFilePath;
     private final Logger LOG = Logger.getLogger(MainBean.class);
     private List<Integer> listOfImportRulesToApply = new ArrayList<Integer>();

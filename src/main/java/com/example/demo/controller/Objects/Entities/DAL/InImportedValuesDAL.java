@@ -56,32 +56,4 @@ public class InImportedValuesDAL {
         }
         return resultList;
     }
-   
-    
-    //public static List<Object[]> getDiferences(OutXBRLGenerated row, String user){
-    public static List<Object[]> getDiferences(OutXBRLGenerated row){
-        JPA<Object[]> jpa = new JPA<>(Object[].class);
-        List<Object[]> resultList = new ArrayList<>();
-        
-        try {
-
-            resultList = jpa.getNativeResultList(Utils.getResource("SQL_Queries/GetDifferences.sql"),
-                        "typeStateOk", String.valueOf(Constants.tipoStateOK),
-                        "actionImportId", String.valueOf(Constants.actionImport),
-                        "referenceDate", row.getReferenceDate().format(Constants.dateFormat),
-                        "domain", row.getDomain(),
-                        "format", Constants.ISOBASEFORMAT,
-                        "entityId", row.getEntity().getEntityID(),
-                        "moduleVID", row.getModuleVersion().getModuleVID(),
-                        "ioIdGenerate", row.getIo().getIoId(),
-                        "desagregationCodeType", Constants.DESAGREGATIONCODETYPE,
-                        "rowKeyType", Constants.ROWKEYTYPE, 
-                        "currentDate", LocalDate.now().format(Constants.DATEFORMATISO8601)); 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-        return resultList;
-    }
 }

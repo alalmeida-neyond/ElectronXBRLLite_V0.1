@@ -259,57 +259,6 @@ public class XBRLGenerator implements Runnable {
                 exc.printStackTrace();
             }
         }
-
-        /*String moduleVersionCodeSearchJSONUpperCase = moduleVersionCodeSearchJSON.toUpperCase();
-        Path destinationFileSpecificOffline = pathDirectoryOffline.resolve(moduleVersionCodeSearchJSONUpperCase + ".json"); 
-        Path destinationFileSpecific = Path.of(xbrlFolder).resolve("report.json");
-
-        if (Files.exists(destinationFileSpecificOffline)) {
-            try {
-                Files.copy(destinationFileSpecificOffline, destinationFileSpecific, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                LOG.error("Erro I/O durante download de ficheiro:" + e.getMessage());
-                e.printStackTrace();
-            }
-        } else {
-            String correspondentJSON = getJSONDocument(moduleVersion);
-            Path correspondentJSONOffline = pathDirectoryOffline.resolve(correspondentJSON);
-
-            if (Files.exists(correspondentJSONOffline)) {
-                try {
-                    Files.copy(correspondentJSONOffline, destinationFileSpecificOffline, StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    LOG.error("Erro I/O durante download de ficheiro:" + e.getMessage());
-                    e.printStackTrace();
-                }
-            } else {
-                URI uriJSON;
-                try {
-                    uriJSON = URI.create(folderUrl + "/ModuleJSONs/" + correspondentJSON);
-                    
-                    try (InputStream inputStream = uriJSON.toURL().openStream()) {
-                        Files.copy(inputStream, destinationFileSpecificOffline, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                    catch(FileNotFoundException exc)
-                    {
-                        LOG.error("Copia Nao Realizada:" + exc.getMessage());
-                    }
-                    try (InputStream inputStream = uriJSON.toURL().openStream()) {
-                            Files.copy(inputStream, destinationFileSpecific, StandardCopyOption.REPLACE_EXISTING);
-                    }
-                    catch(FileNotFoundException exc)
-                    {
-                        LOG.error("Ficheiro JSON Invalido:" + exc.getMessage());
-                    }
-                } catch (MalformedURLException exc) {
-                    LOG.error("Handle Invalido JSON:" + exc.getMessage());
-                    exc.printStackTrace();
-                } catch (IOException exc) {
-                    LOG.error("Erro I/O durante download de ficheiro JSON:" + exc.getMessage());
-                    exc.printStackTrace();
-                }
-            }
-        }*/
         
     }
 

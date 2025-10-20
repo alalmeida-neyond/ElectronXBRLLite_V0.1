@@ -16,7 +16,7 @@ validationIOsWithHasLog as(
  from  io
  left join OUT_VALIDATIONTABLE vt on vt.ioid = io.ioid
  left join OUT_VALIDATIONTABLERESULT vtr on vtr.VALIDATIONTABLEID = vt.VALIDATIONTABLEID
- where io.ACTIONID = :validationActionID -- 2
+ where io.ACTIONID = :validationActionID and vtr.VALIDATIONTABLERESULTID is not null-- 2 
  group by io.ioid, ModuleVID, Domain, EntityID, ReferenceDate
 ),
 generationIOsWithHasLog as(
