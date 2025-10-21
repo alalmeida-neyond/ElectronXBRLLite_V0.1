@@ -12,14 +12,14 @@ with importIOs as(
     Select tvcother.TableVID 
     from TableVersionCell tvc
     inner join TableVersionCell tvcother on tvc.variablevid = tvcother.variablevid
-    where tvc.TableVID = :tableVID and tvcother.TableVID <> :tableVID
+    where tvc.TableVID = :tableVID and tvcother.TableVID <> :tableVID and tvc.CellID <> tvcother.CellID
     GROUP by tvcother.TableVID
 )
 , variableVIDThatCanCross as (
-    Select tvcother.variablevid 
+    Select tvcother.variablevid
     from TableVersionCell tvc
     inner join TableVersionCell tvcother on tvc.variablevid = tvcother.variablevid
-    where tvc.TableVID = :tableVID and tvcother.TableVID <> :tableVID 
+    where tvc.TableVID = :tableVID and tvcother.TableVID <> :tableVID and tvc.CellID <> tvcother.CellID
     GROUP by tvcother.variablevid
 )
 , allImportedTables as (
@@ -38,7 +38,7 @@ with importIOs as(
 		inner join tableVIDThatCanCross tvcc on tv.TableVID = tvcc.TableVID
 		left join IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
 		where it.TableVID <> :tableVID 
-		group by it.importedTableID,it.TableVID,tv.code
+        group by it.importedTableID,it.TableVID,tv.code
 	) results
     group by TableVID, MapCode, desagregationcodeAlt
 )
@@ -61,7 +61,7 @@ with importIOs as(
     inner join validCurrentTable it  on iv.IMPORTEDTABLEID = it.importedTableID
     inner join variableVIDThatCanCross vv on vv.variablevid = iv.VARIABLEVID
     inner join TableVersion tv on tv.TableVID = it.TableVID
-    inner join TableVersionCell tvc on tvc.VARIABLEVID = iv.VARIABLEVID and it.tableVID = tvc.tableVID
+    inner join TableVersionCell tvc on tvc.VARIABLEVID = iv.VARIABLEVID and it.tableVID = tvc.tableVID and iv.cellid = tvc.cellid
     inner join Cell cel on cel.cellID = tvc.cellID
     left join IN_KeyAssociation ka ON ka.importKeyid = iv.importKeyid
     where it.TableVID = :tableVID 
@@ -73,7 +73,7 @@ with importIOs as(
     from IN_ImportedValuesTemp iv
     inner join allValidTables vt on iv.IMPORTEDTABLEID = vt.importedTableID
     inner join variableVIDThatCanCross vv on vv.variablevid = iv.VARIABLEVID
-    inner join TableVersionCell tvc on tvc.VARIABLEVID = iv.VARIABLEVID and vt.tableVID = tvc.tableVID
+    inner join TableVersionCell tvc on tvc.VARIABLEVID = iv.VARIABLEVID and vt.tableVID = tvc.tableVID and iv.cellid = tvc.cellid
     inner join Cell cel on cel.cellID = tvc.cellID
     left join IN_KeyAssociation ka ON ka.importKeyid = iv.importKeyid
     group by vt.mapCode,cel.cellID,cel."RowID",cel.columnID,cel.sheetID,vt.tableVID,iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID,vt.desagregationcodeAlt
