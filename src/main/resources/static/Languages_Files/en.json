@@ -26,7 +26,7 @@
   "severity.label":"Severity",
   "ruleDomain.label":"Domain",
   "result.label":"Result",
-  "processDate.label":"Processed Data",
+  "processDate.label":"Processed Date",
   "errorDetails.label":"Error loading details",
   "success.label":"SUCCESS",
   "updateMetadata.label":"Update Metadata",
@@ -92,11 +92,16 @@
   "validationDetailsText.label": "Val",
   "generationDetailsText.label": "Out",
   "description.label": "Description",
-  "date.label": "Date",
   "importTitleDetailsState.label":"Import State",
   "validationTitleDetailsState.label":"Validation State",
   "generationTitleDetailsState.label":"Generation State",
   "importTitleDetailsTooltip.label":"Import Details",
   "validationTitleDetailsTooltip.label":"Validation Details",
-  "generationTitleDetailsTooltip.label":"Generation Details"
+  "generationTitleDetailsTooltip.label":"Generation Details",
+  "okState.tooltip":"Process OK",
+  "okErrorState.tooltip":"Process OK with Error",
+  "notOkState.tooltip":"Process Not OK",
+  "pendingState.tooltip":"Process Pending",
+  "okEmptyState.tooltip":"Process OK With Empty"
+
 }

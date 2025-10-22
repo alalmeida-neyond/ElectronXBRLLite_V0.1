@@ -303,7 +303,7 @@ public class MainBean extends DefaultBean{
                 getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux, progressService);
 
         //progressService.setImportProgress(20);
-
+        progressService.resetProgress();
         importExecution.run();
 
     }

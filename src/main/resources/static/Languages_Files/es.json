@@ -92,11 +92,15 @@
   "validationDetailsText.label": "Val",
   "generationDetailsText.label": "Out",
   "description.label": "Descripción",
-  "date.label": "Fecha",
   "importTitleDetailsState.label": "Estado de Importación",
   "validationTitleDetailsState.label": "Estado de Validación",
   "generationTitleDetailsState.label": "Estado de Generación",
   "importTitleDetailsTooltip.label": "Detalles de Importación",
   "validationTitleDetailsTooltip.label": "Detalles de Validación",
-  "generationTitleDetailsTooltip.label": "Detalles de Generación"
+  "generationTitleDetailsTooltip.label": "Detalles de Generación",
+  "okState.tooltip":"Proceso OK",
+  "okErrorState.tooltip":"Proceso OK con Error",
+  "notOkState.tooltip":"Proceso No OK",
+  "pendingState.tooltip":"Proceso Pendiente",
+  "okEmptyState.tooltip":"Proceso OK con Vacío"
 }

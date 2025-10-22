@@ -372,21 +372,54 @@ document.addEventListener("DOMContentLoaded", function () {
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
     let bg = "lightGrey";
-    if (ioStateIdVal == 1) bg = "lightgrey";
-    else if (ioStateIdVal == 2) bg = "#fff3cd";
-    else if (ioStateIdVal == 3) bg = "#f8d7da";
-    else if (ioStateIdVal == 4) bg = "lightgrey";
-    else bg = "lightgrey";
 
-    if (ioStateId == 1)
-      icon.classList.add("bi-check-circle-fill", "text-success");
-    else if (ioStateId == 2)
-      icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
-    else if (ioStateId == 3)
-      icon.classList.add("bi-x-circle-fill", "text-danger");
-    else if (ioStateId == 4)
-      icon.classList.add("bi-clock-fill", "text-primary");
-    else icon.classList.add("bi-x-circle-fill", "text-danger");
+    switch(ioStateIdVal)
+    {
+      case 1:
+        bg = "lightgrey";
+        break;
+      case 2:
+        bg = "#fff3cd";
+        break;
+      case 3:
+        bg = "#f8d7da";
+        break;
+      default:
+        bg = "lightgrey";
+        break;
+    }
+
+    switch(ioStateId)
+    {
+      case 1:
+        icon.classList.add("bi-check-circle-fill", "text-success");
+        icon.setAttribute("data-tooltip-key", "okState.tooltip");
+        break;
+      case 2:
+        icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
+        icon.setAttribute("data-tooltip-key", "okErrorState.tooltip");
+        break;
+      case 3:
+        icon.classList.add("bi-x-circle-fill", "text-danger");
+        icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
+        break;
+      case 4:
+        icon.classList.add("bi-clock-fill", "text-primary");
+        icon.setAttribute("data-tooltip-key", "pendingState.tooltip");
+        break;
+      case 12:
+        icon.classList.add("bi-exclamation-triangle-fill", "text-success");
+        icon.setAttribute("data-tooltip-key", "okEmptyState.tooltip");
+        break;
+      default:
+        icon.classList.add("bi-x-circle-fill", "text-danger");
+        icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
+        break;
+    }
+    icon.setAttribute("data-has-tooltip", 1);
+    icon.setAttribute("data-bs-toggle", "tooltip");
+    icon.setAttribute("data-bs-placement", "top");
+
     td.appendChild(icon);
     td.style.backgroundColor = bg;
     return td;
@@ -397,21 +430,38 @@ document.addEventListener("DOMContentLoaded", function () {
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
     let bg = "lightGrey";
-    if (ioStateId == 1) {
-      icon.classList.add("bi-check-circle-fill", "text-success");
-      bg = "lightgrey";
-    } else if (ioStateId == 2) {
-      icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
-      bg = "#fff3cd";
-    } else if (ioStateId == 3) {
-      icon.classList.add("bi-x-circle-fill", "text-danger");
-      bg = "#f8d7da";
-    } else if (ioStateId == 4) {
-      icon.classList.add("bi-clock-fill", "text-primary");
-      bg = "lightgrey";
-    } else {
-      icon.classList.add("bi-x-circle-fill", "text-danger");
+    
+    switch(ioStateId)
+    {
+      case 1:
+        icon.classList.add("bi-check-circle-fill", "text-success");
+        icon.setAttribute("data-tooltip-key", "okState.tooltip");
+        break;
+      case 2:
+        icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
+        icon.setAttribute("data-tooltip-key", "okErrorState.tooltip");
+        break;
+      case 3:
+        icon.classList.add("bi-x-circle-fill", "text-danger");
+        icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
+        break;
+      case 4:
+        icon.classList.add("bi-clock-fill", "text-primary");
+        icon.setAttribute("data-tooltip-key", "pendingState.tooltip");
+        break;
+      case 12:
+        icon.classList.add("bi-exclamation-triangle-fill", "text-success");
+        icon.setAttribute("data-tooltip-key", "okEmptyState.tooltip");
+        break;
+      default:
+        icon.classList.add("bi-x-circle-fill", "text-danger");
+        icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
+        break;
     }
+    icon.setAttribute("data-has-tooltip", 1);
+    icon.setAttribute("data-bs-toggle", "tooltip");
+    icon.setAttribute("data-bs-placement", "top");
+
     td.appendChild(icon);
     td.style.backgroundColor = bg;
     return td;
@@ -451,6 +501,7 @@ document.addEventListener("DOMContentLoaded", function () {
     tbody.innerHTML = "";
     ioList.forEach((io) => {
       const tr = document.createElement("tr");
+      tr.classList.add("detail-line")
       const td0 = createCellCustomIOState(io[8]);
       const tdIN = createCellCustomIOStateINOUT(io[5], io[8]);
       const tdOUT = createCellCustomIOStateINOUT(io[11], io[8]);
@@ -485,9 +536,9 @@ document.addEventListener("DOMContentLoaded", function () {
       tr.appendChild(tdVal);
       tr.appendChild(tdGen);
 
-      bImp.onclick = () => hasImportLogs? toggleImportDetails(io[4], bImp): ()=>{};
-      bVal.onclick = () => hasValidationLogs? toggleValidationDetails(io[7], bVal): ()=>{};
-      bGen.onclick = () => ihasGenerationLogs? toggleGenerationDetails(io[10], bGen): ()=>{};
+      bImp.onclick = () => hasImportLogs? toggleImportDetails(io[4], bImp, tr): ()=>{};
+      bVal.onclick = () => hasValidationLogs? toggleValidationDetails(io[7], bVal, tr): ()=>{};
+      bGen.onclick = () => ihasGenerationLogs? toggleGenerationDetails(io[10], bGen, tr): ()=>{};
 
       [tdImp, tdVal, tdGen].forEach(
         (td) => (td.style.backgroundColor = "lightGrey")
@@ -514,12 +565,15 @@ document.addEventListener("DOMContentLoaded", function () {
       rGen.className = "detail-row";
       const tdImpD = document.createElement("td");
       tdImpD.colSpan = 10;
+      tdImpD.style.paddingBottom = 0;
       tdImpD.style.padding = 10;
       const tdValD = document.createElement("td");
       tdValD.colSpan = 10;
+      tdValD.style.paddingBottom = 0;
       tdValD.style.padding = 10;
       const tdGenD = document.createElement("td");
       tdGenD.colSpan = 10;
+      tdGenD.style.paddingBottom = 0;
       tdGenD.style.padding = 10;
       const divImp = document.createElement("div");
       divImp.id = `detail-import-${io[4]}`;
@@ -553,7 +607,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!open) hidePager();
   }
 
-  function toggleValidationDetails(ioid, button) {
+  function toggleValidationDetails(ioid, button, tr) {
     const container = document.getElementById(`detail-validation-${ioid}`);
     if (!container) return;
     const row = container.closest("tr");
@@ -563,9 +617,18 @@ document.addEventListener("DOMContentLoaded", function () {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
       document.getElementById("table-wrapper")?.classList.remove("after");
-      hidePager();
+
+      tr.classList.remove("detail-line-selected");
+      tr.classList.add('detail-line');
+
+      document.querySelectorAll('.detail-line').forEach(tr => tr.style.removeProperty('display'));
+
+      hidePager();                 
       return;
     }
+    tr.classList.remove('detail-line');
+    tr.classList.add("detail-line-selected");
+    document.querySelectorAll('.detail-line').forEach(tr => tr.style.display = 'none');
     closeAllDetailRows();
     openCloseRow(container, true);
     const span = button.querySelector("span");
@@ -659,7 +722,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const th = document.createElement("th");
         th.classList.add("internationalization");
         th.setAttribute("data-key", k);
-        th.style.fontSize = "0.9rem";
         if (i === 0) th.classList.add("firstItemDetails");
         if (i === 6) th.classList.add("lastItemDetails");
         hr.appendChild(th);
@@ -696,6 +758,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const b = document.createElement("div");
         b.className = "resultado-filter-button internationalization";
         b.setAttribute("data-key", `${keyBase}.label`);
+        b.setAttribute("data-tooltip-key", `${keyBase}.tooltip`);
+        b.setAttribute("data-has-tooltip", 1);
         b.setAttribute("data-value", v);
         b.setAttribute("data-count", cnt);
         b.setAttribute("data-bs-toggle", "tooltip");
@@ -707,7 +771,10 @@ document.addEventListener("DOMContentLoaded", function () {
       container.innerHTML = "";
       container.classList.remove("internationalization");
       container.removeAttribute("data-key");
+      const spacingDiv = document.createElement("div");
+      spacingDiv.style.height="10px";
       table.appendChild(thead);
+      table.appendChild(spacingDiv);
       table.appendChild(tbody);
       scroll.appendChild(filters);
       scroll.appendChild(table);
@@ -769,7 +836,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function toggleImportDetails(ioid, button) {
+  function toggleImportDetails(ioid, button, tr) {
     const container = document.getElementById(`detail-import-${ioid}`);
     if (!container) return;
     const row = container.closest("tr");
@@ -779,9 +846,18 @@ document.addEventListener("DOMContentLoaded", function () {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
       document.getElementById("table-wrapper")?.classList.remove("after");
+
+      tr.classList.remove("detail-line-selected");
+      tr.classList.add('detail-line');
+
+      document.querySelectorAll('.detail-line').forEach(tr => tr.style.removeProperty('display'));
+
       hidePager();                 
       return;
     }
+    tr.classList.remove('detail-line');
+    tr.classList.add("detail-line-selected");
+    document.querySelectorAll('.detail-line').forEach(tr => tr.style.display = 'none');
     closeAllDetailRows();
     openCloseRow(container, true);
     const span = button.querySelector("span");
@@ -839,12 +915,11 @@ document.addEventListener("DOMContentLoaded", function () {
         "domain.label",
         "referenceDate.label",
         "description.label",
-        "date.label",
+        "processDate.label",
       ].forEach((k, i) => {
         const th = document.createElement("th");
         th.classList.add("internationalization");
         th.setAttribute("data-key", k);
-        th.style.fontSize = "0.9rem";
         if (i === 0) th.classList.add("firstItemDetails");
         if (i === 5) th.classList.add("lastItemDetails");
         hr.appendChild(th);
@@ -866,8 +941,10 @@ document.addEventListener("DOMContentLoaded", function () {
           renderRowsGeneric(tbody, list, stateKey, buildRow);
         });
       };
-
+      const spacingDiv = document.createElement("div");
+      spacingDiv.style.height="10px";
       table.appendChild(thead);
+      table.appendChild(spacingDiv);
       table.appendChild(tbody);
       scroll.appendChild(table);
       container.appendChild(scroll);
@@ -896,7 +973,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function toggleGenerationDetails(ioid, button) {
+  function toggleGenerationDetails(ioid, button, tr) {
     const container = document.getElementById(`detail-generation-${ioid}`);
     if (!container) return;
     const row = container.closest("tr");
@@ -906,9 +983,18 @@ document.addEventListener("DOMContentLoaded", function () {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
       document.getElementById("table-wrapper")?.classList.remove("after");
+
+      tr.classList.remove("detail-line-selected");
+      tr.classList.add('detail-line');
+
+      document.querySelectorAll('.detail-line').forEach(tr => tr.style.removeProperty('display'));
+
       hidePager();                 
       return;
     }
+    tr.classList.remove('detail-line');
+    tr.classList.add("detail-line-selected");
+    document.querySelectorAll('.detail-line').forEach(tr => tr.style.display = 'none');
     closeAllDetailRows();
     openCloseRow(container, true);
     const span = button.querySelector("span");
@@ -966,12 +1052,11 @@ document.addEventListener("DOMContentLoaded", function () {
         "domain.label",
         "referenceDate.label",
         "description.label",
-        "date.label",
+        "processDate.label",
       ].forEach((k, i) => {
         const th = document.createElement("th");
         th.classList.add("internationalization");
         th.setAttribute("data-key", k);
-        th.style.fontSize = "0.9rem";
         if (i === 0) th.classList.add("firstItemDetails");
         if (i === 5) th.classList.add("lastItemDetails");
         hr.appendChild(th);
@@ -993,8 +1078,10 @@ document.addEventListener("DOMContentLoaded", function () {
           renderRowsGeneric(tbody, list, stateKey, buildRow);
         });
       };
-
+      const spacingDiv = document.createElement("div");
+      spacingDiv.style.height="10px";
       table.appendChild(thead);
+      table.appendChild(spacingDiv);
       table.appendChild(tbody);
       scroll.appendChild(table);
       container.appendChild(scroll);
@@ -1047,8 +1134,8 @@ document.addEventListener("DOMContentLoaded", function () {
       ? String(selectedMonthRaw).padStart(2, "0")
       : "";
     const filtered = allIOs.filter((io) => {
-      const moduleValue = (io[2] ?? "").toLowerCase().trim();
-      const dateValue = (io[5] ?? "").trim();
+      const moduleValue = (io[0] ?? "").toLowerCase().trim();
+      const dateValue = (io[3] ?? "").trim();
       const moduleMatch = !moduleFilter || moduleValue.includes(moduleFilter);
       const { y, m } = extractYearMonth(dateValue);
       const yearMatch = !selectedYear || y === selectedYear;
