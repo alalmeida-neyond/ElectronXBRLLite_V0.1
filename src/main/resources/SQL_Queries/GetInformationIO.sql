@@ -12,11 +12,11 @@ importIOsWithHasLog as(
  group by io.ioid, ModuleVID, Domain, EntityID, ReferenceDate
 ),
 validationIOsWithHasLog as(
- select io.ioid, ModuleVID, Domain, EntityID, ReferenceDate, IO_STATEID, iif(vtr.VALIDATIONTABLERESULTID is not null, 1,0) as hasLogs
+ select io.ioid, ModuleVID, Domain, EntityID, ReferenceDate, IO_STATEID, iif(vtr.VALIDATIONRESULTID is not null, 1,0) as hasLogs
  from  io
  left join OUT_VALIDATIONTABLE vt on vt.ioid = io.ioid
  left join OUT_VALIDATIONTABLERESULT vtr on vtr.VALIDATIONTABLEID = vt.VALIDATIONTABLEID
- where io.ACTIONID = :validationActionID and vtr.VALIDATIONTABLERESULTID is not null-- 2 
+ where io.ACTIONID = :validationActionID -- and vtr.VALIDATIONTABLERESULTID is not null -- 2 
  group by io.ioid, ModuleVID, Domain, EntityID, ReferenceDate
 ),
 generationIOsWithHasLog as(

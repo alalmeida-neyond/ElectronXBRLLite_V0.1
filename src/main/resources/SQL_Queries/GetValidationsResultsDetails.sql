@@ -50,18 +50,18 @@ with ioValidation as (
     left join operation op on op.operationId = opv.operationId 
 )
 , validationResults as (
-    select inputs.module, inputs.entity, inputs.domain, inputs.referenceDate, mvresult.*
+    select inputs.module, inputs.entity, inputs.domain, inputs.referenceDate, mvresult.*, 'EBA' as origem
     from resultsPerOperation mvresult
     cross join inputs
 
 	union all
 
-    select inputs.module, inputs.entity, inputs.domain, inputs.referenceDate, mvresult.*
+    select inputs.module, inputs.entity, inputs.domain, inputs.referenceDate, mvresult.*, '-' as origem
     from maxValidationResultForCommonDatapoint mvresult
     cross join inputs
 )
 , resultsDetailsRunnedRules as (
-    select rv.module, rv.entity, rv.code as report, rv.domain, strftime('%Y-%m-%d', rv.referenceDate) as referenceDate, rv.regraCode, rv.regra, rv.severity, 'EBA' as origem, 
+    select rv.module, rv.entity, rv.code as report, rv.domain, strftime('%Y-%m-%d', rv.referenceDate) as referenceDate, rv.regraCode, rv.regra, rv.severity, rv.origem, 
         vrd.domain regraDomain, vrd.expression regraExecutada, sd.description as resultado,
         strftime('%Y-%m-%d %H:%M:%S', vrd.timestamp / 1000, 'unixepoch','localtime') as dataProcessamento, coalesce(CAST(vrd.difference as TEXT),'-') as difference, 
         case when vrd.usedmargin = '1' then 'TRUE' else 'FALSE' end as usedmargin
