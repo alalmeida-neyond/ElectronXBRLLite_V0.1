@@ -102,5 +102,14 @@
   "okErrorState.tooltip":"Proceso OK con Error",
   "notOkState.tooltip":"Proceso No OK",
   "pendingState.tooltip":"Proceso Pendiente",
-  "okEmptyState.tooltip":"Proceso OK con Vacío"
+  "okEmptyState.tooltip":"Proceso OK con Vacío",
+  "incorrectFileGeneric.label":"El archivo no cumple los requisitos",
+  "nonSelectedFile.label":"Archivo no seleccionado",
+  "incorrectExtension.label":"Extensión de archivo no válida.",
+  "incorrectDate.label":"Fecha no válida.",
+  "incorrectModule.label":"Módulo no válido.",
+  "incorrectEntity.label":"Entidad no válida.",
+  "incorrectDomain.label":"Dominio no válido.",
+  "errorMovingFile.label":"¡Error al importar el archivo al directorio de importación!",
+  "unknownError.label":"Error desconocido. Por favor, contacte con Neyond para que podamos resolver esta situación"
 }

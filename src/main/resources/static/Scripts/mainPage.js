@@ -236,6 +236,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const f = e.dataTransfer.files[0];
     if (f) uploadFile(f);
   });
+
+  const uploadError = document.getElementById("upload-error");
+  const uploadErrorExit = document.getElementById("btn-close-notification");
+
+  uploadErrorExit.addEventListener('click',function(){
+    uploadError.style.display = "none";
+    document.getElementById("table-wrapper")?.classList.remove("error");
+    uploadError.classList.remove("d-flex");
+    uploadError.classList.remove("align-items-center");
+  });
+
   document
     .getElementById("filterModule")
     .addEventListener("change", autoSubmit);
@@ -262,44 +273,54 @@ document.addEventListener("DOMContentLoaded", function () {
     generationBar.style.width = v + "%";
     generationBar.textContent = v + "%";
   }
-  function startProgressPolling() {
-    progressInterval = setInterval(() => {
-      fetch("/importProgress")
-        .then((r) => r.json())
-        .then((pI) => {
-          if (pI === 100) {
-            fetch("/validationProgress")
-              .then((r) => r.json())
-              .then((pV) => {
-                if (pV === 100) {
-                  fetch("/generationProgress")
-                    .then((r) => r.json())
-                    .then((pG) => {
-                      if (pG === 100) {
-                        clearInterval(progressInterval);
-                        document.getElementById(
-                          "importProgressBar"
-                        ).style.display = "none";
-                        document.getElementById(
-                          "validationProgressBar"
-                        ).style.display = "none";
-                        document.getElementById(
-                          "generationProgressBar"
-                        ).style.display = "none";
-                      } else {
-                        showGenerationProgress(pG);
-                      }
-                    });
-                } else {
-                  showValidationProgress(pV);
-                }
-              });
-          } else if (pI >= 0 && pI < 100) {
-            showImportProgress(pI);
-          }
-        })
-        .catch(() => { });
-    }, 100);
+  function startProgressPolling(activate) {
+    if(activate)
+    {
+      progressInterval = setInterval(() => {
+        fetch("/importProgress")
+          .then((r) => r.json())
+          .then((pI) => {
+            if (pI === 100) {
+              fetch("/validationProgress")
+                .then((r) => r.json())
+                .then((pV) => {
+                  if (pV === 100) {
+                    fetch("/generationProgress")
+                      .then((r) => r.json())
+                      .then((pG) => {
+                        if (pG === 100) {
+                          clearInterval(progressInterval);
+                          document.getElementById(
+                            "importProgressBar"
+                          ).style.display = "none";
+                          document.getElementById(
+                            "validationProgressBar"
+                          ).style.display = "none";
+                          document.getElementById(
+                            "generationProgressBar"
+                          ).style.display = "none";
+                        } else {
+                          showGenerationProgress(pG);
+                        }
+                      });
+                  } else {
+                    showValidationProgress(pV);
+                  }
+                });
+            } else if (pI >= 0 && pI < 100) {
+              showImportProgress(pI);
+            }
+          })
+          .catch(() => { });
+      }, 100);
+    }
+    else
+    {
+      clearInterval(progressInterval);
+      document.getElementById("importProgressBar").style.display = "none";
+      document.getElementById("validationProgressBar").style.display = "none";
+      document.getElementById("generationProgressBar").style.display = "none";
+    }
   }
 
   function uploadFile(file) {
@@ -312,7 +333,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById(id).classList.add("isDisabled")
     );
     showImportProgress(0);
-    startProgressPolling();
+    startProgressPolling(true);
     fetch("/importFile/upload", { method: "POST", body: formData })
       .then((r) => {
         if (!r.ok)
@@ -345,12 +366,35 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("loading-container").style.display = "none";
         document.getElementById("file").disabled = false;
         const box = document.getElementById("upload-error");
+        const span = document.getElementById("upload-error-text");
+
+        console.log("Erro Mensagem:" + err.message);
         if (box) {
-          box.innerText = err.message;
+          if(err.message.includes(".label"))
+          {
+            span.setAttribute("data-key", err.message);
+          } else {
+            span.setAttribute("data-key", "unknownError.label");
+          }
+
+          document.getElementById("table-wrapper")?.classList?.remove("after");
+
+          document.getElementById("table-wrapper")?.classList.add("error");
+
+          box.classList.add("d-flex");
+          box.classList.add("align-items-center");
+
+          startProgressPolling(false);
+
           box.style.display = "block";
+          box.style.marginTop = "10px";
         } else {
-          alert("Erro: " + err.message);
+          alert("Error: " + err.message);
         }
+
+        const selectedLang =
+          document.getElementById("languageSelect")?.value || "pt";
+        updateLanguageLabels(selectedLang);
       });
   }
 
@@ -373,21 +417,8 @@ document.addEventListener("DOMContentLoaded", function () {
     icon.classList.add("bi", "me-2");
     let bg = "lightGrey";
 
-    switch(ioStateIdVal)
-    {
-      case 1:
-        bg = "lightgrey";
-        break;
-      case 2:
-        bg = "#fff3cd";
-        break;
-      case 3:
-        bg = "#f8d7da";
-        break;
-      default:
-        bg = "lightgrey";
-        break;
-    }
+    if (ioStateId == 2) bg = "#fff3cd";
+    else if (ioStateId == 3) bg = "#f8d7da";
 
     switch(ioStateId)
     {
@@ -440,10 +471,12 @@ document.addEventListener("DOMContentLoaded", function () {
       case 2:
         icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
         icon.setAttribute("data-tooltip-key", "okErrorState.tooltip");
+        bg = "#fff3cd";
         break;
       case 3:
         icon.classList.add("bi-x-circle-fill", "text-danger");
         icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
+        bg = "#f8d7da";
         break;
       case 4:
         icon.classList.add("bi-clock-fill", "text-primary");
@@ -607,6 +640,29 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!open) hidePager();
   }
 
+  function applyTooltipsPages(container = document)
+  {
+    container.querySelectorAll('[data-has-tooltip="1"]').forEach((el) => {
+      const tooltipKey = el.getAttribute("data-tooltip-key") || el.getAttribute("data-key");
+      const tip = (languageLabels && languageLabels[tooltipKey]) || "";
+
+      const inst = bootstrap.Tooltip.getInstance(el);
+      if (inst) inst.dispose();
+
+      el.removeAttribute("title");
+      el.removeAttribute("data-bs-original-title");
+
+      if (tip) {
+        el.setAttribute("data-bs-title", tip);
+        el.setAttribute("data-bs-toggle", "tooltip");
+        el.setAttribute("data-bs-placement", "top");
+        new bootstrap.Tooltip(el);
+      } else {
+        el.removeAttribute("data-bs-title");
+      }
+    });
+  }
+
   function toggleValidationDetails(ioid, button, tr) {
     const container = document.getElementById(`detail-validation-${ioid}`);
     if (!container) return;
@@ -656,18 +712,29 @@ document.addEventListener("DOMContentLoaded", function () {
       td1.style = rowStyle;
       td1.textContent = d.regraCode ?? "-";
       td1.style.fontSize = "0.7rem";
+      td1.classList.add("firstItemDetails");
       tr.appendChild(td1);
       const td2 = document.createElement("td");
       td2.style = rowStyle;
       const icon = document.createElement("i");
       icon.classList.add("bi", "me-2");
       const sev = ((d.severity ?? "") + "").toLowerCase();
-      if (sev === "ok")
+
+      icon.setAttribute("data-has-tooltip", 1);
+      icon.setAttribute("data-bs-toggle", "tooltip");
+      icon.setAttribute("data-bs-placement", "top");
+      if (sev === "ok") {
         icon.classList.add("bi-check-circle-fill", "text-success");
-      else if (sev === "warning")
+        icon.setAttribute("data-tooltip-key", "ruleOK.label");
+      }
+      else if (sev === "warning") {
         icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
-      else if (sev === "error")
+        icon.setAttribute("data-tooltip-key", "warning.label");
+      }
+      else if (sev === "error") {
         icon.classList.add("bi-x-circle-fill", "text-danger");
+        icon.setAttribute("data-tooltip-key", "error.label");
+      }
       td2.appendChild(icon);
       tr.appendChild(td2);
       const td3 = document.createElement("td");
@@ -680,7 +747,6 @@ document.addEventListener("DOMContentLoaded", function () {
       td4.style = rowStyle;
       td4.textContent = d.regra ?? "-";
       td4.style.fontSize = "0.7rem";
-      td4.classList.add("firstItemDetails");
       tr.appendChild(td4);
       const td5 = document.createElement("td");
       td5.style = rowStyle;
@@ -721,6 +787,9 @@ document.addEventListener("DOMContentLoaded", function () {
       ].forEach((k, i) => {
         const th = document.createElement("th");
         th.classList.add("internationalization");
+
+        console.log("K:" + k);
+        console.log("I:" + i);
         th.setAttribute("data-key", k);
         if (i === 0) th.classList.add("firstItemDetails");
         if (i === 6) th.classList.add("lastItemDetails");
@@ -788,8 +857,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const doRender = () => {
         renderRowsGeneric(tbody, filtered, stateKey, buildRow);
-        showOrUpdatePager(filtered.length, stateKey, (page, rpp) => {
+        applyTooltipsPages(tbody);
+        showOrUpdatePager(filtered.length, stateKey, () => {
           renderRowsGeneric(tbody, filtered, stateKey, buildRow);
+          applyTooltipsPages(tbody);
         });
       };
 
@@ -877,6 +948,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const td1 = document.createElement("td");
       td1.textContent = d.code ?? "-";
       td1.style.fontSize = "0.7rem";
+      td1.classList.add("firstItemDetails");
       tr.appendChild(td1);
       const td2 = document.createElement("td");
       td2.textContent = d.entity ?? "-";
@@ -897,6 +969,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const td6 = document.createElement("td");
       td6.textContent = d.timestamp ?? "-";
       td6.style.fontSize = "0.7rem";
+      td6.classList.add("lastItemDetails");
       tr.appendChild(td6);
       return tr;
     };
@@ -1014,6 +1087,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const td1 = document.createElement("td");
       td1.textContent = d.code ?? "-";
       td1.style.fontSize = "0.7rem";
+      td1.classList.add("firstItemDetails");
       tr.appendChild(td1);
       const td2 = document.createElement("td");
       td2.textContent = d.entity ?? "-";
@@ -1034,6 +1108,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const td6 = document.createElement("td");
       td6.textContent = d.timestamp ?? "-";
       td6.style.fontSize = "0.7rem";
+      td1.classList.add("lastItemDetails");
       tr.appendChild(td6);
       return tr;
     };

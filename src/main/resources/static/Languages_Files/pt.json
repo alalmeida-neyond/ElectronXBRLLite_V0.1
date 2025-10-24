@@ -102,5 +102,14 @@
   "okErrorState.tooltip":"Processo OK com Erro",
   "notOkState.tooltip":"Processo Não OK",
   "pendingState.tooltip":"Processo Pendente",
-  "okEmptyState.tooltip":"Processo OK com Vazio"
+  "okEmptyState.tooltip":"Processo OK com Vazio",
+  "incorrectFileGeneric.label":"O ficheiro não cumpre os requisitos",
+  "nonSelectedFile.label":"Ficheiro não selecionado",
+  "incorrectExtension.label":"Ficheiro com extensão inválida.",
+  "incorrectDate.label":"Data inválida.",
+  "incorrectModule.label":"Módulo inválido.",
+  "incorrectEntity.label":"Entidade inválida.",
+  "incorrectDomain.label":"Dominio inválido.",
+  "errorMovingFile.label":"Falha na importação do ficheiro para a diretoria de importação!",
+  "unknownError.label":"Erro desconhecido. Por Favor Contacte A Neyond Para Resolvermos Esta Situação" 
 }

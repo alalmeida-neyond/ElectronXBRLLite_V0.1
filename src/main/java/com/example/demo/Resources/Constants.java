@@ -144,15 +144,12 @@ public class Constants {
 
     public static final String emptyMessage = "Sem resultados encontrados";
     public static final String processoFalhou = "Processo falhou! Contactar administrator ou tentar novamente";
-    public static final String erroEliminar = "Ocorreu um erro ao tentar eliminar";
-    public static final String DATAINCOMPLETASTRING = "Data incompleta, foi ignorada na pesquisa";
-    public static final String NOPERMISSIONS = "Sem permissões";
     public static final String INCORRECTFILE = "Ficheiro incorreto";
-    public static final String DBERROR = "Erro na Base de dados";
     public static final String CONTACTADMIN = "Contactar Administrador";
-    public static final String deleteMapError = "Erro no processo de deletes de mapas.";
     public static final String emptyMapsToDeleteEmpty = "Lista de mapas para apagar encontra-se vazia.";
     public static final String generationError = "Erro no processo de Geracao";
+    public static final String MESSAGEINVALIDROWKEY = "Ocorreu um erro na leitura da RowKey";
+    public static final String IMPOSSIBLEMAP = "Foram descartados mapas inválidos";
     public static final String missingFilters = "Necessário fornecer valor para todos os filtros";
     public static final String concurrentOperations = "Operacoes concorrentes";
     public static final String concurrentOperationsDesc = "Existem operacoes relacionadas com o módulo escolhido em progresso. Tente mais tarde, contacte um administrador ou cancele a operacao a ser realizada";
@@ -161,34 +158,13 @@ public class Constants {
     public static final String generationConfigError = "Erro no processo de Geração, não foi possivel obter o ponto de entrada para a Taxonomia! Contacte o admistrador";
     public static final String generationEndedDesc = "Geração Concluída com sucesso";
     public static final String missingData = "Não existe dados para os filtros selecionados";
-    public static final String dataInvalida = "Data inválida.";
-    public static final String moduloInvalido = "Módulo inválido.";
-    public static final String entidadeInvalida = "Entidade inválida.";
-    public static final String dominioInvalido = "Dominio inválido.";
-    public static final String extensaoInvalida = "Ficheiro com extensão inválida.";
-    public static final String noLockPermissions = "Não tem permissões de lock para a geracao selecionada";
-    public static final String noUnlockPermissions = "Não tem permissões de unlock para a geracao selecionada";
-    public static final String downloadError = "Erro no download do ficheiro pretendido";
-    public static final String IMPORTSMASHLOGMESSAGE = "Os dados desta tabela foram atualizados devido a uma nova importacao.";
-    public static final String missingRefDate = "Para iniciar a pesquisa precisará fornecer valores para o ano e mês";
-    public static final String NOPRIVILEGES = "Sem privilégios";
-    public static final String NOPRIVILEGESDETAILS = "Sem privilégios para ver os detalhes de importacao existentes";
+    public static final String dataInvalida = "incorrectDate.label";
+    public static final String moduloInvalido = "incorrectModule.label";
+    public static final String entidadeInvalida = "incorrectEntity.label";
+    public static final String dominioInvalido = "incorrectDomain.label";
+    public static final String extensaoInvalida = "incorrectExtension.label";
     public static final String validationError = "Erro no processo de Validacao.";
-    public static final String NOMAPSSELECTED = "Deve selecionar pelo menos 1 mapa antes de iniciar a validação.";
-    public static final String IMPOSSIBLEVALUE = "Foram descartados valores inválidos";
-    public static final String IMPOSSIBLECELLS = "Foram descartados células inválidas";
-    public static final String IMPOSSIBLEROWKEYS = "Foram descartados chaves inválidas";
-    public static final String IMPOSSIBLEMAP = "Foram descartados mapas inválidos";
-    public static final String IMPOSSIBLEUPLOAD = "Importação falhou.";
-    public static final String NOSELECTEDFILE = "Não foi selecionado ficheiro para importação.";
-    public static final String ERROR = "Erro: ";
-    public static final String FILEREADY = "Ficheiro pronto";
-    public static final String FILEREADYDESC = "Ficheiro encontra-se pronto para ser importado";
-    public static final String UPLOADFAILED = "Upload de Ficheiro falhou";
-    public static final String UPLOADFAILEDDESC = "Falha na importação do ficheiro para a diretoria de importação!";
-    public static final String FILENOTONSERVER = "Ficheiro não se encontra no servidor.";
-    public static final String MESSAGEINVALIDDESAGCODE = "Ocorreu um erro no Desagregation Code.";
-    public static final String MESSAGEINVALIDROWKEY = "Ocorreu um erro na RowKey.";
+    public static final String movingFileError = "errorMovingFile.label";
 
     public static final String MESSAGEERRORDESAGCODE(String mapcode){
         return "Alerta! Inseriu um valor inválido para o DesagregationCode, no mapa "+mapcode+".";
@@ -292,7 +268,8 @@ public class Constants {
     
     public static final int DOMAINLENGTH = 3;
 
-    public static String INCORRECTFILEDESC = "O ficheiro não cumpre os requisitos";
+    public static String INCORRECTFILEDESC = "incorrectFileGeneric.label";
+    public static String NONSELECTEDFILE = "nonSelectedFile.label";
 
     public static final int FIRSTRESULT = 0;
     public static final String TRUERESULT = "true";

@@ -39,11 +39,7 @@ import java.util.stream.Stream;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.ui.Model;
-
 import java.io.*;
-import java.net.URI;
-import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -190,7 +186,7 @@ public class MainBean extends DefaultBean{
             }
             else
             {
-                setStatusMessage("Ficheiro não selecionado");
+                setStatusMessage(Constants.NONSELECTEDFILE);
             }
             
             return false;
@@ -242,7 +238,6 @@ public class MainBean extends DefaultBean{
 
     // Upload file to a local directory or to the application's server
     public void uploadFile(MultipartFile uploadedFile) {
-        setStatusMessage("");
         InputStream inputStream = null;
         OutputStream outputStream = null;
         File inputFile = null;
@@ -270,15 +265,14 @@ public class MainBean extends DefaultBean{
             while ((read = inputStream.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
             }
-            setStatusMessage("Ficheiro " + uploadedFile.getOriginalFilename()
-                    + " carregado com sucesso para a diretoria de importacao.");
+            LOG.info("Ficheiro " + uploadedFile.getOriginalFilename() + " carregado com sucesso para a diretoria de importacao.");
            
             startImportOperation(inputFile, uploadedFile.getOriginalFilename(), uniqueFileName);
         } catch (Exception e) {
             LOG.error("Erro uploadFile " + uploadedFile.getOriginalFilename() + ".", e);
-            LOG.error(
-                    "Upload de Ficheiro falhou.\n" + "Falha na importacao do ficheiro para a diretoria de importacao!");
-            setStatusMessage("Falha na importacao do ficheiro para a diretoria de importacao!");
+            LOG.error("Upload de Ficheiro falhou.\n" + "Falha na importacao do ficheiro para a diretoria de importacao!");
+
+            setStatusMessage(Constants.movingFileError);
         } finally {
             try {
                 if (outputStream != null) {

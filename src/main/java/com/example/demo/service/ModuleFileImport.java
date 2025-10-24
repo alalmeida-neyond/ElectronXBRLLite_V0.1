@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -303,39 +302,7 @@ public class ModuleFileImport extends RunnableExtension{
                         errorMsgPerTables.add(Constants.MESSAGEERRORUNEXPECTEDDESAGCODE(sheetName));
                     }
                 }
-                
-                /*--------------------------------------------------*/
-                
-                /*---------- OLD DESAGREGATION CODE TREATMENT ----------
-                sheetValueAsHeaderCode = null;
-                //InImportKey desagregationCodeKey = null;
-                if (desagregationCode != null) {
-                    if (Utils.isNumeric(desagregationCode)) {
-//TODO pensar em outra forma de fazer isto? (getHeaderDTOFromList)
-                        sheetValueAsHeaderCode = HeaderService.getHeaderDTOFromList(headerDTOList, desagregationCode.trim(), Constants.SheetCoordinateAsChar, false);
-                    }
-                    desagregationCodeKey = buildDesagregationCode(desagregationCode, singleFillingIndicatorAsTableVersion.getTableVID(), singleFillingIndicatorAsTableVersion.getTable().getTableId(), io.getReferenceDate(), cm);
-
-                    if (desagregationCodeKey != null && ((sheetValueAsHeaderCode != null && Utils.isNumeric(desagregationCode)) || !Utils.isNumeric(desagregationCode))) {
-                        List<InKeyAssociation> keyAssociationsDesagCode = desagregationCodeKey.getListPropertyValues();
-                        Optional<InKeyAssociation> keyAssociationWithNull = keyAssociationsDesagCode.stream().filter(keyAssociation -> keyAssociation.getPropertyValue() == null).findAny();
-
-                        if (keyAssociationWithNull.isPresent()) {
-                            errorMsgPerTables.add(Constants.MESSAGEERRORDESAGCODE + sheetName);
-                        } else {
-                            incrementJavaOperationTime();    
-                            restartTimeOracleInsert();
-                            Connection.persist(cm, desagregationCodeKey);
-                            logsList.add(new LogOperationTemp("Tempo de Inserir InImportKey:" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));    
-                            incrementOracleInsertOperationTime();
-                            restartTimeJava();              
-                        }
-
-                    } else {
-                        errorMsgPerTables.add(Constants.MESSAGEERRORDESAGCODE + sheetName);
-                    }
-                }
-                ---------- OLD DESAGREGATION CODE TREATMENT ----------*/														
+                										
                 VariableVersion variableVersionOfMap = null;
                 if (singleFillingIndicatorAsTableVersion.getAbstractTable() != null) {
                     variableVersionOfMap = VariableVersionDAL.getVariableVersionFromAbstract(singleFillingIndicatorAsTableVersion.getAbstractTable().getTableId());
