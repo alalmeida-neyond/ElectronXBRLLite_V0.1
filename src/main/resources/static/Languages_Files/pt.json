@@ -79,7 +79,7 @@
   "version.label":"Versão",
   "fromReferenceDate.label":"Data Início",
   "toReferenceDate.label":"Data Fim",
-  "noFilesFound.label":"Nenhum Ficheiro Encontrado, Por Favor Contacte A Neyond Para Resolvermos Esta Situação",
+  "noFilesFound.label":"Nenhum Ficheiro Encontrado",
   "current.label":"Atual",
   "downloadMissingFile.label":"Ficheiro Não Encontrado. Por Favor Contacte A Neyond Para Resolvermos Esta Situação",
   "downloadFailedWithReason.label":"Falha Ao Copiar Ficheiro. Por Favor Contacte A Neyond Para Resolvermos Esta Situação",

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -36,21 +36,27 @@ function startBackend() {
 }
 
 async function createWindow() {
-  const url = startBackend();
+  /*const url = startBackend();
 
   const waitOn = require("wait-on");
   await waitOn({ resources: [`${url}/actuator/health`, `${url}`], timeout: 30000 })
-    .catch(() => {});
+    .catch(() => {});*/
 
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-    icon: path.join(__dirname, "icons", "output.ico"),
+    icon: path.join(__dirname, "icons", "favico.ico"),
     webPreferences: { preload: path.join(__dirname, 'preload.js'),contextIsolation: true, nodeIntegration: false },
   });
 
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
   win.webContents.openDevTools({ mode: 'detach' });
-  await win.loadURL(url);
+  //await win.loadURL(url);
+  await win.loadURL(`http://127.0.0.1:8082`);
 }
 
 app.whenReady().then(createWindow);
@@ -74,7 +80,11 @@ ipcMain.handle('select-folder', async () => {
       ? path.join(__dirname, "server")
       : path.join(process.resourcesPath, "server");
 
-    const filePath = path.join(base, 'path.dat');
+    const pathDirectory = isDev
+      ? __dirname
+      : process.resourcesPath;
+
+    const filePath = path.join(pathDirectory, 'path.dat');
     fs.writeFileSync(filePath, selectedPath, 'utf-8');
 
     return selectedPath;

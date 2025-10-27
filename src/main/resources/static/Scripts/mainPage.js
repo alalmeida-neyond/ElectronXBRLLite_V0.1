@@ -247,6 +247,7 @@ document.addEventListener("DOMContentLoaded", function () {
   uploadErrorExit.addEventListener('click',function(){
     uploadError.style.display = "none";
     document.getElementById("table-wrapper")?.classList.remove("error");
+    document.getElementById("table-wrapper")?.classList.remove("upload");
     uploadError.classList.remove("d-flex");
     uploadError.classList.remove("align-items-center");
   });
@@ -353,10 +354,11 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("loading-container").style.display = "none";
         document.getElementById("upload-error").style.display = "none";
         document.getElementById("file").disabled = false;
+        document.getElementById("table-wrapper").classList.remove("upload");
         ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
           document.getElementById(id).classList.remove("isDisabled")
         );
-        document.getElementById("table-wrapper").classList.remove("upload");
+        
         document.getElementById("file").value = null;
         clearInterval(progressInterval);
         [
@@ -1217,7 +1219,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const filtered = allIOs.filter((io) => {
       const moduleValue = (io[0] ?? "").toLowerCase().trim();
       const dateValue = (io[3] ?? "").trim();
-      const moduleMatch = !moduleFilter || moduleValue.includes(moduleFilter);
+      const moduleMatch = !moduleFilter || moduleValue == moduleFilter;
       const { y, m } = extractYearMonth(dateValue);
       const yearMatch = !selectedYear || y === selectedYear;
       const monthMatch = !selectedMonth || m === selectedMonth;

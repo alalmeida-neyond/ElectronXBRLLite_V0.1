@@ -28,7 +28,6 @@ function updateLanguageLabels(language) {
                 } else if (element.tagName === "I") {
                     element.title = translation;
                 } else {
-                    // Set once; avoid duplicating text nodes
                     element.textContent = translation;
                 }
             });
@@ -38,7 +37,6 @@ function updateLanguageLabels(language) {
         });
 }
 
-// (legacy, still used by the <input webkitdirectory> fallback)
 function selectFolder() {
     const folderInput = document.getElementById('folderInput');
     const directoryDisplay = document.getElementById('directoryDisplay');
@@ -58,11 +56,9 @@ function openFolderSelector() {
     document.getElementById('folderInput').click();
 }
 
-// Universal chooser that works in Electron and browsers
 async function chooseFolderAndPersist() {
     const folderPathTextarea = document.getElementById('folderPath');
 
-    // A) Electron via preload bridge
     if (window.api && typeof window.api.selectFolder === 'function') {
         try {
             const folderPath = await window.api.selectFolder();
@@ -72,15 +68,12 @@ async function chooseFolderAndPersist() {
             return;
         } catch (e) {
             console.error('Electron selectFolder failed:', e);
-            // fallthrough to browser strategies
         }
     }
-
     if (typeof window.showDirectoryPicker === 'function') {
         try {
             const dirHandle = await window.showDirectoryPicker();
 
-            // Optional: write a small marker file into the chosen folder
             try {
                 const fileHandle = await dirHandle.getFileHandle('path.dat', { create: true });
                 const writable = await fileHandle.createWritable();
@@ -97,7 +90,7 @@ async function chooseFolderAndPersist() {
         }
     }
 
-    const input = document.getElementById('folderInput'); // ensure it exists in HTML
+    const input = document.getElementById('folderInput');
     input.onchange = () => {
         if (!input.files || input.files.length === 0) return;
         const first = input.files[0];
@@ -110,7 +103,6 @@ async function chooseFolderAndPersist() {
 document.addEventListener("DOMContentLoaded", function () {
     const button = document.getElementById('chooseFolder');
     if (button) {
-        // Always enabled; handler picks the right strategy at runtime
         button.disabled = false;
         button.addEventListener('click', (e) => {
             e.preventDefault();

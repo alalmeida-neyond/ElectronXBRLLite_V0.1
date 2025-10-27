@@ -79,7 +79,7 @@
   "version.label": "Version",
   "fromReferenceDate.label": "Date de Début",
   "toReferenceDate.label": "Date de Fin",
-  "noFilesFound.label": "Aucun fichier trouvé, veuillez contacter Neyond pour résoudre cette situation",
+  "noFilesFound.label": "Aucun fichier trouvé",
   "current.label": "Actuel",
   "downloadMissingFile.label": "Fichier introuvable. Veuillez contacter Neyond pour résoudre cette situation",
   "downloadFailedWithReason.label": "Échec de la copie du fichier. Veuillez contacter Neyond pour résoudre cette situation",
