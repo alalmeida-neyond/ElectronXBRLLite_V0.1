@@ -103,7 +103,7 @@
   "notOkState.tooltip":"Process Not OK",
   "pendingState.tooltip":"Process Pending",
   "okEmptyState.tooltip":"Process OK With Empty",
-  "incorrectFileGeneric.label":"The file does not meet the requirements",
+  "incorrectFileGeneric.label":"File name does not meet the requirements",
   "nonSelectedFile.label":"File not selected",
   "incorrectExtension.label":"Invalid file extension.",
   "incorrectDate.label":"Invalid date.",
@@ -111,5 +111,6 @@
   "incorrectEntity.label":"Invalid entity.",
   "incorrectDomain.label":"Invalid domain.",
   "errorMovingFile.label":"Failed to import the file into the import directory!",
-  "unknownError.label":"Unknown error. Please contact Neyond so we can resolve this situation"
+  "unknownError.label":"Unknown error. Please contact Neyond so we can resolve this situation",
+  "filenameTooltip.label": "Excel files must use the following naming convention: <span style='cursor:help;color:blue;'>[Entity]_[Module]_[Domain]_[YYYYMM]_[Additional_information].xlsx</span>.<br/>"
 }

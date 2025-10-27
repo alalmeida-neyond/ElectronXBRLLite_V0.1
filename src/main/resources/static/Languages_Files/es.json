@@ -103,7 +103,7 @@
   "notOkState.tooltip":"Proceso No OK",
   "pendingState.tooltip":"Proceso Pendiente",
   "okEmptyState.tooltip":"Proceso OK con Vacío",
-  "incorrectFileGeneric.label":"El archivo no cumple los requisitos",
+  "incorrectFileGeneric.label":"El nombre del archivo no cumple los requisitos",
   "nonSelectedFile.label":"Archivo no seleccionado",
   "incorrectExtension.label":"Extensión de archivo no válida.",
   "incorrectDate.label":"Fecha no válida.",
@@ -111,5 +111,6 @@
   "incorrectEntity.label":"Entidad no válida.",
   "incorrectDomain.label":"Dominio no válido.",
   "errorMovingFile.label":"¡Error al importar el archivo al directorio de importación!",
-  "unknownError.label":"Error desconocido. Por favor, contacte con Neyond para que podamos resolver esta situación"
+  "unknownError.label":"Error desconocido. Por favor, contacte con Neyond para que podamos resolver esta situación",
+  "filenameTooltip.label":"Los archivos de Excel deben tener la siguiente nomenclatura: <span style='cursor:help;color:blue;'>[Entidad]*[Módulo]*[Dominio]*[YYYYMM]*[Información_adicional].xlsx</span>. <br />"
 }

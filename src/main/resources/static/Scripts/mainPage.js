@@ -5,11 +5,15 @@ const ROWS_PER_PAGE = 15;
 
 function reinitTooltips(container = document) {
   container.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
-    const instance = bootstrap.Tooltip.getInstance(el);
-    if (instance) instance.dispose();
-    new bootstrap.Tooltip(el);
+    bootstrap.Tooltip.getInstance(el)?.dispose();
+    new bootstrap.Tooltip(el, {
+      html: el.getAttribute("data-bs-html") === "true",
+      container: el.getAttribute("data-bs-container") || "body",
+      sanitize: true
+    });
   });
 }
+
 
 function hidePager() {
   const wrap = document.getElementById("paginationDiv");
@@ -71,11 +75,9 @@ function updateLanguageLabels(language) {
         document.querySelectorAll('[data-has-tooltip="1"]').forEach((el) => {
           const tooltipKey = el.getAttribute("data-tooltip-key");
           const fallbackKey = el.getAttribute("data-key");
-          const tipLabelKey = tooltipKey || fallbackKey;
-          const tip = languageLabels[tipLabelKey] || "";
+          const tip = languageLabels[tooltipKey || fallbackKey] || "";
 
-          const inst = bootstrap.Tooltip.getInstance(el);
-          if (inst) inst.dispose();
+          bootstrap.Tooltip.getInstance(el)?.dispose();
 
           el.removeAttribute("title");
           el.removeAttribute("data-bs-original-title");
@@ -84,12 +86,14 @@ function updateLanguageLabels(language) {
             el.setAttribute("data-bs-title", tip);
             el.setAttribute("data-bs-toggle", "tooltip");
             el.setAttribute("data-bs-placement", "top");
-
+            el.setAttribute("data-bs-html", "true");
+            el.setAttribute("data-bs-container", "body");
             new bootstrap.Tooltip(el);
           } else {
             el.removeAttribute("data-bs-title");
           }
         });
+
 
       reinitTooltips();
     })
@@ -332,6 +336,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
       document.getElementById(id).classList.add("isDisabled")
     );
+    document.getElementById("table-wrapper").classList.add("upload");
     showImportProgress(0);
     startProgressPolling(true);
     fetch("/importFile/upload", { method: "POST", body: formData })
@@ -351,6 +356,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
           document.getElementById(id).classList.remove("isDisabled")
         );
+        document.getElementById("table-wrapper").classList.remove("upload");
         document.getElementById("file").value = null;
         clearInterval(progressInterval);
         [

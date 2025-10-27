@@ -29,6 +29,12 @@
   font-family: 'Muli';
 }
 
+.upload-help-icon   {
+  position: absolute;
+  transform: translateX(20%);
+  z-index: 3;
+  cursor: pointer;
+}
 
 .upload-area:hover {
   background-color: #eef6fa;
@@ -93,16 +99,14 @@
 
 .table-wrapper.after {
   max-height: calc(91.5vh - 300px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: block;
 }
 
 .table-wrapper.error {
   max-height: calc(70.5vh - 300px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: block;
+}
+
+.table-wrapper.upload {
+  max-height: calc(74.5vh - 300px);
 }
 
 #validationTable thead {
@@ -357,7 +361,14 @@ html, body {
 }
 
 .table-wrapper-templates {
-  max-height: calc(105.5vh - 300px);
+  max-height: calc(101.5vh - 300px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
+}
+
+.table-wrapper-templates.message {
+  max-height: calc(94.5vh - 300px);
   overflow-y: auto;
   overflow-x: hidden;
   display: block;
@@ -372,4 +383,8 @@ html, body {
 
 tbody:before {
     display:block;
+}
+
+.tooltip-inner {
+    max-width: 480px !important;
 }

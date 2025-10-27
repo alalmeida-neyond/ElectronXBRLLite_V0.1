@@ -319,6 +319,10 @@ function showI18nMessage(kind, key, value) {
   closeBtn.setAttribute("data-bs-dismiss", "alert");
   closeBtn.setAttribute("aria-label", "Close");
 
+  closeBtn.addEventListener('click',function(){
+      document.getElementById("table-wrapper-templates")?.classList.remove("message");
+  });
+
   wrapper.appendChild(span);
   wrapper.appendChild(closeBtn);
 
@@ -373,6 +377,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   filterTemplates();
 
+  const downloadSuccessMessageButton= document.getElementsByClassName("btn-close")[0];
+
   const table = document.getElementById("templatesTable");
   if (table && !table._dlBound) {
     table._dlBound = true;
@@ -389,6 +395,8 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.disabled = true;
       const oldHTML = btn.innerHTML;
       btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
+
+      document.getElementById("table-wrapper-templates")?.classList.add("message");
 
       try {
         const url = `/templates/download?filename=${encodeURIComponent(filename)}`;

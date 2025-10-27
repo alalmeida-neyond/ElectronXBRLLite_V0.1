@@ -103,7 +103,7 @@
   "notOkState.tooltip":"Processus Non OK",
   "pendingState.tooltip":"Processus En Attente",
   "okEmptyState.tooltip":"Processus OK avec Vide",
-  "incorrectFileGeneric.label":"Le fichier ne répond pas aux exigences",
+  "incorrectFileGeneric.label":"Le nom du fichier ne répond pas aux exigences",
   "nonSelectedFile.label":"Fichier non sélectionné",
   "incorrectExtension.label":"Extension de fichier non valide.",
   "incorrectDate.label":"Date non valide.",
@@ -111,5 +111,6 @@
   "incorrectEntity.label":"Entité non valide.",
   "incorrectDomain.label":"Domaine non valide.",
   "errorMovingFile.label":"Échec de l'importation du fichier dans le répertoire d'importation !",
-  "unknownError.label":"Erreur inconnue. Veuillez contacter Neyond afin que nous puissions résoudre cette situation"
+  "unknownError.label":"Erreur inconnue. Veuillez contacter Neyond afin que nous puissions résoudre cette situation",
+  "filenameTooltip.label":"Les fichiers Excel doivent suivre la convention de nommage suivante : <span style='cursor:help;color:blue;'>[Entité]*[Module]*[Domaine]*[YYYYMM]*[Informations_supplémentaires].xlsx</span>. <br />"
 }
