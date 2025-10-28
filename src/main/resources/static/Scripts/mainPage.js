@@ -1,3 +1,23 @@
+window.I18N = window.I18N || (() => {
+  const KEY = 'lang';
+  const SUPPORTED = ['pt','en','es','fr','it','de'];
+
+  function get() {
+    const saved = localStorage.getItem(KEY);
+    if (saved && SUPPORTED.includes(saved)) return saved;
+    const br = (navigator.language || 'pt').slice(0,2).toLowerCase();
+    return SUPPORTED.includes(br) ? br : 'pt';
+  }
+  function set(l) {
+    if (!SUPPORTED.includes(l)) return;
+    localStorage.setItem(KEY, l);
+    try { document.documentElement.setAttribute('lang', l); } catch {}
+  }
+  const api = { get, set, SUPPORTED };
+  try { document.documentElement.setAttribute('lang', get()); } catch {}
+  return api;
+})();
+
 let languageLabels = {};
 const paginationState = {};
 const dataCache = {};
@@ -14,7 +34,6 @@ function reinitTooltips(container = document) {
   });
 }
 
-
 function hidePager() {
   const wrap = document.getElementById("paginationDiv");
   const container = document.getElementById("sharedPaginationContainer");
@@ -29,7 +48,7 @@ function closeAllDetailRows() {
 }
 
 function updateLanguageLabels(language) {
-  fetch(`./Languages_Files/${language}.json`, { cache: "no-store" })
+  return fetch(`./Languages_Files/${language}.json`, { cache: "no-store" })
     .then((r) => {
       if (!r.ok) throw new Error();
       return r.json();
@@ -72,28 +91,27 @@ function updateLanguageLabels(language) {
           }
         });
 
-        document.querySelectorAll('[data-has-tooltip="1"]').forEach((el) => {
-          const tooltipKey = el.getAttribute("data-tooltip-key");
-          const fallbackKey = el.getAttribute("data-key");
-          const tip = languageLabels[tooltipKey || fallbackKey] || "";
+      document.querySelectorAll('[data-has-tooltip="1"]').forEach((el) => {
+        const tooltipKey = el.getAttribute("data-tooltip-key");
+        const fallbackKey = el.getAttribute("data-key");
+        const tip = languageLabels[tooltipKey || fallbackKey] || "";
 
-          bootstrap.Tooltip.getInstance(el)?.dispose();
+        bootstrap.Tooltip.getInstance(el)?.dispose();
 
-          el.removeAttribute("title");
-          el.removeAttribute("data-bs-original-title");
+        el.removeAttribute("title");
+        el.removeAttribute("data-bs-original-title");
 
-          if (tip) {
-            el.setAttribute("data-bs-title", tip);
-            el.setAttribute("data-bs-toggle", "tooltip");
-            el.setAttribute("data-bs-placement", "top");
-            el.setAttribute("data-bs-html", "true");
-            el.setAttribute("data-bs-container", "body");
-            new bootstrap.Tooltip(el);
-          } else {
-            el.removeAttribute("data-bs-title");
-          }
-        });
-
+        if (tip) {
+          el.setAttribute("data-bs-title", tip);
+          el.setAttribute("data-bs-toggle", "tooltip");
+          el.setAttribute("data-bs-placement", "top");
+          el.setAttribute("data-bs-html", "true");
+          el.setAttribute("data-bs-container", "body");
+          new bootstrap.Tooltip(el);
+        } else {
+          el.removeAttribute("data-bs-title");
+        }
+      });
 
       reinitTooltips();
     })
@@ -184,10 +202,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const langSelect = document.getElementById("languageSelect");
   if (langSelect) {
+    langSelect.value = window.I18N.get();
     langSelect.addEventListener("change", function () {
+      window.I18N.set(langSelect.value);
       updateLanguageLabels(langSelect.value);
     });
-    updateLanguageLabels(langSelect.value || "pt");
+    updateLanguageLabels(window.I18N.get());
+  }
+
+  function getLanguage() {
+    return window.I18N.get();
   }
 
   let allIOs = [];
@@ -400,8 +424,7 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("Error: " + err.message);
         }
 
-        const selectedLang =
-          document.getElementById("languageSelect")?.value || "pt";
+        const selectedLang = getLanguage();
         updateLanguageLabels(selectedLang);
       });
   }
@@ -530,8 +553,7 @@ document.addEventListener("DOMContentLoaded", function () {
           o.textContent = m;
           moduleSelect.appendChild(o);
         });
-        const selectedLang =
-          document.getElementById("languageSelect")?.value || "pt";
+        const selectedLang = getLanguage();
         updateLanguageLabels(selectedLang);
       })
       .catch(() => { });
@@ -702,8 +724,8 @@ document.addEventListener("DOMContentLoaded", function () {
       i.className = "bi bi-box-arrow-up-right";
       span.appendChild(i);
     }
-    const lang = document.getElementById("languageSelect")?.value || "pt";
-    updateLanguageLabels(lang);
+    const selectedLang = getLanguage();
+    updateLanguageLabels(selectedLang);
 
     const stateKey = `validation-${ioid}`;
 
@@ -885,16 +907,12 @@ document.addEventListener("DOMContentLoaded", function () {
           );
           paginationState[stateKey].currentPage = 1;
           doRender();
-          updateLanguageLabels(
-            document.getElementById("languageSelect")?.value || "pt"
-          );
+          updateLanguageLabels(getLanguage());
         });
       });
 
       doRender();
-      updateLanguageLabels(
-        document.getElementById("languageSelect")?.value || "pt"
-      );
+      updateLanguageLabels(getLanguage());
     };
 
     if (dataCache[stateKey]) {
@@ -946,8 +964,8 @@ document.addEventListener("DOMContentLoaded", function () {
       i.className = "bi bi-box-arrow-up-right";
       span.appendChild(i);
     }
-    const lang = document.getElementById("languageSelect")?.value || "pt";
-    updateLanguageLabels(lang);
+    const selectedLang = getLanguage();
+    updateLanguageLabels(selectedLang);
 
     const stateKey = `import-${ioid}`;
 
@@ -1031,9 +1049,7 @@ document.addEventListener("DOMContentLoaded", function () {
       container.appendChild(scroll);
       
       doRender();
-      updateLanguageLabels(
-        document.getElementById("languageSelect")?.value || "pt"
-      );
+      updateLanguageLabels(getLanguage());
     };
 
     if (dataCache[stateKey]) {
@@ -1085,8 +1101,8 @@ document.addEventListener("DOMContentLoaded", function () {
       i.className = "bi bi-box-arrow-up-right";
       span.appendChild(i);
     }
-    const lang = document.getElementById("languageSelect")?.value || "pt";
-    updateLanguageLabels(lang);
+    const selectedLang = getLanguage();
+    updateLanguageLabels(selectedLang);
 
     const stateKey = `generation-${ioid}`;
 
@@ -1169,9 +1185,7 @@ document.addEventListener("DOMContentLoaded", function () {
       scroll.appendChild(table);
       container.appendChild(scroll);
       doRender();
-      updateLanguageLabels(
-        document.getElementById("languageSelect")?.value || "pt"
-      );
+      updateLanguageLabels(getLanguage());
     };
 
     if (dataCache[stateKey]) {

@@ -1,3 +1,23 @@
+window.I18N = window.I18N || (() => {
+  const KEY = 'lang';
+  const SUPPORTED = ['pt','en','es','fr','it','de'];
+
+  function get() {
+    const saved = localStorage.getItem(KEY);
+    if (saved && SUPPORTED.includes(saved)) return saved;
+    const br = (navigator.language || 'pt').slice(0,2).toLowerCase();
+    return SUPPORTED.includes(br) ? br : 'pt';
+  }
+  function set(l) {
+    if (!SUPPORTED.includes(l)) return;
+    localStorage.setItem(KEY, l);
+    try { document.documentElement.setAttribute('lang', l); } catch {}
+  }
+  const api = { get, set, SUPPORTED };
+  try { document.documentElement.setAttribute('lang', get()); } catch {}
+  return api;
+})();
+
 let languageLabels = {};
 
 function updateLanguageLabels(language) {
@@ -100,7 +120,7 @@ function fetchModulesFromBackend() {
         moduleSelect.appendChild(opt);
       });
 
-      updateLanguageLabels(document.getElementById("languageSelect")?.value || "pt");
+      updateLanguageLabels(window.I18N.get());
 
       const pre = moduleSelect.getAttribute("data-selected");
       if (pre != null && pre !== "") moduleSelect.value = String(pre);
@@ -139,8 +159,7 @@ function fetchVersionsFromBackend() {
         versionSelect.appendChild(opt);
       });
 
-      const selectedLang = document.getElementById("languageSelect")?.value || "pt";
-      updateLanguageLabels(selectedLang);
+      updateLanguageLabels(window.I18N.get());
 
       const preselected = versionSelect.getAttribute("data-selected");
       if (preselected) versionSelect.value = String(preselected);
@@ -164,7 +183,7 @@ function filterTemplates() {
   const selectedCodeNorm = norm(selectedCode);
 
   const yearVal  = (yearSel?.value ?? "").trim();
-  const monthVal = (monthSel?.value ?? "").trim();
+  const monthVal  = (monthSel?.value ?? "").trim();
   const y = yearVal ? parseInt(yearVal, 10) : null;
   const m = monthVal ? parseInt(monthVal, 10) : null;
 
@@ -329,8 +348,7 @@ function showI18nMessage(kind, key, value) {
   host.innerHTML = "";
   host.appendChild(wrapper);
 
-  const lang = document.getElementById("languageSelect")?.value || "pt";
-  updateLanguageLabels(lang);
+  updateLanguageLabels(window.I18N.get());
 }
 
 function bindFilterEventsOnce() {
@@ -363,8 +381,12 @@ function bindFilterEventsOnce() {
 document.addEventListener("DOMContentLoaded", () => {
   const langSelect = document.getElementById("languageSelect");
   if (langSelect) {
-    langSelect.addEventListener("change", () => updateLanguageLabels(langSelect.value));
-    updateLanguageLabels(langSelect.value || "pt");
+    langSelect.value = window.I18N.get();
+    langSelect.addEventListener("change", () => {
+      window.I18N.set(langSelect.value);
+      updateLanguageLabels(langSelect.value);
+    });
+    updateLanguageLabels(window.I18N.get());
   }
 
   populateYears();

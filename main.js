@@ -47,12 +47,14 @@ async function createWindow() {
     height: 800,
     icon: path.join(__dirname, "icons", "favico.ico"),
     webPreferences: { preload: path.join(__dirname, 'preload.js'),contextIsolation: true, nodeIntegration: false },
+    autoHideMenuBar: true
   });
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
   });
+
 
   win.webContents.openDevTools({ mode: 'detach' });
   //await win.loadURL(url);
