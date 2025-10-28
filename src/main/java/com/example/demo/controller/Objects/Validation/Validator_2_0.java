@@ -331,7 +331,7 @@ public class Validator_2_0 extends RunnableExtension {
         IO ioValidation = null;
         
         // temp
-        // List<Integer> operationVIDs = Arrays.asList(7024);
+        // List<Integer> operationVIDs = Arrays.asList(7472);
 
         try {
             long initAllProcess = System.nanoTime();
@@ -402,7 +402,7 @@ public class Validator_2_0 extends RunnableExtension {
                     /* if(!operationVIDs.contains(operationVId)){
                         continue;
                     } */
-                   
+                    
 
                     //Verifica se a regra já foi validada
                     //LOG.info("Verificar se a regra já foi validada"); 
@@ -418,7 +418,8 @@ public class Validator_2_0 extends RunnableExtension {
                         //Valida a precondicao caso ainda não tenha sido validada
                         //LOG.info("Validacao da precondicao caso ainda nao tenha sido validada"); 
                         Integer preConditionVId = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getPreconditonOperationVId();
-                        if (!resultPerPrecondition.containsKey(preConditionVId)) {
+                        
+                        if (preConditionVId != null && !resultPerPrecondition.containsKey(preConditionVId)) {
                             Map<Integer, List<ValNode>> nodesMappedByLevel = nodesMappedByPreconditionVIdByLevel.get(preConditionVId);
                             validatePrecondition(preConditionVId, nodesMappedByLevel, resultPerPrecondition, ioImport);
                         }
@@ -426,7 +427,7 @@ public class Validator_2_0 extends RunnableExtension {
                         ValResult preConditionResult = (preConditionVId != null) ? resultPerPrecondition.get(preConditionVId) : null;
 
                         //caso a precondicao
-                        if(preConditionVId != null && preConditionResult.valueIsNull() || !Boolean.parseBoolean(preConditionResult.getRawValue())){
+                        if(preConditionVId != null && (preConditionResult.valueIsNull() || !Boolean.parseBoolean(preConditionResult.getRawValue()))){
                             outValResult.setIoState(Info.getInstance().getIOStateByID(Constants.RULEDONOTRUNPREREQUISITE.getKey()));
                             
                             operationsResultsIds.put(operationVId, outValResult);
