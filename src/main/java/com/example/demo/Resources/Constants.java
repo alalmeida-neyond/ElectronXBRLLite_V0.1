@@ -485,8 +485,6 @@ public class Constants {
     public static String CURRENCYDESAGREGATIONCODEPREFIX = "eba_CU:";
     public static String MAPPEDCSVFIXEDHEADER = "datapoint,factValue";
 
-    public static String publicKeyDirectory = "public.pem";
-    public static String licenseStringDirectory = "licenseString.dat";
     public static String charSet = "UTF-8";
     public static String signatureString = "signature";
     public static String licenseString = "license";
@@ -494,6 +492,7 @@ public class Constants {
     public static String mdNameString = "SHA-256";
     public static String mgfNameString = "MGF1";
     public static String LEICodeKeyString = "LEICode";
+    public static String storedPathString = "storedPath";
     public static String BDPIDKeyString = "BDPID";
     public static String hardwareIDKeyString = "hardware";
     public static String expirationDateString = "expiry";

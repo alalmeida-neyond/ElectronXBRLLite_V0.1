@@ -28,23 +28,18 @@
         <div id="importProgress" class="progress-bar bg-success" role="progressbar" style="width: 0%;">0%</div>
       </div>
     </div>
-
     <div class="validationProgressBar" id="validationProgressBar">
       <span class="internationalization" data-key="validationTitle.label"></span>
       <div class="progress">
         <div id="validationProgress" class="progress-bar bg-info" role="progressbar" style="width: 0%;">0%</div>
       </div>
     </div>
-
-
     <div class="generationProgressBar" id="generationProgressBar">
       <span class="internationalization" data-key="generationTitle.label"></span>
       <div class="progress">
         <div id="generationProgress" class="progress-bar bg-warning" role="progressbar" style="width: 0%;">0%</div>
       </div>
     </div>
-
-
   </div>
 
   <div class="container">
@@ -71,6 +66,12 @@
       <div id="upload-error" class="alert alert-danger" style="display: none;">
         <span class="internationalization" id="upload-error-text"></span>
         <button type="button" class="btn-close-notification btn ms-auto" id="btn-close-notification">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div id="upload-success" class="alert alert-success" style="display: none; margin-top: 10px;">
+        <span class="internationalization" id="upload-success-text" data-key="successMessageDirectoryXBRL.label" th:attr="data-value=${storedPath}"></span>
+        <button type="button" class="btn-close-notification btn ms-auto" id="btn-close-notification-success">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -147,7 +148,7 @@
               <th class="mainTableHeader internationalization" data-key="module.label">{{module.label}}</th>
               <th class="mainTableHeader internationalization" data-key="entity.label">{{entity.label}}</th>
               <th class="mainTableHeader internationalization" data-key="domain.label">{{domain.label}}</th>
-              <th class="mainTableHeader internationalization" data-key="referenceDate.label">{{referenceDate.label}}
+              <th class="mainTableHeader internationalization" data-key="referenceDate.label" style="text-align: center;">{{referenceDate.label}}
               </th>
               <th class="mainTableHeader internationalization" data-key="importDetailsText.label"
                 data-tooltip-key="importTitleDetailsTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"

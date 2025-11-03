@@ -98,7 +98,10 @@ public class XBRLGenerator implements Runnable {
 
             path = Paths.get("XBRL_Lite","Run", "Reports", "XBRL_Generated").toString();
             
-            folderName = getEntity().getLeiCode() + "." + getDomain() + "_PT_" + Utils.applyVersionString(getModule()) + "_" + getModule().getCode().replace("_", "") + "_" + getReferenceDate() + "_" + now.format(formater);
+            //folderName = getEntity().getLeiCode() + "." + getDomain() + "_PT_" + Utils.applyVersionString(getModule()) + "_" + getModule().getCode().replace("_", "") + "_" + getReferenceDate() + "_" + now.format(formater);
+            
+            folderName = getEntity().getBdpId() + "." +  getDomain().toUpperCase() + "." + getReferenceDate().format(Constants.dateFormatFileName) + "." + getModule().getCode();
+
             //Create folder
             finalFolder = path + Utils.getSeparator() + folderName;
             directory = new File(finalFolder);
@@ -323,7 +326,7 @@ public class XBRLGenerator implements Runnable {
 
             Path zipFile = Paths.get(finalFolder + Utils.getSeparator(), finalFolder + ".zip");
 
-            Path finalPackage = Paths.get(finalFolder + "_FinalPackage");
+            Path finalPackage = Paths.get(finalFolder);
             Files.createDirectories(finalPackage);
             Path finalFolderPath = Paths.get(finalFolder);
             Path excelFileFinalPath = finalFolderPath.resolve(filenameValidations);
@@ -340,7 +343,7 @@ public class XBRLGenerator implements Runnable {
             Path zipFilePath = finalFolderPath.getParent().resolve(finalFolderPath.getFileName() + ".zip");
 
             Path finalPackagePath = finalFolderPath.getParent()
-                    .resolve(finalFolderPath.getFileName() + "_FinalPackage");
+                    .resolve(finalFolderPath.getFileName());
 
             Files.copy(zipFilePath, finalPackagePath.resolve(zipFile.getFileName()),
                     StandardCopyOption.REPLACE_EXISTING);
@@ -352,7 +355,6 @@ public class XBRLGenerator implements Runnable {
 
             validationsWorkbook.close();
 
-            cleanUp();
             progressService.setGenerationProgress(1, 1);
             IOState ioState = Info.getInstance().getIOStateByID(Constants.processoOk);
             ioGeneration.setIoState(ioState);
@@ -361,28 +363,6 @@ public class XBRLGenerator implements Runnable {
             Connection.merge(cm, ioGeneration);
 
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void cleanUp()
-    {
-        Path pathDirectory = Paths.get("XBRL_Lite", "Run", "Reports", "XBRL_Generated");
-
-        try {
-            Files.walk(pathDirectory)
-                 .sorted(Comparator.reverseOrder())
-                 .forEach(path -> {
-                     try {
-                         if (!path.getFileName().toString().contains("_FinalPackage.zip")) {
-                             Files.delete(path);
-                         } 
-                     } catch (IOException e) {
-                         System.err.println("Problema a apagar: " + path + " (" + e.getMessage() + ")");
-                     }
-                 });
-        } catch (IOException e) {
-            LOG.error("Erro na limpeza de ficheiros");
             e.printStackTrace();
         }
     }

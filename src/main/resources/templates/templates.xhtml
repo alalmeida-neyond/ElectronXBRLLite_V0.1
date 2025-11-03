@@ -24,6 +24,12 @@
   </div>
 
   <div class="container">
+    <div id="upload-success" style="display: none; margin-top: 10px;">
+        <span class="internationalization" id="upload-success-text" data-key="successMessageDirectoryTemplate.label" th:attr="data-value-directory=${storedPath}"></span>
+        <button type="button" class="btn-close-notification btn ms-auto" id="btn-close-notification">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
     <div class="row mb-3 filterDiv" id="filterDiv">
       <div class="col-md-2">
         <select class="form-select" id="filterModule" th:attr="data-selected=${currentModuleVid}">

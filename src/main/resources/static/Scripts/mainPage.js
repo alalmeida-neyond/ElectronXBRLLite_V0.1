@@ -47,7 +47,7 @@ function closeAllDetailRows() {
   hidePager();
 }
 
-function updateLanguageLabels(language) {
+async function updateLanguageLabels(language) {
   return fetch(`./Languages_Files/${language}.json`, { cache: "no-store" })
     .then((r) => {
       if (!r.ok) throw new Error();
@@ -78,6 +78,7 @@ function updateLanguageLabels(language) {
           let t = data[key];
           const v = el.getAttribute("data-value");
           if (v && t) t = t.replace("{0}", v);
+          if (v && t) t = t.replace("{1}", v);
           if (!t) return;
           if (el.tagName === "INPUT") el.placeholder = t;
           else if (el.tagName === "OPTION") el.innerHTML = t;
@@ -266,9 +267,16 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   const uploadError = document.getElementById("upload-error");
+  const uploadSuccess = document.getElementById("upload-success");
   const uploadErrorExit = document.getElementById("btn-close-notification");
+  const closeBtn = document.getElementById("btn-close-notification-success");
 
   uploadErrorExit.addEventListener('click',function(){
+    if(document.getElementById("table-wrapper").classList.contains("uploadWithMessage"))
+    {
+      document.getElementById("table-wrapper").classList.remove("uploadWithMessage");
+      document.getElementById("table-wrapper").classList.add("upload");
+    }
     uploadError.style.display = "none";
     document.getElementById("table-wrapper")?.classList.remove("error");
     document.getElementById("table-wrapper")?.classList.remove("upload");
@@ -276,6 +284,17 @@ document.addEventListener("DOMContentLoaded", function () {
     uploadError.classList.remove("align-items-center");
   });
 
+  closeBtn.addEventListener('click',function(){
+    if(document.getElementById("table-wrapper").classList.contains("uploadWithMessage"))
+    {
+      document.getElementById("table-wrapper").classList.remove("uploadWithMessage");
+      document.getElementById("table-wrapper").classList.add("upload");
+    }
+    uploadSuccess.style.display = "none";
+    document.getElementById("table-wrapper")?.classList.remove("error");
+    document.getElementById("table-wrapper")?.classList.remove("upload");
+  });
+  
   document
     .getElementById("filterModule")
     .addEventListener("change", autoSubmit);
@@ -358,10 +377,21 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("upload-text").style.display = "none";
     document.getElementById("loading-container").style.display = "flex";
     document.getElementById("file").disabled = true;
+
+    closeAllDetailRows();
+
     ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
       document.getElementById(id).classList.add("isDisabled")
     );
-    document.getElementById("table-wrapper").classList.add("upload");
+    if(document.getElementById("table-wrapper").classList.contains("error"))
+    {
+      document.getElementById("table-wrapper").classList.add("uploadWithMessage");
+    }
+    else
+    {
+      document.getElementById("table-wrapper").classList.add("upload");
+    }
+    
     showImportProgress(0);
     startProgressPolling(true);
     fetch("/importFile/upload", { method: "POST", body: formData })
@@ -378,7 +408,16 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("loading-container").style.display = "none";
         document.getElementById("upload-error").style.display = "none";
         document.getElementById("file").disabled = false;
+        document.getElementById("upload-success").style.display = "block";
+
+        document.getElementById("table-wrapper").classList.remove("uploadWithMessage");
+        
         document.getElementById("table-wrapper").classList.remove("upload");
+
+        
+        document.getElementById("table-wrapper")?.classList?.remove("after");
+        document.getElementById("table-wrapper")?.classList.add("error");
+
         ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
           document.getElementById(id).classList.remove("isDisabled")
         );
@@ -396,11 +435,11 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((err) => {
         document.getElementById("upload-text").style.display = "block";
         document.getElementById("loading-container").style.display = "none";
+        document.getElementById("upload-success").style.display = "none";
         document.getElementById("file").disabled = false;
         const box = document.getElementById("upload-error");
         const span = document.getElementById("upload-error-text");
 
-        console.log("Erro Mensagem:" + err.message);
         if (box) {
           if(err.message.includes(".label"))
           {
@@ -442,14 +481,11 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(() => { });
   }
 
-  function createCellCustomIOStateINOUT(ioStateId, ioStateIdVal) {
+  function createCellCustomIOStateINOUT(ioStateId, ioStates) {
     const td = document.createElement("td");
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
     let bg = "lightGrey";
-
-    if (ioStateId == 2) bg = "#fff3cd";
-    else if (ioStateId == 3) bg = "#f8d7da";
 
     switch(ioStateId)
     {
@@ -470,13 +506,23 @@ document.addEventListener("DOMContentLoaded", function () {
         icon.setAttribute("data-tooltip-key", "pendingState.tooltip");
         break;
       case 12:
-        icon.classList.add("bi-exclamation-triangle-fill", "text-success");
+        icon.classList.add("bi-circle-half", "text-success");
         icon.setAttribute("data-tooltip-key", "okEmptyState.tooltip");
         break;
       default:
         icon.classList.add("bi-x-circle-fill", "text-danger");
         icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
         break;
+    }
+
+    if(ioStates.includes(2))
+    {
+      bg = "#fff3cd";
+    }
+
+    if(ioStates.includes(3))
+    {
+      bg = "#f8d7da";
     }
     icon.setAttribute("data-has-tooltip", 1);
     icon.setAttribute("data-bs-toggle", "tooltip");
@@ -487,7 +533,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return td;
   }
 
-  function createCellCustomIOState(ioStateId) {
+  function createCellCustomIOState(ioStateId, ioStates) {
     const td = document.createElement("td");
     const icon = document.createElement("i");
     icon.classList.add("bi", "me-2");
@@ -502,19 +548,17 @@ document.addEventListener("DOMContentLoaded", function () {
       case 2:
         icon.classList.add("bi-exclamation-triangle-fill", "text-warning");
         icon.setAttribute("data-tooltip-key", "okErrorState.tooltip");
-        bg = "#fff3cd";
         break;
       case 3:
         icon.classList.add("bi-x-circle-fill", "text-danger");
         icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
-        bg = "#f8d7da";
         break;
       case 4:
         icon.classList.add("bi-clock-fill", "text-primary");
         icon.setAttribute("data-tooltip-key", "pendingState.tooltip");
         break;
       case 12:
-        icon.classList.add("bi-exclamation-triangle-fill", "text-success");
+        icon.classList.add("bi-circle-half", "text-success");
         icon.setAttribute("data-tooltip-key", "okEmptyState.tooltip");
         break;
       default:
@@ -522,6 +566,17 @@ document.addEventListener("DOMContentLoaded", function () {
         icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
         break;
     }
+
+    if(ioStates.includes(2))
+    {
+      bg = "#fff3cd";
+    }
+
+    if(ioStates.includes(3))
+    {
+      bg = "#f8d7da";
+    }
+
     icon.setAttribute("data-has-tooltip", 1);
     icon.setAttribute("data-bs-toggle", "tooltip");
     icon.setAttribute("data-bs-placement", "top");
@@ -531,13 +586,24 @@ document.addEventListener("DOMContentLoaded", function () {
     return td;
   }
 
-  function createCellCustom(value, ioStateId) {
+  function createCellCustom(value, ioStates, referenceDateBool) {
     const td = document.createElement("td");
     let bg = "lightGrey";
-    if (ioStateId == 2) bg = "#fff3cd";
-    else if (ioStateId == 3) bg = "#f8d7da";
+    if(ioStates.includes(2))
+    {
+      bg = "#fff3cd";
+    }
+
+    if(ioStates.includes(3))
+    {
+      bg = "#f8d7da";
+    }
     td.style.backgroundColor = bg;
     td.textContent = value ?? "-";
+    if(referenceDateBool)
+    {
+      td.style.textAlign = "center";
+    }
     return td;
   }
 
@@ -564,18 +630,23 @@ document.addEventListener("DOMContentLoaded", function () {
     tbody.innerHTML = "";
     ioList.forEach((io) => {
       const tr = document.createElement("tr");
-      tr.classList.add("detail-line")
-      const td0 = createCellCustomIOState(io[8]);
-      const tdIN = createCellCustomIOStateINOUT(io[5], io[8]);
-      const tdOUT = createCellCustomIOStateINOUT(io[11], io[8]);
+      tr.classList.add("detail-line");
+
+      const ioStates = [];
+
+      ioStates.push(io[5], io[8], io[11]);
+
+      const td0 = createCellCustomIOState(io[8], ioStates);
+      const tdIN = createCellCustomIOStateINOUT(io[5], ioStates);
+      const tdOUT = createCellCustomIOStateINOUT(io[11], ioStates);
       tdIN.classList.add("first-cell");
       tr.appendChild(tdIN);
       tr.appendChild(td0);
       tr.appendChild(tdOUT);
-      tr.appendChild(createCellCustom(io[0], io[8]));
-      tr.appendChild(createCellCustom(io[1], io[8]));
-      tr.appendChild(createCellCustom(io[2], io[8]));
-      tr.appendChild(createCellCustom(io[3], io[8]));
+      tr.appendChild(createCellCustom(io[0], ioStates, false));
+      tr.appendChild(createCellCustom(io[1], ioStates, false));
+      tr.appendChild(createCellCustom(io[2], ioStates, false));
+      tr.appendChild(createCellCustom(io[3], ioStates, true));
       const tdImp = document.createElement("td");
       const tdVal = document.createElement("td");
       const tdGen = document.createElement("td");
@@ -615,6 +686,21 @@ document.addEventListener("DOMContentLoaded", function () {
         tdVal.style.backgroundColor = "#f8d7da";
         tdGen.style.backgroundColor = "#f8d7da";
       }
+
+      if(ioStates.includes(2))
+      {
+        tdImp.style.backgroundColor = "#fff3cd";
+        tdVal.style.backgroundColor = "#fff3cd";
+        tdGen.style.backgroundColor = "#fff3cd";
+      }
+
+      if(ioStates.includes(3))
+      {
+        tdImp.style.backgroundColor = "#f8d7da";
+        tdVal.style.backgroundColor = "#f8d7da";
+        tdGen.style.backgroundColor = "#f8d7da";
+      }
+      
       tbody.appendChild(tr);
 
       const rImp = document.createElement("tr");
@@ -629,14 +715,20 @@ document.addEventListener("DOMContentLoaded", function () {
       const tdImpD = document.createElement("td");
       tdImpD.colSpan = 10;
       tdImpD.style.paddingBottom = 0;
+      tdImpD.style.paddingLeft = 0;
+      tdImpD.style.paddingRight = 0;
       tdImpD.style.padding = 10;
       const tdValD = document.createElement("td");
       tdValD.colSpan = 10;
       tdValD.style.paddingBottom = 0;
+      tdValD.style.paddingLeft = 0;
+      tdValD.style.paddingRight = 0;
       tdValD.style.padding = 10;
       const tdGenD = document.createElement("td");
       tdGenD.colSpan = 10;
       tdGenD.style.paddingBottom = 0;
+      tdGenD.style.paddingLeft = 0;
+      tdGenD.style.paddingRight = 0;
       tdGenD.style.padding = 10;
       const divImp = document.createElement("div");
       divImp.id = `detail-import-${io[4]}`;
@@ -802,7 +894,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const scroll = document.createElement("div");
       scroll.className = "detailsTable";
       const table = document.createElement("table");
-      table.className = "fixed-header-table table table-borderless";
+      table.className = "fixed-header-table table table-borderless ";
       const thead = document.createElement("thead");
       thead.style.zIndex = 4;
       const hr = document.createElement("tr");
@@ -870,10 +962,12 @@ document.addEventListener("DOMContentLoaded", function () {
       container.innerHTML = "";
       container.classList.remove("internationalization");
       container.removeAttribute("data-key");
+
       const spacingDiv = document.createElement("div");
       spacingDiv.style.height="10px";
       table.appendChild(thead);
       table.appendChild(spacingDiv);
+      tbody.style.display="table-caption";
       table.appendChild(tbody);
       scroll.appendChild(filters);
       scroll.appendChild(table);
@@ -1044,6 +1138,7 @@ document.addEventListener("DOMContentLoaded", function () {
       spacingDiv.style.height="10px";
       table.appendChild(thead);
       table.appendChild(spacingDiv);
+      tbody.style.display="table-caption";
       table.appendChild(tbody);
       scroll.appendChild(table);
       container.appendChild(scroll);
@@ -1181,6 +1276,7 @@ document.addEventListener("DOMContentLoaded", function () {
       spacingDiv.style.height="10px";
       table.appendChild(thead);
       table.appendChild(spacingDiv);
+      tbody.style.display="table-caption";
       table.appendChild(tbody);
       scroll.appendChild(table);
       container.appendChild(scroll);

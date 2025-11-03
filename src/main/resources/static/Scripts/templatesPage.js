@@ -31,7 +31,9 @@ function updateLanguageLabels(language) {
         if (translation == null) return;
 
         const value = element.getAttribute("data-value");
+        const valueDirectory = element.getAttribute("data-value-directory");
         if (value) translation = translation.replace("{0}", value);
+        if (valueDirectory) translation = translation.replace("{1}", valueDirectory);
 
         if (element.tagName === "INPUT") {
           const type = element.getAttribute("type")?.toLowerCase();
@@ -319,34 +321,25 @@ function ensureMessageHost() {
   return host;
 }
 
-function showI18nMessage(kind, key, value) {
-  const host = ensureMessageHost();
+function showMessage(kind, key, value) {
 
-  const wrapper = document.createElement("div");
-  wrapper.className = `alert alert-${kind} alert-dismissible fade show`;
-  wrapper.setAttribute("role", "alert");
-  wrapper.style.marginTop = ".75rem";
+  const divMessage = document.getElementById("upload-success");
+  divMessage.className = `alert alert-${kind} alert-dismissible fade show`;
+  divMessage.setAttribute("role", "alert");
+  divMessage.style.marginTop = ".75rem";
+  divMessage.style.display="block";
 
-  const span = document.createElement("span");
+  const span = document.getElementById("upload-success-text");
   span.className = "internationalization";
   span.setAttribute("data-key", key);
   if (value != null && value !== "") span.setAttribute("data-value", String(value));
 
-  const closeBtn = document.createElement("button");
-  closeBtn.type = "button";
-  closeBtn.className = "btn-close";
-  closeBtn.setAttribute("data-bs-dismiss", "alert");
-  closeBtn.setAttribute("aria-label", "Close");
-
+  const closeBtn = document.getElementById("btn-close-notification");
+  
   closeBtn.addEventListener('click',function(){
       document.getElementById("table-wrapper-templates")?.classList.remove("message");
+      divMessage.style.display="none";
   });
-
-  wrapper.appendChild(span);
-  wrapper.appendChild(closeBtn);
-
-  host.innerHTML = "";
-  host.appendChild(wrapper);
 
   updateLanguageLabels(window.I18N.get());
 }
@@ -399,8 +392,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   filterTemplates();
 
-  const downloadSuccessMessageButton= document.getElementsByClassName("btn-close")[0];
-
   const table = document.getElementById("templatesTable");
   if (table && !table._dlBound) {
     table._dlBound = true;
@@ -410,7 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const filename = btn.getAttribute("data-filename") || "";
       if (!filename) {
-        showI18nMessage("danger", "downloadMissingFile.label");
+        showMessage("danger", "downloadMissingFile.label");
         return;
       }
 
@@ -427,13 +418,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!res.ok || data.ok === false) {
           const reason = data.message || `HTTP ${res.status}`;
-          showI18nMessage("danger", "downloadFailedWithReason.label", reason);
+          showMessage("danger", "downloadFailedWithReason.label", reason);
         } else {
-          showI18nMessage("success", "downloadSuccess.label", filename);
+          showMessage("success", "successMessageDirectoryTemplate.label", filename);
         }
+        updateLanguageLabels(window.I18N.get());
       } catch (err) {
         console.error(err);
-        showI18nMessage("danger", "networkError.label");
+        showMessage("danger", "networkError.label");
       } finally {
         btn.innerHTML = oldHTML;
         btn.disabled = false;

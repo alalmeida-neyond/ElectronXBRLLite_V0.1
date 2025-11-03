@@ -112,5 +112,7 @@
   "incorrectDomain.label":"Dominio inválido.",
   "errorMovingFile.label":"Falha na importação do ficheiro para a diretoria de importação!",
   "unknownError.label":"Erro desconhecido. Por Favor Contacte A Neyond Para Resolvermos Esta Situação",
-  "filenameTooltip.label":"Os ficheiros Excel devem ter a seguinte nomenclatura: <span style='cursor:help;color:blue;'>[Entidade]_[Módulo]_[Domínio]_[YYYYMM]_[Informação_adicional].xlsx</span>. <br />"
+  "filenameTooltip.label":"Os ficheiros Excel devem ter a seguinte nomenclatura: <span style='cursor:help;color:blue;'>[Entidade]_[Módulo]_[Domínio]_[YYYYMM]_[Informação_adicional].xlsx</span>. <br />",
+  "successMessageDirectoryXBRL.label":"XBRL gerado e copiado para a diretoria: {1}",
+  "successMessageDirectoryTemplate.label":"Template transferido para a diretoria: {1}"
 }

@@ -112,5 +112,7 @@
   "incorrectDomain.label":"Invalid domain.",
   "errorMovingFile.label":"Failed to import the file into the import directory!",
   "unknownError.label":"Unknown error. Please contact Neyond so we can resolve this situation",
-  "filenameTooltip.label": "Excel files must use the following naming convention: <span style='cursor:help;color:blue;'>[Entity]_[Module]_[Domain]_[YYYYMM]_[Additional_information].xlsx</span>.<br/>"
+  "filenameTooltip.label": "Excel files must use the following naming convention: <span style='cursor:help;color:blue;'>[Entity]_[Module]_[Domain]_[YYYYMM]_[Additional_information].xlsx</span>.<br/>",
+  "successMessageDirectoryXBRL.label":"XBRL generated and copied to the directory: {1}",
+  "successMessageDirectoryTemplate.label":"Template downloaded to the directory: {1}"
 }

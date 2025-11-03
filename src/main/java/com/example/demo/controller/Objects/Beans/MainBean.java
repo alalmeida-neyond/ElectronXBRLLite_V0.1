@@ -9,7 +9,6 @@ import com.example.demo.Data.Access.Info;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
-import com.example.demo.Verification.LicenseVerification;
 import com.example.demo.controller.Objects.Entities.Conf.ConfAppConfigs;
 import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.Conf.ConfImportRules;
@@ -74,9 +73,6 @@ public class MainBean extends DefaultBean{
     public MainBean(ProgressService progressService) {
         this.progressService = progressService;
     }
-    @Autowired
-    private LicenseVerification licenseVerification;
-
 
     @PostConstruct
     public void init() {
@@ -444,11 +440,13 @@ public class MainBean extends DefaultBean{
     public ModelAndView greeting() throws FileNotFoundException {
         ModelAndView modelAndView = new ModelAndView();
 
-        //init();
-        modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
+        String storedPath = getStoredPathOrFallback();
+        modelAndView.addObject(Constants.storedPathString, storedPath);
 
-        modelAndView.setViewName("test");
+        modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
+        //init();
         
+        modelAndView.setViewName("test");
         
         return modelAndView;
     }
@@ -458,7 +456,7 @@ public class MainBean extends DefaultBean{
         ModelAndView modelAndView = new ModelAndView();
 
         String storedPath = getStoredPathOrFallback();
-        modelAndView.addObject("storedPath", storedPath);
+        modelAndView.addObject(Constants.storedPathString, storedPath);
 
         modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
        
@@ -471,6 +469,9 @@ public class MainBean extends DefaultBean{
     public ModelAndView templates(@RequestParam(required = false) Integer moduleVid,@RequestParam(required = false) Integer year,@RequestParam(required = false) Integer month, @RequestParam(required = false) String version) {
         ModelAndView modelAndView = new ModelAndView();
         List<ConfTemplate> listOfTemplates;
+
+        String storedPath = getStoredPathOrFallback();
+        modelAndView.addObject(Constants.storedPathString, storedPath);
 
         String referenceDate = null;
         LocalDate dateaux = null;
@@ -571,27 +572,6 @@ public class MainBean extends DefaultBean{
             LOG.error("Erro ao criar pasta Downloads", e);
         }
         return fallback.toAbsolutePath().toString();
-    }
-
-    @GetMapping("/import_file")
-    public ModelAndView importFile() throws FileNotFoundException {
-        
-        ModelAndView modelAndView = new ModelAndView();
-        try {
-            licenseValidated = licenseVerification.licenseValidationFile();
-        } catch (Exception e) {
-            licenseValidated = false;
-            System.err.println("Erro ao validar licença: " + e.getMessage());
-        }
-        if (licenseValidated)
-        {
-            modelAndView.setViewName("import_file");
-        }
-        else
-        {
-            modelAndView.setViewName("licensepage");
-        }
-        return modelAndView;
     }
 
     @GetMapping("/importFile/validation/results/{id}")

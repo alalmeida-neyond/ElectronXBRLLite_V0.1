@@ -99,14 +99,19 @@
 
 .table-wrapper.after {
   max-height: calc(91.5vh - 300px);
+  overflow-y: hidden;
 }
 
 .table-wrapper.error {
-  max-height: calc(70.5vh - 300px);
+  max-height: calc(71.5vh - 300px);
 }
 
 .table-wrapper.upload {
   max-height: calc(74.5vh - 300px);
+}
+
+.table-wrapper.uploadWithMessage {
+  max-height: calc(66.5vh - 300px);
 }
 
 #validationTable thead {
@@ -120,6 +125,13 @@
 
 #validationTableBody{
   display: table-row-group; 
+}
+
+.detailsTable thead th {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 0.9rem;
+  line-height: 1rem;
 }
 
 .fixed-header-table {
@@ -139,8 +151,24 @@
   padding: 12px;
   text-align: center;
   vertical-align: middle;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
+
+.fixed-header-table thead,
+.fixed-header-table tbody tr{
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.fixed-header-table tbody{
+  display: block;
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.flex-parent > .fixed-header-table { flex: 1 1 auto; min-width: 0; }
 
 th.mainTableHeader {
   background-color: #033d51; 
@@ -326,14 +354,6 @@ html, body {
   height: 18px;
 }
 
-
-.detailsTable thead th {
-  padding-top: 4px;
-  padding-bottom: 4px;
-  font-size: 0.9rem;
-  line-height: 1rem;
-}
-
 #paginationDiv {
   background-color: #033d51;
   color: white;
@@ -388,3 +408,36 @@ tbody:before {
 .tooltip-inner {
     max-width: 480px !important;
 }
+
+#upload-success button {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+
+#sharedPaginationContainer{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap: .18rem;
+  justify-content: center;
+}
+
+.page-btn.roundButton{
+  width:  1.55rem;
+  height:  1.55rem;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: .72rem;
+  font-variant-numeric: tabular-nums;
+  border-width: 1px;
+  margin: 0 !important;
+}
+
+.page-btn.roundButton i{ font-size: .85em; line-height: 1; }
+
