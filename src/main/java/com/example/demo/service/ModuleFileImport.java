@@ -460,7 +460,7 @@ public class ModuleFileImport extends RunnableExtension{
 
                                     try {
                                         if (cellType == Constants.DATATYPEMONETARY || cellType == Constants.DATATYPEPERCENTAGE) {
-                                            valueEdited = Utils.roundToZero(value);
+                                            valueEdited = Utils.roundToZero(valueEdited);
                                         }
                                     } catch (Exception e) {
                                         errorMsgPerTables.add("Erro a normalizar valor numérico, na linha " + rowValue + " e na coluna " + columnValue + ".");
@@ -468,7 +468,7 @@ public class ModuleFileImport extends RunnableExtension{
                                     }
                                     
                                      if (cellType == Constants.DATATYPEDATE && listOfIDImportRules.contains(Constants.IMPORTRULEDATE)) {
-                                        valueEdited = Utils.dateTreatment(value);
+                                        valueEdited = Utils.dateTreatment(valueEdited);
                                         if (valueEdited == null) {
                                             errorMsgPerTables.add("Erro a normalizar valor de data, na linha " + rowValue + " e na coluna " + columnValue + ".");
                                             valid = false;
@@ -476,7 +476,7 @@ public class ModuleFileImport extends RunnableExtension{
                                     }
 
                                     if (cellType == Constants.DATATYPEDATETIME && listOfIDImportRules.contains(Constants.IMPORTRULEDATETIME)) {
-                                        valueEdited = Utils.dateTimeTreatment(value);
+                                        valueEdited = Utils.dateTimeTreatment(valueEdited);
                                         if (valueEdited == null) {
                                             errorMsgPerTables.add("Erro a normalizar valor temporal, na linha " + rowValue + " e na coluna " + columnValue + ".");
                                             valid = false;
@@ -484,7 +484,7 @@ public class ModuleFileImport extends RunnableExtension{
                                     }
                                     
                                     if ((cellType == Constants.DATATYPEBOOLEAN || cellType == Constants.DATATYPETRUE) && listOfIDImportRules.contains(Constants.IMPORTRULEBOOLEAN)) {
-                                        valueEdited = Utils.booleanTreatment(value, cellType);
+                                        valueEdited = Utils.booleanTreatment(valueEdited, cellType);
                                         if (valueEdited == null) {
                                             errorMsgPerTables.add("Erro a normalizar valor booleano, na linha " + rowValue + " e na coluna " + columnValue + ".");                                    
                                             valid = false;

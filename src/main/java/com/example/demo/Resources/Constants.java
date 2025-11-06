@@ -166,6 +166,11 @@ public class Constants {
     public static final String validationError = "Erro no processo de Validacao.";
     public static final String movingFileError = "errorMovingFile.label";
 
+    public static final String MESSAGEERROREXPECTEDDESAGCODE(String mapcode){
+        return "Alerta! O mapa " + mapcode + " requer um código de desagregação, mas nenhum foi fornecido.";
+    }
+
+
     public static final String MESSAGEERRORDESAGCODE(String mapcode){
         return "Alerta! Inseriu um valor inválido para o DesagregationCode, no mapa "+mapcode+".";
     }

@@ -58,7 +58,6 @@ public class MainBean extends DefaultBean{
     private List<Integer> listOfImportRulesToApply = new ArrayList<Integer>();
     private List<Integer> listOfImportRulesToAlwaysApply = new ArrayList<Integer>();
     private List<ConfImportRules> listOfImportRules = new ArrayList<>();
-    private static boolean licenseValidated = false;
 
     private List<IO> importIOs;
 

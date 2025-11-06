@@ -24,33 +24,27 @@ with preconditionReferences as (
         and domain = :domain
         and entityId = :entityId
 )
- 
 , importedTabledFiltered as (
     select impTable.* 
     from in_importedtablestemp impTable
     inner join importedIOs io on io.ioid = impTable.ioid
 )
-
 , tablesImported as (
-    select max(it.importedtableid) importedtableid, it.tablevid, it.importkeyid, it.variablevid
-    from importedTabledFiltered itF
-    inner join in_importedtablestemp it on itF.tablevid = it.tablevid
-    group by it.tablevid, it.importKeyId, it.variablevid
+    select maxTables.* from (
+        select max(it.importedtableid) importedtableid, it.tablevid, it.importkeyid, it.variablevid
+        from importedTabledFiltered itF
+        inner join  in_importedtablestemp it on itF.importedtableid = it.importedtableid
+        group by it.tablevid, it.importKeyId, it.variablevid
+    )maxTables
+    inner join in_importedtablestemp itt on maxTables.importedtableid = itt.importedtableid
+    where itt.io_stateid <> :processoOkDeleted
 )
-
-, tablesImportedOk as (
-    select ti.* 
-    from tablesImported ti
-    inner join in_importedtablestemp it on it.importedtableid = ti.importedtableid
-    where it.io_stateid = 1
-)
-
 , nodeValues as (
     select opr.nodeid, opr.variablevid, CASE WHEN ti.variablevid IS NOT NULL THEN 'true' ELSE 'false' END as existsInTablesImported
     from operandReferencesVariableVID opr
-    left join tablesImportedOk ti on opr.variablevid = ti.variablevid
+    left join tablesImported ti on opr.variablevid = ti.variablevid
     group by opr.nodeid, opr.variablevid, ti.variablevid
-) 
+)
 
 select 
         ROW_NUMBER() OVER () AS ValueID, 

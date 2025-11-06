@@ -853,7 +853,8 @@ public class OperationsUtils {
     
     public static boolean isToUseMargin(ValNode node, ValResult result){
         if(node != null && node.getNode() != null && result != null)
-            return (node.getNode().isLeaf() && node.getNode().isUseIntervalArithmetics()) || (!node.getNode().isLeaf() && result.getMargin()!= null && result.getMargin() != BigDecimal.ZERO);
+            //return (node.getNode().isLeaf() && node.getNode().isUseIntervalArithmetics()) || (!node.getNode().isLeaf() && result.getMargin()!= null && result.getMargin() != BigDecimal.ZERO);
+            return (node.getNode().isLeaf() && node.getNode().isUseIntervalArithmetics()) || (!node.getNode().isLeaf() && result.getMargin()!= null && !result.getMargin().equals(BigDecimal.ZERO));
         return false;
     }
 

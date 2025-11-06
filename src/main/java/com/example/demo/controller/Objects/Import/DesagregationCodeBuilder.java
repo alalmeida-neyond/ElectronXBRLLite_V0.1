@@ -39,6 +39,10 @@ public class DesagregationCodeBuilder {
     }
     
     public InImportKey buildDesagCodeKey(Integer tableVID, String desagregationCodeRaw, String sheetName) {
+         if(desagregationCodeRaw == null || desagregationCodeRaw.isEmpty()){
+            errorMessages.add(Constants.MESSAGEERROREXPECTEDDESAGCODE(sheetName));
+            return null;
+        }
         this.sheetName = sheetName;
         Integer desagCodeType = desagregationCodeTypeOfMaps.get(tableVID);
         InImportKey desagCodeKey = null;

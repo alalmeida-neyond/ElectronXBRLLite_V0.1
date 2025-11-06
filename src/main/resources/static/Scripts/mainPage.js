@@ -23,6 +23,8 @@ const paginationState = {};
 const dataCache = {};
 const ROWS_PER_PAGE = 15;
 
+
+
 function reinitTooltips(container = document) {
   container.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => {
     bootstrap.Tooltip.getInstance(el)?.dispose();
@@ -324,18 +326,23 @@ document.addEventListener("DOMContentLoaded", function () {
   function startProgressPolling(activate) {
     if(activate)
     {
+      resetFilters();
+      autoSubmit();
       progressInterval = setInterval(() => {
         fetch("/importProgress")
           .then((r) => r.json())
           .then((pI) => {
+            fetchIOs();
             if (pI === 100) {
               fetch("/validationProgress")
                 .then((r) => r.json())
                 .then((pV) => {
+                  fetchIOs();
                   if (pV === 100) {
                     fetch("/generationProgress")
                       .then((r) => r.json())
                       .then((pG) => {
+                        fetchIOs();
                         if (pG === 100) {
                           clearInterval(progressInterval);
                           document.getElementById(
@@ -1314,6 +1321,13 @@ document.addEventListener("DOMContentLoaded", function () {
     return { y, m: month };
   }
 
+  function resetFilters()
+  {
+    document.getElementById("filterModule").value = "";
+    document.getElementsByName("filterYear")[0].value = "";
+    document.getElementById("filterMonth").value = "";
+  }
+
   function autoSubmit() {
     const moduleFilter = document
       .getElementById("filterModule")
@@ -1326,6 +1340,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedMonth = selectedMonthRaw
       ? String(selectedMonthRaw).padStart(2, "0")
       : "";
+
+    console.log("Module:" + moduleFilter);
+    console.log("Year:" + selectedYear);
+    console.log("Month:" + selectedMonth);
     const filtered = allIOs.filter((io) => {
       const moduleValue = (io[0] ?? "").toLowerCase().trim();
       const dateValue = (io[3] ?? "").trim();

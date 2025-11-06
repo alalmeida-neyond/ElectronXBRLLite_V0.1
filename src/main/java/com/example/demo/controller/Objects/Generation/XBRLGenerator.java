@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -104,6 +105,7 @@ public class XBRLGenerator implements Runnable {
 
             //Create folder
             finalFolder = path + Utils.getSeparator() + folderName;
+            deleteDirectory(Paths.get(finalFolder));
             directory = new File(finalFolder);
             if (!directory.exists()) {
                 directory.mkdirs();
@@ -177,7 +179,7 @@ public class XBRLGenerator implements Runnable {
             completedSteps++;
             progressService.setGenerationProgress(completedSteps,listOfTableGroupedByTheTableVID.size() + 3);
             createFillingIndicatorCSV(finalFolder, filteredMapWithoutEmpty);
-           GenerateLogDAL.createNewGenerationLog(Constants.generationEndedDesc, outXBRLGenerated.getIdXBRLGenerate(), em);
+            GenerateLogDAL.createNewGenerationLog(Constants.generationEndedDesc, outXBRLGenerated.getIdXBRLGenerate(), em);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -300,7 +302,6 @@ public class XBRLGenerator implements Runnable {
             cm = new ConnectionManager(em);
             Path excelFilePath = Paths.get(finalFolder + Utils.getSeparator(), "ResultsValidation.csv");
 
-
             List<Object[]> validationData = new ArrayList<>();
             
             validationData = OutValidationResultDAL.getValidationResultsDetailsForGeneration(
@@ -319,26 +320,24 @@ public class XBRLGenerator implements Runnable {
 
             String filenameValidations = "Validations_" + ioValidation.getEntity().getBdpId() + "_" + ioValidation.getModule().getCode().replace("_", "") + "_" + ioValidation.getDomain() + "_" + ioValidation.getReferenceDate() + ".xlsx";
 
-            excelFilePath = Paths.get(finalFolder + Utils.getSeparator(), filenameValidations);
-            try (FileOutputStream out = new FileOutputStream(excelFilePath.toString())) {
-                validationsWorkbook.write(out);
-            }
-
             Path zipFile = Paths.get(finalFolder + Utils.getSeparator(), finalFolder + ".zip");
 
             Path finalPackage = Paths.get(finalFolder);
             Files.createDirectories(finalPackage);
             Path finalFolderPath = Paths.get(finalFolder);
             Path excelFileFinalPath = finalFolderPath.resolve(filenameValidations);
-            Files.copy(excelFileFinalPath, finalPackage.resolve(excelFileFinalPath.getFileName()),
-                    StandardCopyOption.REPLACE_EXISTING);
-            Files.delete(excelFileFinalPath);
+            
+            //Files.delete(excelFileFinalPath);
             
             copyJSONs(finalFolder, ioValidation.getModule());
 
             organizeFiles(finalFolder);
 
             zipFolder(Paths.get(finalFolder));
+
+            deleteDirectory(Paths.get(finalFolder));
+
+            Files.createDirectories(finalPackage);
 
             Path zipFilePath = finalFolderPath.getParent().resolve(finalFolderPath.getFileName() + ".zip");
 
@@ -348,12 +347,20 @@ public class XBRLGenerator implements Runnable {
             Files.copy(zipFilePath, finalPackagePath.resolve(zipFile.getFileName()),
                     StandardCopyOption.REPLACE_EXISTING);
 
+            excelFilePath = Paths.get(finalFolder + Utils.getSeparator(), filenameValidations);
+            try (FileOutputStream out = new FileOutputStream(excelFilePath.toString())) {
+                validationsWorkbook.write(out);
+            }
+            Files.copy(excelFileFinalPath, finalPackage.resolve(excelFileFinalPath.getFileName()),
+                    StandardCopyOption.REPLACE_EXISTING);
+
             zipFolder(finalPackage);
 
             copyZipToPreferedDirectory(finalPackagePath);
             
-
             validationsWorkbook.close();
+
+            deleteDirectory(Paths.get(finalFolder));
 
             progressService.setGenerationProgress(1, 1);
             IOState ioState = Info.getInstance().getIOStateByID(Constants.processoOk);
@@ -448,7 +455,6 @@ public class XBRLGenerator implements Runnable {
                 folderPath = Files.readString(pathFile, StandardCharsets.UTF_8).trim();
             }
 
-            // If file is empty or does not exist, use Downloads
             if (folderPath == null || folderPath.isEmpty()) {
                 folderPath = System.getProperty("user.home") + File.separator + "Downloads";
             }
@@ -626,6 +632,17 @@ public class XBRLGenerator implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void deleteDirectory(Path xbrlFolder) throws IOException {
+        if (!Files.exists(xbrlFolder)) return;
+        try (Stream<Path> walk = Files.walk(xbrlFolder)) {
+            walk.sorted(Comparator.reverseOrder())
+                .forEach(p -> {
+                    try { Files.delete(p); }
+                    catch (IOException e) { throw new UncheckedIOException(e); }
+                });
         }
     }
 

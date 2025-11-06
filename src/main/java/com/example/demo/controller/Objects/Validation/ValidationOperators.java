@@ -1142,84 +1142,90 @@ public class ValidationOperators {
     }
     
     //Operador if then else
-    private static Boolean ifThenElse(ValNode parent, ValNode conditionChild, ValNode thenChild, ValNode elseChild){
+    private static Boolean ifThenElse(ValNode parent, ValNode conditionChild, ValNode thenChild, ValNode elseChild) {
         List<ValResult> ifResults = new ArrayList<>();
         List<ValResult> thenResults = new ArrayList<>();
         List<ValResult> elseResults = new ArrayList<>();
-        boolean isToUseKeys = false;
+        boolean conditionHasKeys = false;
         List<ValResult> parentResults = new ArrayList<>();
         ValResult ifResult = new ValResult();
         ValResult thenResult = new ValResult();
         ValResult elseResult = new ValResult();
-                
+
+        String resultLog = "";
+
         Integer conditionNodeId = null;
         Integer thenNodeId = null;
         Integer elseNodeId = null;
-        
+
         try {
             //vai buscar os results de cada um dos filhos 
-            if(conditionChild != null && conditionChild.getResults() != null && !conditionChild.getResults().isEmpty()){
+            if (conditionChild != null && conditionChild.getResults() != null && !conditionChild.getResults().isEmpty()) {
                 ifResults = conditionChild.getResults();
                 conditionNodeId = conditionChild.getNode().getNodeID();
             }
-            if(thenChild != null && thenChild.getResults() != null && !thenChild.getResults().isEmpty()){
+            if (thenChild != null && thenChild.getResults() != null && !thenChild.getResults().isEmpty()) {
                 thenResults = thenChild.getResults();
                 thenNodeId = thenChild.getNode().getNodeID();
             }
-            if(elseChild != null && elseChild.getResults() != null && !elseChild.getResults().isEmpty()){
+            if (elseChild != null && elseChild.getResults() != null && !elseChild.getResults().isEmpty()) {
                 elseResults = elseChild.getResults();
                 elseNodeId = elseChild.getNode().getNodeID();
             }
-            
-            //avalia se e para usar chaves
-            isToUseKeys = OperationsUtils.isToUseKeys(conditionChild);
-            if(isToUseKeys){
-                //LOG.info("Execucao de um 'If Then Else' com chaves, no No " + parent.getNode().getNodeID());
-                
+
+            //avalia se é para usar chaves
+            conditionHasKeys = OperationsUtils.isToUseKeys(conditionChild);
+            if (conditionHasKeys) {
                 for (ValResult ifResultFromResults : ifResults) {
-                    //obtem os resultados
+                    //obtém os resultados
                     ifResult = ifResultFromResults;
                     ValKey resultKey = ifResult.getKey();
 
                     thenResult = (!thenResults.isEmpty()) ? thenResults.stream().filter(temp -> temp.getKey().equals(resultKey)).findFirst().orElse(null) : null;
                     elseResult = (!elseResults.isEmpty()) ? elseResults.stream().filter(temp -> temp.getKey().equals(resultKey)).findFirst().orElse(null) : null;
 
-                    //aplica a operacao
+                    //aplica a operação
                     ValResult parentResult = applyIfThenElse(ifResult, thenResult, elseResult, resultKey);
                     parentResult.setExpression(expressionBuilder.ifThenElseOperationBuilder(conditionChild, thenChild, elseChild, ifResult, thenResult, elseResult));
                     parentResult.setDomain(domainBuilder.ifThenElseDomainBuilder(ifResult, thenResult, elseResult));
                     parentResults.add(parentResult);
-
-                    //resultLog = OperationsUtils.generateIfThenElseLog(ifResult, thenResult, elseResult, conditionNodeId, thenNodeId, elseNodeId);
-                    //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, (resultKey != null) ? resultKey.toString() : null, "Operacao");
                 }
             } else {
-                //LOG.info("Execucao de um 'If Then Else' sem chaves, no No " + parent.getNode().getNodeID());
-                
-                //obtem os resultados
-                ifResult = (!ifResults.isEmpty()) ? ifResults.get(Constants.FIRSTRESULT) : null;
-                thenResult = (!thenResults.isEmpty()) ? thenResults.get(Constants.FIRSTRESULT) : null;
-                elseResult = (!elseResults.isEmpty()) ? elseResults.get(Constants.FIRSTRESULT) : null;
-                
-                //aplica a operacao
-                ValResult parentResult = applyIfThenElse(ifResult, thenResult, elseResult, null);
-                parentResult.setExpression(expressionBuilder.ifThenElseOperationBuilder(conditionChild, thenChild, elseChild, ifResult, thenResult, elseResult));
-                parentResult.setDomain(domainBuilder.ifThenElseDomainBuilder(ifResult, thenResult, elseResult));
-                parentResults.add(parentResult);
+                boolean thenHasKeys = OperationsUtils.hasKeys(thenChild);
+                if (thenHasKeys && !conditionHasKeys && thenResults.size() >= 1 && ifResults.size() == 1) {
+                    ValResult uniqueIfResult = ifResults.get(Constants.FIRSTRESULT);
+                    for (int idx = 0; idx < thenResults.size(); idx++) {
+                        thenResult = (thenResults != null && idx < thenResults.size()) ? thenResults.get(idx) : null;
+                        elseResult = (elseResults != null && idx < elseResults.size()) ? elseResults.get(idx) : null;;
+                        
+                        ValResult parentResult = applyIfThenElse(uniqueIfResult, thenResult, elseResult, null);
+                        parentResult.setExpression(expressionBuilder.ifThenElseOperationBuilder(conditionChild, thenChild, elseChild, ifResult, thenResult, elseResult));
+                        parentResult.setDomain(domainBuilder.ifThenElseDomainBuilder(ifResult, thenResult, elseResult));
+                        parentResults.add(parentResult);
+                    }
+                } else {
+                    //obtém os resultados
+                    ifResult = (!ifResults.isEmpty()) ? ifResults.get(Constants.FIRSTRESULT) : null;
+                    thenResult = (!thenResults.isEmpty()) ? thenResults.get(Constants.FIRSTRESULT) : null;
+                    elseResult = (!elseResults.isEmpty()) ? elseResults.get(Constants.FIRSTRESULT) : null;
 
-                //resultLog = OperationsUtils.generateIfThenElseLog(ifResult, thenResult, elseResult, conditionNodeId, thenNodeId, elseNodeId);
-                //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, null, "Operacao");
+                    //aplica a operação
+                    ValResult parentResult = applyIfThenElse(ifResult, thenResult, elseResult, null);
+                    parentResult.setExpression(expressionBuilder.ifThenElseOperationBuilder(conditionChild, thenChild, elseChild, ifResult, thenResult, elseResult));
+                    parentResult.setDomain(domainBuilder.ifThenElseDomainBuilder(ifResult, thenResult, elseResult));
+                    parentResults.add(parentResult);
+                }
             }
-            
-            if(!parentResults.isEmpty()){
+
+            if (!parentResults.isEmpty()) {
                 parent.setResults(parentResults);
                 return true;
             } else {
-                LOG.log(Level.SEVERE,"Nao foi encontrados resultados para acrescentar no pai, no operador 'If Then Else', no No " + parent.getNode().getNodeID());
+                LOG.log(Level.SEVERE, "Não foi encontrados resultados para acrescentar no pai, no operador 'If Then Else', no nó " + parent.getNode().getNodeID());
                 return false;
             }
-        } catch (Exception e){
-            LOG.log(Level.SEVERE,"Ocorreu um erro no operador 'If Then Else', no No " + parent.getNode().getNodeID() + " | ", e);
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Ocorreu um erro no operador 'If Then Else', no nó " + parent.getNode().getNodeID() + " | ", e);
 //            Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), "If then else com erros.", null, null, "Erro");
         }
         return false;

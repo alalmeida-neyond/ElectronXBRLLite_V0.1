@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import com.example.demo.DTOs.*;
@@ -31,8 +30,6 @@ import org.jboss.logging.Logger;
 
 import com.example.demo.Resources.Utils;
 
-import jakarta.persistence.EntityManager;
-
 
 public class Validator_2_0 extends RunnableExtension {
     
@@ -46,7 +43,11 @@ public class Validator_2_0 extends RunnableExtension {
     private ConnectionManager cm;
 
     private ProgressService progressService;
-    
+
+    //private List<InImportedTablesTemp> importedTables;
+    private List<TableVersionDPM> importedTables;
+    private List<Integer> selectedMapsToValidate;
+    private List<IO> validateIOs;   
     
     public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, ProgressService progressService){
         this.moduleVersion = moduleVersion;
@@ -57,11 +58,101 @@ public class Validator_2_0 extends RunnableExtension {
         this.cm = new ConnectionManager();
     }
 
-    //private List<InImportedTablesTemp> importedTables;
-    private List<TableVersionDPM> importedTables;
-    private List<Integer> selectedMapsToValidate;
-    private List<IO> validateIOs;    
+    private Map<Integer, Map<Integer, List<ValNode>>> getNodes(int tableVId) {
+        JPA<Object[]> jpa = new JPA<>(Object[].class);
+        List<Object[]> results = new ArrayList<>();
+        try {
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvore.sql", "OperationNodeMapping",
+                    "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
+                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601SQLite,
+                    "tableVId", String.valueOf(tableVId)
+            );
+        } catch (Exception e) {
+            LOG.error("Erro na query getNodes: " + e.getMessage());
+        } finally {
+            Connection.close(jpa.getEm().em);
+        }
+
+        return mapNodesFromDatabase(results);
+    }
     
+    private Map<Integer, Map<Integer, List<ValNode>>> getNodesForPreconditions(){
+        JPA<Object[]> jpa = new JPA<>(Object[].class);
+        List<Object[]> results = new ArrayList<>();
+        try {
+            results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvorePreconditions.sql", "OperationNodeMapping",
+                    "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
+                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601SQLite
+            );
+        } catch (Exception e) {
+            LOG.error("Erro na query getNodes: " + e.getMessage());
+        } finally {
+            Connection.close(jpa.getEm().em);
+        }
+
+        return mapNodesFromDatabase(results);
+    }
+    
+    /**
+     * Mapeamento dos resultados em Nós por nível.
+     *
+     * @param results Resultados da Query "XBRLArvore.sql"
+     * @return Lista de nós mapeados por níves
+     */
+    private Map<Integer, Map<Integer, List<ValNode>>> mapNodesFromDatabase(List<Object[]> results) {
+        Map<Integer, Map<Integer, List<ValNode>>> nodesFromDatabse = new HashMap<>();
+
+        try {
+            for (Object[] result : results) {
+                OperationNode node = (OperationNode) result[0];
+                Integer level = Integer.valueOf(result[1].toString());
+                Integer operationVID = node.getOperationVersion().getOperationVID();
+                
+                ValNode nodeResult = new ValNode();
+                nodeResult.setNode(node);
+                nodeResult.setLevel(level);
+
+                if (!nodesFromDatabse.containsKey(operationVID)) {
+                    nodesFromDatabse.put(operationVID, new HashMap<>());
+                }
+
+                if (!nodesFromDatabse.get(operationVID).containsKey(level)) {
+                    nodesFromDatabse.get(operationVID).put(level, new ArrayList<>());
+                }
+
+                nodesFromDatabse.get(operationVID).get(level).add(nodeResult);
+            }
+        } catch (Exception e) {
+            LOG.error("Erro na mapNodesFromDatabase: " + e.getMessage());
+        }
+
+        return nodesFromDatabse;
+    }
+
+    private Map<Integer, Map<Integer, List<ValNode>>> gettingNodesForPrecondtionsAndCalculateTime(IO io){
+        long initGetPreconditionsProcess = System.nanoTime();
+        Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
+        long endGetPreconditionsProcess = System.nanoTime();
+        
+        Connection.persist(this.cm, new LogOperationTemp("Obter Pré Condições | Duração: " + Utils.calculateTime(initGetPreconditionsProcess, endGetPreconditionsProcess) + " segundos", io.getIoId()));    
+        
+        return nodesMappedByPreconditionVIdByLevel;
+    }
+    
+    private Map<Integer, Map<Integer, List<ValNode>>> gettingNodesForOperationsAndCalculateTime(int tableVId, String tableCode, IO io){
+        long initGetOperationsProcess = System.nanoTime();
+        Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = getNodes(tableVId);
+        long endGetOperationsProcess = System.nanoTime();
+        
+        Connection.persist(this.cm, new LogOperationTemp("Obter Operações para o Mapa: " + tableCode + " | Duração: " + Utils.calculateTime(initGetOperationsProcess, endGetOperationsProcess) + " segundos", io.getIoId()));    
+        
+        return nodesMappedByOperationVIdByLevel;
+    }
+
+
+
     //public List<InImportedTablesTemp> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
     public List<TableVersionDPM> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
         //if(moduleVersion != null && domain != null && entity != null)
@@ -173,99 +264,9 @@ public class Validator_2_0 extends RunnableExtension {
     public void setSelectedMapsToValidate(List<Integer> selectedMapsToValidate) {
         this.selectedMapsToValidate = selectedMapsToValidate;
     }
-
-    private Map<Integer, Map<Integer, List<ValNode>>> getNodes(int tableVId) {
-        JPA<Object[]> jpa = new JPA<>(Object[].class);
-        List<Object[]> results = new ArrayList<>();
-        try {
-            results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvore.sql", "OperationNodeMapping",
-                    "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
-                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601SQLite,
-                    "tableVId", String.valueOf(tableVId)
-            );
-        } catch (Exception e) {
-            LOG.error("Erro na query getNodes: " + e.getMessage());
-        } finally {
-            Connection.close(jpa.getEm().em);
-        }
-
-        return mapNodesFromDatabase(results);
-    }
     
-    private Map<Integer, Map<Integer, List<ValNode>>> getNodesForPreconditions(){
-        JPA<Object[]> jpa = new JPA<>(Object[].class);
-        List<Object[]> results = new ArrayList<>();
-        try {
-            results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvorePreconditions.sql", "OperationNodeMapping",
-                    "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
-                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601SQLite
-            );
-        } catch (Exception e) {
-            LOG.error("Erro na query getNodes: " + e.getMessage());
-        } finally {
-            Connection.close(jpa.getEm().em);
-        }
 
-        return mapNodesFromDatabase(results);
-    }
-
-    private Map<Integer, Map<Integer, List<ValNode>>> gettingNodesForPrecondtionsAndCalculateTime(IO io){
-        long initGetPreconditionsProcess = System.nanoTime();
-        Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = getNodesForPreconditions();
-        long endGetPreconditionsProcess = System.nanoTime();
-        
-        Connection.persist(this.cm, new LogOperationTemp("Obter Pré Condições | Duração: " + Utils.calculateTime(initGetPreconditionsProcess, endGetPreconditionsProcess) + " segundos", io.getIoId()));    
-        
-        return nodesMappedByPreconditionVIdByLevel;
-    }
     
-    private Map<Integer, Map<Integer, List<ValNode>>> gettingNodesForOperationsAndCalculateTime(int tableVId, String tableCode, IO io){
-        long initGetOperationsProcess = System.nanoTime();
-        Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = getNodes(tableVId);
-        long endGetOperationsProcess = System.nanoTime();
-        
-        Connection.persist(this.cm, new LogOperationTemp("Obter Operações para o Mapa: " + tableCode + " | Duração: " + Utils.calculateTime(initGetOperationsProcess, endGetOperationsProcess) + " segundos", io.getIoId()));    
-        
-        return nodesMappedByOperationVIdByLevel;
-    }
-
-    /**
-     * Mapeamento dos resultados em Nós por nível.
-     *
-     * @param results Resultados da Query "XBRLArvore.sql"
-     * @return Lista de nós mapeados por níves
-     */
-    private Map<Integer, Map<Integer, List<ValNode>>> mapNodesFromDatabase(List<Object[]> results) {
-        Map<Integer, Map<Integer, List<ValNode>>> nodesFromDatabse = new HashMap<>();
-
-        try {
-            for (Object[] result : results) {
-                OperationNode node = (OperationNode) result[0];
-                Integer level = Integer.valueOf(result[1].toString());
-                Integer operationVID = node.getOperationVersion().getOperationVID();
-                
-                ValNode nodeResult = new ValNode();
-                nodeResult.setNode(node);
-                nodeResult.setLevel(level);
-
-                if (!nodesFromDatabse.containsKey(operationVID)) {
-                    nodesFromDatabse.put(operationVID, new HashMap<>());
-                }
-
-                if (!nodesFromDatabse.get(operationVID).containsKey(level)) {
-                    nodesFromDatabse.get(operationVID).put(level, new ArrayList<>());
-                }
-
-                nodesFromDatabse.get(operationVID).get(level).add(nodeResult);
-            }
-        } catch (Exception e) {
-            LOG.error("Erro na mapNodesFromDatabase: " + e.getMessage());
-        }
-
-        return nodesFromDatabse;
-    }
 
     private Map<Integer, List<ValResult>> getResultsByNode(int operationVID, IO io) {
         JPA<Object[]> jpa = new JPA<>(Object[].class);
@@ -312,7 +313,8 @@ public class Validator_2_0 extends RunnableExtension {
                     "actionId", Constants.actionImport,
                     "refdate", io.getReferenceDate().toString(),
                     "domain", io.getDomain(),
-                    "entityId", io.getEntity().getEntityID());
+                    "entityId", io.getEntity().getEntityID(),
+                    "processoOkDeleted", Constants.processoOkDeleted);
         } catch (Exception e) {
             LOG.error("Erro na query getResultsByNodeForPreconditions: " + e.getMessage());
         } finally {
@@ -593,27 +595,6 @@ public class Validator_2_0 extends RunnableExtension {
         }
 
         return null;
-    }
-
-    private static Boolean insertOperationLogs(IO validationIo) {
-        JPA<LogValidationProcess> jpa = new JPA<>(LogValidationProcess.class);
-        List<LogValidationProcess> logsList = Info.getInstance().getValidationsLogs();
-        boolean result = false;
-
-        try {
-            if (!logsList.isEmpty()) {
-                for (LogValidationProcess log : logsList) {
-                    log.setIo(validationIo);
-                }
-                result = Connection.persistList(jpa.getEm(), logsList);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-
-        return result;
     }
 
     private Map<Integer, List<ValNode>> prepareOperation(Map<Integer, List<ValResult>> resultsMappedByNode, Map<Integer, List<ValNode>> nodesMappedByLevel) {
