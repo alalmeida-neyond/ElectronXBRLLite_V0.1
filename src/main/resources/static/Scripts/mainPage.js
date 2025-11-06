@@ -326,8 +326,8 @@ document.addEventListener("DOMContentLoaded", function () {
   function startProgressPolling(activate) {
     if(activate)
     {
-      resetFilters();
-      autoSubmit();
+      //resetFilters();
+      //autoSubmit();
       progressInterval = setInterval(() => {
         fetch("/importProgress")
           .then((r) => r.json())
@@ -663,12 +663,44 @@ document.addEventListener("DOMContentLoaded", function () {
       const hasValidationLogs = io[9]===1;
       const ihasGenerationLogs = io[12]===1;
 
-      const bImp = document.createElement("span");
+      const ioStateImp = io[5];
+      const ioStateVal = io[8];
+      const ioStateGen = io[11];
+
+      let isImpPending = false;
+      let isValPending = false;
+      let isGenPending = false;
+
+      if(ioStateImp == 4)
+      {
+        isImpPending = true;
+      }
+
+      if(ioStateVal == 4)
+      {
+        isValPending = true;
+      }
+
+      if(ioStateGen == 4)
+      {
+        isGenPending = true;
+      }
+
+      /*const bImp = document.createElement("span");
       bImp.innerHTML = `<span style="color:${hasImportLogs?"#0d6efd":"#676b72ff"};cursor:${hasImportLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
       const bVal = document.createElement("span");
       bVal.innerHTML = `<span style="color:${hasValidationLogs?"#0d6efd":"#676b72ff"};cursor:${hasValidationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
       const bGen = document.createElement("span");
       bGen.innerHTML = `<span style="color:${ihasGenerationLogs?"#0d6efd":"#676b72ff"};cursor:${ihasGenerationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      */
+
+      
+      const bImp = document.createElement("span");
+      bImp.innerHTML = `<span style="color:${(hasImportLogs && !isImpPending)?"#0d6efd":"#676b72ff"};cursor:${hasImportLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      const bVal = document.createElement("span");
+      bVal.innerHTML = `<span style="color:${(hasValidationLogs && !isValPending)?"#0d6efd":"#676b72ff"};cursor:${hasValidationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      const bGen = document.createElement("span");
+      bGen.innerHTML = `<span style="color:${(ihasGenerationLogs && !isGenPending)?"#0d6efd":"#676b72ff"};cursor:${ihasGenerationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
       
       tdImp.appendChild(bImp);
       tdVal.appendChild(bVal);
@@ -917,8 +949,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const th = document.createElement("th");
         th.classList.add("internationalization");
 
-        console.log("K:" + k);
-        console.log("I:" + i);
         th.setAttribute("data-key", k);
         if (i === 0) th.classList.add("firstItemDetails");
         if (i === 6) th.classList.add("lastItemDetails");
@@ -1341,9 +1371,6 @@ document.addEventListener("DOMContentLoaded", function () {
       ? String(selectedMonthRaw).padStart(2, "0")
       : "";
 
-    console.log("Module:" + moduleFilter);
-    console.log("Year:" + selectedYear);
-    console.log("Month:" + selectedMonth);
     const filtered = allIOs.filter((io) => {
       const moduleValue = (io[0] ?? "").toLowerCase().trim();
       const dateValue = (io[3] ?? "").trim();

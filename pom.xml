@@ -13,7 +13,7 @@
 	<version>1.0.0</version>
 	<name>XBRL Lite</name>
 	<description>XBRL Lite</description>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<url/>
 	<licenses>
 		<license/>
@@ -65,15 +65,12 @@
 			<version>1.4</version>
 		</dependency>
 
-		<!-- Hibernate Core -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<version>6.6.11.Final</version>
 		</dependency>
 
-
-		<!-- Hibernate Community Dialects -->
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-community-dialects</artifactId>
@@ -141,12 +138,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
-
-		<!--<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.43.0.0</version>
-		</dependency>-->
 
 		<dependency>
 			<groupId>org.xerial</groupId>
