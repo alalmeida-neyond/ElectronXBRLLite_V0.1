@@ -12,9 +12,8 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "ITEMCATEGORY")
+@Table(name = "ITEMCATEGORY", schema = "DPM_MD")
 @SqlResultSetMappings({
     @SqlResultSetMapping(
             name = "DatapointItensDTO",
@@ -49,21 +48,18 @@ import org.springframework.data.annotation.Immutable;
 })
 public class ItemCategory implements Serializable{
     
-    @Id
+    @EmbeddedId
     private ItemCategoryID itemCategoryID;
     
-    @MapsId("itemId")
     @JoinColumn(referencedColumnName = "ITEMID", name = "ITEMID", nullable = false, insertable = false, updatable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
     
-    @MapsId("startReleaseId")
     @JoinColumn(referencedColumnName = "RELEASEID", name = "STARTRELEASEID", nullable = false, insertable = false, updatable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Release startRelease;
     
-    @MapsId("categoryId")
-    @JoinColumn(referencedColumnName = "CATEGORYID", name = "CATEGORYID", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(referencedColumnName = "CATEGORYID", name = "CATEGORYID", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
     
@@ -167,6 +163,4 @@ public class ItemCategory implements Serializable{
         }
         return null;
     }
-
-    
 }

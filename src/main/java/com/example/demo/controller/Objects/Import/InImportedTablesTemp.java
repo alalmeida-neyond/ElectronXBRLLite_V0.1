@@ -17,7 +17,7 @@ import jakarta.validation.constraints.*;
 
 
 @Entity
-@Table(name = "IN_IMPORTEDTABLESTEMP")
+@Table(name = "IN_IMPORTEDTABLESTEMP", schema = "DPM_ED")
 @SqlResultSetMappings({
     @SqlResultSetMapping(
             name = "TablesWithLock",
@@ -44,15 +44,16 @@ import jakarta.validation.constraints.*;
                 @ConstructorResult(
                         targetClass = ImportedFilesResumeDTO.class,
                         columns = {
-                            @ColumnResult(name = "module", type = String.class),
+                            @ColumnResult(name = "referenceDate", type = String.class),
                             @ColumnResult(name = "entity", type = String.class),
                             @ColumnResult(name = "domain", type = String.class),
-                            @ColumnResult(name = "referenceDate", type = String.class),
-                            @ColumnResult(name = "table", type = String.class),
+                            @ColumnResult(name = "module", type = String.class),
+                            @ColumnResult(name = "tableCode", type = String.class),
                             @ColumnResult(name = "desagCode", type = String.class),
-                            @ColumnResult(name = "user", type = String.class),
-                            @ColumnResult(name = "isMandatory", type = Boolean.class),
-                            @ColumnResult(name = "isImported", type = Boolean.class)
+                            @ColumnResult(name = "isMandatory", type = Integer.class),
+                            @ColumnResult(name = "isImported", type = Integer.class),
+                            @ColumnResult(name = "importTimestamp", type = String.class),
+                            @ColumnResult(name = "userID", type = String.class)
                         }
                 )
             })
@@ -61,24 +62,24 @@ public class InImportedTablesTemp implements Serializable {
 
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "impTableSequenceTemp_gen", sequenceName = "IMPTABLESTEMP_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "impTableSequenceTemp_gen")
+    @SequenceGenerator(name = "impTableSequenceTemp_gen", sequenceName = "DPM_ED.IMPTABLESTEMP_SEQ", allocationSize = 1)
     @Column(name = "IMPORTEDTABLEID")
     private int importedTableId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IOID", referencedColumnName = "IOID", nullable = false)
     private IO io;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TABLEVID", referencedColumnName = "TABLEVID", nullable = false)
     private TableVersionDPM tableVersion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "VARIABLEVID", referencedColumnName = "VARIABLEVID")
     private VariableVersion variableVersion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID")
     private InImportKey importKey;
 
@@ -90,7 +91,7 @@ public class InImportedTablesTemp implements Serializable {
     @Convert(converter = LocalDateTimePersistenceConverter.class)
     private LocalDateTime endTimestamp;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IO_STATEID", referencedColumnName = "IO_STATEID", nullable = false)
     private IOState ioState;
 
@@ -110,16 +111,18 @@ public class InImportedTablesTemp implements Serializable {
         this.ioState = ioState;
         this.desagregationCode = desagregationCode;
     }
-
-    /*public InImportedTablesTemp(TableVersionDPM tableVersion, VariableVersion variableVersion, InImportKey importKey, LocalDateTime initTimestamp, LocalDateTime endTimestamp, IOState ioState, String desagregationCode) {
-        this.tableVersion = tableVersion;
-        this.variableVersion = variableVersion;
-        this.importKey = importKey;
-        this.initTimestamp = initTimestamp;
-        this.endTimestamp = endTimestamp;
-        this.ioState = ioState;
-        this.desagregationCode = desagregationCode;
-    }*/
+    
+    public boolean isOpenRows(){
+        return this.getTableVersion().isOpenRows();
+    }
+    
+    public String getCodeOfMap(){
+        return this.tableVersion.getCode();
+    }
+    
+    public int getTableVID(){
+        return this.tableVersion != null ? this.tableVersion.getTableVID() : null;
+    }
 
     public int getImportedTableId() {
         return importedTableId;
@@ -192,5 +195,4 @@ public class InImportedTablesTemp implements Serializable {
     public void setDesagregationCode(String desagregationCode) {
         this.desagregationCode = desagregationCode;
     }
-
 }

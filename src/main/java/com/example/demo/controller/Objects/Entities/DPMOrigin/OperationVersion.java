@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -15,7 +16,7 @@ import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "OPERATIONVERSION")
+@Table(name = "OPERATIONVERSION", schema = "DPM_MD")
 public class OperationVersion implements Serializable{
     
     @Id
@@ -24,23 +25,23 @@ public class OperationVersion implements Serializable{
     private int operationVID;
     
     @JoinColumn(referencedColumnName = "OPERATIONID", name = "OPERATIONID", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Operation operation;
     
-    @JoinColumn(referencedColumnName = "OPERATIONVID", name = "PRECONDITIONOPERATIONVID")
+    @JoinColumn(referencedColumnName = "OPERATIONVID", name = "PRECONDITIONOPERATIONVID", nullable = false)
     @ManyToOne
     private OperationVersion preConditionOperationVersion;
     
     @JoinColumn(referencedColumnName = "OPERATIONVID", name = "SEVERITYOPERATIONVID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OperationVersion severityOperationVersion;
     
     @JoinColumn(referencedColumnName = "RELEASEID", name = "STARTRELEASEID", nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Release startRelease;
     
     @JoinColumn(referencedColumnName = "RELEASEID", name = "ENDRELEASEID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Release endRelease;
     
     @Column(name = "EXPRESSION")
@@ -53,7 +54,7 @@ public class OperationVersion implements Serializable{
     private String description;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
     
     @Column(name = "ENDORSEMENT")
@@ -61,8 +62,9 @@ public class OperationVersion implements Serializable{
     private String endorsment;
     
     @Column(name = "ISVARIANTAPPROVED", columnDefinition = "CHAR(1)")
-    private Boolean isVariantApproved;
-
+    @NotNull
+    private boolean isVariantApproved;
+    
     public String getOperationCode(){
         return operation != null ? operation.getCode() : null;
     }

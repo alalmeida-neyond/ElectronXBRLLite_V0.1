@@ -1,30 +1,30 @@
 with importedIOs as ( 
     select io.ioid
-    from IO io 
-    inner join io_state ioe on ioe.io_stateid = io.io_stateid 
-    where ioe.io_typestateid = :typeStateOk
-    and io.actionId = :actionId
-    and (strftime(:format, io.referencedate) = :referenceDate OR :referenceDate IS NULL)
-    and (io.domain = :domain OR :domain IS NULL)
-    and (io.entityId = :entityId OR :entityId IS NULL)
-    and (io.moduleVID = :moduleVID OR :moduleVID IS NULL)
+    from DPM_ED.IO io 
+    inner join DPM_ED.io_state ioe on ioe.io_stateid = io.io_stateid 
+    where ioe.io_typestateid = ?typeStateOk
+    and io.actionId = ?actionId
+    and (io.referencedate = to_date(?referenceDate,?format) OR ?referenceDate IS NULL)
+    and (io.domain = ?domain OR ?domain IS NULL)
+    and (io.entityId = ?entityId OR ?entityId IS NULL)
+    and (io.moduleVID = ?moduleVID OR ?moduleVID IS NULL)
 ),
 importedVariables as (
     select vv.variablevid, propertyid, contextid
-    from in_importedtablestemp it
+    from dpm_ed.in_importedtablestemp it
     inner join importedIOs ios on it.ioid = ios.ioid
-    inner join in_importedvaluestemp iv on iv.importedtableid = it.importedtableid
-    inner join tableversioncell tvc on tvc.tablevid = it.tablevid and tvc.cellid = iv.cellid
-    inner join variableversion vv on vv.variablevid = tvc.variablevid
+    inner join dpm_ed.in_importedvaluestemp iv on iv.importedtableid = it.importedtableid
+    inner join dpm_md.tableversioncell tvc on tvc.tablevid = it.tablevid and tvc.cellid = iv.cellid
+    inner join dpm_md.variableversion vv on vv.variablevid = tvc.variablevid
     group by vv.variablevid, propertyid, contextid
 ),
 nonDefaultMoneratyVariables as (
-    select distinct vv.variablevid from tableversioncell tvc
-    inner join variableversion vv on vv.variablevid = tvc.variablevid
-    inner join property p on p.propertyid = vv.propertyid
+    select distinct vv.variablevid from dpm_md.tableversioncell tvc
+    inner join dpm_md.variableversion vv on vv.variablevid = tvc.variablevid
+    inner join dpm_md.property p on p.propertyid = vv.propertyid
     inner join contextcomposition cc on cc.contextid = vv.contextid
-    where datatypeid = :monetaryDatatypeId 
-    and cc.itemid = :itemId
+    where datatypeid = ?monetaryDatatypeId 
+    and cc.itemid = ?itemId
 ), 
 importedDatatypes as(
     select p.datatypeid, 

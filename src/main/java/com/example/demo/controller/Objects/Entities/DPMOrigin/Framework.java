@@ -7,9 +7,8 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "FRAMEWORK")
+@Table(name = "FRAMEWORK", schema = "DPM_MD")
 public class Framework implements Serializable{
     
     @Id

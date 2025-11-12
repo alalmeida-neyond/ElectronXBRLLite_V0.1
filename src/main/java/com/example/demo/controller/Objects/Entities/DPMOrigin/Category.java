@@ -8,9 +8,8 @@ import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
-@Immutable
 @Entity
-@Table(name = "CATEGORY")
+@Table(name = "CATEGORY", schema = "DPM_MD")
 public class Category implements Serializable {
     
     @Id
@@ -29,17 +28,18 @@ public class Category implements Serializable {
     private String name;
     
     @Column(name = "DESCRIPTION")
+    @Lob
     private String description;
     
-    @Column(name = "ISENUMERATED")
+    @Column(name = "ISENUMERATED", columnDefinition = "CHAR(1)")
     @NotNull
     private boolean isEnumerated;
     
-    @Column(name = "ISACTIVE")
+    @Column(name = "ISACTIVE", columnDefinition = "CHAR(1)")
     @NotNull
     private boolean isActive;
     
-    @Column(name = "ISEXTERNALREFDATA")
+    @Column(name = "ISEXTERNALREFDATA", columnDefinition = "CHAR(1)")
     @NotNull
     private boolean isExternalRefData;
     
@@ -47,7 +47,7 @@ public class Category implements Serializable {
     @Size(max = 255)
     private String refDataSource;
     
-    @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID")
+    @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
     @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
     

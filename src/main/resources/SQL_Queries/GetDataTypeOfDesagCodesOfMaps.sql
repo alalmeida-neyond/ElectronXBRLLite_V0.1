@@ -3,13 +3,13 @@ with tablesFromModule as (
     from moduleversioncomposition mvc
     inner join tableversion tv on mvc.tablevid = tv.tablevid
     inner join "TABLE" t on tv.tableid = t.tableid
-    where mvc.modulevid = :moduleVID
+    where mvc.modulevid = ?moduleVID
 )
 
 , tablesWithDesagCodeNormal as (
-    select tfm.tablevid, :desagregationCodeTypeNormal as DesagCodeType
+    select tfm.tablevid, ?desagregationCodeTypeNormal as DesagCodeType
     from tablesFromModule tfm
-    where tfm.hasopensheets = :trueNumber
+    where tfm.hasopensheets = ?trueNumber
 )
 
 , dataTypeOfDesagCode as (
@@ -25,8 +25,8 @@ with tablesFromModule as (
     inner join property p on vv.propertyid = p.propertyid
     inner join datatype dt on p.datatypeid = dt.datatypeid
     where 1=1
-        and h.direction = :directionZ
-        and ((sr."Date" <= strftime(:formatDate, :referenceDate) and (er."Date" >= strftime(:formatDate, :referenceDate) or er.releaseid is null)) or (sr.releaseid is null and er.releaseid is null))
-    order by t.tablevid, hv.code
+        and h.direction = ?directionZ
+        and ((sr."Date" <= TO_DATE(?referenceDate, ?formatDate) and (er."Date" >= TO_DATE(?referenceDate, ?formatDate) or er.releaseid is null)) or (sr.releaseid is null and er.releaseid is null))
+    order by tablevid, hv.code
 )
 select * from dataTypeOfDesagCode

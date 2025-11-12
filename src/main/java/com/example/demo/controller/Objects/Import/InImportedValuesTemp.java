@@ -15,12 +15,14 @@ import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityResult;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.FieldResult;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.SqlResultSetMappings;
 import jakarta.persistence.Table;
@@ -29,23 +31,20 @@ import jakarta.validation.constraints.NotNull;
 
 
 @Entity
-@Table(name = "IN_IMPORTEDVALUESTEMP")
+@Table(name = "IN_IMPORTEDVALUESTEMP", schema = "DPM_ED")
 @SqlResultSetMappings({
     @SqlResultSetMapping(
             name = "ValuesForOperationMapping",
-            classes = @ConstructorResult(
-                targetClass = DesagregationImportKeyDTO.class, 
-                columns = {
-                    @ColumnResult(name = "DesagregationCodeID", type=Integer.class),
-                    @ColumnResult(name = "DesagregationCodeTypeID", type=Integer.class)
-                }),
             entities = {
                 @EntityResult(entityClass = DataType.class),
                 @EntityResult(entityClass = InImportKey.class, fields = {
-                    @FieldResult(column = "RowKeyID", name = "importKeyID"),
-                    @FieldResult(column = "RowKeyTypeID", name = "keyType")
-                }),
-                
+            @FieldResult(column = "RowKeyID", name = "importKeyID"),
+            @FieldResult(column = "RowKeyTypeID", name = "keyType")
+        }),
+                @EntityResult(entityClass = InImportKey.class, fields = {
+            @FieldResult(column = "DesagregationCodeID", name = "importKeyID"),
+            @FieldResult(column = "DesagregationCodeTypeID", name = "keyType")
+        })
             },
             columns = {
             @ColumnResult(name = "NodeID", type = Integer.class),
@@ -84,13 +83,12 @@ public class InImportedValuesTemp implements Serializable {
 
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "impValuesSequenceTemp_gen", sequenceName = "DPM_ED.IMPVALUESTEMP_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "impValuesSequenceTemp_gen")
+    @SequenceGenerator(name = "impValuesSequenceTemp_gen", sequenceName = "DPM_ED.IMPVALUESTEMP_SEQ", allocationSize = 1)
     @Column(name = "IMPORTEDVALUESID")
     private int importedvaluesID;
 
-    //@ManyToOne(cascade = CascadeType.PERSIST)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IMPORTEDTABLEID", referencedColumnName = "IMPORTEDTABLEID", nullable = false)
     private InImportedTablesTemp importedTableId;
 
@@ -100,19 +98,16 @@ public class InImportedValuesTemp implements Serializable {
     @Column(name = "RULEVALUE")
     private String ruleValue;
 
-    //@ManyToOne(cascade = CascadeType.ALL)
-    @ManyToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID")
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
+    @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID", nullable = false)
     private InImportKey importKey;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "VARIABLEVID", referencedColumnName = "VARIABLEVID", nullable = false)
     private VariableVersion variableVersion;
 
-    //@ManyToOne(fetch = FetchType.LAZY)
-    @ManyToOne
-    @JoinColumn(name = "CELLID", referencedColumnName = "CELLID")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CELLID", referencedColumnName = "CELLID", nullable = false)
     private Cell cell;
     
     @Column(name = "USERID")

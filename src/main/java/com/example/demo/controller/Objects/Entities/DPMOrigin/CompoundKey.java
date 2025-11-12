@@ -6,14 +6,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "COMPOUNDKEY")
+@Table(name = "COMPOUNDKEY", schema = "DPM_MD")
 public class CompoundKey implements Serializable {
     
     @Id
     @NotNull
-    @Column(name = "KEYID", insertable = false, updatable = false)
+    @Column(name = "KEYID")
     private int keyId;
     
     @Column(name = "SIGNATURE", unique = true)

@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ColumnResult;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityResult;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -16,7 +17,7 @@ import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "OPERATIONNODE")
+@Table(name = "OPERATIONNODE", schema = "DPM_MD")
 @SqlResultSetMapping(
         name = "OperationNodeMapping",
         entities = {
@@ -26,7 +27,6 @@ import jakarta.validation.constraints.Size;
             @ColumnResult(name = "nodeLevel", type = Integer.class)
         }
 )
-
 public class OperationNode implements Serializable{
     
     @Id
@@ -35,26 +35,26 @@ public class OperationNode implements Serializable{
     private int nodeID;
     
     @JoinColumn(name = "OPERATIONVID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OperationVersion operationVersion;
     
     @JoinColumn(referencedColumnName = "NODEID", name = "PARENTNODEID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OperationNode parentNode;
     
     @JoinColumn(name = "OPERATORID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Operator operator;
     
     @JoinColumn(name = "ARGUMENTID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OperatorArgument argument;
     
     @Column(name = "ABSOLUTETOLERANCE")
-    private Double absoluteTolerance;
+    private double absoluteTolerance;
     
     @Column(name = "RELATIVETOLERANCE")
-    private Double relativeTolerance;
+    private double relativeTolerance;
     
     @Column(name = "FALLBACKVALUE")
     @Size(max = 50)

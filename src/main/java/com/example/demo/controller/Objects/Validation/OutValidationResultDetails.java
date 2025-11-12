@@ -23,15 +23,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "OUT_VALIDATIONRESULTDETAILS")
+@Table(name = "OUT_VALIDATIONRESULTDETAILS", schema = "DPM_ED")
 public class OutValidationResultDetails implements Serializable {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OUT_VALIDATIONRESULTDETAILS_SEQ")
+    @SequenceGenerator(name = "OUT_VALIDATIONRESULTDETAILS_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONRESULTDETAILS_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONRESULTDETAILSID")
     @NotNull
     private Integer validationResultDetailsId;
@@ -82,7 +84,7 @@ public class OutValidationResultDetails implements Serializable {
                         outResDetail.ioState = Info.getInstance().getIOStateByID(Constants.RULEOK.getKey());//new IOState(Constants.RULEOK.getKey(), new IOTypeState(Constants.RULEOK.getValue()));
                     }
                     
-                    if(result.getDifference() != null && outResDetail.getIoState().getIoStateId() == Constants.RULENOTOK.getKey()){
+                    if(result.getDifference() != null && outResDetail.ioState.getIoStateId() == Constants.RULENOTOK.getKey()){
                         outResDetail.difference = result.getDifference();
                     }
                     

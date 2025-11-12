@@ -2,7 +2,7 @@ with tableColumns as (
     select tv.tableid, tv.tablevid, tvh.headerid, tvh.headervid
     from tableversion tv
     inner join tableversionheader tvh on tvh.tablevid = tv.tablevid
-    where tv.tablevid = :tablevid
+    where tv.tablevid = ?tablevid
 )
 , keyColumns as (
     select tc.tablevid, tc.tableid, hv.headervid, hv.headerid, hv.code, h.direction, hv.subcategoryvid, ic.code "xbrlHeader"
@@ -12,9 +12,9 @@ with tableColumns as (
     left join itemcategory ic on hv.propertyID = ic.itemid
     left join release sr on sr.releaseid = ic.startreleaseid
     left join release er on er.releaseid = ic.endreleaseid
-    where h.direction = :direction 
-        and (hv.code = :reportCoordinates or :reportCoordinates = '') 
-        and ((sr."Date" <= :referenceDate and (er."Date" >= :referenceDate or er.releaseid is null)) or (sr.releaseid is null and er.releaseid is null))
+    where h.direction = ?direction 
+        and (hv.code = ?ReportCoordinates or ?ReportCoordinates is null) 
+        and ((sr."Date" <= TO_DATE(?referenceDate, 'YYYY-MM-DD') and (er."Date" >= TO_DATE(?referenceDate, 'YYYY-MM-DD') or er.releaseid is null)) or (sr.releaseid is null and er.releaseid is null))
 )
 --select * from keyColumns;
 , possibleValues as (

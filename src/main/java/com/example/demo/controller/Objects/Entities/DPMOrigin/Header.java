@@ -4,17 +4,17 @@ import java.io.Serializable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "HEADER")
+@Table(name = "HEADER", schema = "DPM_MD")
 public class Header implements Serializable{
     
     @Id
@@ -22,13 +22,12 @@ public class Header implements Serializable{
     @Column(name = "HEADERID")
     private int headerId;
     
-    @ManyToOne
-    @JoinColumn(name = "TABLEID", referencedColumnName = "TABLEID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TABLEID", referencedColumnName = "TABLEID", nullable = true)
     private TableDPM table;
     
-    @Column(name = "DIRECTION")
+    @Column(name = "DIRECTION", columnDefinition = "VARCHAR2(1 BYTE)")
     @NotNull
-    @Size(max = 1)
     private char direction;
     
     @Column(name = "ISKEY", columnDefinition = "CHAR(1)")

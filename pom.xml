@@ -13,7 +13,7 @@
 	<version>1.0.0</version>
 	<name>XBRL Lite</name>
 	<description>XBRL Lite</description>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<url/>
 	<licenses>
 		<license/>
@@ -37,21 +37,15 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.azure</groupId>
-			<artifactId>azure-storage-blob</artifactId>
-			<version>12.23.0</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc11</artifactId>
+			<version>23.7.0.25.01</version>
 		</dependency>
 
 		<dependency>
@@ -137,12 +131,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.49.1.0</version>
 		</dependency>
 		
 		<dependency>
@@ -233,8 +221,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
 
 	<dependencyManagement>
 		<dependencies>

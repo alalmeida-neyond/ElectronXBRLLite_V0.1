@@ -16,12 +16,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "OUT_VALIDATIONTABLE")
+@Table(name = "OUT_VALIDATIONTABLE", schema = "DPM_ED")
 @SqlResultSetMapping(
     name = "ValidationsResumes",
     classes = {
@@ -41,7 +42,8 @@ import jakarta.validation.constraints.NotNull;
 public class OutValidationTable implements Serializable {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OUT_VALIDATIONTABLE_SEQ")
+    @SequenceGenerator(name = "OUT_VALIDATIONTABLE_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONTABLE_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONTABLEID")
     @NotNull
     private Integer validationTableId;

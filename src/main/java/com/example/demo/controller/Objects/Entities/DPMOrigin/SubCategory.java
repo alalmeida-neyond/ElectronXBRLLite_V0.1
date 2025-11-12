@@ -6,16 +6,13 @@ import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
-import org.springframework.data.annotation.Immutable;
-
-@Immutable
 @Entity
-@Table(name = "SUBCATEGORY")
+@Table(name = "SUBCATEGORY", schema = "DPM_MD")
 public class SubCategory implements Serializable{
     
     @Id
     @NotNull
-    @Column(name = "SUBCATEGORYID")
+    @Column(name = "SUBCATEGORYVID")
     private int subCategoryID;
     
     @JoinColumn(referencedColumnName = "CATEGORYID", name = "CATEGORYID", nullable = false)
@@ -28,9 +25,11 @@ public class SubCategory implements Serializable{
     private String code;
     
     @Column(name = "NAME")
+    @Lob
     private String name;
     
     @Column(name = "DESCRIPTION")
+    @Lob
     private String description;
     
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)", nullable = false)

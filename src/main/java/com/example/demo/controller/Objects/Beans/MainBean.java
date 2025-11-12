@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jboss.logging.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -73,7 +72,7 @@ public class MainBean extends DefaultBean{
         this.progressService = progressService;
     }
 
-    @PostConstruct
+    /*@PostConstruct
     public void init() {
         Info.getInstance().loadRefData(true);
         List<ConfImportRules> rules = Info.getInstance().refDataGet(Constants.ConfImportRulesAll);
@@ -91,7 +90,7 @@ public class MainBean extends DefaultBean{
                 .map(ConfImportRules::getImportRuleID)
                 .collect(Collectors.toList());
 
-    }
+    }*/
 
     public void getImportIOs(Integer privilege, boolean withView) {
         LocalDate referenceDate = null;
@@ -291,7 +290,6 @@ public class MainBean extends DefaultBean{
         ModuleFileImport importExecution = new ModuleFileImport(file, originalFileName, getEntityExecution(), getDomainExecution(),
                 getReferenceDate(), getModuleVersionExecution(), filenameOnServer, aux, progressService);
 
-        //progressService.setImportProgress(20);
         progressService.resetProgress();
         importExecution.run();
 
@@ -434,7 +432,7 @@ public class MainBean extends DefaultBean{
         }
     }
     
-
+    /* ATIVAR EM PROD
     @GetMapping("/")
     public ModelAndView greeting() throws FileNotFoundException {
         ModelAndView modelAndView = new ModelAndView();
@@ -446,6 +444,22 @@ public class MainBean extends DefaultBean{
         //init();
         
         modelAndView.setViewName("test");
+        
+        return modelAndView;
+    }*/
+
+    @GetMapping("/")
+    public ModelAndView testingAccessDatabase() throws FileNotFoundException {
+        ModelAndView modelAndView = new ModelAndView();
+
+        List<String> items;
+
+        items = testDatabaseAccess();
+
+        modelAndView.addObject("items", items);
+        //init();
+        
+        modelAndView.setViewName("testNewDatabase");
         
         return modelAndView;
     }
@@ -648,6 +662,23 @@ public class MainBean extends DefaultBean{
             jpa.close();
         }
         
+        return result;
+    }
+
+    private List<String> testDatabaseAccess()
+    {
+        JPA<String> jpa = new JPA<String>(String.class);
+        List<String> result = new ArrayList<String>();
+
+        try {
+            result = jpa.getTypedNativeResultList("SELECT LEICODE\n"
+                    + " FROM DPM_CD.Entities");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            jpa.close();
+        }
+
         return result;
     }
 }

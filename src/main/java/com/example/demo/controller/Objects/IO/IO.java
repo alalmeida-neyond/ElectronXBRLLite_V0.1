@@ -10,18 +10,18 @@ import com.example.demo.controller.Objects.Entities.Conf.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
     
 
 @Entity
-@Table(name = "IO")
+@Table(name = "IO", schema = "DPM_ED")
 @NamedQuery(name="IO.findAll", query="SELECT e FROM IO e")
 public class IO implements Serializable{
     
     @Id
     @NotNull
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="IO_IOID_GENERATOR")
+    @SequenceGenerator(name="IO_IOID_GENERATOR", sequenceName="DPM_ED.IO_SEQ", allocationSize=1, initialValue=1)
     @Column(name = "IOID")
     private int ioId;
     
@@ -75,7 +75,7 @@ public class IO implements Serializable{
     public IO() {
     }    
 
-    public IO(IOState ioState, LocalDate referenceDate, ModuleVersion module, String domain, ConfEntities entity, LocalDateTime initTimestamp, LocalDateTime endTimestamp, ConfAction action, String userId, String filename, String threadFilename, String filenameserver) {
+     public IO(IOState ioState, LocalDate referenceDate, ModuleVersion module, String domain, ConfEntities entity, LocalDateTime initTimestamp, LocalDateTime endTimestamp, ConfAction action, String userId, String filename, String threadFilename, String filenameserver) {
         this.ioState = ioState; 
         this.referenceDate = referenceDate;
         this.module = module;

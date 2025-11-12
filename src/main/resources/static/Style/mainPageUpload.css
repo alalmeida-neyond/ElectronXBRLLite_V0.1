@@ -98,7 +98,7 @@
 }
 
 .table-wrapper.after {
-  max-height: calc(91.5vh - 300px);
+  max-height: calc(91.5vh - 300px)!important;;
   overflow-y: hidden;
 }
 

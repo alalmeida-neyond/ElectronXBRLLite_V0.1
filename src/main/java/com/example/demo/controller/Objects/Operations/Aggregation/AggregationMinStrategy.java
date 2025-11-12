@@ -3,7 +3,6 @@ package com.example.demo.controller.Objects.Operations.Aggregation;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.example.demo.Resources.Constants;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.DataType;
 import com.example.demo.controller.Objects.Validation.OperationsUtils;
 import com.example.demo.controller.Objects.Validation.ValNode;

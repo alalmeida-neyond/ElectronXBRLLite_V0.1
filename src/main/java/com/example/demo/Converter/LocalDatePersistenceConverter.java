@@ -1,16 +1,25 @@
 package com.example.demo.Converter;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import jakarta.persistence.*;
 
 
 
-@Converter(autoApply = false)
-public class LocalDatePersistenceConverter implements AttributeConverter<LocalDate, String> {
-  @Override public String convertToDatabaseColumn(LocalDate attribute) {
-    return attribute == null ? null : attribute.toString();
-  }
-  @Override public LocalDate convertToEntityAttribute(String dbData) {
-    return (dbData == null || dbData.isBlank()) ? null : LocalDate.parse(dbData);
-  }
+@Converter
+public class LocalDatePersistenceConverter implements AttributeConverter<LocalDate, Timestamp> {
+
+    @Override
+    public Timestamp convertToDatabaseColumn(LocalDate localDate) {
+//        return Optional.ofNullable(localDate.atStartOfDay())
+//          .map(Timestamp::valueOf)
+//          .orElse(null);
+        
+        return localDate == null ? null : Timestamp.valueOf(localDate.atStartOfDay());
+    }
+
+    @Override
+    public LocalDate convertToEntityAttribute(Timestamp date) {
+        return date == null ? null : date.toLocalDateTime().toLocalDate();
+    }
 }

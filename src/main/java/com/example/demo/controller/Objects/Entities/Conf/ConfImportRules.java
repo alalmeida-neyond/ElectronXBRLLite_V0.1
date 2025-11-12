@@ -3,20 +3,14 @@ package com.example.demo.controller.Objects.Entities.Conf;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import com.example.demo.Converter.LocalDateOracleStringConverter;
 import com.example.demo.Converter.LocalDatePersistenceConverter;
-import com.example.demo.Converter.LocalDateTimeOracleStringConverter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.Immutable;
-
-
+import com.example.demo.Converter.LocalDateTimePersistenceConverter;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
-@Immutable
 @Entity
-@Table(name = "CONF_IMPORTRULES")
+@Table(name = "CONF_IMPORTRULES", schema = "DPM_ED")
 @NamedQuery(name = "ConfImportRules.findAll", query = "SELECT e FROM ConfImportRules e order by e.ruleName")
 @SqlResultSetMapping(
         name = "ConfImportRulesWithDataType",
@@ -40,26 +34,20 @@ public class ConfImportRules {
     @Column(name = "RULEDESCRIPTION")
     private String ruleDescription;
     
-    @JsonIgnore
     @Column(name = "CREATIONDATE")
     @NotNull
-    //@Convert(converter = LocalDateTimePersistenceConverter.class)
-    @Convert(converter = LocalDateTimeOracleStringConverter.class)
+    @Convert(converter = LocalDateTimePersistenceConverter.class)
     private LocalDateTime creationDate;
     
-    @JsonIgnore
     @Column(name = "USERID")
     @NotNull
     private String userid;
     
-    @JsonIgnore
     @Column(name = "FROMDATE")
     @NotNull
-    //@Convert(converter = LocalDatePersistenceConverter.class)    
-    @Convert(converter = LocalDateOracleStringConverter.class)
+    @Convert(converter = LocalDatePersistenceConverter.class)    
     private LocalDate fromdate;
     
-    @JsonIgnore
     @Column(name = "TODATE")
     @NotNull
     @Convert(converter = LocalDatePersistenceConverter.class)
@@ -69,7 +57,7 @@ public class ConfImportRules {
     @NotNull
     private boolean alwaysRun;
     
-    @JsonIgnore
+    
     @Column(name = "IMPORTASSOCIATIONKEYID")
     @NotNull
     private int importAssociationKeyID;
@@ -144,6 +132,14 @@ public class ConfImportRules {
     public void setAlwaysRun(boolean alwaysRun) {
         this.alwaysRun = alwaysRun;
     }
+
+    //public List<ConfImportRulesAssociation> getConfImportRulesAssociation() {
+    //    return confImportRulesAssociation;
+    //}
+
+    //public void setConfImportRulesAssociation(List<ConfImportRulesAssociation> confImportRulesAssociation) {
+    //    this.confImportRulesAssociation = confImportRulesAssociation;
+    //}
 
     public int getImportAssociationKeyID() {
         return importAssociationKeyID;

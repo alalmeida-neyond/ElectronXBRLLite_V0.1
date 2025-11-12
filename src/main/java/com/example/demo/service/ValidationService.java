@@ -11,7 +11,6 @@ import com.example.demo.Data.Access.JPA;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
 import com.example.demo.controller.Objects.Beans.DefaultBean;
-import com.example.demo.controller.Objects.Entities.Logs.LogImportProcess;
 public class ValidationService extends DefaultBean<ValidationResultsDetailsDTO>{
     private final static Logger LOG = Logger.getLogger(ValidationService.class.getName());
 

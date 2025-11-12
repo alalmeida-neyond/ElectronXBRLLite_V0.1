@@ -267,33 +267,6 @@ public class XBRLGenerator implements Runnable {
         
     }
 
-    public String getJSONDocument(ModuleVersion moduleVersion)
-    {
-        JPA<ConfTemplate> jpa = new JPA<ConfTemplate>(ConfTemplate.class);
-        List<ConfTemplate> result = new ArrayList<ConfTemplate>();
-
-        try {
-            StringBuilder queryString = new StringBuilder("select ct.*");
-            queryString.append(" from CONF_TEMPLATE ct");
-            queryString.append(" where ct.TEMPLATEID = :moduleVID ;");
-            result = jpa.getTypedNativeResultList(queryString.toString(),"moduleVID", moduleVersion.getModuleVID());
-            //result = jpa.getTypedNativeResultList(queryString.toString());
-
-            /*result = jpa.getTypedNativeResultList(query.toString(),
-                    "moduleVID", moduleVersion.getModuleVID());*/
-            //ConfTemplate template = jpa.getSimpleResult("templateID", String.valueOf(moduleVersion.getModuleVID()));
-
-            return result.getFirst().getJSONFileName();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-        
-        return null;
-    }
-
     public void startDownload(String finalFolder, IO ioValidation, IO ioGeneration) {
         SXSSFWorkbook validationsWorkbook = null;
         EntityManager em = Connection.getEm();

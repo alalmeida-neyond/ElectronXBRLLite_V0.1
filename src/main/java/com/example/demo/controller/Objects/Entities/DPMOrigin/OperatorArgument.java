@@ -6,9 +6,8 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "OPERATORARGUMENT")
+@Table(name = "OPERATORARGUMENT", schema = "DPM_MD")
 @NamedQuery(name="OperatorArgument.findAll", query="SELECT o FROM OperatorArgument o")
 public class OperatorArgument implements Serializable{
     

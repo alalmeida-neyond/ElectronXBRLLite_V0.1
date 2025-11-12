@@ -899,7 +899,6 @@ public class OperationsUtils {
                     return getDataTypeByID(Constants.DATATYPEDATETIME);
 
                 default:
-                    //TODO:
 //                    Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro porque não encontrou o id do datatype", null, null, "Erro");
                     LOG.error("DetermineDataType a dar erro");
                     return null;

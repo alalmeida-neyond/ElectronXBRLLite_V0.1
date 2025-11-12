@@ -7,22 +7,21 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "IN_IMPORTKEY")
+@Table(name = "IN_IMPORTKEY", schema = "DPM_ED")
 public class InImportKey implements Serializable {
     
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "IMPORTKEY_GEN", sequenceName = "IN_IMPORTKEY_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "IMPORTKEY_GEN")
+    @SequenceGenerator(name = "IMPORTKEY_GEN", sequenceName = "DPM_ED.IN_IMPORTKEY_SEQ", allocationSize = 1)
     @Column(name = "IMPORTKEYID")
     private int importKeyID;
     
     @JoinColumn(name = "KEYTYPEID", referencedColumnName = "KEYTYPEID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private InKeyType keyType;
     
-    //@OneToMany(cascade = CascadeType.ALL, mappedBy = "importedKey")
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "importedKey")
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL, mappedBy = "importedKey")
     private List<InKeyAssociation> listPropertyValues;
 
     public InImportKey() {

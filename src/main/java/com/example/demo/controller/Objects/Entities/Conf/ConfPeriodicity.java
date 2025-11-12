@@ -24,7 +24,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 
-@Table(name = "CONF_PERIODICITY")
+@Table(name = "CONF_PERIODICITY", schema = "DPM_ED")
 
 @NamedQuery(name = "ConfPeriodicity.findAll", query = "SELECT e FROM ConfPeriodicity e")
 
@@ -71,3 +71,4 @@ public class ConfPeriodicity implements Serializable {
     }
 
 }
+

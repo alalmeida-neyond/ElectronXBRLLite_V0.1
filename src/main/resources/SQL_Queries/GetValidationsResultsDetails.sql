@@ -1,19 +1,19 @@
 with ioValidation as (
     select io.ioid, io.modulevid, io.entityid, io.domain, io.referenceDate
     from io io
-    where io.ioid = :ioid
+    where io.ioid = ?ioid
 )
 , inputs as (
     select io.referencedate, mv.code as  module, ce.bdpid as entity, io.domain
     from ioValidation io
     inner join moduleversion mv on mv.modulevid = io.modulevid
-    inner join conf_entities ce on ce.entityid = io.entityid
+    inner join dpm_ed.conf_entities ce on ce.entityid = io.entityid
     group by io.referencedate, mv.code, ce.bdpid, io.domain
 )
 , tablesValidated as (
     select vt.tablevid, tv.code, max(validationTableId) validationTableId
     from ioValidation io
-    inner join out_validationtable vt on io.ioid = vt.ioid
+    inner join dpm_ed.out_validationtable vt on io.ioid = vt.ioid
     inner join tableversion tv on tv.tablevid = vt.tablevid
     where vt.stateid = 1
     group by vt.tablevid, tv.code

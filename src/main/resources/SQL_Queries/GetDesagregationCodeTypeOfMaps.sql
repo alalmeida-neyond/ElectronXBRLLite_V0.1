@@ -3,25 +3,25 @@ with tablesFromModule as (
     from moduleversioncomposition mvc
     inner join tableversion tv on mvc.tablevid = tv.tablevid
     inner join "TABLE" t on tv.tableid = t.tableid
-    where mvc.modulevid = :moduleVID
+    where mvc.modulevid = ?moduleVID
 )
 
 , tablesWithDesagCodeFix as (
-    select tfm.tablevid, :desagregationCodeTypeFix as DesagCodeType
+    select tfm.tablevid, ?desagregationCodeTypeFix as DesagCodeType
     from tablesFromModule tfm
     inner join tableversionheader tvh on tfm.tablevid = tvh.tablevid
     inner join headerversion hv on tvh.headervid = hv.headervid
     inner join header h on hv.headerid = h.headerid
     where 1=1
-        and h.direction = :directionZ 
-        and tfm.hasopensheets = :falseNumber 
+        and h.direction = ?directionZ 
+        and tfm.hasopensheets = ?falseNumber 
     group by tfm.tablevid
 )
 
 , tablesWithDesagCodeNormal as (
-    select tfm.tablevid, :desagregationCodeTypeNormal as DesagCodeType
+    select tfm.tablevid, ?desagregationCodeTypeNormal as DesagCodeType
     from tablesFromModule tfm
-    where tfm.hasopensheets = :trueNumber
+    where tfm.hasopensheets = ?trueNumber
 )
 
 , allTables as (

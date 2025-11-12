@@ -21,15 +21,15 @@ import jakarta.validation.constraints.*;
                     }
             )
         }
-) 
+)
 @Entity
-@Table(name = "IN_KEYASSOCIATION")
+@Table(name = "IN_KEYASSOCIATION", schema = "DPM_ED")
 public class InKeyAssociation implements Serializable {
     
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "KEYASSOCIATION_GEN", sequenceName = "IN_KEYASSOCIATION_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "KEYASSOCIATION_GEN")
+    @SequenceGenerator(name = "KEYASSOCIATION_GEN", sequenceName = "DPM_ED.IN_KEYASSOCIATION_SEQ", allocationSize = 1)
     @Column(name = "KEYASSOCIATIONID")
     private int keyAssociationID;
     
@@ -41,15 +41,14 @@ public class InKeyAssociation implements Serializable {
     @Column(name = "PROPERTYVALUE")
     private String propertyValue;
     
-    @NotNull
     @Column(name = "PROPERTYORIGINALVALUE")
     private String propertyOriginalValue;
-
+    
     @JoinColumn(name = "IMPORTKEYID", referencedColumnName = "IMPORTKEYID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private InImportKey importedKey;
 
-	public InKeyAssociation(String propertyName, String propertyValue, String propertyOriginalValue, InImportKey importedKey) {
+    public InKeyAssociation(String propertyName, String propertyValue, String propertyOriginalValue, InImportKey importedKey) {
         this.propertyName = propertyName;
         this.propertyValue = propertyValue;
         this.propertyOriginalValue = propertyOriginalValue;
@@ -63,7 +62,7 @@ public class InKeyAssociation implements Serializable {
     }
     
     public InKeyAssociation(){}
-    
+
     public int getKeyAssociationID() {
         return keyAssociationID;
     }
@@ -103,4 +102,6 @@ public class InKeyAssociation implements Serializable {
     public void setPropertyOriginalValue(String propertyOriginalValue) {
         this.propertyOriginalValue = propertyOriginalValue;
     }
+    
+    
 }

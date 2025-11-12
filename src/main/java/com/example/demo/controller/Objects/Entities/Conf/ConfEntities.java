@@ -1,6 +1,7 @@
 package com.example.demo.controller.Objects.Entities.Conf;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import jakarta.persistence.*;
 
@@ -9,10 +10,12 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 
-@Table(name = "CONF_ENTITIES")
+@Table(name = "CONF_ENTITIES", schema = "DPM_ED")
 
 @NamedQuery(name = "ConfEntities.findAll", query = "SELECT e FROM ConfEntities e")
+
 public class ConfEntities implements Serializable {
+
     @Id
     @NotNull
     @Column(name = "ENTITYID")
@@ -31,9 +34,9 @@ public class ConfEntities implements Serializable {
     public ConfEntities() {
     }
 
-    public ConfEntities(int entityID, String Id, String leiCode, String description) {
+    public ConfEntities(int entityID, String bdpId, String leiCode, String description) {
         this.entityID = entityID;
-        this.bdpId = Id;
+        this.bdpId = bdpId;
         this.leiCode = leiCode;
         this.description = description;
     }
@@ -50,8 +53,8 @@ public class ConfEntities implements Serializable {
         return bdpId;
     }
 
-    public void setId(String Id) {
-        this.bdpId = Id;
+    public void setBdpId(String bdpId) {
+        this.bdpId = bdpId;
     }
 
     public String getLeiCode() {
@@ -68,5 +71,25 @@ public class ConfEntities implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(entityID);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ConfEntities other = (ConfEntities) obj;
+        return Objects.equals(this.getEntityID(), other.getEntityID());
     }
 }

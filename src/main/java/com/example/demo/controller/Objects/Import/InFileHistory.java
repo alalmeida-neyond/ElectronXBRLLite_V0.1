@@ -12,13 +12,13 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "IN_FILEHISTORY")
+@Table(name = "IN_FILEHISTORY", schema = "DPM_ED")
 public class InFileHistory {
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "fileHystSequence_gen")
+    @SequenceGenerator(name = "fileHystSequence_gen", sequenceName = "DPM_ED.fileHystSequence", allocationSize = 1)
     @Column(name = "FILE_ID")
     private Integer id;
     

@@ -1,21 +1,20 @@
 package com.example.demo.controller.Objects.Entities.DPMOrigin;
 
 import java.io.Serializable;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.util.Objects;
 
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
 import com.example.demo.Converter.*;
-import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity(name = "ModuleVersion")
-@Table(name = "MODULEVERSION")
-@NamedQuery(name = "ModuleVersion.findAll", query = "SELECT m FROM ModuleVersion m")
+@Table(name = "MODULEVERSION", schema = "DPM_MD")
+@NamedQueries({
+    @NamedQuery(name = "ModuleVersion.findAll", query = "SELECT m FROM ModuleVersion m")
+})
 public class ModuleVersion implements Serializable {
 
     @Id
@@ -27,7 +26,6 @@ public class ModuleVersion implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private ModuleDPM moduleDPM;
 
-    //@JoinColumn(referencedColumnName = "KEYID", name = "GLOBALKEYID", insertable = false, updatable = false)
     @JoinColumn(referencedColumnName = "KEYID", name = "GLOBALKEYID")
     @ManyToOne(fetch = FetchType.LAZY)
     private CompoundKey globalKey;
@@ -60,20 +58,17 @@ public class ModuleVersion implements Serializable {
 
     @Column(name = "FROMREFERENCEDATE")
     @NotNull
-    //@Convert(converter = LocalDatePersistenceConverter.class)
-    @Convert(converter = LocalDateStringConverter.class)
+    @Convert(converter = LocalDatePersistenceConverter.class)
     private LocalDate fromReferenceDate;
 
     @Column(name = "TOREFERENCEDATE")
-    //@Convert(converter = LocalDatePersistenceConverter.class)
-    @Convert(converter = LocalDateStringConverter.class)
+    @Convert(converter = LocalDatePersistenceConverter.class)
     private LocalDate toReferenceDate;
 
-    @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
+    @JoinColumn(referencedColumnName = "CONCEPT.CONCEPTGUID", name = "MODULEVERSION.ROWGUID", columnDefinition = "RAW(50)")
     @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
     
-    //@Column(name = "ISREPORTED", columnDefinition = "CHAR(1)")
     @Column(name = "ISREPORTED", columnDefinition = "CHAR(1)")
     @NotNull
     private boolean isReported;
@@ -159,7 +154,6 @@ public class ModuleVersion implements Serializable {
 
     public LocalDate getFromReferenceDate() {
         return this.fromReferenceDate == null ? LocalDate.MAX : this.fromReferenceDate;
-        
     }
 
     public void setFromReferenceDate(LocalDate fromReferenceDate) {
@@ -172,10 +166,6 @@ public class ModuleVersion implements Serializable {
 
     public void setToReferenceDate(LocalDate toReferenceDate) {
         this.toReferenceDate = toReferenceDate;
-    }
-
-    public void setToReferenceDate(String toReferenceDate) {
-        this.toReferenceDate = Instant.ofEpochMilli(Long.parseLong(toReferenceDate)).atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public Concept getConcept() {
@@ -200,6 +190,26 @@ public class ModuleVersion implements Serializable {
 
     public void setIsCalculated(boolean isCalculated) {
         this.isCalculated = isCalculated;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(moduleVID);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ModuleVersion other = (ModuleVersion) obj;
+        return Objects.equals(this.getModuleVID(), other.getModuleVID());
     }
 
     

@@ -8,9 +8,8 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "ORGANISATION")
+@Table(name = "ORGANISATION", schema = "DPM_MD")
 public class Organisation implements Serializable{
     
     @Id
@@ -31,7 +30,7 @@ public class Organisation implements Serializable{
     @NotNull
     private int idPrefix;
     
-    @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "CONCEPTGUID", columnDefinition = "RAW(50)")
+    @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
     @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
 

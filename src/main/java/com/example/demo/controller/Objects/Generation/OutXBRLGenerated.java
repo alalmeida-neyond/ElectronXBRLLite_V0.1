@@ -23,6 +23,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -30,7 +31,7 @@ import jakarta.validation.constraints.NotNull;
 
 
 @Entity
-@Table(name = "OUT_XBRLGENERATED")
+@Table(name = "OUT_XBRLGENERATED", schema = "DPM_ED")
 @SqlResultSetMapping(
         name = "OutXBRLGeneratedMapping",
         entities = {
@@ -51,7 +52,8 @@ public class OutXBRLGenerated implements Serializable {
 
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "genXBRLSequence_gen")
+    @SequenceGenerator(name = "genXBRLSequence_gen", sequenceName = "DPM_ED.GENERATEXBLRSEQUENCE", allocationSize = 1)
     @Column(name = "XBRL_ID")
     private int idXBRLGenerate;
 

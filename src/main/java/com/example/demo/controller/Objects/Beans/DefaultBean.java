@@ -15,7 +15,6 @@ import jakarta.faces.application.FacesMessage.Severity;
 import jakarta.faces.FacesException;
 import jakarta.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
-import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -34,8 +33,6 @@ import com.example.demo.controller.Objects.Import.InFileHistory;
 
 
 public abstract class DefaultBean<T> {
-
-    private final Logger LOG = Logger.getLogger(DefaultBean.class);
 
     @Autowired
     @Qualifier("refData")

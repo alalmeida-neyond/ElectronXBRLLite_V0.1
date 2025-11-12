@@ -6,16 +6,8 @@ import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
-import org.springframework.data.annotation.Immutable;
-
-@Immutable
 @Entity
-@Table(name = "\"TABLE\"")
-@SqlResultSetMapping(
-    name = "TableDPMMapping",
-    entities = {
-        @EntityResult(entityClass = TableDPM.class )}
-)
+@Table(name = "\"TABLE\"", schema = "DPM_MD")
 public class TableDPM implements Serializable{
     
     @Id

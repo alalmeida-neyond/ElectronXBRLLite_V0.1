@@ -4,11 +4,9 @@ import java.io.Serializable;
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
-import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "CONTEXT")
+@Table(name = "CONTEXT", schema = "DPM_MD")
 public class Context implements Serializable{
     
     @Id

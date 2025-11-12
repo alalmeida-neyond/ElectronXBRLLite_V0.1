@@ -1,26 +1,31 @@
 package com.example.demo.controller.Objects.Entities.DPMOrigin;
 
 import java.io.Serializable;
+import java.util.List;
+
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "TABLEVERSION")
+@Table(name = "TABLEVERSION", schema = "DPM_MD")
 @SqlResultSetMappings({
     @SqlResultSetMapping(
-            name = "TableVersionDPMMapping",
-            entities = {
-                @EntityResult(entityClass = TableVersionDPM.class )}
+        name = "TablesByModuleMapping",
+        entities = {
+            @EntityResult(entityClass = TableVersionDPM.class),},
+        columns = {
+            @ColumnResult(name = "ModuleVId", type = Integer.class),}
     ),
     @SqlResultSetMapping(
-            name = "TablesByModuleMapping",
-            entities = {
-                @EntityResult(entityClass = TableVersionDPM.class),},
-            columns = {
-                @ColumnResult(name = "ModuleVId", type = Integer.class),}
+        name = "CellsInfoByTable",
+        entities = {
+            @EntityResult(entityClass = TableVersionDPM.class),},
+        columns = {
+            @ColumnResult(name = "RowCode", type = String.class),
+            @ColumnResult(name = "ColumnCode", type = String.class)
+        }
     )
 })
 public class TableVersionDPM implements Serializable {
@@ -41,6 +46,7 @@ public class TableVersionDPM implements Serializable {
     private String name;
 
     @Column(name = "DESCRIPTION")
+    @Lob
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -75,20 +81,32 @@ public class TableVersionDPM implements Serializable {
     @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
 
-    /*@OneToMany*/
-    /*@JoinColumn(referencedColumnName = "KEYID", name = "KEYID", nullable = false)
-    private List<KeyComposition> keyCompositionList;*/
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(referencedColumnName = "KEYID", name = "KEYID", nullable = false)
+    private List<KeyComposition> keyCompositionList;
 
     public TableVersionDPM() {
     }
+    
+    public boolean isAbstract(){
+        return this.table.isIsAbstract();
+    }
+    
+    public boolean isChildrenOfAnAbstractTable(){
+        return this.abstractTable != null;
+    }
+    
+    public boolean isOpenRows(){
+        return this.getTable().isHasOpenRows();
+    }
 
-    /*public List<KeyComposition> getKeyCompositionList() {
+    public List<KeyComposition> getKeyCompositionList() {
         return keyCompositionList;
     }
 
     public void setKeyCompositionList(List<KeyComposition> keyCompositionList) {
         this.keyCompositionList = keyCompositionList;
-    }*/
+    }
 
     public void setTableVID(int tableVID) {
         this.tableVID = tableVID;

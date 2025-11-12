@@ -6,9 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "DPMCLASS")
+@Table(name = "DPMCLASS", schema = "DPM_MD")
 public class DPMClass implements Serializable{
     
     @Id

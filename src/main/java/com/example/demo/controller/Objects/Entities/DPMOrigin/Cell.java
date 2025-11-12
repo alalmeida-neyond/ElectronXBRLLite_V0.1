@@ -18,7 +18,7 @@ import jakarta.validation.constraints.NotNull;
 
 
 @Entity
-@Table(name = "CELL")
+@Table(name = "CELL", schema = "DPM_MD")
 public class Cell implements Serializable {
 
     @Id
@@ -34,7 +34,7 @@ public class Cell implements Serializable {
     @ManyToOne
     private Header column;
 
-    @JoinColumn(referencedColumnName = "HEADERID", name = "RowID", nullable = true)
+    @JoinColumn(referencedColumnName = "HEADERID", name = "\"RowID\"", nullable = true)
     @ManyToOne
     private Header row;
 
@@ -45,7 +45,7 @@ public class Cell implements Serializable {
     @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
     @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
-
+    
     public int getCellId() {
         return cellId;
     }

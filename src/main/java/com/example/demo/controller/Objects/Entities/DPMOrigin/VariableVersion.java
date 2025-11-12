@@ -8,9 +8,8 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "VARIABLEVERSION")
+@Table(name = "VARIABLEVERSION", schema = "DPM_MD")
 public class VariableVersion implements Serializable {
     
     @Id

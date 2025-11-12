@@ -9,22 +9,19 @@ import org.springframework.data.annotation.Immutable;
 
 import com.example.demo.controller.Objects.Entities.DPMOrigin.IDs.KeyCompositionID;
 
-@Immutable
 @Entity
-@Table(name = "KEYCOMPOSITION")
+@Table(name = "KEYCOMPOSITION", schema = "DPM_MD")
 public class KeyComposition implements Serializable{
     
-    @Id
+    @EmbeddedId
     private KeyCompositionID keyCompositionID;
     
-    @MapsId("keyID")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(referencedColumnName = "KEYID", name = "KEYID", insertable = false, updatable = false)
+    @JoinColumn(referencedColumnName = "KEYID", name = "KEYID", nullable = false, insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private CompoundKey compoundKey;
     
-    @MapsId("variableVID")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(referencedColumnName = "VARIABLEVID", name = "VARIABLEVID", insertable = false, updatable = false)
+    @JoinColumn(referencedColumnName = "VARIABLEVID", name = "VARIABLEVID", nullable = false, insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private VariableVersion variable;
     
     @Column(name = "ROWGUID", columnDefinition = "RAW(50)")

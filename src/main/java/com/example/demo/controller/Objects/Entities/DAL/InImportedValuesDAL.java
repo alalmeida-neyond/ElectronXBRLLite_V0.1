@@ -14,7 +14,6 @@ import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
 import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
-import com.example.demo.controller.Objects.Generation.OutXBRLGenerated;
 import com.example.demo.controller.Objects.Import.*;
 
 

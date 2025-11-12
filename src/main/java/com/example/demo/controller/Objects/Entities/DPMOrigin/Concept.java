@@ -5,10 +5,8 @@ import java.io.Serializable;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
-
 @Entity
-@Table(name = "CONCEPT")
+@Table(name = "CONCEPT", schema = "DPM_MD")
 public class Concept implements Serializable{
     
     @Id

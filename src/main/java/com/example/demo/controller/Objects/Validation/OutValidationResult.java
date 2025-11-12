@@ -3,30 +3,30 @@ package com.example.demo.controller.Objects.Validation;
 import java.io.Serializable;
 import java.util.List;
 
-import com.example.demo.DTOs.*;
+import com.example.demo.DTOs.ValidationResultsDetailsDTO;
 import com.example.demo.Data.Access.Info;
 import com.example.demo.Resources.Constants;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.OperationVersion;
 import com.example.demo.controller.Objects.IO.IOState;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ColumnResult;
 import jakarta.persistence.ConstructorResult;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.SqlResultSetMappings;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "OUT_VALIDATIONRESULT")
+@Table(name = "OUT_VALIDATIONRESULT", schema = "DPM_ED")
 @SqlResultSetMappings({
     @SqlResultSetMapping(
             name = "ValidationResultsDetailsRow",
@@ -35,6 +35,7 @@ import jakarta.validation.constraints.NotNull;
                         targetClass = ValidationResultsDetailsDTO.class,
                         columns = {
                             @ColumnResult(name = "module", type = String.class),
+                            @ColumnResult(name = "report", type = String.class),
                             @ColumnResult(name = "entity", type = String.class),
                             @ColumnResult(name = "domain", type = String.class),
                             @ColumnResult(name = "referenceDate", type = String.class),
@@ -56,22 +57,23 @@ import jakarta.validation.constraints.NotNull;
 public class OutValidationResult implements Serializable {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OUT_VALIDATIONRESULT_SEQ")
+    @SequenceGenerator(name = "OUT_VALIDATIONRESULT_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONRESULT_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONRESULTID")
     @NotNull
     private Integer validationResultId;
     
     @JoinColumn(referencedColumnName = "OPERATIONVID", name = "OPERATIONVID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private OperationVersion operationVersion;
     
     @JoinColumn(referencedColumnName = "IO_STATEID", name = "STATEID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private IOState ioState;
     
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "validationResult")
+    /*@OneToMany(cascade = CascadeType.ALL, mappedBy = "validationResult")
     private List<OutValidationResultDetails> listValidationResultDetails;
-    
+    */
     public OutValidationResult(){}
     
     public OutValidationResult(OperationVersion operation, IOState ioState){
@@ -134,13 +136,13 @@ public class OutValidationResult implements Serializable {
         this.ioState = ioState;
     }
 
-    public List<OutValidationResultDetails> getListValidationResultDetails() {
+    /*public List<OutValidationResultDetails> getListValidationResultDetails() {
         return listValidationResultDetails;
     }
 
     public void setListValidationResultDetails(List<OutValidationResultDetails> listValidationResultDetails) {
         this.listValidationResultDetails = listValidationResultDetails;
-    }
+    }*/
 
     
 }

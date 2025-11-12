@@ -14,7 +14,7 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "CONF_TEMPLATE")
+@Table(name = "CONF_TEMPLATE", schema = "DPM_ED")
 public class ConfTemplate implements Serializable {
     
     @Id
@@ -27,12 +27,9 @@ public class ConfTemplate implements Serializable {
     
     @Column(name = "ServerFilename")
     private String serverFilename;
-
+    
     @Column(name = "EntryPointURL")
     private String entryPointURL;
-    
-    @Column(name = "JSONFileName")
-    private String JSONFileName;
     
     
     @ManyToOne
@@ -80,14 +77,6 @@ public class ConfTemplate implements Serializable {
 
     public void setEntryPointURL(String entryPointURL) {
         this.entryPointURL = entryPointURL;
-    }
-
-    public String getJSONFileName() {
-        return JSONFileName;
-    }
-
-    public void setJSONFileName(String JSONFileName) {
-        this.JSONFileName = JSONFileName;
     }
 
     public ModuleVersion getModuleVersion() {

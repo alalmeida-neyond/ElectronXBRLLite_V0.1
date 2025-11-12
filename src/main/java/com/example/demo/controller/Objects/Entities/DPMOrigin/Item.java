@@ -8,9 +8,8 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "ITEM")
+@Table(name = "ITEM", schema = "DPM_MD")
 public class Item implements Serializable{
     
     @Id
@@ -19,17 +18,19 @@ public class Item implements Serializable{
     private int itemId;
     
     @Column(name = "NAME")
+    @Lob
     @NotNull
     private String name;
     
     @Column(name = "DESCRIPTION")
+    @Lob
     private String description;
     
-    @Column(name = "ISPROPERTY")
+    @Column(name = "ISPROPERTY", columnDefinition = "CHAR(1)")
     @NotNull
     private boolean isProperty;
     
-    @Column(name = "ISACTIVE")
+    @Column(name = "ISACTIVE", columnDefinition = "CHAR(1)")
     @NotNull
     private boolean isActive;
     

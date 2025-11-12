@@ -4,19 +4,17 @@ import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
-import org.springframework.data.annotation.Immutable;
-
 import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 
-@Immutable
 @Entity
-@Table(name = "operationrunning")
+@Table(name = "operationrunning", schema = "DPM_ED")
 public class OperationsRunning {
 
     @Id
     @NotNull    
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OPERATIONRUNNING_SEQ")
+    @SequenceGenerator(name = "OPERATIONRUNNING_SEQ", sequenceName = "DPM_ED.OPERATIONRUNNING_SEQ", allocationSize = 1)
     @Column(name = "OPERATIONRUNNINGID")
     private int operationRunningId;
     

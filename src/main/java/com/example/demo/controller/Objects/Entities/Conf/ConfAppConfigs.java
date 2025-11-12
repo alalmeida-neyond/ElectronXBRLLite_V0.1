@@ -7,14 +7,14 @@ import jakarta.validation.constraints.*;
 
 
 @Entity
-@Table(name = "CONF_APPCONFIGS")
+@Table(name = "CONF_APPCONFIGS", schema = "DPM_ED")
 @NamedQuery(name="ConfAppConfigs.findAll", query="SELECT a FROM ConfAppConfigs a")
 public class ConfAppConfigs implements Serializable {
     
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //@SequenceGenerator(name = "confAppConfigs_gen", sequenceName = "CONF_APPCONFIGS_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "confAppConfigs_gen")
+    @SequenceGenerator(name = "confAppConfigs_gen", sequenceName = "DPM_ED.CONF_APPCONFIGS_SEQ", allocationSize = 1)
     @Column(name = "APPCONFIGID")
     private int appConfigId;
     

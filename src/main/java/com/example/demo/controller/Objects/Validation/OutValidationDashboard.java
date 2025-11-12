@@ -23,6 +23,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +31,7 @@ import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "OUT_VALIDATIONSDASHBOARD")
+@Table(name = "OUT_VALIDATIONSDASHBOARD", schema = "DPM_ED")
 @SqlResultSetMapping(
         name = "ValidationsDashboardResults",
         classes = {
@@ -60,13 +61,14 @@ public class OutValidationDashboard implements Serializable{
     
     @Id
     @NotNull
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OUT_VALIDATIONSDASHBOARD_SEQ")
+    @SequenceGenerator(name = "OUT_VALIDATIONSDASHBOARD_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONSDASHBOARD_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONSDASHBOARDID")
     private int validationsDashboardId;
     
     @Column(name = "REFERENCEDATE")    
     @Convert(converter = LocalDatePersistenceConverter.class)
-    private LocalDate refDate;
+    private LocalDate referenceDate;
     
     @JoinColumn(referencedColumnName = "MODULEVID", name = "MODULEVID", nullable = false)
     @ManyToOne
@@ -118,11 +120,11 @@ public class OutValidationDashboard implements Serializable{
     }
 
     public LocalDate getReferenceDate() {
-        return refDate;
+        return referenceDate;
     }
 
     public void setReferenceDate(LocalDate referenceDate) {
-        this.refDate = referenceDate;
+        this.referenceDate = referenceDate;
     }
 
     public ModuleVersion getModule() {

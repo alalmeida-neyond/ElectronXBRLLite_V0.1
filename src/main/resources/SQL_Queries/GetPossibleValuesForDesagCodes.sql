@@ -3,13 +3,13 @@ with tablesFromModule as (
     from moduleversioncomposition mvc
     inner join tableversion tv on mvc.tablevid = tv.tablevid
     inner join "TABLE" t on tv.tableid = t.tableid
-    where mvc.modulevid = :moduleVID
+    where mvc.modulevid = ?moduleVID
 )
 
 , tablesWithDesagCodeNormal as (
-    select tfm.tablevid, :desagregationCodeTypeNormal as DesagCodeType
+    select tfm.tablevid, ?desagregationCodeTypeNormal as DesagCodeType
     from tablesFromModule tfm
-    where tfm.hasopensheets = :trueNumber
+    where tfm.hasopensheets = ?trueNumber
 )
 
 , tableWithDesagCodeEnumerated as (
@@ -25,10 +25,10 @@ with tablesFromModule as (
     inner join property p on vv.propertyid = p.propertyid
     inner join datatype dt on p.datatypeid = dt.datatypeid
     where 1=1
-        and h.direction = :directionZ 
-        and dt.datatypeid = :dataTypeEnumeration
-        and ((sr."Date" <= strftime(:formatDate, :referenceDate) and (er."Date" >= strftime(:formatDate, :referenceDate) or er.releaseid is null)) or (sr.releaseid is null and er.releaseid is null))
-    order by t.tablevid, hv.code
+        and h.direction = ?directionZ 
+        and dt.datatypeid = ?dataTypeEnumeration
+        and ((sr."Date" <= TO_DATE(?referenceDate, ?formatDate) and (er."Date" >= TO_DATE(?referenceDate, ?formatDate) or er.releaseid is null)) or (sr.releaseid is null and er.releaseid is null))
+    order by tablevid, hv.code
 )
 
 , possibleValuesForDesagCodeNormal as (
@@ -47,18 +47,18 @@ with tablesFromModule as (
     inner join headerversion hv on tvh.headervid = hv.headervid
     inner join header h on hv.headerid = h.headerid
     where 1=1
-        and h.direction = :directionZ 
-        and tfm.hasopensheets = :falseNumber 
+        and h.direction = ?directionZ 
+        and tfm.hasopensheets = ?falseNumber 
     group by tfm.tablevid
 )
 
 , possibleValuesForDesagCodeFix as (
-    select tdc.tableVID "TableVID", :sheetCode as "XBRLCode", hv.code "HeaderCode", null "ValueCode" , null as signature, null as name 
+    select tdc.tableVID "TableVID", ?sheetCode as "XBRLCode", hv.code "HeaderCode", null "ValueCode" , null as signature, null as name 
     from tablesWithDesagCodeFix tdc
     inner join tableversionheader tvh on tdc.tablevid = tvh.tablevid
     inner join headerversion hv on tvh.headervid = hv.headervid
     inner join header h on hv.headerid = h.headerid
-    where h.direction = :directionZ 
+    where h.direction = ?directionZ 
 )
 
 , allPossibleValues as (

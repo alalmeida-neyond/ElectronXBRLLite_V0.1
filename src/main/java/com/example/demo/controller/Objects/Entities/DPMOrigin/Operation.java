@@ -14,7 +14,7 @@ import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "OPERATION")
+@Table(name = "OPERATION", schema = "DPM_MD")
 public class Operation implements Serializable{
     
     @Id

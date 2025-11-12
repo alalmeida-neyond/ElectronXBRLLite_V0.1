@@ -9,9 +9,8 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "MODULE")
+@Table(name = "MODULE", schema = "DPM_MD")
 public class ModuleDPM implements Serializable{
     
     @Id
@@ -27,8 +26,7 @@ public class ModuleDPM implements Serializable{
     @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
     
-    //@Column(name = "ISDOCUMENT", columnDefinition = "CHAR(1)")
-    @Column(name = "ISDOCUMENT", columnDefinition = "CHAR(1)")
+    @Column(name = "ISDOCUMENTMODULE", columnDefinition = "CHAR(1)")
     @NotNull
     private boolean isDocument;
 

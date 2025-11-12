@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.logging.Logger;
-
 import com.example.demo.Data.ConnectionManager;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.Resources.Constants;
@@ -16,16 +14,13 @@ public class ConfTemplateDAL {
     
 
     public static List<ConfTemplate> getTemplates(String moduleID, LocalDate referenceDate, String version) {
-        final Logger LOG = Logger.getLogger(ConfTemplateDAL.class);
         JPA<ConfTemplate> jpa = new JPA<ConfTemplate>(ConfTemplate.class);
         List<ConfTemplate> result = new ArrayList();
 
         StringBuilder queryString = new StringBuilder("Select a.* from Conf_Template a ");
         queryString.append(" inner join moduleversion b on a.TemplateID = b.moduleVID ");
         queryString.append(" where 1=1 ");
-        LOG.info("ModuleID:" + moduleID);
-        LOG.info("Reference Date:" + referenceDate);
-        LOG.info("Version:" + version);
+
         if (moduleID != null) {
             queryString.append(" and b.moduleid = " + moduleID);
         }

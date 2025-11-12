@@ -8,15 +8,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "OUT_VALIDATIONTABLERESULT")
+@Table(name = "OUT_VALIDATIONTABLERESULT", schema = "DPM_ED")
 public class OutValidationTableResult implements Serializable {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OUT_VALIDATIONTABLERESULT_SEQ")
+    @SequenceGenerator(name = "OUT_VALIDATIONTABLERESULT_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONTABLERESULT_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONTABLERESULTID")
     @NotNull
     private Integer validationTableResultId;

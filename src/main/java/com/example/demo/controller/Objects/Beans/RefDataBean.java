@@ -34,14 +34,14 @@ public class RefDataBean {
     public RefDataBean() {
 
         // Reporting XML
-        webPageMap.put("xbrl2_header1|Reporting Bdp 2.0", HEADER1_REPORTING_BDP);
+        /*webPageMap.put("xbrl2_header1|Reporting Bdp 2.0", HEADER1_REPORTING_BDP);
 
         webPageMap.put("xbrl2_header2|Templates", HEADER2_BdP_TEMPLATES);
         webPageMap.put("xbrl2_header2|Importacao", HEADER2_BdP_IMPORTACAO_RELATORIOS);
         webPageMap.put("xbrl2_header2|Validacao", HEADER2_BdP_VALIDACOES);
         webPageMap.put("xbrl2_header2|Geracao", HEADER2_BdP_GERACAO_XBRL);
         webPageMap.put("xbrl2_header2|Dashboard Geral", HEADER2_BdP_DASHBOARD_GERAL);
-        webPageMap.put("xbrl2_header2|Parametrizacoes", HEADER2_BdP_PARAMETRIZACOES);
+        webPageMap.put("xbrl2_header2|Parametrizacoes", HEADER2_BdP_PARAMETRIZACOES);*/
     }
 
     @PostConstruct
@@ -123,7 +123,7 @@ public class RefDataBean {
         this.privilegios = privilegios;
     }
 
-    public boolean canSelectButton(String webpageName, String menuName, String tabName) {
+    /*public boolean canSelectButton(String webpageName, String menuName, String tabName) {
         webpageName = webpageName.trim();
 
         WebPage[] webPages = webPageMap.get(menuName + "|" + tabName);
@@ -137,21 +137,21 @@ public class RefDataBean {
         }
 
         return false;
-    }
+    }*/
 
 // Reporting BdP
-    private final static WebPage[] HEADER1_REPORTING_BDP = new WebPage[]{WebPage.bpd_templates, WebPage.import_file, WebPage.imported_files_list, WebPage.imported_file_maps_list, WebPage.imported_file_cells_list, WebPage.imported_files_export, WebPage.imported_files_resume, WebPage.imported_rules_list, WebPage.create_rules};
+    /*private final static WebPage[] HEADER1_REPORTING_BDP = new WebPage[]{WebPage.bpd_templates, WebPage.import_file, WebPage.imported_files_list, WebPage.imported_file_maps_list, WebPage.imported_file_cells_list, WebPage.imported_files_export, WebPage.imported_files_resume, WebPage.imported_rules_list, WebPage.create_rules};
 
     private final static WebPage[] HEADER2_BdP_IMPORTACAO_RELATORIOS = new WebPage[]{WebPage.import_file, WebPage.imported_files_list, WebPage.imported_file_maps_list, WebPage.imported_file_cells_list, WebPage.imported_files_export, WebPage.imported_files_resume, WebPage.imported_rules_list, WebPage.create_rules, WebPage.import_details};
     private final static WebPage[] HEADER2_BdP_VALIDACOES = new WebPage[]{WebPage.execute_validation, WebPage.results_validation, WebPage.rules_validation, WebPage.resume_validation, WebPage.dashboard_validation, WebPage.validations_details, WebPage.validations_results_details};
     private final static WebPage[] HEADER2_BdP_GERACAO_XBRL = new WebPage[]{WebPage.execute_generation, WebPage.download_generation};
     private final static WebPage[] HEADER2_BdP_DASHBOARD_GERAL = new WebPage[]{WebPage.dashboard_geral};
     private final static WebPage[] HEADER2_BdP_PARAMETRIZACOES = new WebPage[]{WebPage.paramsMandatoryReports};
-    private final static WebPage[] HEADER2_BdP_TEMPLATES = new WebPage[]{WebPage.bpd_templates};
+    private final static WebPage[] HEADER2_BdP_TEMPLATES = new WebPage[]{WebPage.bpd_templates};*/
 
     private enum WebPage {
         // Reporting BdP 2.0
-        bpd_templates(100000, "/XBRL_2.0/download_template.xhtml"),
+        /*bpd_templates(100000, "/XBRL_2.0/download_template.xhtml"),
         index_BdP(100001, "/XBRL_2.0/index_xbrl2.xhtml"),
         import_file(100002, "/XBRL_2.0/import_file.xhtml"),
         imported_files_list(100003, "/XBRL_2.0/imported_files_list.xhtml"),
@@ -185,7 +185,7 @@ public class RefDataBean {
         public String getName() {
             return name;
         }
-
+        */
     }
 
     public Map<String, Integer> getMonthsMap() {

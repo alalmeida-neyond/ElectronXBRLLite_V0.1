@@ -10,9 +10,8 @@ import jakarta.validation.constraints.*;
 import com.example.demo.Converter.*;
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "RELEASE")
+@Table(name = "RELEASE", schema = "DPM_MD")
 public class Release implements Serializable{
     
     @Id
@@ -26,8 +25,8 @@ public class Release implements Serializable{
     private String code;
     
     @Column(name = "\"Date\"")
-    @Convert(converter = LocalDatePersistenceConverter.class)
-    private LocalDate date;
+    @Convert(converter = LocalDateTimePersistenceConverter.class)
+    private LocalDateTime date;
     
     @Column(name = "DESCRIPTION")
     @Size(max = 255)
@@ -45,7 +44,7 @@ public class Release implements Serializable{
     private Concept concept;
     
     @Column(name = "LATESTVARIABLEGENTIME")
-    @Convert(converter = LocalDateTimePersistenceConverter.class)
+    @Convert(converter = LocalDatePersistenceConverter.class)
     private LocalDateTime latestVariableGenTime;
 
     public int getReleaseID() {
@@ -64,11 +63,11 @@ public class Release implements Serializable{
         this.code = code;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

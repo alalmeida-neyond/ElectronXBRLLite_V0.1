@@ -15,8 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jboss.logging.Logger;
-
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
 import com.example.demo.controller.Objects.Entities.DAL.*;
@@ -29,8 +27,6 @@ public class XBRLGeneratorMap {
     private List<InImportedTablesTemp> listOfImportedTables;
     private LocalDate referenceDate;
     private Boolean altXBRLGeneration;
-    private final Logger LOG = Logger.getLogger(XBRLGeneratorMap.class);
-
 
     public XBRLGeneratorMap(String path, List<InImportedTablesTemp> listOfImportedTables, LocalDate referenceDate, Boolean altXBRLGeneration) {
         this.path = path;

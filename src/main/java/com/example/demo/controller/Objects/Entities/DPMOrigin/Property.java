@@ -8,9 +8,8 @@ import jakarta.validation.constraints.*;
 
 import org.springframework.data.annotation.Immutable;
 
-@Immutable
 @Entity
-@Table(name = "PROPERTY")
+@Table(name = "PROPERTY", schema = "DPM_MD")
 public class Property implements Serializable {
 
     @Id
@@ -18,7 +17,9 @@ public class Property implements Serializable {
     @Column(name = "PROPERTYID")
     private int propertyID;
     
-
+//    @JoinColumn(referencedColumnName = "ITEMID", name = "PROPERTYID")
+//    @OneToOne
+//    private Item item;
     
     @Column(name = "ISCOMPOSITE", columnDefinition = "CHAR(1)", nullable = false)
     private boolean isComposite;
@@ -31,7 +32,7 @@ public class Property implements Serializable {
     private DataType dataType;
     
     @Column(name = "VALUELENGTH")
-    private Double valueLength;
+    private Integer valueLength;
     
     @Column(name = "PERIODTYPE")
     @Size(max = 20)
@@ -65,11 +66,11 @@ public class Property implements Serializable {
         this.dataType = dataType;
     }
 
-    public double getValueLength() {
+    public Integer getValueLength() {
         return valueLength;
     }
 
-    public void setValueLength(double valueLength) {
+    public void setValueLength(Integer valueLength) {
         this.valueLength = valueLength;
     }
 

@@ -2,23 +2,17 @@ package com.example.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-
-import com.example.config.ReplacementDB;
-import com.example.demo.Data.Access.JPA;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class DemoApplication {
-	
+public class DemoApplication extends SpringBootServletInitializer{
+	@Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(DemoApplication.class);
+    }
 
 	public static void main(String[] args) {
-        ReplacementDB replacementDB = new ReplacementDB();
-		replacementDB.replacementDBEvent();
-		
-		if (!replacementDB.isValidSQLiteFile()) {
-			System.err.println("The SQLite file is invalid. Application will not start.");
-			System.exit(1);
-		}
         //ATIVAR EM PROD
         //deleteRecords();
 
@@ -26,7 +20,7 @@ public class DemoApplication {
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
-	public static void deleteRecords()
+	/*public static void deleteRecords()
     {
         JPA<Object[]> jpa = new JPA<Object[]>(Object[].class);
         
@@ -130,5 +124,5 @@ public class DemoApplication {
         } finally {
             jpa.close();
         }
-    }
+    }*/
 }

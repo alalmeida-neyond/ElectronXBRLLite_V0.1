@@ -20,7 +20,7 @@ import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "DATATYPE")
+@Table(name = "DATATYPE", schema = "DPM_MD")
 @NamedQuery(name="DataType.findAll", query="SELECT d FROM DataType d")
 @SqlResultSetMapping(
     name = "dataTypeHasUnitDTOMapping",
