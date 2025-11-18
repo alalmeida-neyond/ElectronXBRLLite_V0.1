@@ -18,10 +18,10 @@ public class VariableVersionDAL {
         JPA<VariableVersion> jpa = new JPA<VariableVersion>(VariableVersion.class);
         List<VariableVersion> listOfResults = new ArrayList<>();
         try {
-            StringBuilder query = new StringBuilder("Select a.* from VariableVersion a ");
-            query.append("inner join MODULEPARAMETERS b ");
+            StringBuilder query = new StringBuilder("Select a.* from DPM_MD.VariableVersion a ");
+            query.append("inner join DPM_MD.MODULEPARAMETERS b ");
             query.append("on a.VARIABLEVID = b.VARIABLEVID ");
-            query.append("where b.MODULEVID = :moduleVID ");
+            query.append("where b.MODULEVID = ?moduleVID ");
 
             listOfResults = jpa.getTypedNativeResultList(query.toString(),
                     "moduleVID", moduleVID);
@@ -39,9 +39,9 @@ public class VariableVersionDAL {
         List<VariableVersion> listOfResults = new ArrayList<>();
         VariableVersion returnResult = null;
         try {
-            StringBuilder query = new StringBuilder("Select a.* from VariableVersion a ");
-            query.append("inner JOIN tableversion b ");
-            query.append("on a.code = b.code where b.tableid = :abstractId ");
+            StringBuilder query = new StringBuilder("Select a.* from DPM_MD.VariableVersion a ");
+            query.append("inner JOIN DPM_MD.tableversion b ");
+            query.append("on a.code = b.code where b.tableid = ?abstractId ");
             
             listOfResults = jpa.getTypedNativeResultList(query.toString(),
                     "abstractId", abstractId);

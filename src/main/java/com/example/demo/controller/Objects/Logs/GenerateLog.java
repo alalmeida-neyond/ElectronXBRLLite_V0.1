@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.example.demo.controller.Objects.Logs;
 
 import java.time.LocalDateTime;
@@ -28,13 +25,13 @@ import jakarta.validation.constraints.NotNull;
 import com.example.demo.DTOs.GenerateXBRLDetailsDTO;
 
 @Entity
-@Table(name = "GENERATELOG", schema = "DPM_ED")
+@Table(name = "GENERATELOG", schema = "DPM_OD")
 public class GenerateLog {
 
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "genLogSequence_gen")
-    @SequenceGenerator(name = "genLogSequence_gen", sequenceName = "DPM_ED.GENERATELOG_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "genLogSequence_gen", sequenceName = "DPM_OD.GENERATELOG_SEQ", allocationSize = 1)
     @Column(name = "ID_GenerateSTATUS")
     private int idGenerateLog;
 

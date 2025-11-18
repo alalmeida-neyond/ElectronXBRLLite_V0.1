@@ -1,4 +1,5 @@
-INSERT INTO "OUT_VALIDATIONSDASHBOARD" (
+INSERT INTO "DPM_OD"."OUT_VALIDATIONSDASHBOARD" (
+    VALIDATIONSDASHBOARDID,
     ENTITYID, 
     DOMAIN, 
     MODULEVID, 
@@ -14,21 +15,21 @@ INSERT INTO "OUT_VALIDATIONSDASHBOARD" (
     TIMESTAMP
 )
 with periodicityFromReferenceDate as (
-	SELECT :referenceDate AS referenceDate, CASE WHEN CAST(strftime('%m%',strftime(:format, :referenceDate)) AS INTEGER) % 12 = 0 THEN 3 ELSE NULL END AS periodicityId
-		UNION
-	SELECT :referenceDate AS referenceDate, CASE WHEN CAST(strftime('%m%',strftime(:format, :referenceDate)) AS INTEGER) % 4 = 0 THEN 1 ELSE NULL END AS periodicityId
-		UNION
-	SELECT :referenceDate AS referenceDate, CASE WHEN CAST(strftime('%m%',strftime(:format, :referenceDate)) AS INTEGER) % 3 = 0 THEN 4 ELSE NULL END AS periodicityId
-		UNION
-	SELECT :referenceDate AS referenceDate, CASE WHEN CAST(strftime('%m%',strftime(:format, :referenceDate)) AS INTEGER) % 6 = 0 THEN 2 ELSE NULL END AS periodicityId
-		UNION
-	SELECT :referenceDate AS referenceDate, CASE WHEN CAST(strftime('%m%',strftime(:format, :referenceDate)) AS INTEGER) % 1 = 0 THEN 5 ELSE NULL END AS periodicityId
+    select ?referenceDate as referenceDate, case when mod(extract(month from to_date(?referenceDate,?format)),12) = 0 then 3 else null end periodicityId from dual
+        union
+    select ?referenceDate as referenceDate, case when mod(extract(month from to_date(?referenceDate,?format)),4) = 0 then 1 else null end periodicityId from dual
+        union
+    select ?referenceDate as referenceDate, case when mod(extract(month from to_date(?referenceDate,?format)),3) = 0 then 4 else null end periodicityId from dual
+        union
+    select ?referenceDate as referenceDate, case when mod(extract(month from to_date(?referenceDate,?format)),6) = 0 then 2 else null end periodicityId from dual
+        union
+    select ?referenceDate as referenceDate, case when mod(extract(month from to_date(?referenceDate,?format)),1) = 0 then 5 else null end periodicityId from dual
 )
 , importedTabledFiltered as (
     select impTable.*, io.modulevid, io.domain, io.entityId, io.referenceDate
-    from in_importedtablestemp impTable
-    inner join io io on io.ioid = impTable.ioid
-    where impTable.io_stateid = :processoOk and impTable.ioid = :ioId
+    from DPM_OD.in_importedtablestemp impTable
+    inner join DPM_OD.io io on io.ioid = impTable.ioid
+    where impTable.io_stateid = ?processoOk and impTable.ioid = ?ioId
 )
 , maxImportedTableIdPerTable as ( 
     select max(impTable.importedTableId) importedTableId, impTable.tablevid tablevid, impTable.modulevid modulevid, impTable.domain domain, impTable.entityId entityId, impTable.referenceDate referenceDate
@@ -38,16 +39,16 @@ with periodicityFromReferenceDate as (
 , importedTablesWithoutDeleted as (
     select mit.tablevid, mit.modulevid, mit.domain, mit.entityId, mit.referenceDate, io.endtimestamp
     from maxImportedTableIdPerTable mit
-    inner join in_importedtablestemp it on it.importedTableId = mit.importedTableid
-    inner join io io on io.ioid = it.ioid
-    where io.io_stateid <> :processOkDeleted
+    inner join DPM_OD.in_importedtablestemp it on it.importedTableId = mit.importedTableid
+    inner join DPM_OD.io io on io.ioid = it.ioid
+    where io.io_stateid <> ?processOkDeleted
 )
 ,iosValidation AS (
     SELECT io.ioid, io.referencedate, mv.code, io.domain, confEn.leicode, io.endtimestamp, io.inittimestamp, io.entityid, io.modulevid, io.userid
-    FROM io io
-    INNER JOIN moduleversion mv ON io.modulevid = mv.modulevid
-    INNER JOIN conf_entities confEn ON io.entityid = confEn.entityid
-    WHERE io.ioid = :ioId
+    FROM DPM_OD.io io
+    INNER JOIN DPM_MD.moduleversion mv ON io.modulevid = mv.modulevid
+    INNER JOIN DPM_OD.conf_entities confEn ON io.entityid = confEn.entityid
+    WHERE io.ioid = ?ioId
 )
 ,validationContext as (
     select referenceDate, modulevid, entityId, domain
@@ -65,10 +66,10 @@ with periodicityFromReferenceDate as (
 )
 ,mandatoryReports as (
     select cmr.* 
-    from conf_mandatoryreport cmr
+    from DPM_OD.conf_mandatoryreport cmr
     inner join periodicityFromReferenceDate periodicity on periodicity.periodicityId = cmr.periodicityId
-    where (cmr.fromDate <= strftime(:format, :referenceDate) AND IFNULL(cmr.toDate, strftime(:format, '9999-12-31')) >= strftime(:format, :referenceDate)
-          AND cmr.fromDate <> IFNULL(cmr.toDate, strftime(:format, '9999-12-31')))
+    where (cmr.fromDate <= TO_DATE(?referenceDate, ?format) AND NVL(cmr.toDate, TO_DATE('9999-12-31', ?format)) >= TO_DATE(?referenceDate, ?format) 
+          AND cmr.fromDate <> NVL(cmr.toDate, TO_DATE('9999-12-31', ?format)))
 )
 , tablesWithMandatory as (
     select modulevid, tablevid, entityid, domain from (
@@ -120,7 +121,7 @@ with periodicityFromReferenceDate as (
     inner join operationscopecomposition osc on osc.modulevid = vc.modulevid
     inner join operationscope os on os.operationscopeid = osc.operationscopeid
     inner join operationversion ov on ov.operationvid = os.operationvid
-    where os.isactive = 1 and os.fromsubmissiondate <= strftime(:format, :referenceDate)
+    where os.isactive = 1 and os.fromsubmissiondate <= TO_DATE(?referenceDate, ?format)
     group by vc.modulevid, ov.operationvid
 )
 , operationsExpected as (
@@ -134,8 +135,8 @@ with periodicityFromReferenceDate as (
 , tablesValidated as (
     select io.modulevid, io.referenceDate, io.domain, io.entityid, vt.validationtableid, vt.tablevid, io.ioid, io.inittimestamp
     from iosValidation io
-    inner join out_validationtable vt on io.ioid = vt.ioid
-    where vt.stateid = :typeStateOk
+    inner join DPM_OD.out_validationtable vt on io.ioid = vt.ioid
+    where vt.stateid = ?typeStateOk
 )
 , maxTablesValidated as (
     select max(tv.validationtableid) valTableId
@@ -147,20 +148,15 @@ with periodicityFromReferenceDate as (
     from maxTablesValidated rtv
     inner join tablesValidated tv on rtv.valTableId = tv.validationtableid
 )
-, tablesValidatedBasedOnImport as (
-    select itc.*, tvf.validationtableid
-    from importedTablesWithoutDeleted itc 
-    inner join tablesValidatedFinalInfo tvf on itc.tablevid = tvf.tablevid
-)
-,validationResults as (
+, validationResults as (
     select results.*, vr.stateid from (
         select max(vr.validationresultid) validationresultid, operationvid, modulevid, referenceDate, domain, entityId
-        from tablesValidatedBasedOnImport tv
-        inner join out_validationtableresult vtr on tv.validationtableid = vtr.validationtableid
-        inner join out_validationresult vr on vtr.validationresultid = vr.validationresultid
+        from tablesValidatedFinalInfo tv
+        inner join DPM_OD.out_validationtableresult vtr on tv.validationtableid = vtr.validationtableid
+        inner join DPM_OD.out_validationresult vr on vtr.validationresultid = vr.validationresultid
         group by operationvid, modulevid, referenceDate, domain, entityId
     ) results
-    inner join out_validationresult vr on results.validationresultid = vr.validationresultid
+    inner join DPM_OD.out_validationresult vr on results.validationresultid = vr.validationresultid
 )
 ,resultCounts AS (
     SELECT
@@ -169,11 +165,11 @@ with periodicityFromReferenceDate as (
         vr.entityId,
         vr.domain,
         COUNT(*) AS Total,
-        SUM(CASE WHEN stateid = :stateRuleOk THEN 1 ELSE 0 END) AS OKS,
-        SUM(CASE WHEN stateid = :stateRuleDNRR OR stateid = :stateRuleDNRRPrequisite THEN 1 ELSE 0 END) AS DNRR,
-        SUM(CASE WHEN (stateid = :stateRuleNotOk or stateid = :stateRuleOkWithNotOk) and (ovm.severity = :warningSeverity) THEN 1 ELSE 0 END) AS Warnings,
-        SUM(CASE WHEN (stateid = :stateRuleNotOk or stateid = :stateRuleOkWithNotOk) and (ovm.severity = :errorSeverity) THEN 1 ELSE 0 END) AS Errors,
-        SUM(CASE WHEN stateid = :stateProcessNotOk THEN 1 ELSE 0 END) AS ProcessNotOk
+        SUM(CASE WHEN stateid = ?stateRuleOk THEN 1 ELSE 0 END) AS OKS,
+        SUM(CASE WHEN stateid = ?stateRuleDNRR OR stateid = ?stateRuleDNRRPrequisite THEN 1 ELSE 0 END) AS DNRR,
+        SUM(CASE WHEN (stateid = ?stateRuleNotOk or stateid = ?stateRuleOkWithNotOk) and (upper(ovm.severity) = upper(?warningSeverity)) THEN 1 ELSE 0 END) AS Warnings,
+        SUM(CASE WHEN (stateid = ?stateRuleNotOk or stateid = ?stateRuleOkWithNotOk) and (upper(ovm.severity) = upper(?errorSeverity)) THEN 1 ELSE 0 END) AS Errors,
+        SUM(CASE WHEN stateid = ?stateProcessNotOk THEN 1 ELSE 0 END) AS ProcessNotOk
     FROM validationResults vr
     left join operationVersionByModule ovm on vr.operationvid = ovm.operationvid and vr.modulevid = ovm.modulevid
     where vr.operationvid is not null
@@ -207,9 +203,10 @@ with periodicityFromReferenceDate as (
                                  and rc.domain = vc.domain
                                  and rc.referencedate = vc.referencedate
     inner join moduleversion mv on vc.modulevid = mv.modulevid
-    inner join conf_entities ce on vc.entityid = ce.entityid 
+    inner join DPM_OD.conf_entities ce on vc.entityid = ce.entityid 
 )
 select 
+    "DPM_OD"."OUT_VALIDATIONSDASHBOARD_SEQ".NEXTVAL,
     fr.Entity,
     fr.domain,
     fr.Module,

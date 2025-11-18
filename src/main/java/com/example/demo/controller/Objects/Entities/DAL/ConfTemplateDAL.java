@@ -12,41 +12,37 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 
 public class ConfTemplateDAL {
     
-
     public static List<ConfTemplate> getTemplates(String moduleID, LocalDate referenceDate, String version) {
+
         JPA<ConfTemplate> jpa = new JPA<ConfTemplate>(ConfTemplate.class);
         List<ConfTemplate> result = new ArrayList();
 
-        StringBuilder queryString = new StringBuilder("Select a.* from Conf_Template a ");
-        queryString.append(" inner join moduleversion b on a.TemplateID = b.moduleVID ");
-        queryString.append(" where 1=1 ");
+        StringBuilder queryString = new StringBuilder("Select a.* from DPM_OD.Conf_Template a ");
+        queryString.append(" inner join DPM_MD.moduleversion b on a.TemplateID = b.moduleVID ");
+        queryString.append(" inner join DPM_MD.release r on r.releaseid = b.STARTRELEASEID ");
+        queryString.append(" where b.fromreferencedate<>NVL(b.TOREFERENCEDATE,to_date('99991231','YYYYMMDD')) ");
+        //if (moduleID != null) {
+            queryString.append(" and (b.moduleid = ?moduleID or ?moduleID is null) ");
+        //}
+        //if (version != null) {
+            queryString.append(" and (r.code = ?version or ?version is null) ");
+        //}
 
-        if (moduleID != null) {
-            queryString.append(" and b.moduleid = " + moduleID);
-        }
-        if (version != null) {
-            queryString.append(" and b.versionnumber = '" + version +"'");
-        }
-
-        if (referenceDate != null) {
-            queryString.append(" and b.fromreferencedate <= strftime('YYYYMMDD'),"+referenceDate.format(Constants.dateFormat)+" ");
-            queryString.append(" and (b.TOREFERENCEDATE is null or b.TOREFERENCEDATE > strftime('YYYYMMDD'),"+referenceDate.format(Constants.dateFormat)+") ");
-
-        }
-        queryString.append(" ORDER BY CAST(substr(b.VERSIONNUMBER,1,CASE WHEN instr(b.VERSIONNUMBER,'.')=0 THEN length(b.VERSIONNUMBER) ELSE instr(b.VERSIONNUMBER,'.')-1 END)");
-        queryString.append("AS INTEGER) DESC, CAST(CASE WHEN instr(b.VERSIONNUMBER,'.')=0 THEN '0' ELSE substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1,");
-        queryString.append("CASE WHEN instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')=0 THEN length(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1))");
-        queryString.append("ELSE instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')-1 END) END AS INTEGER) DESC, CAST(CASE WHEN instr(b.VERSIONNUMBER,'.')=0");
-        queryString.append(" OR instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')=0 THEN '0' ELSE substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+");
-        queryString.append("instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')+1,CASE WHEN instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+");
-        queryString.append("instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')+1),'.')=0 THEN length(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+");
-        queryString.append("instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')+1)) ELSE instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+");
-        queryString.append("instr(substr(b.VERSIONNUMBER,instr(b.VERSIONNUMBER,'.')+1),'.')+1),'.')-1 END) END AS INTEGER) DESC, b.code");
-        
+        //if (referenceDate != null) {
+            queryString.append(" and (b.fromreferencedate <= to_date(?referenceDate , ?format) ");
+            queryString.append(" and (b.TOREFERENCEDATE is null or NVL(b.TOREFERENCEDATE, to_date('99991231','YYYYMMDD')) > to_date(?referenceDate,?format)) ");
+            queryString.append(" or  ?referenceDate IS NULL)");
+        //}
+        queryString.append(" Order by TO_NUMBER(REGEXP_SUBSTR(r.code, '^[0-9]+', 1, 1)) desc, ");
+        queryString.append(" TO_NUMBER(REGEXP_SUBSTR(r.code, '[0-9]+', 1, 2)) desc, b.code");
 
         try {
 
-            result = jpa.getTypedNativeResultList(queryString.toString());
+            result = jpa.getTypedNativeResultList(queryString.toString(),
+                                                "moduleID",moduleID,
+                                                "version",version,
+                                                "format",Constants.ISOBASEFORMAT,
+                                                "referenceDate",referenceDate!=null? referenceDate.format(Constants.dateFormat):null);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,7 +59,7 @@ public class ConfTemplateDAL {
         String result = null;
 
         try {
-            result = jpa.getTypedNativeResult("Select jsonfilename from Conf_Template where templateID = :moduleVID",
+            result = jpa.getTypedNativeResult("Select jsonfilename from DPM_OD.Conf_Template where templateID = ?moduleVID",
                     "moduleVID", String.valueOf(moduleVID));
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,7 +73,7 @@ public class ConfTemplateDAL {
         String result = null;
 
         try {
-            result = jpa.getTypedNativeResult("Select entryPointUrl from Conf_Template where templateID = :moduleVID",
+            result = jpa.getTypedNativeResult("Select entryPointUrl from DPM_OD.Conf_Template where templateID = ?moduleVID",
                     "moduleVID", String.valueOf(moduleVID));
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,7 +86,7 @@ public class ConfTemplateDAL {
     public static boolean updateTemplate(int templateID, String filename) {
         JPA<Object> jpa = new JPA<Object>(Object.class);
         try {
-            jpa.executeNativeQuery("Update Conf_Template set SERVERFILENAME = :filename where TEMPLATEID = :templateID",
+            jpa.executeNativeQuery("Update DPM_OD.Conf_Template set SERVERFILENAME = ?filename where TEMPLATEID = ?templateID",
                     "filename", filename,
                     "templateID", String.valueOf(templateID));
         } catch (Exception ex) {
@@ -105,7 +101,7 @@ public class ConfTemplateDAL {
     public static boolean updateJSON(int templateID, String entryPointURL) {
         JPA<Object> jpa = new JPA<Object>(Object.class);
         try {
-            jpa.executeNativeQuery("Update Conf_Template set EntryPointURL = :filename where TEMPLATEID = :templateID",
+            jpa.executeNativeQuery("Update DPM_OD.Conf_Template set EntryPointURL = ?filename where TEMPLATEID = ?templateID",
                     "filename", entryPointURL,
                     "templateID", String.valueOf(templateID));
         } catch (Exception ex) {

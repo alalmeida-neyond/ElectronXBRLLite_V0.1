@@ -19,19 +19,19 @@ public class OperationRunningDAL {
         domain = ( domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3).toUpperCase() : domain.toUpperCase());
 
         JPA<IO> jpa = new JPA<IO>(IO.class);
-        List<IO> result = new ArrayList<IO>();
+        List<IO> result = new ArrayList();
 
         try {
-
-            StringBuilder queryString = new StringBuilder("Select io.* from IO io ");
-            queryString.append(" inner join io_state ioe on ioe.io_stateid = io.io_stateid ");
-            queryString.append(" where datetime(referencedate / 1000, 'unixepoch') = :referenceDate ");
-            queryString.append(" and domain = :domain ");
-            queryString.append(" and entityId = :entityId ");
-            queryString.append(" and moduleVID = :moduleVID ");
-            queryString.append(" and ioe.io_typestateid = :typeStatePending ");
+            StringBuilder queryString = new StringBuilder("Select io.* from DPM_OD.IO io ");
+            queryString.append(" inner join DPM_OD.io_state ioe on ioe.io_stateid = io.io_stateid ");
+            queryString.append(" where referencedate = to_date(?referenceDate,?format) ");
+            queryString.append(" and domain = ?domain ");
+            queryString.append(" and entityId = ?entityId ");
+            queryString.append(" and moduleVID = ?moduleVID ");
+            queryString.append(" and ioe.io_typestateid = ?typeStatePending ");
             result = jpa.getTypedNativeResultList(queryString.toString(),
                     "referenceDate", referenceDate,
+                    "format",Constants.ISOBASEFORMAT,
                     "domain", domain,
                     "entityId", String.valueOf(entity.getEntityID()),
                     "typeStatePending", String.valueOf(Constants.tipoStatePending),

@@ -9,9 +9,9 @@ public class PropertyDAL {
         JPA<Integer> jpa = new JPA<Integer>(Integer.class);
         Integer result = null;
         try {
-            StringBuilder query = new StringBuilder("Select a.datatypeid from Property a ");
-            query.append("inner join VariableVersion b on a.propertyid = b.propertyid ");
-            query.append("where b.variablevid = :variablevid ");            
+            StringBuilder query = new StringBuilder("Select a.datatypeid from DPM_MD.Property a ");
+            query.append("inner join DPM_MD.VariableVersion b on a.propertyid = b.propertyid ");
+            query.append("where b.variablevid = ?variablevid ");             
             
             result = jpa.getTypedNativeResult(query.toString(),
                     "variablevid", variableVid);

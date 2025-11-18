@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "CONF_ACTION", schema = "DPM_ED")
+@Table(name = "CONF_ACTION", schema = "DPM_OD")
 @NamedQuery(name="ConfAction.findAll", query="SELECT e FROM ConfAction e")
 public class ConfAction implements Serializable{
     

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Entities.DAL;
 
 import java.time.LocalDate;
@@ -46,7 +42,7 @@ public class InImportedValuesDAL {
         JPA<InImportedValuesTemp> jpa = new JPA<>(InImportedValuesTemp.class);
         List<InImportedValuesTemp> resultList = new ArrayList<>();
         try {
-            resultList = jpa.getTypedNativeResultList("Select * from in_importedvaluestemp where importedTableId = :importedTableId",
+            resultList = jpa.getTypedNativeResultList("Select * from in_importedvaluestemp where importedTableId = ?importedTableId",
                     "importedTableId", impTab.getImportedTableId());
         } catch (Exception ex) {
             ex.printStackTrace();

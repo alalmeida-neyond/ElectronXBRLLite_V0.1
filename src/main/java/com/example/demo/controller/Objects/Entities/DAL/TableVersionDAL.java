@@ -31,15 +31,15 @@ public class TableVersionDAL {
         JPA<TableVersionDPM> jpa = new JPA<TableVersionDPM>(TableVersionDPM.class);
         List<TableVersionDPM> listOfFiles = new ArrayList<>();
         try {
-            StringBuilder queryString = new StringBuilder("Select c.* from MODULEVERSIONCOMPOSITION b ");
-            queryString.append(" inner join MODULEVERSION a on b.ModuleVID = a.ModuleVID ");
-            queryString.append(" inner join tableversion c on c.TableVid = b.TableVid and c.Tableid = b.Tableid ");
-            queryString.append(" where a.ModuleVID = :moduleVID and (a.fromreferencedate <= :referencedate ");
-            queryString.append(" and (a.toreferencedate is null or a.toreferencedate >= :referencedate)) ");
+            StringBuilder queryString = new StringBuilder("Select c.* from DPM_MD.MODULEVERSIONCOMPOSITION b ");
+            queryString.append(" inner join DPM_MD.MODULEVERSION a on b.ModuleVID = a.ModuleVID ");
+            queryString.append(" inner join DPM_MD.tableversion c on c.TableVid = b.TableVid and c.Tableid = b.Tableid ");
+            queryString.append(" where a.ModuleVID = ?moduleVID and (a.fromreferencedate <= to_date(?referencedate,'YYYYMMDD') ");
+            queryString.append(" and (a.toreferencedate is null or a.toreferencedate >= to_date(?referencedate,'YYYYMMDD'))) ");
 
             listOfFiles = jpa.getTypedNativeResultList(queryString.toString(),
                     "moduleVID", module.getModuleVID(),
-                    "referencedate", referenceDate.toString());
+                    "referencedate", referenceDate.format(Constants.dateFormat));
 
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro na query TableVersionDAL:" + e.getMessage(), e);
@@ -57,8 +57,8 @@ public class TableVersionDAL {
         try {
             List<Object[]> results = jpa.getFileQueryResultList("SQL_Queries/PropertiesIdentifier.sql",
                     "tableVId", String.valueOf(tableVId),
-                    "referenceDate", referenceDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS).toString(),
-                    "format",Constants.ISOBASEFORMAT8601SQLite);
+                    "referenceDate", referenceDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601);
             
             if(results != null && !results.isEmpty()){
                 for(Object[] result : results){
@@ -137,7 +137,7 @@ public class TableVersionDAL {
         List<TableDPM> results = new ArrayList();
         try {
             results = jpa.getNativeResultListWithMapping(
-            "select t.* from tableversion tv inner join \"TABLE\" t on t.tableid = tv.tableid where tv.tablevid = :tablevid",
+            "select t.* from DPM_MD.tableversion tv inner join \"TABLE\" t on t.tableid = tv.tableid where tv.tablevid = ?tablevid",
             "TableDPMMapping",
                     "tablevid",tableVid
             );

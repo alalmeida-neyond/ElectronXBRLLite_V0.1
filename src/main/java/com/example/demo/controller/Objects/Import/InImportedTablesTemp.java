@@ -17,7 +17,7 @@ import jakarta.validation.constraints.*;
 
 
 @Entity
-@Table(name = "IN_IMPORTEDTABLESTEMP", schema = "DPM_ED")
+@Table(name = "IN_IMPORTEDTABLESTEMP", schema = "DPM_OD")
 @SqlResultSetMappings({
     @SqlResultSetMapping(
             name = "TablesWithLock",
@@ -63,7 +63,7 @@ public class InImportedTablesTemp implements Serializable {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "impTableSequenceTemp_gen")
-    @SequenceGenerator(name = "impTableSequenceTemp_gen", sequenceName = "DPM_ED.IMPTABLESTEMP_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "impTableSequenceTemp_gen", sequenceName = "DPM_OD.IMPTABLESTEMP_SEQ", allocationSize = 1)
     @Column(name = "IMPORTEDTABLEID")
     private int importedTableId;
 

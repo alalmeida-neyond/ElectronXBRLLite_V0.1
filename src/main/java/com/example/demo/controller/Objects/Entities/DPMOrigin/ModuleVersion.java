@@ -65,7 +65,7 @@ public class ModuleVersion implements Serializable {
     @Convert(converter = LocalDatePersistenceConverter.class)
     private LocalDate toReferenceDate;
 
-    @JoinColumn(referencedColumnName = "CONCEPT.CONCEPTGUID", name = "MODULEVERSION.ROWGUID", columnDefinition = "RAW(50)")
+    @JoinColumn(referencedColumnName = "CONCEPTGUID", name = "ROWGUID", columnDefinition = "RAW(50)")
     @OneToOne(fetch = FetchType.LAZY)
     private Concept concept;
     

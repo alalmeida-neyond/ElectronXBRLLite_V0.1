@@ -1,4 +1,4 @@
-package com.example.config;
+package com.example.demo.config;
 
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;

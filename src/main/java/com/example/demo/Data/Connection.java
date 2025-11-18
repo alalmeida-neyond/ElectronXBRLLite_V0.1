@@ -12,7 +12,7 @@ import com.example.demo.Resources.Constants;
 
 
 public final class Connection {
-    private static final String PERSISTENCE_UNIT_NAME_MD = "default";
+    private static final String PERSISTENCE_UNIT_NAME_MD = "dpm2md";
     public final static Logger LOG = Logger.getLogger(Connection.class);
 
     private static EntityManagerFactory factory = null;

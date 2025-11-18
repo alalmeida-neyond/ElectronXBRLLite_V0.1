@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Entities.DAL;
 
 import java.util.ArrayList;
@@ -74,7 +70,7 @@ public class ConfAppConfigsDAL {
     public static boolean createUpdateAppConfig(String oldKey, String newkey, String newValue) {
         JPA<Object> jpa = new JPA<Object>(Object.class);
         try {
-            jpa.executeNativeQuery("Update CONF_APPCONFIGS set CONFIGKEY = :newkey, CONFIGVALUE = :newValue where CONFIGKEY = :oldKey",
+            jpa.executeNativeQuery("Update DPM_OD.CONF_APPCONFIGS set CONFIGKEY = ?newkey, CONFIGVALUE = ?newValue where CONFIGKEY = ?oldKey",
                     "newkey",newkey,
                     "newValue",newValue,
                     "oldKey",oldKey);

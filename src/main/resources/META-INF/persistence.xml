@@ -5,8 +5,8 @@
                                  https://jakarta.ee/xml/ns/persistence/persistence_3_1.xsd"
              version="3.1">
 
-    <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <persistence-unit name="dpm2md" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 
 		<class>com.example.demo.controller.Objects.Entities.OperationsRunning</class>
 
@@ -50,7 +50,8 @@
 		<class>com.example.demo.controller.Objects.Entities.Logs.LogOperationTemp</class>
 
 		<class>com.example.demo.controller.Objects.Generation.OutXBRLGenerated</class>
-
+		<class>com.example.demo.Converter.LocalDatePersistenceConverter</class>
+		<class>com.example.demo.Converter.LocalDateTimePersistenceConverter</class>
 		<class>com.example.demo.controller.Objects.Import.InFileHistory</class>
 		<class>com.example.demo.controller.Objects.Import.InImportedTablesTemp</class>
 		<class>com.example.demo.controller.Objects.Import.InImportedValuesTemp</class>
@@ -75,15 +76,14 @@
             <!-- JDBC -->
             <property name="jakarta.persistence.jdbc.driver" value="oracle.jdbc.OracleDriver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:oracle:thin:@ptlisdev02.epimetheus.pt:1521:ptlisdev02"/>
-			<property name="jakarta.persistence.jdbc.user" value="DPM_CD"/>
-      		<property name="jakarta.persistence.jdbc.password" value="DPM2CD"/>
+			<property name="jakarta.persistence.jdbc.user" value="DPM_MD"/>
+      		<property name="jakarta.persistence.jdbc.password" value="DPM2MD"/>
 
+			<!-- EclipseLink -->
+			<property name="eclipselink.target-database" value="Oracle"/>
+			<property name="eclipselink.logging.level" value="INFO"/>
+			<property name="eclipselink.weaving" value="false"/>
 
-            <!-- Hibernate -->
-            <property name="hibernate.dialect" value="org.hibernate.dialect.OracleDialect"/>
-            <property name="hibernate.hbm2ddl.auto" value="none"/>
-            <property name="hibernate.show_sql" value="false"/>
-            <property name="hibernate.format_sql" value="true"/>
 
 			
 

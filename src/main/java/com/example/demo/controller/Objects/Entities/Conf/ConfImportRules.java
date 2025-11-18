@@ -10,7 +10,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "CONF_IMPORTRULES", schema = "DPM_ED")
+@Table(name = "CONF_IMPORTRULES", schema = "DPM_OD")
 @NamedQuery(name = "ConfImportRules.findAll", query = "SELECT e FROM ConfImportRules e order by e.ruleName")
 @SqlResultSetMapping(
         name = "ConfImportRulesWithDataType",

@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 
-@Table(name = "CONF_ENTITIES", schema = "DPM_ED")
+@Table(name = "CONF_ENTITIES", schema = "DPM_OD")
 
 @NamedQuery(name = "ConfEntities.findAll", query = "SELECT e FROM ConfEntities e")
 

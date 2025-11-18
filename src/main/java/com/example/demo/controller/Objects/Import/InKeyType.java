@@ -7,7 +7,7 @@ import jakarta.validation.constraints.*;
 
 
 @Entity
-@Table(name = "IN_KEYTYPE", schema = "DPM_ED")
+@Table(name = "IN_KEYTYPE", schema = "DPM_OD")
 public class InKeyType implements Serializable{
     
     @Id

@@ -116,7 +116,7 @@ public class ItemCategoryDAL {
                         "tablevid", tableVID, 
                         "direction",direction ,
                         "reportCoordinates", Optional.ofNullable(reportCoordinates).orElse(""),
-                        "referenceDate", referenceDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS).toString());
+                        "referenceDate", referenceDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
 
             
         }catch(Exception e){

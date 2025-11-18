@@ -13,12 +13,12 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "OUT_VALIDATIONTABLERESULT", schema = "DPM_ED")
+@Table(name = "OUT_VALIDATIONTABLERESULT", schema = "DPM_OD")
 public class OutValidationTableResult implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OUT_VALIDATIONTABLERESULT_SEQ")
-    @SequenceGenerator(name = "OUT_VALIDATIONTABLERESULT_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONTABLERESULT_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "OUT_VALIDATIONTABLERESULT_SEQ", sequenceName = "DPM_OD.OUT_VALIDATIONTABLERESULT_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONTABLERESULTID")
     @NotNull
     private Integer validationTableResultId;

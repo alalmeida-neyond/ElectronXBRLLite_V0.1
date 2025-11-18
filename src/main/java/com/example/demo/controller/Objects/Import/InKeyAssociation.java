@@ -23,13 +23,13 @@ import jakarta.validation.constraints.*;
         }
 )
 @Entity
-@Table(name = "IN_KEYASSOCIATION", schema = "DPM_ED")
+@Table(name = "IN_KEYASSOCIATION", schema = "DPM_OD")
 public class InKeyAssociation implements Serializable {
     
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "KEYASSOCIATION_GEN")
-    @SequenceGenerator(name = "KEYASSOCIATION_GEN", sequenceName = "DPM_ED.IN_KEYASSOCIATION_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "KEYASSOCIATION_GEN", sequenceName = "DPM_OD.IN_KEYASSOCIATION_SEQ", allocationSize = 1)
     @Column(name = "KEYASSOCIATIONID")
     private int keyAssociationID;
     

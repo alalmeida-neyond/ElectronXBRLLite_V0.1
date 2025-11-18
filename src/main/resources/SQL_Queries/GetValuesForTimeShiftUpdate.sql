@@ -4,9 +4,9 @@ with modulesApplicable as (
     inner join operationscope ops on opv.operationvid = ops.operationvid
     inner join operationscopecomposition opsc on ops.operationscopeid = opsc.operationscopeid
     inner join moduleversion mv on opsc.modulevid = mv.modulevid
-        where (mv.fromreferencedate <= strftime(:format, :refdate) AND IFNULL(mv.toreferencedate, strftime(:format, '9999-12-31')) >= strftime(:format, :refdate) 
-          AND mv.fromreferencedate <> IFNULL(mv.toreferencedate, strftime(:format, '9999-12-31'))) 
-          AND opv.operationvid = :operationVId
+        where (mv.fromreferencedate <= TO_DATE(?refdate, ?format) AND NVL(mv.toreferencedate, TO_DATE('9999-12-31', ?format)) >= TO_DATE(?refdate, ?format) 
+          AND mv.fromreferencedate <> NVL(mv.toreferencedate, TO_DATE('9999-12-31', ?format))) 
+          AND opv.operationvid = ?operationVId
 )
 
 , tablesFromModulesApplicable as (
@@ -21,7 +21,7 @@ with modulesApplicable as (
     inner join operationnode opn on opv.operationvid = opn.operationvid
     inner join operandreference opr on opn.nodeid = opr.nodeid
     left join operandreferencelocation oprl on opr.operandreferenceid = oprl.operandreferenceid
-    where opv.operationvid = :operationVId and opn.nodeid = :nodeId
+    where opv.operationvid = ?operationVId and opn.nodeid = ?nodeId
 )
 
 , operandReferencesVariableVID as (
@@ -43,15 +43,15 @@ with modulesApplicable as (
 
 ,importedTabledFiltered as (
     select impTable.* 
-    from in_importedtablestemp impTable
-	where impTable.ioid = :ioId
+    from DPM_OD.in_importedtablestemp impTable
+	where impTable.ioid = ?ioId
 )
 
 , maxImportedTableIdPerTableWithoutDesagCode as ( 
     select max(it.importedTableId) importedTableId, it.tablevid, it.importkeyid
     from operandReferencesVariableVID orv
     inner join importedTabledFiltered it on orv.tablevid = it.tablevid 
-    where it.importkeyid is null and it.io_stateid = :stateOk
+    where it.importkeyid is null and it.io_stateid = ?stateOk
     group by it.tablevid, it.importKeyId 
 )
 
@@ -61,13 +61,13 @@ with modulesApplicable as (
         select max(it.importedtableid) as importedtableid, it.tablevid, keyA.propertyvalue as desagCode  
         from operandReferencesVariableVID orv
         inner join importedTabledFiltered it on orv.tablevid = it.tablevid
-        inner join in_importkey impK on impK.importkeyid = it.importkeyid 
-        inner join in_keyassociation keyA on keyA.importkeyid = it.importkeyid 
-        where impK.keytypeid = :desagregationCodeType or impK.keytypeid = :desagregationTypeFixed
+        inner join DPM_OD.in_importkey impK on impK.importkeyid = it.importkeyid 
+        inner join DPM_OD.in_keyassociation keyA on keyA.importkeyid = it.importkeyid 
+        where impK.keytypeid = ?desagregationCodeType or impK.keytypeid = ?desagregationTypeFixed
         group by it.tablevid, keyA.propertyvalue
         ) results
-    inner join in_importedtablestemp it on it.importedtableid = results.importedtableid
-    where it.io_stateid = :stateOk
+    inner join DPM_OD.in_importedtablestemp it on it.importedtableid = results.importedtableid
+    where it.io_stateid = ?stateOk
     group by results.importedtableid, results.tablevid
 )
 , tablesImportedApplicable as (
@@ -84,28 +84,28 @@ with modulesApplicable as (
     select orv.nodeid as "NodeID", orv.operandreferenceid as "OperandReferenceID", orv.cellid as "CellID", orv.variablevid as "VariableVID", tia.tablevid as "TableVID", tia.importedtableid as "TableID", tia.importkeyid as "DesagregationCode"
     from operandReferencesVariableVID orv
     left join tablesImportedApplicable tia on tia.tablevid = orv.tablevid
-    left join in_importkey ik on tia.importkeyid = ik.importkeyid 
-    where ik.keytypeid is null or ik.keytypeid <> :desagregationTypeFixed
+    left join DPM_OD.in_importkey ik on tia.importkeyid = ik.importkeyid 
+    where ik.keytypeid is null or ik.keytypeid <> ?desagregationTypeFixed
 )
 
 , tablesImportedApplicableWithDesagCodeFixed as (
     select tia.*, ka.propertyvalue
     from tablesImportedApplicable tia
-    left join in_importedtablestemp it on tia.importedtableid = it.importedtableid
-    left join in_importkey ik on it.importkeyid = ik.importkeyid 
-    left join in_keyassociation ka on ka.importkeyid = ik.importkeyid
-    where ik.keytypeid = :desagregationTypeFixed
+    left join DPM_OD.in_importedtablestemp it on tia.importedtableid = it.importedtableid
+    left join DPM_OD.in_importkey ik on it.importkeyid = ik.importkeyid 
+    left join DPM_OD.in_keyassociation ka on ka.importkeyid = ik.importkeyid
+    where ik.keytypeid = ?desagregationTypeFixed
 )
 
 , referencesTablesImportedDesagCodeFixed as (
     select orv.nodeid as "NodeID", orv.operandreferenceid as "OperandReferenceID", orv.cellid as "CellID", orv.variablevid as "VariableVID", tiaDCF.tablevid as "TableVID", tiaDCF.importedtableid as "TableID", tiaDCF.importkeyid as "DesagregationCode"
     from operandReferencesVariableVID orv
-    left join tableversioncell tvc on tvc.tablevid = orv.tablevid and tvc.cellid = orv.cellid and tvc.variablevid = orv.variablevid
-    left join cell c on c.cellid = tvc.cellid
-    left join header h on h.headerid = c.sheetid
-    left join headerversion hv on hv.headerid = h.headerid
+    left join dpm_md.tableversioncell tvc on tvc.tablevid = orv.tablevid and tvc.cellid = orv.cellid and tvc.variablevid = orv.variablevid
+    left join dpm_md.cell c on c.cellid = tvc.cellid
+    left join dpm_md.header h on h.headerid = c.sheetid
+    left join dpm_md.headerversion hv on hv.headerid = h.headerid
     left join tablesImportedApplicableWithDesagCodeFixed tiaDCF on orv.tablevid = tiaDCF.tablevid and tiaDCF.propertyvalue = hv.code
-    where (h.direction = :directionZ)     
+    where (h.direction = ?directionZ)     
 )
 
 , referencesTablesImported as (
@@ -121,7 +121,7 @@ with modulesApplicable as (
 , rowsApplicableImported as (
     select distinct tia.importedtableid as "TableID", tia.tablevid as "TableVID", tia.importkeyid as "DesagregationCode", iv.importkeyid as "RowKey"
     from tablesImportedApplicable tia
-    inner join in_importedvaluestemp iv on tia.importedtableid = iv.importedtableid
+    inner join DPM_OD.in_importedvaluestemp iv on tia.importedtableid = iv.importedtableid
 )
 
 , allReferences as (
@@ -136,11 +136,11 @@ with modulesApplicable as (
 , valuesImportedModulesApplied as (
     select tia.importedtableid as "TableID", tia.tablevid as "TableVID", iv.variablevid as "VariableVID", iv.rulevalue as "Value", tia.importkeyid as "DesagregationCode", iv.importkeyid as "RowKey", iv.cellid as "CellID"
     from tablesImportedApplicable tia
-    inner join in_importedvaluestemp iv on tia.importedtableid = iv.importedtableid
+    inner join DPM_OD.in_importedvaluestemp iv on tia.importedtableid = iv.importedtableid
 )
 
 , valuesWithRef as (
-    select ROW_NUMBER() OVER () as ValueID, valuesToOperation.*
+    select ROWNUM as ValueID, valuesToOperation.*
     from (
         select 
             ar."OperandReferenceID" "RefID",
@@ -165,8 +165,8 @@ with modulesApplicable as (
             and (ar."RowKey" = vima."RowKey" or (ar."RowKey" is null and vima."RowKey" is null) )
         left join variablesWithDataType vdt on ar."VariableVID" = vdt.variablevid
         left join datatype dt on vdt.datatypeid = dt.datatypeid
-        left join in_importkey iRK on (iRK.importkeyid = ar."RowKey" or (ar."RowKey" is null and iRK.importkeyid = -1))
-        left join in_importkey iDC on (iDC.importkeyid = ar."DesagregationCode" or (ar."DesagregationCode" is null and iDC.importkeyid = -1))
+        left join DPM_OD.in_importkey iRK on (iRK.importkeyid = ar."RowKey" or (ar."RowKey" is null and iRK.importkeyid = -1))
+        left join DPM_OD.in_importkey iDC on (iDC.importkeyid = ar."DesagregationCode" or (ar."DesagregationCode" is null and iDC.importkeyid = -1))
     ) valuesToOperation
     order by "NodeID", "X" , "Y", "Z"
 )
@@ -178,19 +178,19 @@ with modulesApplicable as (
             when vr.RowKeyID <> -1 then 'r('
             else null 
         end || 
-        GROUP_CONCAT(
+        LISTAGG(
             case 
                 when vr.RowKeyID <> -1 then keyA.propertyvalue
                 else null 
             end
-        , ',' order by keyA.propertyvalue)  ||
+        , ',') WITHIN GROUP (order by keyA.propertyvalue) ||
         case 
             when vr.RowKeyID <> -1 then ')'
             else null 
         end RowKeyValue
     from valuesWithRef vr
-    left join in_importkey impK on impK.importkeyid = vr.RowKeyID
-    left join in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
+    left join DPM_OD.in_importkey impK on impK.importkeyid = vr.RowKeyID
+    left join DPM_OD.in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
     group by vr.ValueID, vr.RowKeyID
 )
 
@@ -198,22 +198,22 @@ with modulesApplicable as (
     select 
         vr.ValueID, vr.DesagregationCodeID, 
         case 
-            when vr.DesagregationCodeTypeID = :desagregationCodeType then '('
+            when vr.DesagregationCodeTypeID = ?desagregationCodeType then '('
             else null 
         end || 
-        GROUP_CONCAT(
+        LISTAGG(
             case 
-                when vr.DesagregationCodeTypeID = :desagregationCodeType then (keyA.propertyname || '=' || keyA.propertyvalue)
+                when vr.DesagregationCodeTypeID = ?desagregationCodeType then (keyA.propertyname || '=' || keyA.propertyvalue)
                 else null 
             end
-        , ',' order by keyA.propertyvalue) ||
+        , ',') WITHIN GROUP (order by keyA.propertyvalue) ||
         case 
-            when vr.DesagregationCodeTypeID = :desagregationCodeType then ')'
+            when vr.DesagregationCodeTypeID = ?desagregationCodeType then ')'
             else null 
         end DesagregationCodeValue
     from valuesWithRef vr
-    left join in_importkey impK on impK.importkeyid = vr.DesagregationCodeID
-    left join in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
+    left join DPM_OD.in_importkey impK on impK.importkeyid = vr.DesagregationCodeID
+    left join DPM_OD.in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
     group by vr.ValueID, vr.DesagregationCodeID, vr.DesagregationCodeTypeID
 )
 

@@ -65,7 +65,7 @@ public class Validator_2_0 extends RunnableExtension {
             results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvore.sql", "OperationNodeMapping",
                     "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601SQLite,
+                    "format",Constants.ISOBASEFORMAT8601,
                     "tableVId", String.valueOf(tableVId)
             );
         } catch (Exception e) {
@@ -84,7 +84,7 @@ public class Validator_2_0 extends RunnableExtension {
             results = jpa.getMappedFileQueryResultList("SQL_Queries/XBRLArvorePreconditions.sql", "OperationNodeMapping",
                     "moduleVId", String.valueOf(moduleVersion.getModuleVID()),
                     "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601SQLite
+                    "format",Constants.ISOBASEFORMAT8601
             );
         } catch (Exception e) {
             LOG.error("Erro na query getNodes: " + e.getMessage());
@@ -274,24 +274,23 @@ public class Validator_2_0 extends RunnableExtension {
 
         try {
             results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesUpdate.sql", "ValuesForOperationMapping",
-            //results = jpa.getFileQueryResultList("SQL_Queries/GetValuesUpdate.sql",
-                    "operationVId", operationVID,
-                    "typeStateOk", Constants.tipoStateOK,
+                    "operationVId", String.valueOf(operationVID),
+                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
                     "actionId", Constants.actionImport,
                     "domain", io.getDomain(),
-                    "entityId", io.getEntity().getEntityID(),                   
-                    "refdate", refDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS),
-                    "format",Constants.ISOBASEFORMAT8601SQLite,
-                    "desagregationTypeFixed", Constants.DESAGREGATIONCODEFIXEDTYPE,
-                    "directionZ", Constants.SHEETCOORDINATE,
-                    "dataTypeDate", Constants.DATATYPEDATE,
-                    "refPeriodString", Constants.REFPERIOD,
-                    "dataTypeEnumeration", Constants.DATATYPEENUMERATION,
-                    "referenceRow", Constants.PROPERTYROW,
-                    "referenceColumn", Constants.PROPERTYCOLUMN,
-                    "referenceSheet", Constants.PROPERTYSHEET,
-                    "stateOk", Constants.processoOk,
-                    "desagregationCodeType", Constants.DESAGREGATIONCODETYPE
+                    "entityId", String.valueOf(io.getEntity().getEntityID()),                   
+                    "refdate", io.getReferenceDate().format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601,
+                    "desagregationTypeFixed", String.valueOf(Constants.DESAGREGATIONCODEFIXEDTYPE),
+                    "directionZ", String.valueOf(Constants.SHEETCOORDINATE),
+                    "dataTypeDate", String.valueOf(Constants.DATATYPEDATE),
+                    "refPeriodString", String.valueOf(Constants.REFPERIOD),
+                    "dataTypeEnumeration", String.valueOf(Constants.DATATYPEENUMERATION),
+                    "referenceRow", String.valueOf(Constants.PROPERTYROW),
+                    "referenceColumn", String.valueOf(Constants.PROPERTYCOLUMN),
+                    "referenceSheet", String.valueOf(Constants.PROPERTYSHEET),
+                    "stateOk", String.valueOf(Constants.processoOk),
+                    "desagregationCodeType", String.valueOf(Constants.DESAGREGATIONCODETYPE)
             );
         } catch (Exception e) {
             LOG.error("Erro na query getResultsByNode: " + e.getMessage());
@@ -308,13 +307,15 @@ public class Validator_2_0 extends RunnableExtension {
         List<Object[]> results = new ArrayList<>();
         try {
             results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValuesForPreconditionsUpdate.sql", "ValuesForOperationMapping",
-                    "preconditionVId", precondtionVId,
-                    "typeStateOk", Constants.tipoStateOK,
-                    "actionId", Constants.actionImport,
-                    "refdate", io.getReferenceDate().toString(),
+                    "preconditionVId", String.valueOf(precondtionVId),
+                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
+                    "actionId", String.valueOf(Constants.actionImport),
+                    "refdate", io.getReferenceDate().format(Constants.DATEFORMATUSEDBYVALIDATIONS),
+                    "format",Constants.ISOBASEFORMAT8601,
                     "domain", io.getDomain(),
-                    "entityId", io.getEntity().getEntityID(),
-                    "processoOkDeleted", Constants.processoOkDeleted);
+                    "entityId", String.valueOf(io.getEntity().getEntityID()),
+                    "processoOkDeleted", Constants.processoOkDeleted
+            );
         } catch (Exception e) {
             LOG.error("Erro na query getResultsByNodeForPreconditions: " + e.getMessage());
         } finally {
@@ -731,7 +732,7 @@ public class Validator_2_0 extends RunnableExtension {
                     "errorSeverity", Constants.SEVERITYERROR,
                     "stateProcessNotOk", String.valueOf(Constants.processoNotOk),
                     "processOkDeleted", String.valueOf(Constants.processoOkDeleted),
-                    "format",Constants.ISOBASEFORMAT8601SQLite
+                    "format",Constants.DATEFORMATISO8601STRING
                 );
         } catch (Exception e) {
             LOG.error("Ocorreu um erro ao realizar ao inserir os dados no Dashboard de Validacoes: " + e.getMessage());

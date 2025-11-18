@@ -31,7 +31,7 @@ import jakarta.validation.constraints.NotNull;
 
 
 @Entity
-@Table(name = "IN_IMPORTEDVALUESTEMP", schema = "DPM_ED")
+@Table(name = "IN_IMPORTEDVALUESTEMP", schema = "DPM_OD")
 @SqlResultSetMappings({
     @SqlResultSetMapping(
             name = "ValuesForOperationMapping",
@@ -84,7 +84,7 @@ public class InImportedValuesTemp implements Serializable {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "impValuesSequenceTemp_gen")
-    @SequenceGenerator(name = "impValuesSequenceTemp_gen", sequenceName = "DPM_ED.IMPVALUESTEMP_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "impValuesSequenceTemp_gen", sequenceName = "DPM_OD.IMPVALUESTEMP_SEQ", allocationSize = 1)
     @Column(name = "IMPORTEDVALUESID")
     private int importedvaluesID;
 

@@ -13,9 +13,9 @@ with importedTabledFiltered as (
     select importedtableid, tablevid, listagg(desagCode, '|' ) within group (order by desagCode) desagCode
     from (
         select max(impTable.importedtableid) importedtableid, impTable.tablevid, keyA.propertyvalue as desagCode  
-        from DPM_ED.in_importedtablestemp impTable 
-        inner join DPM_ED.in_importkey impK on impK.importkeyid = imptable.importkeyid 
-        inner join DPM_ED.in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
+        from DPM_OD.in_importedtablestemp impTable 
+        inner join DPM_OD.in_importkey impK on impK.importkeyid = imptable.importkeyid 
+        inner join DPM_OD.in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
         where impK.keytypeid = ?desagregationCodeType
         group by impTable.tablevid, keyA.propertyvalue
         ) 
@@ -23,23 +23,23 @@ with importedTabledFiltered as (
 )
 , tablesImportedWithoutCode as ( 
     select impTable.* 
-    from DPM_ED.in_importedtablestemp impTable 
+    from DPM_OD.in_importedtablestemp impTable 
     inner join maxImportedTableIdPerTableWithoutDesagCode maxImported on maxImported.importedTableId = impTable.importedTableId 
-    inner join DPM_ED.io io on io.ioid = impTable.ioid 
+    inner join DPM_OD.io io on io.ioid = impTable.ioid 
     inner join tableVersion tableV on tableV.tablevid = impTable.tablevid 
     inner join moduleVersion module on module.modulevid = io.modulevid 
-    inner join DPM_ED.conf_entities entity on entity.entityId = io.entityId 
+    inner join DPM_OD.conf_entities entity on entity.entityId = io.entityId 
 )
 , tablesImportedWithCode as ( 
     select impTable.* 
-    from DPM_ED.in_importedtablestemp impTable 
+    from DPM_OD.in_importedtablestemp impTable 
     inner join maxImportedTableIdPerTableWithDesagCode maxImported on maxImported.importedTableId = impTable.importedTableId 
-    inner join DPM_ED.io io on io.ioid = impTable.ioid 
+    inner join DPM_OD.io io on io.ioid = impTable.ioid 
     inner join tableVersion tableV on tableV.tablevid = impTable.tablevid 
     inner join moduleVersion module on module.modulevid = io.modulevid 
-    inner join DPM_ED.conf_entities entity on entity.entityId = io.entityId 
-    inner join DPM_ED.in_importkey impK on impK.importkeyid = imptable.importkeyid 
-    inner join DPM_ED.in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
+    inner join DPM_OD.conf_entities entity on entity.entityId = io.entityId 
+    inner join DPM_OD.in_importkey impK on impK.importkeyid = imptable.importkeyid 
+    inner join DPM_OD.in_keyassociation keyA on keyA.importkeyid = impK.importkeyid 
     where impK.keytypeid = ?desagregationCodeType 
 )
 select impTable.*

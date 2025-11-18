@@ -1,7 +1,7 @@
 with importIOs as(
     select io.ioid
-    from DPM_ED.IO io 
-    inner join DPM_ED.io_state ioe on ioe.io_stateid = io.io_stateid 
+    from DPM_OD.IO io 
+    inner join DPM_OD.io_state ioe on ioe.io_stateid = io.io_stateid 
     where ioe.io_typestateid = ?typeStateOk 
         and actionId = ?actionId
         and referencedate = to_date(?referenceDate,?format)
@@ -24,9 +24,9 @@ with importIOs as(
 )
 , allImportedTables as (
     Select it.*
-    from DPM_ED.IN_ImportedTablesTemp it
+    from DPM_OD.IN_ImportedTablesTemp it
     inner join importIOs ai on ai.ioid = it.ioid
-    inner join dpm_ed.io_state st on it.io_stateid = st.io_stateid
+    inner join DPM_OD.io_state st on it.io_stateid = st.io_stateid
     where st.io_typestateid = ?typeStateOk 
 )
 , allValidTables as (
@@ -36,7 +36,7 @@ with importIOs as(
         from allImportedTables it
         inner join DPM_MD.TableVersion tv on tv.TableVID = it.TableVID and tv.tableid <> ?tableID
         inner join tableVIDThatCanCross tvcc on tv.TableVID = tvcc.TableVID
-        left join DPM_ED.IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
+        left join DPM_OD.IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
         where it.TableVID <> ?tableVID 
         group by it.importedTableID,it.TableVID,tv.code
     ) results
@@ -48,7 +48,7 @@ with importIOs as(
         Select it.importedTableID as importedTableID, it.TableVID,tv.code as MapCode,LISTAGG(ka.PropertyValue, '|') WITHIN GROUP (ORDER BY ka.propertyName) AS desagregationcodeAlt
         from allImportedTables it
         inner join DPM_MD.TableVersion tv on tv.TableVID = it.TableVID and tv.tableid = ?tableID
-        left join DPM_ED.IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
+        left join DPM_OD.IN_KeyAssociation ka ON ka.importKeyid = it.importKeyid
         where it.TableVID = ?tableVID 
         group by it.importedTableID,it.TableVID,tv.code
     ) results 
@@ -57,25 +57,25 @@ with importIOs as(
 ,importedCurrentValues as (
     Select it.MapCode, cel.cellID,cel."RowID",cel.columnID,cel.sheetID,
             it.tableVID,iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID ,LISTAGG(ka.PropertyValue, '|') WITHIN GROUP (ORDER BY ka.propertyName) AS rowKeyAlt,it.desagregationcodeAlt
-    from DPM_ED.IN_ImportedValuesTemp iv
+    from DPM_OD.IN_ImportedValuesTemp iv
     inner join validCurrentTable it  on iv.IMPORTEDTABLEID = it.importedTableID
     inner join variableVIDThatCanCross vv on vv.variablevid = iv.VARIABLEVID
     inner join DPM_MD.TableVersion tv on tv.TableVID = it.TableVID
     inner join DPM_MD.TableVersionCell tvc on tvc.VARIABLEVID = iv.VARIABLEVID and it.tableVID = tvc.tableVID and iv.cellid = tvc.cellid
     inner join DPM_MD.Cell cel on cel.cellID = tvc.cellID
-    left join DPM_ED.IN_KeyAssociation ka ON ka.importKeyid = iv.importKeyid
+    left join DPM_OD.IN_KeyAssociation ka ON ka.importKeyid = iv.importKeyid
     where it.TableVID = ?tableVID 
     group by it.MapCode,cel.cellID,cel."RowID",cel.columnID,cel.sheetID,
         it.tableVID,iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID,it.desagregationcodeAlt
 )
 ,otherTableValues as (
     Select vt.mapCode, cel.cellID,cel."RowID",cel.columnID,cel.sheetID,vt.tableVID, iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID ,vt.desagregationcodeAlt, LISTAGG(ka.PropertyValue, '|') WITHIN GROUP (ORDER BY ka.propertyName) AS rowKeyAlt
-    from DPM_ED.IN_ImportedValuesTemp iv
+    from DPM_OD.IN_ImportedValuesTemp iv
     inner join allValidTables vt on iv.IMPORTEDTABLEID = vt.importedTableID
     inner join variableVIDThatCanCross vv on vv.variablevid = iv.VARIABLEVID
     inner join DPM_MD.TableVersionCell tvc on tvc.VARIABLEVID = iv.VARIABLEVID and vt.tableVID = tvc.tableVID and iv.cellid = tvc.cellid
     inner join DPM_MD.Cell cel on cel.cellID = tvc.cellID
-    left join DPM_ED.IN_KeyAssociation ka ON ka.importKeyid = iv.importKeyid
+    left join DPM_OD.IN_KeyAssociation ka ON ka.importKeyid = iv.importKeyid
     group by vt.mapCode,cel.cellID,cel."RowID",cel.columnID,cel.sheetID,vt.tableVID,iv.IMPORTEDVALUESID,iv.IMPORTEDTABLEID,iv.RULEVALUE,iv.VARIABLEVID,vt.desagregationcodeAlt
 )
 ,otherValidationHeaders as (

@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.example.demo.controller.Objects.Entities.Logs;
 
 import java.io.Serializable;
@@ -20,12 +17,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "LOG_IMPORTPROCESS", schema = "DPM_ED")
+@Table(name = "LOG_IMPORTPROCESS", schema = "DPM_OD")
 public class LogImportProcess implements Serializable{
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "LOG_IMPORTPROCESS_SEQ")
-    @SequenceGenerator(name = "LOG_IMPORTPROCESS_SEQ", sequenceName = "DPM_ED.LOG_IMPORTPROCESS_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "LOG_IMPORTPROCESS_SEQ", sequenceName = "DPM_OD.LOG_IMPORTPROCESS_SEQ", allocationSize = 1)
     @Column(name = "LOGIMPORTPROCESSID")
     @NotNull
     private Integer logImportProcessId;

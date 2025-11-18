@@ -21,12 +21,12 @@ import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "LOG_VALIDATIONPROCESS", schema = "DPM_ED")
+@Table(name = "LOG_VALIDATIONPROCESS", schema = "DPM_OD")
 public class LogValidationProcess implements Serializable{
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "LOG_VALIDATIONPROCESS_SEQ")
-    @SequenceGenerator(name = "LOG_VALIDATIONPROCESS_SEQ", sequenceName = "DPM_ED.LOG_VALIDATIONPROCESS_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "LOG_VALIDATIONPROCESS_SEQ", sequenceName = "DPM_OD.LOG_VALIDATIONPROCESS_SEQ", allocationSize = 1)
     @Column(name = "LOGVALIDATIONPROCESSID")
     @NotNull
     private Integer logValidationProcessId;

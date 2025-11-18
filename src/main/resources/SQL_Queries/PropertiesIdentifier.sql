@@ -2,7 +2,7 @@ with tableColumns as (
     select tv.tableid, tv.tablevid, tvh.headerid, tvh.headervid
     from tableversion tv
     inner join tableversionheader tvh on tvh.tablevid = tv.tablevid
-    where tv.tablevid = :tableVId
+    where tv.tablevid = ?tableVId
 )
 --select * from tableColumns;
 , keyColumns as (
@@ -20,7 +20,7 @@ with tableColumns as (
     left join release sr on sr.releaseid = ic.startreleaseid
     left join release er on er.releaseid = ic.endreleaseid
     where h.iskey = 1 and i.isactive = 1
-        and (sr."Date" <= strftime(:format, :referenceDate) and (er."Date" >= strftime(:format, :referenceDate) or er.releaseid is null))
+        and (sr."Date" <= TO_DATE(?referenceDate, ?format) and (er."Date" >= TO_DATE(?referenceDate, ?format) or er.releaseid is null))
 )
 
 select *

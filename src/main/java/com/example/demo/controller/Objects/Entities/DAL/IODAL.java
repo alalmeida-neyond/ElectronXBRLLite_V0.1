@@ -39,13 +39,13 @@ public class IODAL {
         List<IO> result = new ArrayList<IO>();
 
         try {
-            StringBuilder queryString = new StringBuilder("Select io.* from IO io ");
-            queryString.append(" inner join io_state ioe on ioe.io_stateid = io.io_stateid ");
-            queryString.append(" where datetime(referencedate / 1000, 'unixepoch') = :referenceDate ");
-            queryString.append(" and domain = :domain ");
-            queryString.append(" and entityId = :entityId ");
-            queryString.append(" and moduleVID = :moduleVID ");
-            queryString.append(" and ioe.io_typestateid = :typeStatePending ");
+            StringBuilder queryString = new StringBuilder("Select io.* from DPM_OD.IO io ");
+            queryString.append(" inner join DPM_OD.io_state ioe on ioe.io_stateid = io.io_stateid ");
+            queryString.append(" where datetime(referencedate / 1000, 'unixepoch') = ?referenceDate ");
+            queryString.append(" and domain = ?domain ");
+            queryString.append(" and entityId = ?entityId ");
+            queryString.append(" and moduleVID = ?moduleVID ");
+            queryString.append(" and ioe.io_typestateid = ?typeStatePending ");
             result = jpa.getTypedNativeResultList(queryString.toString(),
                     "referenceDate", referenceDate,
                     "domain", domain,
@@ -69,13 +69,13 @@ public class IODAL {
         try {
             domain = domain != null ? domain.length() > Constants.DOMAINLENGTH ? domain.substring(0, 3).toUpperCase() : domain.toUpperCase() : null;
 
-            StringBuilder queryString = new StringBuilder("select io.* from io ");
-            queryString.append(" where actionid = :actionId ");
-            queryString.append(" and (datetime(io.referencedate / 1000, 'unixepoch') = :referenceDate OR :referenceDate IS NULL) ");
-            queryString.append(" and (io.entityid = :entityID OR :entityID IS NULL) ");
-            queryString.append(" and (io.domain = :domain OR :domain IS NULL)  ");
-            queryString.append(" and (modulevid = :moduleVId OR :moduleVId IS NULL) ");
-            queryString.append(" and io.io_stateid <> :processOkDeleted ");
+            StringBuilder queryString = new StringBuilder("select io.* from DPM_OD.io ");
+            queryString.append(" where actionid = ?actionId ");
+            queryString.append(" and (io.referencedate = ?referenceDate OR ?referenceDate IS NULL) ");
+            queryString.append(" and (io.entityid = ?entityID OR ?entityID IS NULL) ");
+            queryString.append(" and (io.domain = ?domain OR ?domain IS NULL)  ");
+            queryString.append(" and (modulevid = ?moduleVId OR ?moduleVId IS NULL) ");
+            queryString.append(" and io.io_stateid <> ?processOkDeleted ");
             queryString.append(" order by io.ioid desc");
             //queryString.append(!triggeredByUser ? " FETCH FIRST 25 ROWS ONLY " : "");
 
@@ -102,9 +102,9 @@ public class IODAL {
 
         try {
 
-            StringBuilder queryString = new StringBuilder("select io.* from io ");
-            queryString.append(" where actionid = :actionId ");
-            queryString.append(" and (modulevid = :moduleVId OR :moduleVId IS NULL) ");
+            StringBuilder queryString = new StringBuilder("select io.* from DPM_OD.io ");
+            queryString.append(" where actionid = ?actionId ");
+            queryString.append(" and (modulevid = ?moduleVId OR ?moduleVId IS NULL) ");
             queryString.append(" order by io.ioid desc");
             //queryString.append(!triggeredByUser ? " FETCH FIRST 25 ROWS ONLY " : "");
 

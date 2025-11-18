@@ -162,27 +162,6 @@ public class ModuleFileImport extends RunnableExtension{
     public void setFilename(String filename) {
         this.filename = filename;
     }
-
-    private void cleanUpDatabase(IO io)
-    {
-        ModuleVersion moduleVersion = io.getModule();
-        int ioID = io.getIoId();
-
-        JPA<String> jpa = new JPA<String>(String.class);
-        List<String> result = new ArrayList<String>();
-
-        try {
-            StringBuilder queryString = new StringBuilder("Select io.modulevid as moduleVID");
-            queryString.append(" from IO io where ioid = :ioid ");
-            result = jpa.getTypedNativeResultList(queryString.toString(),
-                    "ioid", ioID);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jpa.close();
-        }
-
-    }
     
     /**
      * method to do the main import

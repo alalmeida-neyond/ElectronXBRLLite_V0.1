@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.example.demo.controller.Objects.Generation;
 
 import java.io.Serializable;
@@ -31,7 +28,7 @@ import jakarta.validation.constraints.NotNull;
 
 
 @Entity
-@Table(name = "OUT_XBRLGENERATED", schema = "DPM_ED")
+@Table(name = "OUT_XBRLGENERATED", schema = "DPM_OD")
 @SqlResultSetMapping(
         name = "OutXBRLGeneratedMapping",
         entities = {
@@ -53,7 +50,7 @@ public class OutXBRLGenerated implements Serializable {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "genXBRLSequence_gen")
-    @SequenceGenerator(name = "genXBRLSequence_gen", sequenceName = "DPM_ED.GENERATEXBLRSEQUENCE", allocationSize = 1)
+    @SequenceGenerator(name = "genXBRLSequence_gen", sequenceName = "DPM_OD.GENERATEXBLRSEQUENCE", allocationSize = 1)
     @Column(name = "XBRL_ID")
     private int idXBRLGenerate;
 

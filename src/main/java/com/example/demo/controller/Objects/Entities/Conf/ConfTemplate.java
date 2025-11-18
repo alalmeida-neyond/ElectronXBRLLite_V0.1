@@ -14,7 +14,7 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "CONF_TEMPLATE", schema = "DPM_ED")
+@Table(name = "CONF_TEMPLATE", schema = "DPM_OD")
 public class ConfTemplate implements Serializable {
     
     @Id

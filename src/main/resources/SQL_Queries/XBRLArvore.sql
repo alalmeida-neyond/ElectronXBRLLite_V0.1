@@ -4,9 +4,9 @@ with operationVersionByModule as (
     inner join operationscopecomposition osc on osc.modulevid = mv.modulevid
     inner join operationscope os on os.operationscopeid = osc.operationscopeid
     inner join operationversion ov on ov.operationvid = os.operationvid
-    where mv.modulevid = :moduleVId
+    where mv.modulevid = ?moduleVId
         and os.isactive = 1
-        and os.fromsubmissiondate <= strftime(:format, :refdate)
+        and os.fromsubmissiondate <= TO_DATE(?refdate, ?format)
 )
 --select * from operationVersionByModule;
 
@@ -25,7 +25,7 @@ with operationVersionByModule as (
     from moduleversioncomposition mvc
     inner join tableversion tv on mvc.tableid = tv.tableid and mvc.tablevid = tv.tablevid
     inner join tableversioncell tvc on tvc.tablevid = tv.tablevid
-    where tv.tablevid = :tableVId and mvc.modulevid = :moduleVId
+    where tv.tablevid = ?tableVId and mvc.modulevid = ?moduleVId
 )
 --select * from cellsFromTables;
 

@@ -25,7 +25,9 @@ import org.springframework.http.*;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceUnit;
 
 import java.util.ArrayList;
@@ -72,7 +74,20 @@ public class MainBean extends DefaultBean{
         this.progressService = progressService;
     }
 
-    /*@PostConstruct
+    private static final String PERSISTENCE_UNIT_NAME_OD = "dpm2md";
+    EntityManagerFactory emf_od = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME_OD);
+    
+    public EntityManager getEntityManager() {
+        return emf_od.createEntityManager();
+    }
+    
+    public void close(){
+        if(emf_od.isOpen()){
+            emf_od.close();
+        }
+    }
+
+    @PostConstruct
     public void init() {
         Info.getInstance().loadRefData(true);
         List<ConfImportRules> rules = Info.getInstance().refDataGet(Constants.ConfImportRulesAll);
@@ -90,7 +105,7 @@ public class MainBean extends DefaultBean{
                 .map(ConfImportRules::getImportRuleID)
                 .collect(Collectors.toList());
 
-    }*/
+    }
 
     public void getImportIOs(Integer privilege, boolean withView) {
         LocalDate referenceDate = null;
@@ -432,7 +447,7 @@ public class MainBean extends DefaultBean{
         }
     }
     
-    /* ATIVAR EM PROD
+    /* ATIVAR EM PROD*/
     @GetMapping("/")
     public ModelAndView greeting() throws FileNotFoundException {
         ModelAndView modelAndView = new ModelAndView();
@@ -440,15 +455,15 @@ public class MainBean extends DefaultBean{
         String storedPath = getStoredPathOrFallback();
         modelAndView.addObject(Constants.storedPathString, storedPath);
 
-        modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
+        //modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
         //init();
         
         modelAndView.setViewName("test");
         
         return modelAndView;
-    }*/
+    }
 
-    @GetMapping("/")
+    /*@GetMapping("/")
     public ModelAndView testingAccessDatabase() throws FileNotFoundException {
         ModelAndView modelAndView = new ModelAndView();
 
@@ -462,7 +477,7 @@ public class MainBean extends DefaultBean{
         modelAndView.setViewName("testNewDatabase");
         
         return modelAndView;
-    }
+    }*/
 
     @GetMapping("/settings")
     public ModelAndView settings() {
@@ -667,16 +682,23 @@ public class MainBean extends DefaultBean{
 
     private List<String> testDatabaseAccess()
     {
-        JPA<String> jpa = new JPA<String>(String.class);
         List<String> result = new ArrayList<String>();
 
+        EntityManager em = null;
+
         try {
-            result = jpa.getTypedNativeResultList("SELECT LEICODE\n"
-                    + " FROM DPM_CD.Entities");
+
+            em = getEntityManager();
+            StringBuilder query = new StringBuilder();
+            query.append("SELECT name FROM DPM_MD.Datatype");
+
+            result = em.createNativeQuery(query.toString()).getResultList();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            jpa.close();
+            if(em != null){
+                em.close();
+            }
         }
 
         return result;

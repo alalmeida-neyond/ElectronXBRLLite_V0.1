@@ -1,7 +1,7 @@
 with importedIOs as ( 
     select io.ioid
-    from DPM_ED.IO io 
-    inner join DPM_ED.io_state ioe on ioe.io_stateid = io.io_stateid 
+    from DPM_OD.IO io 
+    inner join DPM_OD.io_state ioe on ioe.io_stateid = io.io_stateid 
     where ioe.io_typestateid = ?typeStateOk
     and io.actionId = ?actionId
     and (io.referencedate = to_date(?referenceDate,?format) OR ?referenceDate IS NULL)
@@ -11,9 +11,9 @@ with importedIOs as (
 ),
 importedVariables as (
     select vv.variablevid, propertyid, contextid
-    from dpm_ed.in_importedtablestemp it
+    from DPM_OD.in_importedtablestemp it
     inner join importedIOs ios on it.ioid = ios.ioid
-    inner join dpm_ed.in_importedvaluestemp iv on iv.importedtableid = it.importedtableid
+    inner join DPM_OD.in_importedvaluestemp iv on iv.importedtableid = it.importedtableid
     inner join dpm_md.tableversioncell tvc on tvc.tablevid = it.tablevid and tvc.cellid = iv.cellid
     inner join dpm_md.variableversion vv on vv.variablevid = tvc.variablevid
     group by vv.variablevid, propertyid, contextid

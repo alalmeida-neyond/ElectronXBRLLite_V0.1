@@ -8,7 +8,7 @@ import jakarta.validation.constraints.*;
 import org.springframework.data.annotation.Immutable;
 
 @Entity
-@Table(name = "IO_TYPESTATE", schema = "DPM_ED")
+@Table(name = "IO_TYPESTATE", schema = "DPM_OD")
 @NamedQuery(name = "IOTypeState.findAll", query = "SELECT e FROM IOTypeState e")
 public class IOTypeState implements Serializable {
 

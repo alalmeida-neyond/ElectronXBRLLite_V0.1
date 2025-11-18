@@ -12,7 +12,6 @@ public class SubCategory implements Serializable{
     
     @Id
     @NotNull
-    @Column(name = "SUBCATEGORYVID")
     private int subCategoryID;
     
     @JoinColumn(referencedColumnName = "CATEGORYID", name = "CATEGORYID", nullable = false)

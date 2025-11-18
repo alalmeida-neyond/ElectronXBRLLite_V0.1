@@ -1,10 +1,3 @@
-/*
-
-* Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-
-* Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
-
- */
 package com.example.demo.controller.Objects.Entities.Conf;
 
 import java.io.Serializable;
@@ -24,7 +17,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 
-@Table(name = "CONF_PERIODICITY", schema = "DPM_ED")
+@Table(name = "CONF_PERIODICITY", schema = "DPM_OD")
 
 @NamedQuery(name = "ConfPeriodicity.findAll", query = "SELECT e FROM ConfPeriodicity e")
 

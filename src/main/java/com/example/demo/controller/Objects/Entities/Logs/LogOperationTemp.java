@@ -9,12 +9,12 @@ import jakarta.validation.constraints.*;
 import org.springframework.data.annotation.Immutable;
 
 @Entity
-@Table(name = "LOG_OPERATIONSTEMP", schema = "DPM_ED")
+@Table(name = "LOG_OPERATIONSTEMP", schema = "DPM_OD")
 public class LogOperationTemp implements Serializable{
     
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "LOG_OPERATIONLOGS_SEQ")
-    @SequenceGenerator(name = "LOG_OPERATIONLOGS_SEQ", sequenceName = "DPM_ED.LOG_OPERATIONLOGS_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "LOG_OPERATIONLOGS_SEQ", sequenceName = "DPM_OD.LOG_OPERATIONLOGS_SEQ", allocationSize = 1)
     @Column(name = "LOGID")
     @NotNull
     private Integer logID;

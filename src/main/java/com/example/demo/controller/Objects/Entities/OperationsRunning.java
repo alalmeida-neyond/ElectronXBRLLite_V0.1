@@ -8,13 +8,13 @@ import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 
 @Entity
-@Table(name = "operationrunning", schema = "DPM_ED")
+@Table(name = "operationrunning", schema = "DPM_OD")
 public class OperationsRunning {
 
     @Id
     @NotNull    
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OPERATIONRUNNING_SEQ")
-    @SequenceGenerator(name = "OPERATIONRUNNING_SEQ", sequenceName = "DPM_ED.OPERATIONRUNNING_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "OPERATIONRUNNING_SEQ", sequenceName = "DPM_OD.OPERATIONRUNNING_SEQ", allocationSize = 1)
     @Column(name = "OPERATIONRUNNINGID")
     private int operationRunningId;
     

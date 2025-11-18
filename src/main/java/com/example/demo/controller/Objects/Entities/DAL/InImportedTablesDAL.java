@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.example.demo.controller.Objects.Entities.DAL;
 
 import java.time.LocalDate;
@@ -88,9 +84,10 @@ public class InImportedTablesDAL {
             possibleDatapointsConflictsList = jpa.getNativeResultListWithMapping(queryStr, "CommonDatapointValidation", 
                     "tableVID", table.getTableVID(),
                     "tableID",table.getTable().getTableId(),
-                    "typeStateOk", Constants.tipoStateOK,
-                    "actionId",   Constants.actionImport,
-                    "referenceDate", io.getReferenceDate().toString(), 
+                    "actionId", String.valueOf(Constants.actionImport),
+                    "typeStateOk", String.valueOf(Constants.tipoStateOK),
+                    "referenceDate", io.getReferenceDate().format(Constants.DATEFORMATISO8601),
+                    "format", Constants.ISOBASEFORMAT8601,
                     "domain", io.getDomain(), 
                     "entityId", io.getEntity().getEntityID()
                 );
@@ -114,7 +111,7 @@ public class InImportedTablesDAL {
                     "actionId", String.valueOf(Constants.actionImport),
                     "typeStateOk", String.valueOf(Constants.tipoStateOK),
                     "referenceDate", referenceDate != null ? referenceDate.format(Constants.dateFormat) : null,
-                    "format", Constants.ISOBASEFORMATSQlite,
+                    "format", Constants.ISOBASEFORMAT,
                     "domain", domain != null ? domain.toUpperCase() : null,
                     "moduleVID", module != null ? String.valueOf(module.getModuleVID()) : null,
                     "entityId", entity != null ? String.valueOf(entity.getEntityID()) : null,

@@ -2,13 +2,18 @@ package com.example.demo.controller.Objects.Entities.DPMOrigin.IDs;
 
 import java.io.Serializable;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
+
+
+@Embeddable
 public class KeyCompositionID implements Serializable{
     
-    //@Column(name = "KEYID")
+    @Column(name = "KEYID")
     private int keyID;
     
-    //@Column(name = "VARIABLEVID")
+    @Column(name = "VARIABLEVID")
     private int variableVID;
 
     public int getKeyID() {

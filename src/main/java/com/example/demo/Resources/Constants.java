@@ -15,7 +15,7 @@ public class Constants {
     public static final String ISOBASEFORMAT = "YYYYMMDD";
     public static final String ISOBASEFORMATSQlite = "%Y%m%d";
 
-    public static final DateTimeFormatter DATEFORMATISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter DATEFORMATISO8601 = DateTimeFormatter.ofPattern(DATEFORMATISO8601STRING);
     public static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
     public static final DateTimeFormatter dateFormatFileName = DateTimeFormatter.ofPattern("uuuuMMdd");
     public static final DateTimeFormatter DATEFORMATUSEDBYVALIDATIONS = DateTimeFormatter.ofPattern("yyyy-MM-dd");

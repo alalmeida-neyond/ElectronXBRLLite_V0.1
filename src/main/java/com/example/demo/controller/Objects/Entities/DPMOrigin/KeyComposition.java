@@ -15,12 +15,14 @@ public class KeyComposition implements Serializable{
     
     @EmbeddedId
     private KeyCompositionID keyCompositionID;
-    
-    @JoinColumn(referencedColumnName = "KEYID", name = "KEYID", nullable = false, insertable = false, updatable = false)
+
+    //@MapsId("keyID")
+    @JoinColumn(name = "KEYID", referencedColumnName = "KEYID" ,nullable = false, insertable = false, updatable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private CompoundKey compoundKey;
-    
-    @JoinColumn(referencedColumnName = "VARIABLEVID", name = "VARIABLEVID", nullable = false, insertable = false, updatable = false)
+
+    //@MapsId("variableVID")
+    @JoinColumn(name = "VARIABLEVID", referencedColumnName = "VARIABLEVID", nullable = false, insertable = false, updatable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private VariableVersion variable;
     
@@ -58,6 +60,4 @@ public class KeyComposition implements Serializable{
     public void setRowGUID(UUID rowGUID) {
         this.rowGUID = rowGUID;
     }
-    
-    
 }

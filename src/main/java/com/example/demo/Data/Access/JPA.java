@@ -27,6 +27,7 @@ import jakarta.persistence.criteria.Selection;
 import com.example.demo.Data.Connection;
 import com.example.demo.Data.ConnectionManager;
 import com.example.demo.Resources.*;
+import com.example.demo.controller.Objects.Import.InImportKey;
 
 public class JPA<T> {
     private final Logger LOG = Logger.getLogger(JPA.class);
@@ -597,6 +598,24 @@ public class JPA<T> {
             return query.getResultList();
         } catch (Exception e) {
             LOG.error("Erro  GetNatve: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<T> getTypedNativeResultListForAListParameter(String queryStr, String baseVariable, List<InImportKey> parameters) {
+        try {
+            Query query = em.em.createNativeQuery(queryStr, this.type);
+            for (int i = 0; i < parameters.size(); i++)
+                                    try {
+                query.setParameter(baseVariable+i, parameters.get(i).getImportKeyID());
+            } catch (Exception e) {
+
+            }
+
+            return query.getResultList();
+
+        } catch (Exception e) {
         }
         return null;
     }

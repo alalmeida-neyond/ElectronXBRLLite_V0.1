@@ -1,31 +1,31 @@
 with IOsPerModule as (
  select ModuleVID, Domain, EntityID, ReferenceDate 
- from DPM_ED.io
+ from DPM_OD.io
  where actionID != ?ignoreActionID --6
  group by ModuleVID, Domain, EntityID, ReferenceDate 
 ),
 importIOsWithHasLog as(
- select io.ioid, ModuleVID, Domain, EntityID, ReferenceDate, IO_STATEID, iif(li.ioid is not null, 1,0) as hasLogs
- from  DPM_ED.io io
- left join DPM_ED.LOG_IMPORTPROCESS li on io.ioid = li.ioid
+ select io.ioid, ModuleVID, Domain, EntityID, ReferenceDate, IO_STATEID, CASE WHEN count(li.ioid) > 0 THEN 1 ELSE 0 END AS hasLogs
+ from  DPM_OD.io io
+ left join DPM_OD.LOG_IMPORTPROCESS li on io.ioid = li.ioid
  where io.ACTIONID = ?importActionID -- 1
- group by io.ioid, ModuleVID, Domain, EntityID, ReferenceDate
+ group by io.ioid, ModuleVID, Domain, EntityID, ReferenceDate, IO_STATEID
 ),
 validationIOsWithHasLog as(
- select io.ioid, ModuleVID, Domain, EntityID, ReferenceDate, IO_STATEID, iif(vtr.VALIDATIONRESULTID is not null, 1,0) as hasLogs
- from  DPM_ED.io io
- left join DPM_ED.OUT_VALIDATIONTABLE vt on vt.ioid = io.ioid
- left join DPM_ED.OUT_VALIDATIONTABLERESULT vtr on vtr.VALIDATIONTABLEID = vt.VALIDATIONTABLEID
+ select io.ioid, ModuleVID, Domain, EntityID, ReferenceDate, IO_STATEID, CASE WHEN count(vtr.VALIDATIONRESULTID) > 0 THEN 1 ELSE 0 END AS hasLogs
+ from  DPM_OD.io io
+ left join DPM_OD.OUT_VALIDATIONTABLE vt on vt.ioid = io.ioid
+ left join DPM_OD.OUT_VALIDATIONTABLERESULT vtr on vtr.VALIDATIONTABLEID = vt.VALIDATIONTABLEID
  where io.ACTIONID = ?validationActionID -- and vtr.VALIDATIONTABLERESULTID is not null -- 2 
- group by io.ioid, ModuleVID, Domain, EntityID, ReferenceDate
+ group by io.ioid, ModuleVID, Domain, EntityID, ReferenceDate, IO_STATEID
 ),
 generationIOsWithHasLog as(
- select io.ioid, io.ModuleVID, io.Domain, io.EntityID, io.ReferenceDate, IO_STATEID, iif(gl.XBRL_ID is not null, 1,0) as hasLogs
- from  DPM_ED.io io
- left join DPM_ED.OUT_XBRLGENERATED oxbrl on  oxbrl.IOID = io.ioid
- left join DPM_ED.GENERATELOG gl ON gl.XBRL_ID = oxbrl.XBRL_ID
+ select io.ioid, io.ModuleVID, io.Domain, io.EntityID, io.ReferenceDate, IO_STATEID, CASE WHEN count(gl.XBRL_ID) > 0 THEN 1 ELSE 0 END AS hasLogs
+ from  DPM_OD.io io
+ left join DPM_OD.OUT_XBRLGENERATED oxbrl on  oxbrl.IOID = io.ioid
+ left join DPM_OD.GENERATELOG gl ON gl.XBRL_ID = oxbrl.XBRL_ID
  where io.ACTIONID = ?generationActionID -- 3
- group by io.IOID, io.ModuleVID, io.Domain, io.EntityID, io.ReferenceDate
+ group by io.IOID, io.ModuleVID, io.Domain, io.EntityID, io.ReferenceDate, IO_STATEID
 ),
 iosByReport as (
  select iom.*, 
@@ -54,13 +54,12 @@ iosByReport as (
   iog.Domain = iom.Domain and
   iog.EntityID = iom.EntityID and
   iog.ReferenceDate = iom.ReferenceDate
- 
 )
 Select 
  mv.code as module, 
  ce.leicode as entity, 
  io.Domain,
- date(io.ReferenceDate) as referenceDate,
+ io.ReferenceDate as referenceDate,
  io.importIOID,  
  io.importStateID,  
  io.importHasLogs, 
@@ -72,5 +71,5 @@ Select
  io.generationHasLogs 
 from iosByReport io 
 inner join DPM_MD.ModuleVersion mv on mv.modulevid = io.modulevid 
-inner join DPM_ED.CONF_ENTITIES ce on ce.entityid = io.entityid
+inner join DPM_OD.CONF_ENTITIES ce on ce.entityid = io.entityid
  

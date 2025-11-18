@@ -14,14 +14,14 @@ import jakarta.validation.constraints.NotNull;
     
 
 @Entity
-@Table(name = "IO", schema = "DPM_ED")
+@Table(name = "IO", schema = "DPM_OD")
 @NamedQuery(name="IO.findAll", query="SELECT e FROM IO e")
 public class IO implements Serializable{
     
     @Id
     @NotNull
     @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="IO_IOID_GENERATOR")
-    @SequenceGenerator(name="IO_IOID_GENERATOR", sequenceName="DPM_ED.IO_SEQ", allocationSize=1, initialValue=1)
+    @SequenceGenerator(name="IO_IOID_GENERATOR", sequenceName="DPM_OD.IO_SEQ", allocationSize=1, initialValue=1)
     @Column(name = "IOID")
     private int ioId;
     

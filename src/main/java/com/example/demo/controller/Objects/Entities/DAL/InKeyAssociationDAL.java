@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.example.demo.controller.Objects.Entities.DAL;
 
 import java.util.ArrayList;
@@ -9,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.demo.DTOs.KeyAssociationDTO;
 import com.example.demo.Data.Access.JPA;
 import com.example.demo.controller.Objects.Import.*;
 
@@ -25,37 +23,28 @@ public class InKeyAssociationDAL {
         Map<Integer, List<InKeyAssociation>> finalResult = new HashMap<Integer, List<InKeyAssociation>>();
         JPA<InKeyAssociation> jpa = new JPA<InKeyAssociation>(InKeyAssociation.class);
 
-        StringBuilder params = new StringBuilder();
-        for (InImportKey impTable : listImp) {
-            params.append(impTable.getImportKeyID() + ",");
+        
+        StringBuilder queryString = new StringBuilder("Select IN_KEYASSOCIATION.* from DPM_OD.IN_KEYASSOCIATION ");
+        queryString.append(" where ");
+      
+        int maxElementsInsideIn = 1000;
+        for(int i = 0; i < listImp.size(); i+=maxElementsInsideIn){
+            int maxIndOfCurrentList = Math.min(i+maxElementsInsideIn, listImp.size());
+            queryString.append(" IMPORTKEYID in (  ");
+            for(int j = i; j < maxIndOfCurrentList;j++){
+                queryString.append("?keyid").append(j);
+                if(j < maxIndOfCurrentList - 1){
+                    queryString.append(", ");
+                }
+            }
+            queryString.append(" ) ");
+            if(maxIndOfCurrentList < listImp.size()){
+                queryString.append(" or ");
+            }
         }
 
-        StringBuilder queryString = new StringBuilder("WITH RECURSIVE split(level, start_pos, end_pos) AS (");
-        queryString.append("SELECT 1 as level, 1 as start_pos, ");
-        queryString.append("CASE ");
-        queryString.append("WHEN instr(:listKeys, ',') = 0 THEN length(:listKeys) + 1 ");
-        queryString.append("ELSE instr(:listKeys, ',') ");
-        queryString.append("END as end_pos ");
-        queryString.append("UNION ALL ");
-        queryString.append("SELECT level + 1, end_pos + 1, ");
-        queryString.append("CASE ");
-        queryString.append("WHEN instr(substr(:listKeys, end_pos + 1), ',') = 0 THEN length(:listKeys) + 1 ");
-        queryString.append("ELSE end_pos + 1 + instr(substr(:listKeys, end_pos + 1), ',') - 1 ");
-        queryString.append("END ");
-        queryString.append("FROM split ");
-        queryString.append("WHERE end_pos < length(:listKeys) ");
-        queryString.append("),");
-        queryString.append("listKeysAssoc as (");
-        queryString.append("SELECT substr(:listKeys, start_pos, end_pos - start_pos) AS IMPORTKEYID ");
-        queryString.append("FROM split ");
-        queryString.append("WHERE substr(:listKeys, start_pos, end_pos - start_pos) IS NOT NULL");
-        queryString.append(")");
-        queryString.append("SELECT IN_KEYASSOCIATION.* ");
-        queryString.append("FROM IN_KEYASSOCIATION ");
-        queryString.append("INNER JOIN listKeysAssoc ");
-        queryString.append("ON IN_KEYASSOCIATION.IMPORTKEYID = listKeysAssoc.IMPORTKEYID");
         try {
-            queryResult = jpa.getTypedNativeResultList(queryString.toString(), "listKeys", params.toString());
+            queryResult = jpa.getTypedNativeResultListForAListParameter(queryString.toString(), "keyid", listImp);
         } catch (NoResultException nrex) {
             nrex.printStackTrace();
         } catch (Exception ex) {
@@ -75,4 +64,5 @@ public class InKeyAssociationDAL {
         return finalResult;
         
     }
+    
 }

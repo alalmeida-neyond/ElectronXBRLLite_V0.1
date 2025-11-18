@@ -7,13 +7,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
-@Table(name = "IN_IMPORTKEY", schema = "DPM_ED")
+@Table(name = "IN_IMPORTKEY", schema = "DPM_OD")
 public class InImportKey implements Serializable {
     
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "IMPORTKEY_GEN")
-    @SequenceGenerator(name = "IMPORTKEY_GEN", sequenceName = "DPM_ED.IN_IMPORTKEY_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "IMPORTKEY_GEN", sequenceName = "DPM_OD.IN_IMPORTKEY_SEQ", allocationSize = 1)
     @Column(name = "IMPORTKEYID")
     private int importKeyID;
     

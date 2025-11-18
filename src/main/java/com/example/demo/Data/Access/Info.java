@@ -145,7 +145,7 @@ public class Info {
 
     public void setAltGenerationModules(EntityManager em){
         try {
-            List<Object[]> auxList = em.createNativeQuery("Select generationtype, ModuleVId from CONF_ALTGENERATION").getResultList();
+            List<Object[]> auxList = em.createNativeQuery("Select generationtype, ModuleVId from DPM_OD.CONF_ALTGENERATION").getResultList();
             /*altGenerationMaps = auxList.stream().collect(Collectors.groupingBy(
                                                     obj -> ((BigDecimal)obj[0]).intValue(),
                                                     Collectors.mapping(obj -> ((BigDecimal)obj[1]).intValue(), Collectors.toSet())

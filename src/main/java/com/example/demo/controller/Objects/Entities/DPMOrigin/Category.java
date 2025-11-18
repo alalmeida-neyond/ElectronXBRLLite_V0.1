@@ -15,7 +15,8 @@ public class Category implements Serializable {
     @Id
     @NotNull
     @Column(name = "CATEGORYID")
-    private int categoryId;
+    private Integer categoryId;
+    //private int categoryId;
     
     @Column(name = "CODE")
     @NotNull

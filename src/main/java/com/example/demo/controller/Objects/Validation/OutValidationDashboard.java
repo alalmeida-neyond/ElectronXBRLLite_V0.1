@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.example.demo.controller.Objects.Validation;
 
 import java.io.Serializable;
@@ -31,7 +28,7 @@ import jakarta.validation.constraints.Size;
 
 
 @Entity
-@Table(name = "OUT_VALIDATIONSDASHBOARD", schema = "DPM_ED")
+@Table(name = "OUT_VALIDATIONSDASHBOARD", schema = "DPM_OD")
 @SqlResultSetMapping(
         name = "ValidationsDashboardResults",
         classes = {
@@ -62,7 +59,7 @@ public class OutValidationDashboard implements Serializable{
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "OUT_VALIDATIONSDASHBOARD_SEQ")
-    @SequenceGenerator(name = "OUT_VALIDATIONSDASHBOARD_SEQ", sequenceName = "DPM_ED.OUT_VALIDATIONSDASHBOARD_SEQ", allocationSize = 1)
+    @SequenceGenerator(name = "OUT_VALIDATIONSDASHBOARD_SEQ", sequenceName = "DPM_OD.OUT_VALIDATIONSDASHBOARD_SEQ", allocationSize = 1)
     @Column(name = "VALIDATIONSDASHBOARDID")
     private int validationsDashboardId;
     

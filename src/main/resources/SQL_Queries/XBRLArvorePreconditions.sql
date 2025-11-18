@@ -4,9 +4,9 @@ with operationVersionByModule as (
     inner join operationscopecomposition osc on osc.modulevid = mv.modulevid
     inner join operationscope os on os.operationscopeid = osc.operationscopeid
     inner join operationversion ov on ov.operationvid = os.operationvid
-    where mv.modulevid = :moduleVId
+    where mv.modulevid = ?moduleVId
         and os.isactive = 1
-        and os.fromsubmissiondate <= strftime(:format, :refdate)
+        and os.fromsubmissiondate <= TO_DATE(?refdate, ?format)
 )
 -- select * from operationVersionByModule;
 
