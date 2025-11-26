@@ -1,5 +1,6 @@
 package com.example.demo.controller.Objects.Entities.DAL;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class ItemCategoryDAL {
             listOfFiles = jpa.getMappedFileQueryResultList("SQL_Queries/DatapointPossibleValues.sql", "DatapointItensDTO",
                         "tablevid", tableVID, 
                         "direction",direction ,
-                        "reportCoordinates", Optional.ofNullable(reportCoordinates).orElse(""),
+                        "ReportCoordinates", Optional.ofNullable(reportCoordinates).orElse(""),
                         "referenceDate", referenceDate.format(Constants.DATEFORMATUSEDBYVALIDATIONS));
 
             
@@ -183,7 +184,7 @@ public class ItemCategoryDAL {
             if (resultList != null && !resultList.isEmpty()) {
                 for (Object[] resultRow : resultList) {
                     DatapointItensDTO possibleValue = (DatapointItensDTO) resultRow[0];
-                    Integer tableVId = ((Integer) resultRow[1]).intValue();
+                    Integer tableVId = ((BigDecimal) resultRow[1]).intValue();
                                         
                     possibleValuesForDesagCodes.computeIfAbsent(tableVId, t -> new HashMap<>())
                             .computeIfAbsent(possibleValue.getXBRLHeader(), p -> new ArrayList<>())

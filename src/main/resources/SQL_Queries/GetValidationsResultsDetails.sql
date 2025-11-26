@@ -1,6 +1,6 @@
 with ioValidation as (
     select io.ioid, io.modulevid, io.entityid, io.domain, io.referenceDate
-    from io io
+    from DPM_OD.io io
     where io.ioid = ?ioid
 )
 , inputs as (
@@ -50,18 +50,18 @@ with ioValidation as (
     left join operation op on op.operationId = opv.operationId 
 )
 , validationResults as (
-    select inputs.module, inputs.entity, inputs.domain, inputs.referenceDate, mvresult.*, 'EBA' as origem
+    select inputs.module, inputs.entity, inputs.domain, inputs.referenceDate, mvresult.*, 'EBA' as origemVR
     from resultsPerOperation mvresult
     cross join inputs
 
 	union all
 
-    select inputs.module, inputs.entity, inputs.domain, inputs.referenceDate, mvresult.*, '-' as origem
+    select inputs.module, inputs.entity, inputs.domain, inputs.referenceDate, mvresult.*, '-' as origemVR
     from maxValidationResultForCommonDatapoint mvresult
     cross join inputs
 )
 , resultsDetailsRunnedRules as (
-    select rv.module, rv.entity, rv.code as report, rv.domain, to_char(trunc(rv.referenceDate), 'yyyy-mm-dd') referenceDate, rv.regraCode, rv.regra, rv.severity, rv.origem, 
+    select rv.module, rv.entity, rv.code as report, rv.domain, to_char(trunc(rv.referenceDate), 'yyyy-mm-dd') referenceDate, rv.regraCode, rv.regra, rv.severity, rv.origemVR as origemRD, 
         vrd.domain regraDomain, vrd.expression regraExecutada, sd.description as resultado,
         to_char(vrd.timestamp, 'yyyy-MM-dd HH24:MI:SS') dataProcessamento, coalesce(TO_CHAR(vrd.difference),'-') as difference,
         case when vrd.usedmargin = '1' then 'TRUE' else 'FALSE' end as usedmargin
@@ -71,7 +71,7 @@ with ioValidation as (
 )
 --select * from resultsDetailsRunnedRules;
 , resultsDetailsNotRunnedRules as (
-    select rv.module, rv.entity, rv.code as report, rv.domain, to_char(trunc(rv.referenceDate), 'yyyy-mm-dd') referenceDate, rv.regraCode, rv.regra, rv.severity, 'EBA' as origem, 
+    select rv.module, rv.entity, rv.code as report, rv.domain, to_char(trunc(rv.referenceDate), 'yyyy-mm-dd') referenceDate, rv.regraCode, rv.regra, rv.severity, 'EBA' as origemRD, 
         null regraDomain, null regraExecutada, sr.description as resultado, 
         coalesce(TO_CHAR(vrd.difference),'-') as dataProcessamento, coalesce(TO_CHAR(vrd.difference),'-') as difference, to_char('FALSE') as usedmargin
     from validationResults rv

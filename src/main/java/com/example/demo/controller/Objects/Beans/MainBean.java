@@ -486,7 +486,7 @@ public class MainBean extends DefaultBean{
         String storedPath = getStoredPathOrFallback();
         modelAndView.addObject(Constants.storedPathString, storedPath);
 
-        modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
+        //modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
        
         modelAndView.setViewName("settings");
        
@@ -516,7 +516,7 @@ public class MainBean extends DefaultBean{
 
         modelAndView.addObject("templateList", listOfTemplates);
 
-        modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
+        //modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
             
         return modelAndView;
     }

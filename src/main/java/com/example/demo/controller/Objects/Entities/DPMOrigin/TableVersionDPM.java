@@ -66,7 +66,7 @@ public class TableVersionDPM implements Serializable {
     private Property property;
 
     @JoinColumn(referencedColumnName = "CONTEXTID", name = "CONTEXTID", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     private Context context;
 
     @JoinColumn(referencedColumnName = "RELEASEID", name = "STARTRELEASEID", nullable = false)

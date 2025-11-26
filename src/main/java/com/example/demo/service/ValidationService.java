@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -11,6 +12,7 @@ import com.example.demo.Data.Access.JPA;
 import com.example.demo.Resources.Constants;
 import com.example.demo.Resources.Utils;
 import com.example.demo.controller.Objects.Beans.DefaultBean;
+import com.example.demo.controller.Objects.Entities.Conf.ConfEntities;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 
 import jakarta.persistence.EntityManager;
@@ -40,8 +42,7 @@ public class ValidationService extends DefaultBean<ValidationResultsDetailsDTO>{
 
             LOG.info("Module Version:" + moduleVersionFromIO);
             
-            results = jpa.getMappedFileQueryResultList("SQL_Queries/GetValidationsResultsDetails.sql",
-                    "ValidationResultsDetailsRow",
+            results = jpa. getNativeResultListWithMapping(Utils.getResource("SQL_Queries/GetValidationsResultsDetails.sql"), "ValidationResultsDetailsRow",
                     "ioid", ioId,
                     "moduleVID", getModuleVersion() != null ? String.valueOf(getModuleVersion().getModuleVID()) : "");
 

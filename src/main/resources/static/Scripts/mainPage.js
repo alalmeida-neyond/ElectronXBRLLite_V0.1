@@ -595,6 +595,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function createCellCustom(value, ioStates, referenceDateBool) {
     const td = document.createElement("td");
+    let formatted = "";
+    if(referenceDateBool)
+    {
+      const d = new Date(value);
+
+      const pad = (n) => String(n).padStart(2, "0");
+
+      formatted = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    }
+    
     let bg = "lightGrey";
     if(ioStates.includes(2))
     {
@@ -606,10 +616,15 @@ document.addEventListener("DOMContentLoaded", function () {
       bg = "#f8d7da";
     }
     td.style.backgroundColor = bg;
-    td.textContent = value ?? "-";
+    
     if(referenceDateBool)
     {
+      td.textContent = formatted ?? "-";
       td.style.textAlign = "center";
+    }
+    else
+    {
+      td.textContent = value ?? "-";
     }
     return td;
   }
@@ -791,6 +806,8 @@ document.addEventListener("DOMContentLoaded", function () {
       tbody.appendChild(rVal);
       tbody.appendChild(rGen);
     });
+
+    reinitTooltips();
   }
 
   function openCloseRow(container, open) {
@@ -798,6 +815,9 @@ document.addEventListener("DOMContentLoaded", function () {
     row.style.display = open ? "table-row" : "none";
     document.getElementById("upload-area")?.classList[open ? "add" : "remove"]("collapsed");
     document.getElementById("table-wrapper")?.classList[open ? "add" : "remove"]("after");
+
+    document.getElementById("upload-success").style.display = "none";
+    document.getElementById("btn-close-notification").style.display = "none";
     if (!open) hidePager();
   }
 
@@ -825,6 +845,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function toggleValidationDetails(ioid, button, tr) {
+    const uploadError = document.getElementById("upload-error");
+    const uploadSuccess = document.getElementById("upload-success");
+
+    uploadError.style.display === "none";
+    uploadSuccess.style.display === "none";
+
     const container = document.getElementById(`detail-validation-${ioid}`);
     if (!container) return;
     const row = container.closest("tr");
@@ -1065,6 +1091,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function toggleImportDetails(ioid, button, tr) {
+    const uploadError = document.getElementById("upload-error");
+    const uploadSuccess = document.getElementById("upload-success");
+
+    uploadError.style.display === "none";
+    uploadSuccess.style.display === "none";
+
     const container = document.getElementById(`detail-import-${ioid}`);
     if (!container) return;
     const row = container.closest("tr");
@@ -1101,30 +1133,33 @@ document.addEventListener("DOMContentLoaded", function () {
     const stateKey = `import-${ioid}`;
 
     const buildRow = (d) => {
+      console.log("DValues:" + d);
+      console.log("IsArray:" + Array.isArray(d));
+      console.log("Code:" + d[0]);
       const tr = document.createElement("tr");
       const td1 = document.createElement("td");
-      td1.textContent = d.code ?? "-";
+      td1.textContent = d[0] + "" ?? "-";
       td1.style.fontSize = "0.7rem";
       td1.classList.add("firstItemDetails");
       tr.appendChild(td1);
       const td2 = document.createElement("td");
-      td2.textContent = d.entity ?? "-";
+      td2.textContent = d[1] + ""  ?? "-";
       td2.style.fontSize = "0.7rem";
       tr.appendChild(td2);
       const td3 = document.createElement("td");
-      td3.textContent = d.domain ?? "-";
+      td3.textContent = d[2] + ""  ?? "-";
       td3.style.fontSize = "0.7rem";
       tr.appendChild(td3);
       const td4 = document.createElement("td");
-      td4.textContent = d.referenceDate ?? "-";
+      td4.textContent = d[3] + ""  ?? "-";
       td4.style.fontSize = "0.7rem";
       tr.appendChild(td4);
       const td5 = document.createElement("td");
-      td5.textContent = d.description ?? "-";
+      td5.textContent = d[4] + ""  ?? "-";
       td5.style.fontSize = "0.7rem";
       tr.appendChild(td5);
       const td6 = document.createElement("td");
-      td6.textContent = d.timestamp ?? "-";
+      td6.textContent = d[5] + ""  ?? "-";
       td6.style.fontSize = "0.7rem";
       td6.classList.add("lastItemDetails");
       tr.appendChild(td6);
@@ -1203,6 +1238,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function toggleGenerationDetails(ioid, button, tr) {
+    const uploadError = document.getElementById("upload-error");
+    const uploadSuccess = document.getElementById("upload-success");
+
+    uploadError.style.display === "none";
+    uploadSuccess.style.display === "none";
+
     const container = document.getElementById(`detail-generation-${ioid}`);
     if (!container) return;
     const row = container.closest("tr");
@@ -1241,28 +1282,28 @@ document.addEventListener("DOMContentLoaded", function () {
     const buildRow = (d) => {
       const tr = document.createElement("tr");
       const td1 = document.createElement("td");
-      td1.textContent = d.code ?? "-";
+      td1.textContent = d[0] + ""  ?? "-";
       td1.style.fontSize = "0.7rem";
       td1.classList.add("firstItemDetails");
       tr.appendChild(td1);
       const td2 = document.createElement("td");
-      td2.textContent = d.entity ?? "-";
+      td2.textContent = d[1] + ""  ?? "-";
       td2.style.fontSize = "0.7rem";
       tr.appendChild(td2);
       const td3 = document.createElement("td");
-      td3.textContent = d.domain ?? "-";
+      td3.textContent = d[2] + ""  ?? "-";
       td3.style.fontSize = "0.7rem";
       tr.appendChild(td3);
       const td4 = document.createElement("td");
-      td4.textContent = d.referenceDate ?? "-";
+      td4.textContent = d[3] + ""  ?? "-";
       td4.style.fontSize = "0.7rem";
       tr.appendChild(td4);
       const td5 = document.createElement("td");
-      td5.textContent = d.description ?? "-";
+      td5.textContent = d[4] + ""  ?? "-";
       td5.style.fontSize = "0.7rem";
       tr.appendChild(td5);
       const td6 = document.createElement("td");
-      td6.textContent = d.timestamp ?? "-";
+      td6.textContent = d[5] + ""  ?? "-";
       td6.style.fontSize = "0.7rem";
       td1.classList.add("lastItemDetails");
       tr.appendChild(td6);

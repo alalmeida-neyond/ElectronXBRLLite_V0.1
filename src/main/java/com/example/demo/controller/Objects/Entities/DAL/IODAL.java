@@ -41,17 +41,20 @@ public class IODAL {
         try {
             StringBuilder queryString = new StringBuilder("Select io.* from DPM_OD.IO io ");
             queryString.append(" inner join DPM_OD.io_state ioe on ioe.io_stateid = io.io_stateid ");
-            queryString.append(" where datetime(referencedate / 1000, 'unixepoch') = ?referenceDate ");
+            queryString.append(" where referencedate = to_date(?referenceDate,?format) ");
             queryString.append(" and domain = ?domain ");
             queryString.append(" and entityId = ?entityId ");
             queryString.append(" and moduleVID = ?moduleVID ");
             queryString.append(" and ioe.io_typestateid = ?typeStatePending ");
+            queryString.append(" and actionId <> ?actionIgnored ");
             result = jpa.getTypedNativeResultList(queryString.toString(),
                     "referenceDate", referenceDate,
+                    "format",Constants.ISOBASEFORMAT8601,
                     "domain", domain,
-                    "entityId", String.valueOf(entity.getEntityID()),
-                    "typeStatePending", String.valueOf(Constants.tipoStatePending),
-                    "moduleVID", String.valueOf(module.getModuleVID()));
+                    "entityId", entity.getEntityID(),
+                    "typeStatePending", Constants.tipoStatePending,
+                    "moduleVID", module.getModuleVID(),
+                    "actionIgnored", Constants.actionIgnore);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

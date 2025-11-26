@@ -1,6 +1,6 @@
 with importedTabledFiltered as (
     select impTable.* 
-    from in_importedtablestemp impTable
+    from DPM_OD.in_importedtablestemp impTable
     where impTable.ioid = ?ioId
 )
 , maxImportedTableIdPerTableWithoutDesagCode as ( 

@@ -8,6 +8,7 @@ public class ValidationResultsDetailsDTO {
     
     private String module;
     private String entity;
+    private String report;
     private String domain;
     private String referenceDate;
     private String regraCode;
@@ -30,9 +31,10 @@ public class ValidationResultsDetailsDTO {
     public ValidationResultsDetailsDTO() {
     }
 
-    public ValidationResultsDetailsDTO(String module, String entity, String domain, String referenceDate, String regraCode, String severity, String regraDomain, String regra, String regraExecutada, String origem, String resultado, String dataProcessamento, String difference, String usedMargin) {
+    public ValidationResultsDetailsDTO(String module, String entity, String report, String domain, String referenceDate, String regraCode, String severity, String regraDomain, String regra, String regraExecutada, String origem, String resultado, String dataProcessamento, String difference, String usedMargin) {
         this.module = module;
         this.entity = entity;
+        this.report = report;
         this.domain = domain;
         this.referenceDate = referenceDate;
         this.regraCode = regraCode;
@@ -61,6 +63,14 @@ public class ValidationResultsDetailsDTO {
 
     public void setEntity(String entity) {
         this.entity = entity;
+    }
+
+    public String getReport() {
+        return report;
+    }
+
+    public void setReport(String report) {
+        this.report = report;
     }
 
     public String getDomain() {

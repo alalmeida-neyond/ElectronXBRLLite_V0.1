@@ -102,6 +102,11 @@
   overflow-y: hidden;
 }
 
+.table-wrapper.afterValidation {
+  max-height: calc(84.5vh - 300px)!important;
+  overflow-y: hidden;
+}
+
 .table-wrapper.error {
   max-height: calc(71.5vh - 300px);
 }

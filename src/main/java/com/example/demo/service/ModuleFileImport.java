@@ -322,6 +322,7 @@ public class ModuleFileImport extends RunnableExtension{
                 // logsList.add(new LogOperationTemp("Tempo de inserir o InImportTable :" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));           
                 // incrementOracleInsertOperationTime();
                 // restartTimeJava();
+                LOG.info("Sheetname:" + sheetName);
                 LogImportProcess logMapImportInit = new LogImportProcess(io.getIoId(), importedTableTemp.getImportedTableId(), "Importação do mapa - " + sheetName + " iniciado");
                 // incrementJavaOperationTime(); 
                 // restartTimeOracleInsert();

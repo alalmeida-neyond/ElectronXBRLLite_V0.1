@@ -1,12 +1,16 @@
 package com.example.demo.controller.Objects.Entities.DPMOrigin;
 
 import java.io.Serializable;
+
+import org.eclipse.persistence.annotations.ReadOnly;
+
 import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "CONTEXT", schema = "DPM_MD")
+//@ReadOnly
 public class Context implements Serializable{
     
     @Id

@@ -111,8 +111,9 @@ public class OperationsUtils {
 
                                 //"-1" é usado como Dummy para indicar que o valor não tem chave.
                                 //Result[2] -> DesagregationCode
-                                if (((DesagregationImportKeyDTO) result[2]).getImportKeyID() != -1) {
-                                    InImportKey desagregationCode = ((DesagregationImportKeyDTO) result[2]).convertToImportKey();
+                                if (((InImportKey) result[2]).getImportKeyID() != -1) {
+                                    InImportKey desagregationCode = new InImportKey();
+                                    desagregationCode = (InImportKey) result[2];
 
                                     for (InKeyAssociation keyAssociation : desagregationCode.getListPropertyValues()) {
                                         dpmKeys.put(keyAssociation.getPropertyName(), keyAssociation.getPropertyValue());

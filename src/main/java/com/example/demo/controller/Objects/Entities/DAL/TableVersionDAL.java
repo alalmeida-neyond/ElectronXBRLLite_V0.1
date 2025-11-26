@@ -136,11 +136,8 @@ public class TableVersionDAL {
         JPA<TableDPM> jpa = new JPA<TableDPM>(TableDPM.class);
         List<TableDPM> results = new ArrayList();
         try {
-            results = jpa.getNativeResultListWithMapping(
-            "select t.* from DPM_MD.tableversion tv inner join \"TABLE\" t on t.tableid = tv.tableid where tv.tablevid = ?tablevid",
-            "TableDPMMapping",
-                    "tablevid",tableVid
-            );
+            results = jpa.getTypedNativeResultList("select t.* from DPM_MD.tableversion tv inner join \"TABLE\" t on t.tableid = tv.tableid where tv.tablevid = ?tablevid",
+                    "tablevid",tableVid);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro na query GetDesagregationCodeTypeOfMaps", e);
         } finally {

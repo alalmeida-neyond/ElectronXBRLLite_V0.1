@@ -6,10 +6,12 @@ import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
+import org.eclipse.persistence.annotations.ReadOnly;
 import org.springframework.data.annotation.Immutable;
 
 @Entity
 @Table(name = "VARIABLEVERSION", schema = "DPM_MD")
+//@ReadOnly
 public class VariableVersion implements Serializable {
     
     @Id
@@ -30,7 +32,7 @@ public class VariableVersion implements Serializable {
     private SubCategoryVersion subCategoryVersion;
     
     @JoinColumn(referencedColumnName = "CONTEXTID", name = "CONTEXTID")
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.DETACH)
     private Context context;
     
     @JoinColumn(referencedColumnName = "KEYID", name = "KEYID")

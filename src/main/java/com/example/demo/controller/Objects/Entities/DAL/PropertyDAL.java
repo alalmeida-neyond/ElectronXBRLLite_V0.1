@@ -1,13 +1,15 @@
 package com.example.demo.controller.Objects.Entities.DAL;
 
+import java.math.BigDecimal;
+
 import com.example.demo.Data.Access.JPA;
 
 
 public class PropertyDAL {     
      
     public static int getListOfCellVariable(int variableVid){
-        JPA<Integer> jpa = new JPA<Integer>(Integer.class);
-        Integer result = null;
+        JPA<BigDecimal> jpa = new JPA<BigDecimal>(BigDecimal.class);
+        BigDecimal result = null;
         try {
             StringBuilder query = new StringBuilder("Select a.datatypeid from DPM_MD.Property a ");
             query.append("inner join DPM_MD.VariableVersion b on a.propertyid = b.propertyid ");

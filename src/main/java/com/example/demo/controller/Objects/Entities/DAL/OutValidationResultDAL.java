@@ -67,7 +67,7 @@ public class OutValidationResultDAL {
         List<ValidationResultsDetailsDTO> listOfResults = new ArrayList<>();
 
         try {
-            listOfResults = jpa. getNativeResultListWithMapping(Utils.getResource("SQL_Queries/GetValidationsResultsDetails.sql"), "ValidationResultsDetailsRow",
+            listOfResults = jpa.getNativeResultListWithMapping(Utils.getResource("SQL_Queries/GetValidationsResultsDetails.sql"), "ValidationResultsDetailsRow",
                 "stateOk", Constants.processoOk,
                 "validationResultId", validationResultID,
                 "typeStateOk", Constants.tipoStateOK,                   

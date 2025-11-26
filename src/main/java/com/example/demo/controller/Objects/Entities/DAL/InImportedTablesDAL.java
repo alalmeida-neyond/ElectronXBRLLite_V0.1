@@ -62,8 +62,7 @@ public class InImportedTablesDAL {
 
         List<TableVersionDPM> listOfMaps = new ArrayList<>();
         try {
-            listOfMaps = jpa.getMappedFileQueryResultList("SQL_Queries/GetTablesToValidate.sql", "TableVersionDPMMapping",
-            "modulevid", String.valueOf(module.getModuleVID()));
+            listOfMaps = jpa.getTypedNativeResultList(queryStr, "modulevid", String.valueOf(module.getModuleVID()));
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

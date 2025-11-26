@@ -81,8 +81,15 @@
 
 			<!-- EclipseLink -->
 			<property name="eclipselink.target-database" value="Oracle"/>
+			<property name="eclipselink.weaving" value="true"/>
 			<property name="eclipselink.logging.level" value="INFO"/>
-			<property name="eclipselink.weaving" value="false"/>
+			<property name="eclipselink.logging.parameters" value="true"/>
+			<property name="eclipselink.logging.sql" value="true"/>
+			<property name="eclipselink.persistence-context.flush-mode" value="commit"/>
+			<property name="eclipselink.persistence-context.persist-on-commit" value="true"/>
+			<property name="eclipselink.jdbc.batch-writing" value="Oracle-JDBC"/>
+
+			<property name="eclipselink.cache.shared.default" value="false"/>
 
 
 			

@@ -29,13 +29,15 @@ public class OperationRunningDAL {
             queryString.append(" and entityId = ?entityId ");
             queryString.append(" and moduleVID = ?moduleVID ");
             queryString.append(" and ioe.io_typestateid = ?typeStatePending ");
+            queryString.append(" and actionId <> ?actionIgnored ");
             result = jpa.getTypedNativeResultList(queryString.toString(),
                     "referenceDate", referenceDate,
                     "format",Constants.ISOBASEFORMAT,
                     "domain", domain,
                     "entityId", String.valueOf(entity.getEntityID()),
                     "typeStatePending", String.valueOf(Constants.tipoStatePending),
-                    "moduleVID", String.valueOf(module.getModuleVID()));
+                    "moduleVID", String.valueOf(module.getModuleVID()),
+                    "actionIgnored", Constants.actionIgnore);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
