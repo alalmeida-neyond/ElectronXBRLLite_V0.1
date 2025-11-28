@@ -17,7 +17,7 @@
 
 </head>
 
-<body>
+<body class="min-vh-100 d-flex flex-column overflow-hidden" style="padding-top:120px;">
   <div id="mainHeader">
     <div th:replace="~{Layouts/xbrl2_header1}"></div>
   </div>
@@ -41,143 +41,146 @@
       </div>
     </div>
   </div>
+  <main class="flex-grow-1 d-flex flex-column overflow-hidden pb-4">
+    <div class="container d-flex flex-column flex-grow-1 overflow-hidden">
+      <br>
 
-  <div class="container">
-    <br>
-
-    <form id="uploadForm" method="post" th:action="@{/upload}" enctype="multipart/form-data">
-      <div class="upload-area w-100" id="upload-area">
-        <img src="./Images/upload_icon.png" alt="Upload Icon" class="upload-icon" />
-        <div class="upload-text" id="upload-text">
-          <span class="internationalization" data-key="upload.label">Upload Ficheiros ou</span>
-          <span class="underline internationalization" data-key="choose.label"
-            style="color: blue; text-decoration: underline;">escolhe aqui</span>
-          <i class="bi bi-question-circle-fill internationalization upload-help-icon" data-tooltip-key="filenameTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"
-                data-bs-placement="top" data-bs-html="true" data-bs-container="body"></i>
-        </div>
-
-        <div class="loading-container" id="loading-container">
-          <span class="loading-text internationalization" data-key="loading.label">Loading...</span>
-          <img src="./Images/loadingGif.gif" id="loading-gif" class="loading-gif" alt="Loading..." />
-        </div>
-
-        <input type="file" id="file" name="file" class="upload-hidden-input" required accept=".xls,.xlsx" />
-      </div>
-      <div id="upload-error" class="alert alert-danger" style="display: none;">
-        <span class="internationalization" id="upload-error-text"></span>
-        <button type="button" class="btn-close-notification btn ms-auto" id="btn-close-notification">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-      <div id="upload-success" class="alert alert-success" style="display: none; margin-top: 10px;">
-        <span class="internationalization" id="upload-success-text" data-key="successMessageDirectoryXBRL.label" th:attr="data-value=${storedPath}"></span>
-        <button type="button" class="btn-close-notification btn ms-auto" id="btn-close-notification-success">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-    </form>
-
-    <div class="logContainer" id="logContainer">
-      <div class="row mb-3 filterDiv" id="filterDiv">
-        <div class="col-md-2">
-          <select class="form-select" id="filterModule">
-            <option value="" class="internationalization" data-key="allModules.label">{{allModules.label}}</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <div class="d-flex gap-2">
-            <select name="filterYear" id="filterYear" class="form-control" style="max-width: 70%;">
-              <option value="" class="internationalization" data-key="yearSelect.label" selected>{{yearSelect.label}}
-              </option>
-              <option id="behindThreeYears" value=""></option>
-              <option id="behindTwoYears" value=""></option>
-              <option id="behindOneYear" value=""></option>
-              <option id="currentYear" value=""></option>
-              <option id="forwardOneYear" value=""></option>
-              <option id="forwardTwoYears" value=""></option>
-              <option id="forwardThreeYears" value=""></option>
-            </select>
-            <span></span>
-            <select name="filterMonth" id="filterMonth" class="form-control" style="max-width: 70%;">
-              <option value="" class="internationalization" data-key="monthSelect.label" selected>{{monthSelect.label}}
-              </option>
-              <option value='1' class="internationalization" data-key="januarySelect.label"></option>
-              <option value='2' class="internationalization" data-key="februarySelect.label"></option>
-              <option value='3' class="internationalization" data-key="marchSelect.label"></option>
-              <option value='4' class="internationalization" data-key="aprilSelect.label"></option>
-              <option value='5' class="internationalization" data-key="maySelect.label"></option>
-              <option value='6' class="internationalization" data-key="juneSelect.label"></option>
-              <option value='7' class="internationalization" data-key="julySelect.label"></option>
-              <option value='8' class="internationalization" data-key="augustSelect.label"></option>
-              <option value='9' class="internationalization" data-key="septemberSelect.label"></option>
-              <option value='10' class="internationalization" data-key="octoberSelect.label"></option>
-              <option value='11' class="internationalization" data-key="novemberSelect.label"></option>
-              <option value='12' class="internationalization" data-key="decemberSelect.label"></option>
-            </select>
+      <form id="uploadForm" method="post" th:action="@{/upload}" enctype="multipart/form-data">
+        <div class="upload-area w-100" id="upload-area">
+          <img src="./Images/upload_icon.png" alt="Upload Icon" class="upload-icon" />
+          <div class="upload-text" id="upload-text">
+            <span class="internationalization" data-key="upload.label">Upload Ficheiros ou</span>
+            <span class="underline internationalization" data-key="choose.label"
+              style="color: blue; text-decoration: underline;">escolhe aqui</span>
+            <i class="bi bi-question-circle-fill internationalization upload-help-icon"
+              data-tooltip-key="filenameTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"
+              data-bs-placement="top" data-bs-html="true" data-bs-container="body"></i>
           </div>
 
+          <div class="loading-container" id="loading-container">
+            <span class="loading-text internationalization" data-key="loading.label">Loading...</span>
+            <img src="./Images/loadingGif.gif" id="loading-gif" class="loading-gif" alt="Loading..." />
+          </div>
+
+          <input type="file" id="file" name="file" class="upload-hidden-input" required accept=".xls,.xlsx" />
         </div>
-      </div>
-
-      <div class="table-wrapper" id="table-wrapper">
-
-        <table id="validationTable" class="table table-borderless validationTable w-100">
-          <colgroup>
-            <col style="width:1.2rem;">
-            <col style="width:1.2rem;">
-            <col style="width:1.2rem;">
-            <col style="width:4rem;">
-            <col style="width:6rem;">
-            <col style="width:3rem;">
-            <col style="width:5rem;">
-            <col style="width:2.2rem;">
-            <col style="width:2.2rem;">
-            <col style="width:2.2rem;">
-          </colgroup>
-          <thead class="tableHeadValidation">
-            <tr>
-              <th class="mainTableHeaderFirst internationalization" data-key="importAbbreviatedTitle.label"
-                data-tooltip-key="importTitleDetailsState.label" data-has-tooltip="1" data-bs-toggle="tooltip"
-                data-bs-placement="top">{{importAbbreviatedTitle.label}}</th>
-              <th class="mainTableHeader internationalization" data-key="validationAbbreviatedTitle.label"
-                data-tooltip-key="validationTitleDetailsState.label" data-has-tooltip="1" data-bs-toggle="tooltip"
-                data-bs-placement="top">{{validationAbbreviatedTitle.label}}</th>
-              <th class="mainTableHeader internationalization" data-key="generationAbbreviatedTitle.label"
-                data-tooltip-key="generationTitleDetailsState.label" data-has-tooltip="1" data-bs-toggle="tooltip"
-                data-bs-placement="top">{{generationAbbreviatedTitle.label}}</th>
-              <th class="mainTableHeader internationalization" data-key="module.label">{{module.label}}</th>
-              <th class="mainTableHeader internationalization" data-key="entity.label">{{entity.label}}</th>
-              <th class="mainTableHeader internationalization" data-key="domain.label">{{domain.label}}</th>
-              <th class="mainTableHeader internationalization" data-key="referenceDate.label" style="text-align: center;">{{referenceDate.label}}
-              </th>
-              <th class="mainTableHeader internationalization" data-key="importDetailsText.label"
-                data-tooltip-key="importTitleDetailsTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"
-                data-bs-placement="top">{{importDetailsText.label}}</th>
-              <th class="mainTableHeader internationalization" data-key="validationDetailsText.label"
-                data-tooltip-key="validationTitleDetailsTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"
-                data-bs-placement="top">{{validationDetailsText.label}}</th>
-              <th class="mainTableHeaderLast internationalization" data-key="generationDetailsText.label"
-                data-tooltip-key="generationTitleDetailsTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"
-                data-bs-placement="top">{{generationDetailsText.label}}</th>
-            </tr>
-          </thead>
-          <tbody id="validationTableBody"></tbody>
-        </table>
-        <div class="paginationDiv" id="paginationDiv" style="display: none;">
-          <div id="sharedPaginationContainer" class="sharedPaginationContainer"></div>
+        <div id="upload-error" class="alert alert-danger" style="display: none;">
+          <span class="internationalization" id="upload-error-text"></span>
+          <button type="button" class="btn-close-notification btn ms-auto" id="btn-close-notification">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
+        <div id="upload-success" class="alert alert-success" style="display: none; margin-top: 10px;">
+          <span class="internationalization" id="upload-success-text" data-key="successMessageDirectoryXBRL.label"
+            th:attr="data-value=${storedPath}"></span>
+          <button type="button" class="btn-close-notification btn ms-auto" id="btn-close-notification-success">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </form>
+
+      <div class="logContainer flex-grow-1 d-flex flex-column overflow-hidden" style="min-height:0;" id="logContainer">
+        <div class="row mb-3 filterDiv" id="filterDiv">
+          <div class="col-md-2">
+            <select class="form-select" id="filterModule">
+              <option value="" class="internationalization" data-key="allModules.label">{{allModules.label}}</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <div class="d-flex gap-2">
+              <select name="filterYear" id="filterYear" class="form-control" style="max-width: 70%;">
+                <option value="" class="internationalization" data-key="yearSelect.label" selected>{{yearSelect.label}}
+                </option>
+                <option id="behindThreeYears" value=""></option>
+                <option id="behindTwoYears" value=""></option>
+                <option id="behindOneYear" value=""></option>
+                <option id="currentYear" value=""></option>
+                <option id="forwardOneYear" value=""></option>
+                <option id="forwardTwoYears" value=""></option>
+                <option id="forwardThreeYears" value=""></option>
+              </select>
+              <span></span>
+              <span></span>
+              <select name="filterMonth" id="filterMonth" class="form-control" style="max-width: 70%;">
+                <option value="" class="internationalization" data-key="monthSelect.label" selected>{{monthSelect.label}}
+                </option>
+                <option value='1' class="internationalization" data-key="januarySelect.label"></option>
+                <option value='2' class="internationalization" data-key="februarySelect.label"></option>
+                <option value='3' class="internationalization" data-key="marchSelect.label"></option>
+                <option value='4' class="internationalization" data-key="aprilSelect.label"></option>
+                <option value='5' class="internationalization" data-key="maySelect.label"></option>
+                <option value='6' class="internationalization" data-key="juneSelect.label"></option>
+                <option value='7' class="internationalization" data-key="julySelect.label"></option>
+                <option value='8' class="internationalization" data-key="augustSelect.label"></option>
+                <option value='9' class="internationalization" data-key="septemberSelect.label"></option>
+                <option value='10' class="internationalization" data-key="octoberSelect.label"></option>
+                <option value='11' class="internationalization" data-key="novemberSelect.label"></option>
+                <option value='12' class="internationalization" data-key="decemberSelect.label"></option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="table-wrapper flex-grow-1 overflow-auto" id="table-wrapper">
+
+          <table id="validationTable" class="table table-borderless validationTable w-100">
+            <colgroup>
+              <col style="width:1.2rem;">
+              <col style="width:1.2rem;">
+              <col style="width:1.2rem;">
+              <col style="width:4rem;">
+              <col style="width:6rem;">
+              <col style="width:3rem;">
+              <col style="width:5rem;">
+              <col style="width:2.2rem;">
+              <col style="width:2.2rem;">
+              <col style="width:2.2rem;">
+            </colgroup>
+            <thead class="tableHeadValidation">
+              <tr>
+                <th class="mainTableHeaderFirst internationalization" data-key="importAbbreviatedTitle.label"
+                  data-tooltip-key="importTitleDetailsState.label" data-has-tooltip="1" data-bs-toggle="tooltip"
+                  data-bs-placement="top">{{importAbbreviatedTitle.label}}</th>
+                <th class="mainTableHeader internationalization" data-key="validationAbbreviatedTitle.label"
+                  data-tooltip-key="validationTitleDetailsState.label" data-has-tooltip="1" data-bs-toggle="tooltip"
+                  data-bs-placement="top">{{validationAbbreviatedTitle.label}}</th>
+                <th class="mainTableHeader internationalization" data-key="generationAbbreviatedTitle.label"
+                  data-tooltip-key="generationTitleDetailsState.label" data-has-tooltip="1" data-bs-toggle="tooltip"
+                  data-bs-placement="top">{{generationAbbreviatedTitle.label}}</th>
+                <th class="mainTableHeader internationalization" data-key="module.label">{{module.label}}</th>
+                <th class="mainTableHeader internationalization" data-key="entity.label">{{entity.label}}</th>
+                <th class="mainTableHeader internationalization" data-key="domain.label">{{domain.label}}</th>
+                <th class="mainTableHeader internationalization" data-key="referenceDate.label"
+                  style="text-align: center;">{{referenceDate.label}}
+                </th>
+                <th class="mainTableHeader internationalization" data-key="importDetailsText.label"
+                  data-tooltip-key="importTitleDetailsTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"
+                  data-bs-placement="top">{{importDetailsText.label}}</th>
+                <th class="mainTableHeader internationalization" data-key="validationDetailsText.label"
+                  data-tooltip-key="validationTitleDetailsTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"
+                  data-bs-placement="top">{{validationDetailsText.label}}</th>
+                <th class="mainTableHeaderLast internationalization" data-key="generationDetailsText.label"
+                  data-tooltip-key="generationTitleDetailsTooltip.label" data-has-tooltip="1" data-bs-toggle="tooltip"
+                  data-bs-placement="top">{{generationDetailsText.label}}</th>
+              </tr>
+            </thead>
+            <tbody id="validationTableBody"></tbody>
+          </table>
+          <div class="paginationDiv" id="paginationDiv" style="display: none;">
+            <div id="sharedPaginationContainer" class="sharedPaginationContainer"></div>
+          </div>
+        </div>
+
+
+
       </div>
-
-
-
     </div>
-  </div>
-  </div>
+  </main>
 
-
-  <div id="footer">
+  <footer id="footer" class="fixed-bottom bg-body border-top py-2">
     <div th:replace="~{Layouts/footer}"></div>
-  </div>
+  </footer>
 
 </body>
 

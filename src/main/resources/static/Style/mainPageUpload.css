@@ -1,3 +1,7 @@
+:root{
+  --footer-h: 50px;
+  --top-chrome: 22rem;
+}
 .upload-area {
   height: 200px;
   margin: 0 auto;
@@ -91,32 +95,10 @@
 }
 
 .table-wrapper {
-  max-height: calc(78.5vh - 300px);
+  max-height: min(82vh, calc(100vh - 12rem)) !important;
   overflow-y: auto;
   overflow-x: hidden;
   display: block;
-}
-
-.table-wrapper.after {
-  max-height: calc(91.5vh - 300px)!important;
-  overflow-y: hidden;
-}
-
-.table-wrapper.afterValidation {
-  max-height: calc(84.5vh - 300px)!important;
-  overflow-y: hidden;
-}
-
-.table-wrapper.error {
-  max-height: calc(71.5vh - 300px);
-}
-
-.table-wrapper.upload {
-  max-height: calc(74.5vh - 300px);
-}
-
-.table-wrapper.uploadWithMessage {
-  max-height: calc(66.5vh - 300px);
 }
 
 #validationTable thead {
@@ -129,7 +111,7 @@
 }
 
 #validationTableBody{
-  display: table-row-group; 
+  display: table-row-group;
 }
 
 .detailsTable thead th {
@@ -166,11 +148,23 @@
   table-layout: fixed;
 }
 
-.fixed-header-table tbody{
-  display: block;
-  max-height: 340px;
+.fixed-header-table tbody,
+.fixed-header-table tbody[style*="table-caption"]{
   overflow-y: auto;
-  scrollbar-gutter: stable;
+}
+
+@supports not (height: 1dvh) {
+  .fixed-header-table tbody,
+  .fixed-header-table tbody[style*="table-caption"]{
+    max-height: clamp(200px, 50svh, 720px) !important;
+  }
+}
+
+@media (max-height: 800px){
+  .fixed-header-table tbody{ max-height: clamp(180px, 46dvh, 560px) !important; }
+}
+@media (min-height: 1200px){
+  .fixed-header-table tbody{ max-height: clamp(240px, 56dvh, 820px) !important; }
 }
 
 .flex-parent > .fixed-header-table { flex: 1 1 auto; min-width: 0; }
@@ -236,7 +230,7 @@ td.last-cell {
   width: 100%;
   border-spacing: 0 3px;
   border-collapse: separate;
-  max-height: calc(86.5vh - 300px);
+  max-height: max(360px, calc(100svh - 22rem - 3rem - 2rem)) !important;
   overflow-y: auto;
   overflow-x: hidden;
   margin-bottom: 0;
@@ -270,11 +264,13 @@ td.last-cell {
 }
 
 html, body {
-  height: 100%;
+  min-height: 100svh;
   margin: 0;
-  margin-top: 65px;
-  margin-bottom: 50px;
-  overflow-y: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
 }
 
 .progress {
@@ -307,6 +303,29 @@ html, body {
   scrollbar-width: thin;
   width: fit-content;
   margin-bottom: 10px;    
+}
+
+.logContainer {
+  flex:0 1 auto;
+  min-height:0;
+  overflow: visible;
+  max-height: calc(99svh - var(--top-chrome) - var(--footer-h));
+}
+
+.logContainer.after {
+  max-height: calc(113.5svh - var(--top-chrome) - var(--footer-h));
+}
+
+.logContainer.error {
+  max-height: calc(90svh - var(--top-chrome) - var(--footer-h)) !important;
+}
+
+.logContainer.upload {
+  max-height: calc(95svh - var(--top-chrome) - var(--footer-h));
+}
+
+.logContainer.uploadWithMessage {
+  max-height: calc(85svh - var(--top-chrome) - var(--footer-h));
 }
 
 .resultado-filter-button {
@@ -386,14 +405,14 @@ html, body {
 }
 
 .table-wrapper-templates {
-  max-height: calc(101.5vh - 300px);
+  max-height: clamp(440px, calc(100vh - 16rem), 96vh) !important;
   overflow-y: auto;
   overflow-x: hidden;
   display: block;
 }
 
 .table-wrapper-templates.message {
-  max-height: calc(94.5vh - 300px);
+  max-height: clamp(400px, calc(100vh - 18rem), 90vh) !important;
   overflow-y: auto;
   overflow-x: hidden;
   display: block;

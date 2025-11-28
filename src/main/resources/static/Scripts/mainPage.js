@@ -274,27 +274,27 @@ document.addEventListener("DOMContentLoaded", function () {
   const closeBtn = document.getElementById("btn-close-notification-success");
 
   uploadErrorExit.addEventListener('click',function(){
-    if(document.getElementById("table-wrapper").classList.contains("uploadWithMessage"))
+    if(document.getElementById("logContainer").classList.contains("uploadWithMessage"))
     {
-      document.getElementById("table-wrapper").classList.remove("uploadWithMessage");
-      document.getElementById("table-wrapper").classList.add("upload");
+      document.getElementById("logContainer").classList.remove("uploadWithMessage");
+      document.getElementById("logContainer").classList.add("upload");
     }
     uploadError.style.display = "none";
-    document.getElementById("table-wrapper")?.classList.remove("error");
-    document.getElementById("table-wrapper")?.classList.remove("upload");
+    document.getElementById("logContainer")?.classList.remove("error");
+    document.getElementById("logContainer")?.classList.remove("upload");
     uploadError.classList.remove("d-flex");
     uploadError.classList.remove("align-items-center");
   });
 
   closeBtn.addEventListener('click',function(){
-    if(document.getElementById("table-wrapper").classList.contains("uploadWithMessage"))
+    if(document.getElementById("logContainer").classList.contains("uploadWithMessage"))
     {
-      document.getElementById("table-wrapper").classList.remove("uploadWithMessage");
-      document.getElementById("table-wrapper").classList.add("upload");
+      document.getElementById("logContainer").classList.remove("uploadWithMessage");
+      document.getElementById("logContainer").classList.add("upload");
     }
     uploadSuccess.style.display = "none";
-    document.getElementById("table-wrapper")?.classList.remove("error");
-    document.getElementById("table-wrapper")?.classList.remove("upload");
+    document.getElementById("logContainer")?.classList.remove("error");
+    document.getElementById("logContainer")?.classList.remove("upload");
   });
   
   document
@@ -390,13 +390,17 @@ document.addEventListener("DOMContentLoaded", function () {
     ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
       document.getElementById(id).classList.add("isDisabled")
     );
-    if(document.getElementById("table-wrapper").classList.contains("error"))
+    const uploadError = document.getElementById("upload-error");
+    const uploadSuccess = document.getElementById("upload-success");
+    uploadError.style.display = "none";
+    uploadSuccess.style.display = "none";
+    if(document.getElementById("logContainer").classList.contains("error"))
     {
-      document.getElementById("table-wrapper").classList.add("uploadWithMessage");
+      document.getElementById("logContainer").classList.add("uploadWithMessage");
     }
     else
     {
-      document.getElementById("table-wrapper").classList.add("upload");
+      document.getElementById("logContainer").classList.add("upload");
     }
     
     showImportProgress(0);
@@ -417,13 +421,13 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("file").disabled = false;
         document.getElementById("upload-success").style.display = "block";
 
-        document.getElementById("table-wrapper").classList.remove("uploadWithMessage");
+        document.getElementById("logContainer").classList.remove("uploadWithMessage");
         
-        document.getElementById("table-wrapper").classList.remove("upload");
+        document.getElementById("logContainer").classList.remove("upload");
 
         
-        document.getElementById("table-wrapper")?.classList?.remove("after");
-        document.getElementById("table-wrapper")?.classList.add("error");
+        document.getElementById("logContainer")?.classList?.remove("after");
+        document.getElementById("logContainer")?.classList.add("error");
 
         ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
           document.getElementById(id).classList.remove("isDisabled")
@@ -455,9 +459,9 @@ document.addEventListener("DOMContentLoaded", function () {
             span.setAttribute("data-key", "unknownError.label");
           }
 
-          document.getElementById("table-wrapper")?.classList?.remove("after");
+          document.getElementById("logContainer")?.classList?.remove("after");
 
-          document.getElementById("table-wrapper")?.classList.add("error");
+          document.getElementById("logContainer")?.classList.add("error");
 
           box.classList.add("d-flex");
           box.classList.add("align-items-center");
@@ -516,6 +520,12 @@ document.addEventListener("DOMContentLoaded", function () {
         icon.classList.add("bi-circle-half", "text-success");
         icon.setAttribute("data-tooltip-key", "okEmptyState.tooltip");
         break;
+      case null:
+      case undefined:
+      case "":
+        icon.classList.add("bi-clock-fill", "text-primary");
+        icon.setAttribute("data-tooltip-key", "pendingState.tooltip");
+        break;
       default:
         icon.classList.add("bi-x-circle-fill", "text-danger");
         icon.setAttribute("data-tooltip-key", "notOkState.tooltip");
@@ -567,6 +577,12 @@ document.addEventListener("DOMContentLoaded", function () {
       case 12:
         icon.classList.add("bi-circle-half", "text-success");
         icon.setAttribute("data-tooltip-key", "okEmptyState.tooltip");
+        break;
+      case null:
+      case undefined:
+      case "":
+        icon.classList.add("bi-clock-fill", "text-primary");
+        icon.setAttribute("data-tooltip-key", "pendingState.tooltip");
         break;
       default:
         icon.classList.add("bi-x-circle-fill", "text-danger");
@@ -711,11 +727,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       
       const bImp = document.createElement("span");
-      bImp.innerHTML = `<span style="color:${(hasImportLogs && !isImpPending)?"#0d6efd":"#676b72ff"};cursor:${hasImportLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      bImp.innerHTML = `<span ${isImpPending ? 'aria-disabled="true"' : ""} style="color:${(hasImportLogs && !isImpPending)?"#0d6efd":"#676b72ff"};cursor:${hasImportLogs?"pointer":"default"};text-decoration:underline; ${isImpPending ? "pointer-events:none; opacity:.6;" : ""}"><i class="bi bi-box-arrow-up-right"></i></span>`;
       const bVal = document.createElement("span");
-      bVal.innerHTML = `<span style="color:${(hasValidationLogs && !isValPending)?"#0d6efd":"#676b72ff"};cursor:${hasValidationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      bVal.innerHTML = `<span ${isValPending ? 'aria-disabled="true"' : ""} style="color:${(hasValidationLogs && !isValPending)?"#0d6efd":"#676b72ff"};cursor:${hasValidationLogs?"pointer":"default"};text-decoration:underline; ${isValPending ? "pointer-events:none; opacity:.6;" : ""}"><i class="bi bi-box-arrow-up-right"></i></span>`;
       const bGen = document.createElement("span");
-      bGen.innerHTML = `<span style="color:${(ihasGenerationLogs && !isGenPending)?"#0d6efd":"#676b72ff"};cursor:${ihasGenerationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
+      bGen.innerHTML = `<span ${isGenPending ? 'aria-disabled="true"' : ""} style="color:${(ihasGenerationLogs && !isGenPending)?"#0d6efd":"#676b72ff"};cursor:${ihasGenerationLogs?"pointer":"default"};text-decoration:underline; ${isGenPending ? "pointer-events:none; opacity:.6;" : ""}"><i class="bi bi-box-arrow-up-right"></i></span>`;
       
       tdImp.appendChild(bImp);
       tdVal.appendChild(bVal);
@@ -724,10 +740,16 @@ document.addEventListener("DOMContentLoaded", function () {
       tr.appendChild(tdVal);
       tr.appendChild(tdGen);
 
-      bImp.onclick = () => hasImportLogs? toggleImportDetails(io[4], bImp, tr): ()=>{};
-      bVal.onclick = () => hasValidationLogs? toggleValidationDetails(io[7], bVal, tr): ()=>{};
-      bGen.onclick = () => ihasGenerationLogs? toggleGenerationDetails(io[10], bGen, tr): ()=>{};
-
+      if (hasImportLogs && !isImpPending) {
+        bImp.onclick = () => hasImportLogs? toggleImportDetails(io[4], bImp, tr): ()=>{};
+      }
+      if (hasValidationLogs && !isValPending) {
+        bVal.onclick = () => hasValidationLogs? toggleValidationDetails(io[7], bVal, tr): ()=>{};
+      }
+      if (ihasGenerationLogs && !isGenPending) {
+        bGen.onclick = () => ihasGenerationLogs? toggleGenerationDetails(io[10], bGen, tr): ()=>{};
+      }
+      
       [tdImp, tdVal, tdGen].forEach(
         (td) => (td.style.backgroundColor = "lightGrey")
       );
@@ -814,7 +836,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const row = container.closest("tr");
     row.style.display = open ? "table-row" : "none";
     document.getElementById("upload-area")?.classList[open ? "add" : "remove"]("collapsed");
-    document.getElementById("table-wrapper")?.classList[open ? "add" : "remove"]("after");
+    document.getElementById("logContainer")?.classList[open ? "add" : "remove"]("after");
 
     document.getElementById("upload-success").style.display = "none";
     document.getElementById("btn-close-notification").style.display = "none";
@@ -859,7 +881,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isHidden) {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
-      document.getElementById("table-wrapper")?.classList.remove("after");
+      document.getElementById("logContainer")?.classList.remove("after");
 
       tr.classList.remove("detail-line-selected");
       tr.classList.add('detail-line');
@@ -1105,7 +1127,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isHidden) {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
-      document.getElementById("table-wrapper")?.classList.remove("after");
+      document.getElementById("logContainer")?.classList.remove("after");
 
       tr.classList.remove("detail-line-selected");
       tr.classList.add('detail-line');
@@ -1133,9 +1155,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const stateKey = `import-${ioid}`;
 
     const buildRow = (d) => {
-      console.log("DValues:" + d);
-      console.log("IsArray:" + Array.isArray(d));
-      console.log("Code:" + d[0]);
       const tr = document.createElement("tr");
       const td1 = document.createElement("td");
       td1.textContent = d[0] + "" ?? "-";
@@ -1252,7 +1271,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isHidden) {
       row.style.display = "none";
       document.getElementById("upload-area")?.classList.remove("collapsed");
-      document.getElementById("table-wrapper")?.classList.remove("after");
+      document.getElementById("logContainer")?.classList.remove("after");
 
       tr.classList.remove("detail-line-selected");
       tr.classList.add('detail-line');
