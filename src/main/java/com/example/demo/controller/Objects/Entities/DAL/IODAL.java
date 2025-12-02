@@ -80,7 +80,6 @@ public class IODAL {
             queryString.append(" and (modulevid = ?moduleVId OR ?moduleVId IS NULL) ");
             queryString.append(" and io.io_stateid <> ?processOkDeleted ");
             queryString.append(" order by io.ioid desc");
-            //queryString.append(!triggeredByUser ? " FETCH FIRST 25 ROWS ONLY " : "");
 
             listOfGenerateLogs = jpa.getMappedQueryResultList(queryString.toString(), IO.class,
                     "processOkDeleted", String.valueOf(Constants.processoOkDeleted),
@@ -109,7 +108,6 @@ public class IODAL {
             queryString.append(" where actionid = ?actionId ");
             queryString.append(" and (modulevid = ?moduleVId OR ?moduleVId IS NULL) ");
             queryString.append(" order by io.ioid desc");
-            //queryString.append(!triggeredByUser ? " FETCH FIRST 25 ROWS ONLY " : "");
 
             listOfGenerateLogs = jpa.getMappedQueryResultList(queryString.toString(), IO.class,
                     "actionId", String.valueOf(actionId),

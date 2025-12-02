@@ -45,7 +45,6 @@ public class Validator_2_0 extends RunnableExtension {
 
     private ProgressService progressService;
 
-    //private List<InImportedTablesTemp> importedTables;
     private List<TableVersionDPM> importedTables;
     private List<Integer> selectedMapsToValidate;
     private List<IO> validateIOs;
@@ -156,15 +155,11 @@ public class Validator_2_0 extends RunnableExtension {
 
 
 
-    //public List<InImportedTablesTemp> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
     public List<TableVersionDPM> getImportedMaps(LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity, String filename, IO io){
-        //if(moduleVersion != null && domain != null && entity != null)
         if(moduleVersion != null){
-            //importedTables = InImportedTablesDAL.getListOfImportedMapsToValidate(moduleVersion, referenceDate, entity, domain, io);
             importedTables = InImportedTablesDAL.getMapsToValidate(moduleVersion);
             selectedMapsToValidate = importedTables.stream().map(TableVersionDPM::getTableVID).collect(Collectors.toList());
         }else{
-            //importedTables = new ArrayList<>();
             importedTables = new ArrayList<>();
             selectedMapsToValidate = new ArrayList<>();
         }
@@ -180,23 +175,12 @@ public class Validator_2_0 extends RunnableExtension {
         LOG.info("Buscar os mapas importados"); 
         importedTables = getImportedMaps(referenceDate, moduleVersion, domain, entity, filename, io);
         
-        /*List<InImportedTablesTemp> tablesToValidate = new ArrayList<>();
-        for (InImportedTablesTemp importedTable : importedTables) {
-            tablesToValidate.add(importedTable);
-        }*/
-
         LOG.info("Colocar as tabelas a validar"); 
         List<TableVersionDPM> tablesToValidate = new ArrayList<>();
         for (TableVersionDPM importedTable : importedTables) {
             if(selectedMapsToValidate.contains(importedTable.getTableVID()))
                 tablesToValidate.add(importedTable);
         }
-        
-        /*Set<TableVersionDPM> sortedTables = tablesToValidate.stream()
-                                                .map(InImportedTablesTemp::getTableVersion)
-                                                .collect(Collectors.toCollection(() -> 
-                                                    new TreeSet<>(Comparator.comparing(TableVersionDPM::getCode))
-                                                ));*/
 
         LOG.info("Ordernar as tabelas a validar pelo código do Table Version"); 
         Set<TableVersionDPM> sortedTables = tablesToValidate.stream().collect(Collectors.toCollection(() -> 
@@ -341,8 +325,7 @@ public class Validator_2_0 extends RunnableExtension {
 
         try {
             long initAllProcess = System.nanoTime();
-            //LOG.info("Criação do IO do estado da Validação"); 
-            ioValidation = new IO(//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)),
+            ioValidation = new IO(
                     Info.getInstance().getIOStateByID(Constants.processoPending),
                     refDate, moduleVersion, domain, entity, 
                     LocalDateTime.now(), Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionValidation))
@@ -353,10 +336,8 @@ public class Validator_2_0 extends RunnableExtension {
             ioValidation.setThreadFilename(ioImport.getThreadFilename());
             Connection.persist(cm, ioValidation);
 
-            //LOG.info("Processo de validacao iniciado: " + LocalDateTime.now());
             
             //Obtencao dos nós da árvore por operacao
-            //LOG.info("Obtenção dos nós da arvore por operação"); 
             Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByPreconditionVIdByLevel = gettingNodesForPrecondtionsAndCalculateTime(ioValidation);
             
             int completedTables = 1;
@@ -372,10 +353,8 @@ public class Validator_2_0 extends RunnableExtension {
                 table.setTable(auxTable); 
                 
                 long initPerMap = System.nanoTime();
-                //LOG.info("Início do loop"); 
                 Integer tableVId = table.getTableVID();
                                 
-                //LOG.info("Comeco da avaliacao do mapa: " + table.getCode());
                 
                 OutValidationTable outValTable = new OutValidationTable(table, ioValidation,Info.getInstance().getIOStateByID(Constants.processoPending));
                 Connection.persist(cm, outValTable);
@@ -384,12 +363,10 @@ public class Validator_2_0 extends RunnableExtension {
                 /* getResultsByNode(7445, ioImport);
                 if (true)return; */
 
-				//LOG.info("Buscar de nos por id de Table Version"); 
                 Map<Integer, Map<Integer, List<ValNode>>> nodesMappedByOperationVIdByLevel = gettingNodesForOperationsAndCalculateTime(tableVId, table.getCode(), ioValidation);
                 
                 
                 
-                //LOG.info("Buscar de possiveis conflitos com Datapoints"); 
                 List<CommonDatapointValidationDTO> possibleDatapointsConflicts = InImportedTablesDAL.getPossibleDataPointsConflicts(table, refDate, domain, entity, ioImport);
                 commonDatapointValidationResult = validateCommonDatapoints(possibleDatapointsConflicts, cm);
                 if (commonDatapointValidationResult != null) {
@@ -398,7 +375,7 @@ public class Validator_2_0 extends RunnableExtension {
                 }
 
                 if (nodesMappedByOperationVIdByLevel.isEmpty() && possibleDatapointsConflicts.isEmpty()) {
-                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
                     progressService.setValidationProgress(completedTables++, Integer.valueOf(getTables().size()) + 1);
                     continue;
                 }
@@ -411,18 +388,15 @@ public class Validator_2_0 extends RunnableExtension {
                     
 
                     //Verifica se a regra já foi validada
-                    //LOG.info("Verificar se a regra já foi validada"); 
                     if (operationsResultsIds.containsKey(operationVId)) {
                         OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
                         Connection.persist(cm, outValTableResult);
                     } else {
                         //Cria o Out_ValidationResult
-                        //LOG.info("Cria OutValidationResult"); 
                         OperationVersion operation = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getOperationVersion();
                         OutValidationResult outValResult = new OutValidationResult(operation, Info.getInstance().getIOStateByID(Constants.processoPending));//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending)));
                     
                         //Valida a precondicao caso ainda não tenha sido validada
-                        //LOG.info("Validacao da precondicao caso ainda nao tenha sido validada"); 
                         Integer preConditionVId = nodesMappedByOperationVIdByLevel.get(operationVId).get(1).get(0).getPreconditonOperationVId();
                         
                         if (preConditionVId != null && !resultPerPrecondition.containsKey(preConditionVId)) {
@@ -444,8 +418,6 @@ public class Validator_2_0 extends RunnableExtension {
                         } else if (preConditionVId == null || Boolean.parseBoolean(preConditionResult.getRawValue())) {
                             long initPerRule = System.nanoTime();
                             
-                            //LOG.info("Tempo: " + LocalDateTime.now());
-                            //LOG.info("Avaliacao da regra: " + operationVId);
 
                             long initGetValuesProcess = System.nanoTime();
                             Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNode(operationVId, ioImport);
@@ -474,62 +446,43 @@ public class Validator_2_0 extends RunnableExtension {
 
                                 Connection.persistList(cm, resultDetails);
                             } else {
-                                outValResult.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
+                                outValResult.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
                                 
                                 operationsResultsIds.put(operationVId, outValResult);
                                 Connection.persist(cm, outValResult);
 
                                 OutValidationTableResult outValTableResult = new OutValidationTableResult(outValTable, operationsResultsIds.get(operationVId));
                                 Connection.persist(cm, outValTableResult);
-
-                                //insertOperationLogs(ioValidation);
-                                //Info.getInstance().getValidationsLogs().clear();
                             }
 
                             long endPerRule = System.nanoTime();
                             Connection.persist(cm, new LogOperationTemp("Operação: " + operation.getOperationCode() + " | Obter Valores: " + durationGetValues + "s | Validação: " + Utils.calculateTime(initPerRule, endPerRule) + "s", ioValidation.getIoId()));
-                            //float durationPerRule = ((float) (endPerRule - initPerRule) / 1000000000);
-                            //String durationFormattedRule = String.format("%.2f", durationPerRule);
-                            //LOG.info("Termino da avaliacao da regra: " + operationVId + " | Duracao: " + durationFormattedRule + " segundos");
-                            //LOG.info("Fim da avaliacao da regra: " + operationVId);
                         }
                     }
                 }
 
                 long endPerMap = System.nanoTime();
                 Connection.persist(cm, new LogOperationTemp("Término da validação do mapa: " + table.getCode() + " | Duração: " + Utils.calculateTime(initPerMap, endPerMap) + " segundos", ioValidation.getIoId()));
-
-                //float durationPerMap = ((float) (endPerMap - initPerMap) / 1000000000);
-                //String durationFormatted = String.format("%.2f", durationPerMap);
-                //LOG.info("Termino da avaliacao do mapa: " + table.getCode() + " | Duracao: " + durationFormatted + " segundos");
                 
                 if(operationsResultsIds.isEmpty() && possibleDatapointsConflicts.isEmpty()){
-                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));//new IOState(Constants.processoOkEmpty, new IOTypeState(Constants.tipoStateOK)));
+                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));
                 } else {
-                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+                    outValTable.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
                 }
                 Connection.merge(cm, outValTable);
                 
                 progressService.setValidationProgress(completedTables++, Integer.valueOf(getTables().size()) + 1);
             }
-
-            //if(commonDatapointValidationResult != null){
-            //    commonDatapointValidationResult.setIoState(new IOState(Constants.RULENOTOK.getKey(), new IOTypeState(Constants.RULENOTOK.getValue())));
-            //    Connection.merge(em, commonDatapointValidationResult);
-            //}
             
             long endAllProcess = System.nanoTime();
             Connection.persist(cm, new LogOperationTemp("Término da validação | Duração: " + Utils.calculateTime(initAllProcess, endAllProcess) + " segundos", ioValidation.getIoId()));
 
-            //float durationAllProcess = ((float) (endAllProcess - initAllProcess) / 1000000000);
-            //String durationFormatted = String.format("%.2f", durationAllProcess);
 
             progressService.setValidationProgress(getTables().size()+1, Integer.valueOf(getTables().size()) + 1);
 
-            //LOG.info("Termino da validacao | Duracao: " + durationFormatted + " segundos");
                 
             ioValidation.setEndTimestamp(LocalDateTime.now());
-            ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK)));
+            ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoOk));
             Connection.merge(cm, ioValidation);
             
             int persistResult = persistIntoValidationsDashboard(cm, ioImport);
@@ -540,9 +493,6 @@ public class Validator_2_0 extends RunnableExtension {
                 ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
                 Connection.merge(cm, ioValidation);
             }
-            //else{
-            //    LOG.info("Validacao com sucesso");
-            //}
 
             progressService.setValidationProgress(1, 1);
             
@@ -556,7 +506,7 @@ public class Validator_2_0 extends RunnableExtension {
             e.printStackTrace();
 
             ioValidation.setEndTimestamp(LocalDateTime.now());
-            ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
+            ioValidation.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
             Connection.merge(cm, ioValidation);
         }
     }
@@ -579,7 +529,6 @@ public class Validator_2_0 extends RunnableExtension {
                             List<ValNode> childs = nodesMappedByParent.get(node.getNode().getNodeID());
                             Boolean valid = ValidationOperators.evaluate(node, childs, String.valueOf(entity.getEntityID()), getDomain());
                             if (valid == null || valid == false) {
-                                //Utils.addLogOfOperations(operationVId, node.getNode().getNodeID(), "Aconteceu algo de errado na operacao", null, null, "Erro");
                                 hasError = true;
                                 break treeLoop;
                             }
@@ -629,7 +578,6 @@ public class Validator_2_0 extends RunnableExtension {
     
     private void validatePrecondition(Integer preConditionVId, Map<Integer, List<ValNode>> nodesMappedByLevel, Map<Integer, ValResult> resultPerPrecondition, IO io) {
         //Obtencao dos valores importados nos nós
-        //LOG.info("Avaliacao da precondicao: " + preConditionVId);
 
         //obtém os dados para validar
         Map<Integer, List<ValResult>> resultsMappedByNode = getResultsByNodeForPreconditions(preConditionVId, io);
@@ -641,7 +589,6 @@ public class Validator_2_0 extends RunnableExtension {
             resultPerPrecondition.put(preConditionVId, results.get(Constants.FIRSTRESULT));
         }
 
-        //LOG.info("Fim da avaliacao da precondicao: " + preConditionVId);
     }
 
     public ModuleVersion getModuleVersion() {
@@ -711,7 +658,7 @@ public class Validator_2_0 extends RunnableExtension {
             for(CommonDatapointValidationDTO validation : possibleDatapointsConflicts){
                 //insert the Results
                 OutValidationResultDetails resultDetails = new OutValidationResultDetails();
-                resultDetails.setIoState(Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey()));//new IOState(Constants.RULENOTOK.getKey(), new IOTypeState(Constants.RULENOTOK.getValue())));
+                resultDetails.setIoState(Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey()));
                 resultDetails.setUsedMargin(false);
                 resultDetails.setDifference(null);
                 resultDetails.setTimeStampCreated(LocalDateTime.now());
@@ -720,7 +667,7 @@ public class Validator_2_0 extends RunnableExtension {
                 resultDetails.setValidationResult(commonDatapointValidationResult);
                 Connection.persist(em, resultDetails);
             }
-            commonDatapointValidationResult.setIoState(Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey()));//new IOState(Constants.RULENOTOK.getKey(), new IOTypeState(Constants.RULENOTOK.getValue())));                
+            commonDatapointValidationResult.setIoState(Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey()));              
             Connection.merge(em,commonDatapointValidationResult);
             return commonDatapointValidationResult;
         }

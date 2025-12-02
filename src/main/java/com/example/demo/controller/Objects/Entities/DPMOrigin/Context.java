@@ -10,7 +10,6 @@ import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "CONTEXT", schema = "DPM_MD")
-//@ReadOnly
 public class Context implements Serializable{
     
     @Id

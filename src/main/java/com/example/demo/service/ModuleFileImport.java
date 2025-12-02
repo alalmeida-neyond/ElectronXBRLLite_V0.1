@@ -255,17 +255,10 @@ public class ModuleFileImport extends RunnableExtension{
                 if(singleFillingIndicatorAsTableVersion == null){
                     if (!fillingIndicatorWithUnderScores.toUpperCase().trim().equals("TOC") && !fillingIndicatorWithUnderScores.toUpperCase().trim().equals("PARAMETERS")) {
                         LogImportProcess errorLog = new LogImportProcess(io.getIoId(), null, Constants.IMPOSSIBLEMAP);
-                        // incrementJavaOperationTime(); 
-                        // restartTimeOracleInsert();
                         Connection.persist(cm, errorLog);
-                        // logsList.add(new LogOperationTemp("Tempo de Inserir Log de erros:" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));
-                        // incrementOracleInsertOperationTime();
-                        // restartTimeJava();
                     }
                     continue;
                 }
-                // incrementJavaOperationTime(); 
-                // restartTimeOracleSelect();
                 headerDTOList = TableVersionHeaderDAL.getListOfHeaderForATableVid(singleFillingIndicatorAsTableVersion.getTableVID());
 				/*---------- DESAGREGATION CODE TREATMENT ----------*/
                 InImportKey desagregationCodeKey = null;
@@ -318,38 +311,23 @@ public class ModuleFileImport extends RunnableExtension{
                 importedTableTemp.setInitTimestamp(LocalDateTime.now());
                 importedTableTemp.setDesagregationCode(desagregationCode);
                 importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoOkEmpty));
-                // incrementJavaOperationTime(); 
-                // restartTimeOracleInsert();                
+              
                 Connection.persist(cm, importedTableTemp);
                 
-                // logsList.add(new LogOperationTemp("Tempo de inserir o InImportTable :" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));           
-                // incrementOracleInsertOperationTime();
-                // restartTimeJava();
+
                 LOG.info("Sheetname:" + sheetName);
                 LogImportProcess logMapImportInit = new LogImportProcess(io.getIoId(), importedTableTemp.getImportedTableId(), "Importação do mapa - " + sheetName + " iniciado");
-                // incrementJavaOperationTime(); 
-                // restartTimeOracleInsert();
+
                 Connection.persist(cm, logMapImportInit);
-                // logsList.add(new LogOperationTemp("Tempo de inserir o LogImportProcess (Logs de importação) :" + ((System.nanoTime() - startTimeOracleInsertWithBreak)/1000000000),io.getIoId()));           
-                // incrementOracleInsertOperationTime();
-                // restartTimeJava();  
-                // incrementJavaOperationTime(); 
-                // restartTimeOracleSelect();
+
                 Map<String, Integer> properties = TableVersionDAL.getPropertiesKeyTypes(singleFillingIndicatorAsTableVersion.getTableVID(), io.getReferenceDate());
-                // logsList.add(new LogOperationTemp("Tempo de Select das propriedades existentes num determinado mapa :" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));           
-                // incrementOracleSelectOperationTime();
-                // restartTimeJava();
                 
                 boolean notInsertedInImportedValuesPerSheet = true;
                 // Insert into Table Imported_Tables and get the Id Value
                 ImportExcelValues.getExcelPoints(workSheet, excelPointStruct);
                 
-                // incrementJavaOperationTime(); 
-                // restartTimeOracleSelect();
+
                 cellVariablesList = CellDAL.getListOfCellVariable(singleFillingIndicatorAsTableVersion);
-                // logsList.add(new LogOperationTemp("Tempo de Select das células existentes num determinado mapa :" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));           
-                // incrementOracleSelectOperationTime();
-                // restartTimeJava();
                 
                 for (int i = excelPointStruct.getFirstRow() - 1; i < excelPointStruct.getLastRow(); i++) {
                     try {
@@ -560,8 +538,6 @@ public class ModuleFileImport extends RunnableExtension{
                                         desagregationCodeAssociation.setPropertyOriginalValue(value);
 
                                         rowKeyImportKey.getListPropertyValues().add(desagregationCodeAssociation);
-                                        /*em.persist(desagregationCodeAssociation);
-                                        em.merge(rowKeyImportKey);*/
                                         Connection.persist(cm, desagregationCodeAssociation);
                                         Connection.merge(cm, rowKeyImportKey);
 
@@ -647,7 +623,7 @@ public class ModuleFileImport extends RunnableExtension{
                         LogImportProcess logMapImportEmpty = new LogImportProcess(io.getIoId(), importedTableTemp.getImportedTableId(), "Mapa - " + sheetName + " importado a vazio.");
                         Connection.persist(cm, logMapImportEmpty);
                     } else if (!errorMsgPerTables.isEmpty()) {
-                        importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk)));
+                        importedTableTemp.setIoState(Info.getInstance().getIOStateByID(Constants.processoNotOk));
 
                          List<LogImportProcess> errorLogs = new ArrayList<>();
                         for (String error : errorMsgPerTables) {
@@ -703,16 +679,15 @@ public class ModuleFileImport extends RunnableExtension{
         }
         
         if (hasNotOk && !hasOk) {
-            ioState = Info.getInstance().getIOStateByID(Constants.processoNotOk);//new IOState(Constants.processoNotOk, new IOTypeState(Constants.tipoStateNotOk));
+            ioState = Info.getInstance().getIOStateByID(Constants.processoNotOk);
         } else if (hasNotOk && hasOk) {
-            ioState = Info.getInstance().getIOStateByID(Constants.processoOkWithError);//new IOState(Constants.processoOkWithError, new IOTypeState(Constants.tipoStateOK));
+            ioState = Info.getInstance().getIOStateByID(Constants.processoOkWithError);
         } else if (hasEmpty) {
-            ioState = Info.getInstance().getIOStateByID(Constants.processoOkEmpty);//new IOState(Constants.processoOkEmpty, new IOTypeState(Constants.tipoStateOK));
+            ioState = Info.getInstance().getIOStateByID(Constants.processoOkEmpty);
         } else {
-            ioState = Info.getInstance().getIOStateByID(Constants.processoOk);//new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK));
+            ioState = Info.getInstance().getIOStateByID(Constants.processoOk);
         }
         
-        //ioState = new IOState(Constants.processoOk, new IOTypeState(Constants.tipoStateOK));
         return ioState;
         
     }
@@ -727,7 +702,7 @@ public class ModuleFileImport extends RunnableExtension{
             domain = domain.substring(0,3).toUpperCase();
         }                     
         IO io = null;
-        IOState iostate = Info.getInstance().getIOStateByID(Constants.processoPending);//new IOState(Constants.processoPending, new IOTypeState(Constants.tipoStatePending));
+        IOState iostate = Info.getInstance().getIOStateByID(Constants.processoPending);
         ConfAction action = Info.getInstance().getConfActionByID(Integer.valueOf(Constants.actionImport));                       
         try {
             ignorePreviousIOs(moduleVersion, entity, domain.toUpperCase(), referenceDate);
@@ -735,7 +710,6 @@ public class ModuleFileImport extends RunnableExtension{
                     LocalDateTime.now(), null, action, "Import", filename, Constants.IMPORT+alterFilename, alterFilename);
             
             Connection.persist(cm, io);
-            //IODAL.persist(io);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -746,7 +720,6 @@ public class ModuleFileImport extends RunnableExtension{
         if(result != null){
             io.setIoState(result);
             io.setEndTimestamp(LocalDateTime.now());
-            //Connection.merge(io);
             Connection.merge(cm, io);
         }
         progressService.setImportProgress(1,1);
@@ -857,9 +830,7 @@ public class ModuleFileImport extends RunnableExtension{
         } catch(Exception e){
             e.printStackTrace();
             return null;
-        } /*finally{
-            Connection.close(em);
-        }*/
+        }
         return desagregationImportKey;
     }
     
@@ -872,7 +843,6 @@ public class ModuleFileImport extends RunnableExtension{
         if (Thread.interrupted()) {
                     if(em.getTransaction().isActive()){
                         em.getTransaction().rollback();
-                        //em.close();
                     }
                     return true;
         }

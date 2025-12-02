@@ -61,10 +61,6 @@ public class ConfImportRules {
     @Column(name = "IMPORTASSOCIATIONKEYID")
     @NotNull
     private int importAssociationKeyID;
-    
-    //@JoinColumn(referencedColumnName = "IMPORTASSOCIATIONKEYID", name = "IMPORTASSOCIATIONKEYID", nullable = false)
-    //@OneToMany
-    //private List<ConfImportRulesAssociation> confImportRulesAssociation;
 
     public ConfImportRules() {
     }
@@ -132,14 +128,6 @@ public class ConfImportRules {
     public void setAlwaysRun(boolean alwaysRun) {
         this.alwaysRun = alwaysRun;
     }
-
-    //public List<ConfImportRulesAssociation> getConfImportRulesAssociation() {
-    //    return confImportRulesAssociation;
-    //}
-
-    //public void setConfImportRulesAssociation(List<ConfImportRulesAssociation> confImportRulesAssociation) {
-    //    this.confImportRulesAssociation = confImportRulesAssociation;
-    //}
 
     public int getImportAssociationKeyID() {
         return importAssociationKeyID;

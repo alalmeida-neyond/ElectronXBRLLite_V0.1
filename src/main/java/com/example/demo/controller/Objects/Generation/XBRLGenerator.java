@@ -97,9 +97,7 @@ public class XBRLGenerator implements Runnable {
             em = new ConnectionManager(Connection.getEm());                
 
             path = Paths.get("XBRL_Lite","Run", "Reports", "XBRL_Generated").toString();
-            
-            //folderName = getEntity().getLeiCode() + "." + getDomain() + "_PT_" + Utils.applyVersionString(getModule()) + "_" + getModule().getCode().replace("_", "") + "_" + getReferenceDate() + "_" + now.format(formater);
-            
+                        
             folderName = getEntity().getBdpId() + "." +  getDomain().toUpperCase() + "." + getReferenceDate().format(Constants.dateFormatFileName) + "." + getModule().getCode();
 
             //Create folder
@@ -298,9 +296,7 @@ public class XBRLGenerator implements Runnable {
             Files.createDirectories(finalPackage);
             Path finalFolderPath = Paths.get(finalFolder);
             Path excelFileFinalPath = finalFolderPath.resolve(filenameValidations);
-            
-            //Files.delete(excelFileFinalPath);
-            
+                        
             copyJSONs(finalFolder, ioValidation.getModule());
 
             organizeFiles(finalFolder);
@@ -513,7 +509,6 @@ public class XBRLGenerator implements Runnable {
 
     public void createFillingIndicatorCSV(String path, Set<String> maps) {
         List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(getModule(), getReferenceDate());
-        //Path fillingCSVPath = Paths.get(path + Utils.getSeparator(), "FilingIndicators.csv");
         Path fillingCSVPath = Paths.get(path + Utils.getSeparator(), Constants.FILLINGINDICATORSFILENAME);
         Map<String, Boolean> mapNameChecker = new TreeMap<>();
         Map<String, String> abstractNameChecker = new HashMap<>();

@@ -50,9 +50,8 @@ public class OperationExpressionBuilder {
         
         try {
             String operandString = joinOperandResults(operand, operandResults);
-            //String groupingString = getValue(grouping, groupingResult);
 
-            sb.append(symbol).append(" (").append(operandString).append(") ");//.append(groupingString);
+            sb.append(symbol).append(" (").append(operandString).append(") ");
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro a construir expressão de agregacao. | ", e);
         }
@@ -161,7 +160,7 @@ public class OperationExpressionBuilder {
         
         try {
             String operandString = getValue(operandNode, operand);
-            sb.append(operandString);//.append(" where (").append(expression).append(")");
+            sb.append(operandString);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro a construir expressão do operador \"Where\". | ", e);
         }
@@ -223,9 +222,8 @@ public class OperationExpressionBuilder {
         
         try {
             String leftString = getValue(left, leftResult);
-            //String rightString = getValue(right, rightResult);
 
-            sb.append(leftString);//.append(" filter ").append(rightString);
+            sb.append(leftString);
         } catch (Exception e) {
             LOG.log(Level.SEVERE,"Erro a construir expressão de \"Filter\". | ", e);
         }

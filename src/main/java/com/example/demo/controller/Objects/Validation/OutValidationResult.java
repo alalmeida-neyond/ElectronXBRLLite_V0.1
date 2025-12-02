@@ -71,9 +71,6 @@ public class OutValidationResult implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private IOState ioState;
     
-    /*@OneToMany(cascade = CascadeType.ALL, mappedBy = "validationResult")
-    private List<OutValidationResultDetails> listValidationResultDetails;
-    */
     public OutValidationResult(){}
     
     public OutValidationResult(OperationVersion operation, IOState ioState){
@@ -97,13 +94,13 @@ public class OutValidationResult implements Serializable {
             
             //incluir para ter o que é misto
             if (countDoNotRun == totalDetails){
-                this.ioState = Info.getInstance().getIOStateByID(Constants.RULEDONOTRUN.getKey());//new IOState(Constants.RULEDONOTRUN.getKey(), new IOTypeState(Constants.RULEDONOTRUN.getValue()));
+                this.ioState = Info.getInstance().getIOStateByID(Constants.RULEDONOTRUN.getKey());
             } else if((countOk+countDoNotRun) == totalDetails){
-                this.ioState = Info.getInstance().getIOStateByID(Constants.RULEOK.getKey());//new IOState(Constants.RULEOK.getKey(), new IOTypeState(Constants.RULEOK.getValue()));
+                this.ioState = Info.getInstance().getIOStateByID(Constants.RULEOK.getKey());
             } else if ((countOk+countDoNotRun) == 0){
-                this.ioState = Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey());//new IOState(Constants.RULENOTOK.getKey(), new IOTypeState(Constants.RULENOTOK.getValue()));
+                this.ioState = Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey());
             } else {
-                this.ioState = Info.getInstance().getIOStateByID(Constants.RULEOKWITHNOTOK.getKey());//new IOState(Constants.RULEOKWITHNOTOK.getKey(), new IOTypeState(Constants.RULEOK.getValue()));
+                this.ioState = Info.getInstance().getIOStateByID(Constants.RULEOKWITHNOTOK.getKey());
             }
         }
     }

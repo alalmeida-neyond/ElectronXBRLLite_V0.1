@@ -77,11 +77,11 @@ public class OutValidationResultDetails implements Serializable {
                     OutValidationResultDetails outResDetail = new OutValidationResultDetails();
                     
                     if(result.valueIsNull()){
-                        outResDetail.ioState = Info.getInstance().getIOStateByID(Constants.RULEDONOTRUN.getKey());//new IOState(Constants.RULEDONOTRUN.getKey(), new IOTypeState(Constants.RULEDONOTRUN.getValue()));
+                        outResDetail.ioState = Info.getInstance().getIOStateByID(Constants.RULEDONOTRUN.getKey());
                     } else if(result.getRawValue().equals(Constants.FALSERESULT)){
-                        outResDetail.ioState = Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey());//new IOState(Constants.RULENOTOK.getKey(), new IOTypeState(Constants.RULENOTOK.getValue()));
+                        outResDetail.ioState = Info.getInstance().getIOStateByID(Constants.RULENOTOK.getKey());
                     } else if(result.getRawValue().equals(Constants.TRUERESULT)) {
-                        outResDetail.ioState = Info.getInstance().getIOStateByID(Constants.RULEOK.getKey());//new IOState(Constants.RULEOK.getKey(), new IOTypeState(Constants.RULEOK.getValue()));
+                        outResDetail.ioState = Info.getInstance().getIOStateByID(Constants.RULEOK.getKey());
                     }
                     
                     if(result.getDifference() != null && outResDetail.ioState.getIoStateId() == Constants.RULENOTOK.getKey()){

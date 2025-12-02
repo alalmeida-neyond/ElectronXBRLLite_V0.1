@@ -6,22 +6,14 @@ import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
-import org.eclipse.persistence.annotations.ReadOnly;
-import org.springframework.data.annotation.Immutable;
-
 @Entity
 @Table(name = "PROPERTY", schema = "DPM_MD")
-//@ReadOnly
 public class Property implements Serializable {
 
     @Id
     @NotNull
     @Column(name = "PROPERTYID")
     private int propertyID;
-    
-//    @JoinColumn(referencedColumnName = "ITEMID", name = "PROPERTYID")
-//    @OneToOne
-//    private Item item;
     
     @Column(name = "ISCOMPOSITE", columnDefinition = "CHAR(1)", nullable = false)
     private boolean isComposite;

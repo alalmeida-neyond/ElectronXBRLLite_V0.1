@@ -382,9 +382,6 @@ public abstract class DefaultBean<T> {
                 }
             }
 
-//            moduleVersionList = new ArrayList<ModuleVersion>(Info.getInstance().refDataGet(Constants.ModuleVersionAll)).stream().filter(mv ->
-//                mv.getCode().trim().toLowerCase().equals(moduleCode.toLowerCase()) &&
-//                mv.getFromReferenceDate().compareTo(referenceDate) <= 0 && mv.getToReferenceDate().compareTo(referenceDate) >= 0).collect(Collectors.toList());
         } catch (Exception e) {
             e.printStackTrace();
         }

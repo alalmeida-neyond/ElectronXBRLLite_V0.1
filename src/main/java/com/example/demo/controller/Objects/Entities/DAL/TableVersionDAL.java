@@ -93,8 +93,6 @@ public class TableVersionDAL {
         
         Set<Integer> resultSet = new HashSet<>();
         for(Object resultRow : resultList){
-            // Change in SQL Lite is default Integer not BigDecimal
-            //Integer variableVID = ((BigDecimal)resultRow).intValueExact();
             Integer variableVID = (Integer)resultRow;
             resultSet.add(variableVID);
         }

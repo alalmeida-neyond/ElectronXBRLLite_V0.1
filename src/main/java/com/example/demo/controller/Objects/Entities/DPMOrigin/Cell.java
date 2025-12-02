@@ -1,7 +1,3 @@
-/*
- * Here comes the text of your license
- * Each line should be prefixed with  * 
- */
 package com.example.demo.controller.Objects.Entities.DPMOrigin;
 
 import java.io.Serializable;

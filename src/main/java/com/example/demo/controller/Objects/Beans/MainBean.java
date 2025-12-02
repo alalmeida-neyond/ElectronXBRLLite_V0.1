@@ -116,7 +116,6 @@ public class MainBean extends DefaultBean{
         LocalDate referenceDate = null;
         if (getYear() != null && getMonth() != null) {
             // CastMonth into number
-            //setReferenceDate(getYear(), getMonth());
             referenceDate = getDateAtLastDay(getMonth(),getYear());
         } else {
             referenceDate = null;
@@ -481,9 +480,6 @@ public class MainBean extends DefaultBean{
 
         String storedPath = getStoredPathOrFallback();
         modelAndView.addObject(Constants.storedPathString, storedPath);
-
-        //modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
-        //init();
         
         modelAndView.setViewName("test");
         
@@ -531,58 +527,6 @@ public class MainBean extends DefaultBean{
             
         return modelAndView;
     }
-    /*@PostMapping("/templates/download")
-    public ResponseEntity<Map<String,Object>> downloadByFilename(
-            @RequestParam("filename") String filename) {
-        Map<String,Object> body = new HashMap<>();
-        try {
-            if (filename == null || filename.isBlank()) {
-                body.put("ok", false);
-                body.put("message", "Nome do ficheiro em falta.");
-                return ResponseEntity.badRequest().body(body);
-            }
-
-            String safeName = Paths.get(filename).getFileName().toString();
-
-            Path sourceBase = Paths.get("AdditionalFiles").toAbsolutePath().normalize();
-            Path source = sourceBase.resolve(safeName).normalize();
-
-            if (!source.startsWith(sourceBase)) {
-                body.put("ok", false);
-                body.put("message", "Nome de ficheiro inválido.");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-            }
-
-            if (!Files.exists(source) || !Files.isRegularFile(source)) {
-                body.put("ok", false);
-                body.put("message", "Ficheiro não encontrado em AdditionalFiles.");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
-            }
-
-            String destDir = getStoredPathOrFallback();
-            Path destBase = Paths.get(destDir).toAbsolutePath().normalize();
-            Files.createDirectories(destBase);
-
-            Path dest = destBase.resolve(safeName).normalize();
-            if (!dest.startsWith(destBase)) {
-                body.put("ok", false);
-                body.put("message", "Destino inválido.");
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-            }
-
-            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
-
-            body.put("ok", true);
-            body.put("message", "Ficheiro copiado para: " + dest.toAbsolutePath());
-            return ResponseEntity.ok(body);
-
-        } catch (Exception ex) {
-            Map<String,Object> err = new HashMap<>();
-            err.put("ok", false);
-            err.put("message", "Erro ao copiar o ficheiro.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
-        }
-    }*/
 
     @PostMapping("/templates/download")
     public ResponseEntity<Resource> downloadByFilename(

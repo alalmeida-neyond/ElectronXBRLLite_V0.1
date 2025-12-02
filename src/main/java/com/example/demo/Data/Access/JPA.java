@@ -114,7 +114,6 @@ public class JPA<T> {
         return null;
     }
 
-    //@SuppressWarnings("serial")
     public List<T> getSimpleResultList(String filterColumn1, Object filterValue1, String filterColumn2, Object filterValue2, String... selectColumns) {
         if (filterColumn1 != null && !"".equals(filterColumn1) && filterValue1 != null && !"".equals(filterValue1) && filterColumn2 != null && !"".equals(filterColumn2) && filterValue2 != null && !"".equals(filterValue2)) {
             return getResultListWithoutPagination(new HashMap<String, Object>() {
@@ -133,7 +132,6 @@ public class JPA<T> {
         }
     }
 
-    //@SuppressWarnings("serial")
     public List<T> getSimpleResultList(String filterColumn1, Object filterValue1, String filterColumn2,
             Object filterValue2, String filterColumn3, Object filterValue3, String... selectColumns) {
         if (filterColumn1 != null && !"".equals(filterColumn1) && filterValue1 != null && !"".equals(filterValue1)
@@ -158,7 +156,6 @@ public class JPA<T> {
         }
     }
 
-    //@SuppressWarnings("serial")
     public List<T> getSimpleResultList(String filterColumn, Object filterValue, String... selectColumns) {
         if (filterColumn != null && !"".equals(filterColumn) && filterValue != null && !"".equals(filterValue)) {
             return getResultListWithoutPagination(new HashMap<String, Object>() {
@@ -175,7 +172,6 @@ public class JPA<T> {
         }
     }
 
-    //@SuppressWarnings("serial")
     public List<T> getSimpleResultList(String filterColumn, Object filterValue, String sortField, String sortOrder) {
         SortOrder sortOrderType = sortOrder == null ? null : (sortOrder.matches("(?i)asc") ? SortOrder.ASCENDING : SortOrder.DESCENDING);
         if (filterColumn != null && !"".equals(filterColumn) && filterValue != null && !"".equals(filterValue)) {

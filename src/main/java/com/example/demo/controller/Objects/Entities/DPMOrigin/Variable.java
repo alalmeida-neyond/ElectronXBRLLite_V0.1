@@ -6,12 +6,8 @@ import jakarta.persistence.*;
 
 import jakarta.validation.constraints.*;
 
-import org.eclipse.persistence.annotations.ReadOnly;
-import org.springframework.data.annotation.Immutable;
-
 @Entity
 @Table(name = "VARIABLE", schema = "DPM_MD")
-//@ReadOnly
 public class Variable implements Serializable{
     
     @Id

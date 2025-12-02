@@ -21,18 +21,11 @@ public class ConfTemplateDAL {
         queryString.append(" inner join DPM_MD.moduleversion b on a.TemplateID = b.moduleVID ");
         queryString.append(" inner join DPM_MD.release r on r.releaseid = b.STARTRELEASEID ");
         queryString.append(" where b.fromreferencedate<>NVL(b.TOREFERENCEDATE,to_date('99991231','YYYYMMDD')) ");
-        //if (moduleID != null) {
             queryString.append(" and (b.moduleid = ?moduleID or ?moduleID is null) ");
-        //}
-        //if (version != null) {
             queryString.append(" and (r.code = ?version or ?version is null) ");
-        //}
-
-        //if (referenceDate != null) {
             queryString.append(" and (b.fromreferencedate <= to_date(?referenceDate , ?format) ");
             queryString.append(" and (b.TOREFERENCEDATE is null or NVL(b.TOREFERENCEDATE, to_date('99991231','YYYYMMDD')) > to_date(?referenceDate,?format)) ");
             queryString.append(" or  ?referenceDate IS NULL)");
-        //}
         queryString.append(" Order by TO_NUMBER(REGEXP_SUBSTR(r.code, '^[0-9]+', 1, 1)) desc, ");
         queryString.append(" TO_NUMBER(REGEXP_SUBSTR(r.code, '[0-9]+', 1, 2)) desc, b.code");
 

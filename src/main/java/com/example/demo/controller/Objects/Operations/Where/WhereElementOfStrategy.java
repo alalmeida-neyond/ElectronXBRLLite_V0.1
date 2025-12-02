@@ -36,9 +36,6 @@ public class WhereElementOfStrategy implements WhereStrategy{
                                 if(conditionEntry.getKey().equals(propertyEntry.getKey()) && conditionEntry.getValue().equals(propertyValue)){
                                     respectFilter = true;
                                     
-                                    /*if(isChildOfFilter){
-                                        result.getKey().getDpmKeys().remove(conditionEntry.getKey());
-                                    }*/
                                     break;
                                 }
                             }

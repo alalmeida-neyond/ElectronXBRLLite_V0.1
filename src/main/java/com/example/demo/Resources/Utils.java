@@ -1,7 +1,3 @@
-/*
- * Here comes the text of your license
- * Each line should be prefixed with  * 
- */
 package com.example.demo.Resources;
 
 import java.io.BufferedReader;
@@ -252,12 +248,6 @@ public final class Utils {
     public static LocalDate dateToLocalDate(Date date) {
         return date == null ? LocalDate.MAX : date.toInstant().atZone(Constants.LISBON).toLocalDate();
     }
-
-	
-//    public static void addLogOfOperations(Integer operationid, Integer operationnodeid, String result, String margins, String key, String type){
-//        List<LogOperationTemp> logsList = Info.getInstance().getLogOperationsTempList();
-//        logsList.add(new LogOperationTemp(operationid, operationnodeid, result, margins, key, type, Timestamp.valueOf(LocalDateTime.now())));
-//    }
     
 
     public static String findOneByRegex(String regex, String scopeParsed) {

@@ -16,7 +16,6 @@ public class Category implements Serializable {
     @NotNull
     @Column(name = "CATEGORYID")
     private Integer categoryId;
-    //private int categoryId;
     
     @Column(name = "CODE")
     @NotNull

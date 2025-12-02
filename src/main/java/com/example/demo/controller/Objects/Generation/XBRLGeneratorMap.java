@@ -105,7 +105,7 @@ public class XBRLGeneratorMap {
                 List<InImportedValuesTemp> cells = InImportedValuesDAL.getListOfImportedCellBasedOnImportedTable(impTab);
                 if(altXBRLGeneration){
                     Map<InImportKey,List<InImportedValuesTemp>> mappedByRowkey = cells.stream()
-                                                                                .collect(//Collectors.groupingBy(item -> item.getImportKey())
+                                                                                .collect(
                                                                                         Collectors.toMap(
                                                                                                     InImportedValuesTemp::getImportKey,
                                                                                                     x -> {

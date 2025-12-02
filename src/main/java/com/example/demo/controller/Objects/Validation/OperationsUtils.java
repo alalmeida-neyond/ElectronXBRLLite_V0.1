@@ -854,7 +854,6 @@ public class OperationsUtils {
     
     public static boolean isToUseMargin(ValNode node, ValResult result){
         if(node != null && node.getNode() != null && result != null)
-            //return (node.getNode().isLeaf() && node.getNode().isUseIntervalArithmetics()) || (!node.getNode().isLeaf() && result.getMargin()!= null && result.getMargin() != BigDecimal.ZERO);
             return (node.getNode().isLeaf() && node.getNode().isUseIntervalArithmetics()) || (!node.getNode().isLeaf() && result.getMargin()!= null && !result.getMargin().equals(BigDecimal.ZERO));
         return false;
     }
@@ -900,14 +899,12 @@ public class OperationsUtils {
                     return getDataTypeByID(Constants.DATATYPEDATETIME);
 
                 default:
-//                    Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro porque não encontrou o id do datatype", null, null, "Erro");
                     LOG.error("DetermineDataType a dar erro");
                     return null;
             }
 
         } catch (Exception e) {
             LOG.error("DetermineDataType a dar erro " + e.getMessage());
-//            Utils.addLogOfOperations(node.getNode().getOperationVersion().getOperationVID(), node.getNode().getNodeID(), "DetermineDataType a dar erro", null, null,  "Erro");
         }
         return null;
     }
@@ -970,8 +967,6 @@ public class OperationsUtils {
                 List<String> domain = domainBuilder.childWhereDomainBuilder(leftNode, rightNode);
                 for (ValResult left : leftResults) {
                     for (ValResult right : rightResults) {
-                        //resultLog = "Filho de Where: " + left.getRawValue() + " " + parent.getNode().getOperator().getSymbol() + " " + right.getRawValue();
-                        //Utils.addLogOfOperations(parent.getNode().getOperationVersion().getOperationVID(), parent.getNode().getNodeID(), resultLog, null, null, "Operacao");
                         
                         ValKey keyFromCombination = new ValKey();
                         keyFromCombination.addPropertyValue(left.getRawValue(), right.getRawValue());

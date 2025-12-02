@@ -736,15 +736,6 @@ document.addEventListener("DOMContentLoaded", function () {
       {
         isGenPending = true;
       }
-
-      /*const bImp = document.createElement("span");
-      bImp.innerHTML = `<span style="color:${hasImportLogs?"#0d6efd":"#676b72ff"};cursor:${hasImportLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
-      const bVal = document.createElement("span");
-      bVal.innerHTML = `<span style="color:${hasValidationLogs?"#0d6efd":"#676b72ff"};cursor:${hasValidationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
-      const bGen = document.createElement("span");
-      bGen.innerHTML = `<span style="color:${ihasGenerationLogs?"#0d6efd":"#676b72ff"};cursor:${ihasGenerationLogs?"pointer":"default"};text-decoration:underline;"><i class="bi bi-box-arrow-up-right"></i></span>`;
-      */
-
       
       const bImp = document.createElement("span");
       bImp.innerHTML = `<span ${isImpPending ? 'aria-disabled="true"' : ""} style="color:${(hasImportLogs && !isImpPending)?"#0d6efd":"#676b72ff"};cursor:${hasImportLogs?"pointer":"default"};text-decoration:underline; ${isImpPending ? "pointer-events:none; opacity:.6;" : ""}"><i class="bi bi-box-arrow-up-right"></i></span>`;

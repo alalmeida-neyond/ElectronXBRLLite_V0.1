@@ -11,10 +11,6 @@ public class LocalDatePersistenceConverter implements AttributeConverter<LocalDa
 
     @Override
     public Timestamp convertToDatabaseColumn(LocalDate localDate) {
-//        return Optional.ofNullable(localDate.atStartOfDay())
-//          .map(Timestamp::valueOf)
-//          .orElse(null);
-        
         return localDate == null ? null : Timestamp.valueOf(localDate.atStartOfDay());
     }
 

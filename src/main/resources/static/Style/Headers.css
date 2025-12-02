@@ -52,5 +52,5 @@
   -webkit-appearance: none;
 }
 #languageSwitcher option {
-  color: black; /* makes dropdown readable */
+  color: black;
 }

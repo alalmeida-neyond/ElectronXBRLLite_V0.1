@@ -36,12 +36,6 @@ function startBackend() {
 }
 
 async function createWindow() {
-  /*const url = startBackend();
-
-  const waitOn = require("wait-on");
-  await waitOn({ resources: [`${url}/actuator/health`, `${url}`], timeout: 30000 })
-    .catch(() => {});*/
-
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
