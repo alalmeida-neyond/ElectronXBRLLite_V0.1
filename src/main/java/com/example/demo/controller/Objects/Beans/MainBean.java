@@ -39,6 +39,9 @@ import java.util.stream.Stream;
 
 import org.jboss.logging.Logger;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.Resource;
+
 import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -59,6 +62,8 @@ public class MainBean extends DefaultBean{
     private List<Integer> listOfImportRulesToApply = new ArrayList<Integer>();
     private List<Integer> listOfImportRulesToAlwaysApply = new ArrayList<Integer>();
     private List<ConfImportRules> listOfImportRules = new ArrayList<>();
+    private Path generatedXBRL;
+    
 
     private List<IO> importIOs;
 
@@ -245,7 +250,6 @@ public class MainBean extends DefaultBean{
         }
     }
 
-    // Upload file to a local directory or to the application's server
     public void uploadFile(MultipartFile uploadedFile) {
         InputStream inputStream = null;
         OutputStream outputStream = null;
@@ -307,6 +311,7 @@ public class MainBean extends DefaultBean{
 
         progressService.resetProgress();
         importExecution.run();
+        setGeneratedXBRL(importExecution.getGeneratedXBRL());
 
     }
 
@@ -369,21 +374,40 @@ public class MainBean extends DefaultBean{
     
     @PostMapping("/importFile/upload")
     @ResponseBody
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Resource> handleFileUpload(@RequestParam("file") MultipartFile file) {
         
         try {
             setFile(file);
 
             if (!validateFileName(file.getOriginalFilename())) {
-                return ResponseEntity.badRequest().body(getStatusMessage());
+                return ResponseEntity.badRequest().build();
             }
-            //progressService.setImportProgress(10);
+
             upload();
-            return ResponseEntity.ok("File uploaded successfully");
+            
+            Path generated = getGeneratedXBRL();
+            if (generated == null || !Files.exists(generated)) {
+                return ResponseEntity.status(500).build();
+            }
+
+            Resource resource = new UrlResource(generated.toUri());
+
+            String contentType = Files.probeContentType(generated);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
+            String downloadName = generated.getFileName().toString().replace("\"", "");
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + downloadName + "\"")
+                    .body(resource);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("File upload failed: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -463,22 +487,6 @@ public class MainBean extends DefaultBean{
         return modelAndView;
     }
 
-    /*@GetMapping("/")
-    public ModelAndView testingAccessDatabase() throws FileNotFoundException {
-        ModelAndView modelAndView = new ModelAndView();
-
-        List<String> items;
-
-        items = testDatabaseAccess();
-
-        modelAndView.addObject("items", items);
-        //init();
-        
-        modelAndView.setViewName("testNewDatabase");
-        
-        return modelAndView;
-    }*/
-
     @GetMapping("/settings")
     public ModelAndView settings() {
         ModelAndView modelAndView = new ModelAndView();
@@ -520,7 +528,7 @@ public class MainBean extends DefaultBean{
             
         return modelAndView;
     }
-    @PostMapping("/templates/download")
+    /*@PostMapping("/templates/download")
     public ResponseEntity<Map<String,Object>> downloadByFilename(
             @RequestParam("filename") String filename) {
         Map<String,Object> body = new HashMap<>();
@@ -570,6 +578,50 @@ public class MainBean extends DefaultBean{
             err.put("ok", false);
             err.put("message", "Erro ao copiar o ficheiro.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
+        }
+    }*/
+
+    @PostMapping("/templates/download")
+    public ResponseEntity<Resource> downloadByFilename(
+            @RequestParam("filename") String filename) {
+        try {
+            if (filename == null || filename.isBlank()) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            String safeName = Paths.get(filename).getFileName().toString();
+
+            Path sourceBase = Paths.get("AdditionalFiles").toAbsolutePath().normalize();
+            Path source = sourceBase.resolve(safeName).normalize();
+
+            if (!source.startsWith(sourceBase)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            if (!Files.exists(source) || !Files.isRegularFile(source)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+
+            Path downloadPath = source;
+
+            Resource resource = new UrlResource(downloadPath.toUri());
+
+            String contentType = Files.probeContentType(downloadPath);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+
+            String downloadName = downloadPath.getFileName().toString().replace("\"", "");
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + downloadName + "\"")
+                    .body(resource);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -702,5 +754,14 @@ public class MainBean extends DefaultBean{
         }
 
         return result;
+    }
+    private Path getGeneratedXBRL()
+    {
+        return generatedXBRL;
+    }
+
+    private void setGeneratedXBRL(Path generatedXBRL)
+    {
+        this.generatedXBRL = generatedXBRL;
     }
 }

@@ -113,6 +113,6 @@
   "errorMovingFile.label":"¡Error al importar el archivo al directorio de importación!",
   "unknownError.label":"Error desconocido. Por favor, contacte con Neyond para que podamos resolver esta situación",
   "filenameTooltip.label":"Los archivos de Excel deben tener la siguiente nomenclatura: <span style='cursor:help;color:blue;'>[Entidad]*[Módulo]*[Dominio]*[YYYYMM]*[Información_adicional].xlsx</span>. <br />",
-  "successMessageDirectoryXBRL.label":"XBRL generado y copiado al directorio: {1}",
-  "successMessageDirectoryTemplate.label":"Plantilla descargada al directorio: {1}"
+  "successMessageDirectoryXBRL.label": "XBRL generado y descargado en su carpeta de Descargas",
+  "successMessageDirectoryTemplate.label": "Plantilla descargada en su carpeta de Descargas"
 }

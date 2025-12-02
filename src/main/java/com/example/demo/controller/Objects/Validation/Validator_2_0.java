@@ -1,5 +1,6 @@
 package com.example.demo.controller.Objects.Validation;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,7 +48,9 @@ public class Validator_2_0 extends RunnableExtension {
     //private List<InImportedTablesTemp> importedTables;
     private List<TableVersionDPM> importedTables;
     private List<Integer> selectedMapsToValidate;
-    private List<IO> validateIOs;   
+    private List<IO> validateIOs;
+    private Path generatedXBRL;
+
     
     public Validator_2_0(ModuleVersion moduleVersion, LocalDate refDate, ConfEntities entity, String domain, ProgressService progressService){
         this.moduleVersion = moduleVersion;
@@ -547,6 +550,7 @@ public class Validator_2_0 extends RunnableExtension {
             XBRLGenerator generationAction = new XBRLGenerator(progressService,referenceDate, moduleVersion, domain.toUpperCase(), entity);
 
             generationAction.startGeneration(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, ioImport, ioValidation);
+            setGeneratedXBRL(generationAction.getGeneratedXBRL());
         } catch (Exception e) {
             LOG.error("Ocorreu um erro no processo de validacao: " + e.getMessage());
             e.printStackTrace();
@@ -678,6 +682,16 @@ public class Validator_2_0 extends RunnableExtension {
 
     public void setTables(Set<TableVersionDPM> tables) {
         this.tables = tables;
+    }
+
+    public Path getGeneratedXBRL()
+    {
+        return generatedXBRL;
+    }
+
+    public void setGeneratedXBRL(Path generatedXBRL)
+    {
+        this.generatedXBRL = generatedXBRL;
     }
 
     @Override

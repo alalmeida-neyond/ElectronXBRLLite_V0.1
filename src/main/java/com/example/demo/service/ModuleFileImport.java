@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,6 +55,8 @@ public class ModuleFileImport extends RunnableExtension{
     private long currentTimeJava = 0;
     private long currentTimeOracleInsert = 0;
     private long currentTimeOracleSelect = 0;
+    private Path generatedXBRL;
+
     
     public void restartTimeJava(){
         startTimeJavaWithBreak = System.nanoTime();  
@@ -751,6 +754,7 @@ public class ModuleFileImport extends RunnableExtension{
         Validator_2_0 validationAction = new Validator_2_0(moduleVersion, referenceDate, entity, domain,progressService);
 
         validationAction.startValidation(referenceDate, moduleVersion, domain.toUpperCase(), entity, filename, io);
+        setGeneratedXBRL(validationAction.getGeneratedXBRL());
     }
 
     public void ignorePreviousIOs(ModuleVersion module, ConfEntities entity, String domain, LocalDate referenceDate){
@@ -943,6 +947,15 @@ public class ModuleFileImport extends RunnableExtension{
                 return true;
         }
         return false;
+    }
+    public Path getGeneratedXBRL()
+    {
+        return generatedXBRL;
+    }
+
+    public void setGeneratedXBRL(Path generatedXBRL)
+    {
+        this.generatedXBRL = generatedXBRL;
     }
     
 }

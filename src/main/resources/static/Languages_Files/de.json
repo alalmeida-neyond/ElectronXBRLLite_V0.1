@@ -113,6 +113,6 @@
   "errorMovingFile.label":"Fehler beim Import der Datei in das Importverzeichnis!",
   "unknownError.label":"Unbekannter Fehler. Bitte kontaktieren Sie Neyond, damit wir diese Situation lösen können",
   "filenameTooltip.label":"Excel-Dateien müssen die folgende Namenskonvention verwenden: <span style='cursor:help;color:blue;'>[Entität]*[Modul]*[Domäne]*[YYYYMM]*[Zusätzliche_Informationen].xlsx</span>. <br />",
-  "successMessageDirectoryXBRL.label":"XBRL wurde generiert und in das Verzeichnis kopiert: {1}",
-  "successMessageDirectoryTemplate.label":"Vorlage wurde in das Verzeichnis heruntergeladen: {1}"
+  "successMessageDirectoryXBRL.label": "XBRL erstellt und in Ihren Downloads-Ordner heruntergeladen",
+  "successMessageDirectoryTemplate.label": "Vorlage in Ihren Downloads-Ordner heruntergeladen"
 }

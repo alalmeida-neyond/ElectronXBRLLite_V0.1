@@ -406,77 +406,94 @@ document.addEventListener("DOMContentLoaded", function () {
     showImportProgress(0);
     startProgressPolling(true);
     fetch("/importFile/upload", { method: "POST", body: formData })
-      .then((r) => {
-        if (!r.ok)
-          return r.text().then((t) => {
-            throw new Error(t);
-          });
-        return r.text();
-      })
-      .then(() => {
-        document.getElementById("logContainer").style.display = "block";
-        document.getElementById("upload-text").style.display = "block";
-        document.getElementById("loading-container").style.display = "none";
-        document.getElementById("upload-error").style.display = "none";
-        document.getElementById("file").disabled = false;
-        document.getElementById("upload-success").style.display = "block";
+    .then((r) => {
+      if (!r.ok) {
+        return r.text().then((t) => {
+          throw new Error(t || `HTTP ${r.status}`);
+        });
+      }
+      return r.blob().then((blob) => ({ blob, res: r }));
+    })
+    .then(({ blob, res }) => {
+      const cd = res.headers.get("Content-Disposition") || "";
+      let downloadName = "";
+      const match = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(cd);
+      if (match && match[1]) {
+        downloadName = match[1];
+      }
 
-        document.getElementById("logContainer").classList.remove("uploadWithMessage");
-        
-        document.getElementById("logContainer").classList.remove("upload");
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
 
-        
+      if (downloadName) {
+        a.download = downloadName;
+      }
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+      document.getElementById("logContainer").style.display = "block";
+      document.getElementById("upload-text").style.display = "block";
+      document.getElementById("loading-container").style.display = "none";
+      document.getElementById("upload-error").style.display = "none";
+      document.getElementById("file").disabled = false;
+      document.getElementById("upload-success").style.display = "block";
+
+      document.getElementById("logContainer").classList.remove("uploadWithMessage");
+      document.getElementById("logContainer").classList.remove("upload");
+
+      document.getElementById("logContainer")?.classList?.remove("after");
+      document.getElementById("logContainer")?.classList.add("error");
+
+      ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
+        document.getElementById(id).classList.remove("isDisabled")
+      );
+      
+      document.getElementById("file").value = null;
+      clearInterval(progressInterval);
+      [
+        "importProgressBar",
+        "validationProgressBar",
+        "generationProgressBar",
+      ].forEach((id) => (document.getElementById(id).style.display = "none"));
+      fetchModulesFromBackend();
+      fetchIOs();
+    })
+    .catch((err) => {
+      document.getElementById("upload-text").style.display = "block";
+      document.getElementById("loading-container").style.display = "none";
+      document.getElementById("upload-success").style.display = "none";
+      document.getElementById("file").disabled = false;
+      const box = document.getElementById("upload-error");
+      const span = document.getElementById("upload-error-text");
+
+      if (box) {
+        if (err.message.includes(".label")) {
+          span.setAttribute("data-key", err.message);
+        } else {
+          span.setAttribute("data-key", "unknownError.label");
+        }
+
         document.getElementById("logContainer")?.classList?.remove("after");
         document.getElementById("logContainer")?.classList.add("error");
 
-        ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
-          document.getElementById(id).classList.remove("isDisabled")
-        );
-        
-        document.getElementById("file").value = null;
-        clearInterval(progressInterval);
-        [
-          "importProgressBar",
-          "validationProgressBar",
-          "generationProgressBar",
-        ].forEach((id) => (document.getElementById(id).style.display = "none"));
-        fetchModulesFromBackend();
-        fetchIOs();
-      })
-      .catch((err) => {
-        document.getElementById("upload-text").style.display = "block";
-        document.getElementById("loading-container").style.display = "none";
-        document.getElementById("upload-success").style.display = "none";
-        document.getElementById("file").disabled = false;
-        const box = document.getElementById("upload-error");
-        const span = document.getElementById("upload-error-text");
+        box.classList.add("d-flex");
+        box.classList.add("align-items-center");
 
-        if (box) {
-          if(err.message.includes(".label"))
-          {
-            span.setAttribute("data-key", err.message);
-          } else {
-            span.setAttribute("data-key", "unknownError.label");
-          }
+        startProgressPolling(false);
 
-          document.getElementById("logContainer")?.classList?.remove("after");
+        box.style.display = "block";
+        box.style.marginTop = "10px";
+      } else {
+        alert("Error: " + err.message);
+      }
 
-          document.getElementById("logContainer")?.classList.add("error");
+      const selectedLang = getLanguage();
+      updateLanguageLabels(selectedLang);
+    });
 
-          box.classList.add("d-flex");
-          box.classList.add("align-items-center");
-
-          startProgressPolling(false);
-
-          box.style.display = "block";
-          box.style.marginTop = "10px";
-        } else {
-          alert("Error: " + err.message);
-        }
-
-        const selectedLang = getLanguage();
-        updateLanguageLabels(selectedLang);
-      });
   }
 
   function fetchIOs() {

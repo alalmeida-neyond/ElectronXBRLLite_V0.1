@@ -393,43 +393,70 @@ document.addEventListener("DOMContentLoaded", () => {
   filterTemplates();
 
   const table = document.getElementById("templatesTable");
-  if (table && !table._dlBound) {
-    table._dlBound = true;
-    table.addEventListener("click", async (e) => {
-      const btn = e.target.closest(".dl-btn");
-      if (!btn) return;
+    if (table && !table._dlBound) {
+      table._dlBound = true;
+      table.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".dl-btn");
+        if (!btn) return;
 
-      const filename = btn.getAttribute("data-filename") || "";
-      if (!filename) {
-        showMessage("danger", "downloadMissingFile.label");
-        return;
-      }
-
-      btn.disabled = true;
-      const oldHTML = btn.innerHTML;
-      btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
-
-      document.getElementById("table-wrapper-templates")?.classList.add("message");
-
-      try {
-        const url = `/templates/download?filename=${encodeURIComponent(filename)}`;
-        const res = await fetch(url, { method: "POST" });
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok || data.ok === false) {
-          const reason = data.message || `HTTP ${res.status}`;
-          showMessage("danger", "downloadFailedWithReason.label", reason);
-        } else {
-          showMessage("success", "successMessageDirectoryTemplate.label", filename);
+        const filename = btn.getAttribute("data-filename") || "";
+        if (!filename) {
+          showMessage("danger", "downloadMissingFile.label");
+          updateLanguageLabels(window.I18N.get());
+          return;
         }
-        updateLanguageLabels(window.I18N.get());
-      } catch (err) {
-        console.error(err);
-        showMessage("danger", "networkError.label");
-      } finally {
-        btn.innerHTML = oldHTML;
-        btn.disabled = false;
-      }
-    });
-  }
+
+        btn.disabled = true;
+        const oldHTML = btn.innerHTML;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
+
+        document.getElementById("table-wrapper-templates")?.classList.add("message");
+
+        try {
+          const url = `/templates/download?filename=${encodeURIComponent(filename)}`;
+          const res = await fetch(url, { method: "POST" });
+
+          if (!res.ok) {
+            const reason = `HTTP ${res.status}`;
+            showMessage("danger", "downloadFailedWithReason.label", reason);
+            updateLanguageLabels(window.I18N.get());
+            return;
+          }
+
+          const blob = await res.blob();
+
+          let downloadName = filename;
+          const cd = res.headers.get("Content-Disposition") || "";
+          const match = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(cd);
+          if (match && match[1]) {
+            try {
+              downloadName = decodeURIComponent(match[1]);
+            } catch {
+            }
+          }
+
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = downloadName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+          showMessage("success", "successMessageDirectoryTemplate.label", downloadName);
+          updateLanguageLabels(window.I18N.get());
+
+        } catch (err) {
+          console.error(err);
+          showMessage("danger", "networkError.label");
+          updateLanguageLabels(window.I18N.get());
+        } finally {
+          btn.innerHTML = oldHTML;
+          btn.disabled = false;
+        }
+      });
+    }
+
+
 });

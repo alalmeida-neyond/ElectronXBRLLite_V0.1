@@ -71,6 +71,8 @@ public class XBRLGenerator implements Runnable {
 
     private boolean generationRunning;
 
+    private Path generatedXBRL;
+
     public XBRLGenerator(ProgressService progressService, LocalDate referenceDate, ModuleVersion moduleVersion, String domain, ConfEntities entity) {
         this.module = moduleVersion;
         this.progressService = progressService;
@@ -329,6 +331,8 @@ public class XBRLGenerator implements Runnable {
             copyZipToPreferedDirectory(finalPackagePath);
             
             validationsWorkbook.close();
+
+            setGeneratedXBRL(zipFilePath);
 
             deleteDirectory(Paths.get(finalFolder));
 
@@ -685,5 +689,15 @@ public class XBRLGenerator implements Runnable {
 
     @Override
     public void run() {
+    }
+
+    public Path getGeneratedXBRL()
+    {
+        return generatedXBRL;
+    }
+
+    public void setGeneratedXBRL(Path generatedXBRL)
+    {
+        this.generatedXBRL = generatedXBRL;
     }
 }

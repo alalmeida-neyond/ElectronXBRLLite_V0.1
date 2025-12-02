@@ -113,6 +113,6 @@
   "errorMovingFile.label":"Errore durante l'importazione del file nella directory di importazione!",
   "unknownError.label":"Errore sconosciuto. Si prega di contattare Neyond affinché possiamo risolvere questa situazione",
   "filenameTooltip.label":"I file Excel devono seguire la seguente convenzione di denominazione: <span style='cursor:help;color:blue;'>[Entità]*[Modulo]*[Dominio]*[YYYYMM]*[Informazioni_aggiuntive].xlsx</span>. <br />",
-  "successMessageDirectoryXBRL.label":"XBRL generato e copiato nella directory: {1}",
-  "successMessageDirectoryTemplate.label":"Modello scaricato nella directory: {1}"
+  "successMessageDirectoryXBRL.label": "XBRL generato e scaricato nella cartella Download",
+  "successMessageDirectoryTemplate.label": "Modello scaricato nella cartella Download"
 }
