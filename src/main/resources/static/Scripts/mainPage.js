@@ -462,6 +462,9 @@ document.addEventListener("DOMContentLoaded", function () {
       fetchIOs();
     })
     .catch((err) => {
+      ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
+        document.getElementById(id).classList.remove("isDisabled")
+      );
       document.getElementById("upload-text").style.display = "block";
       document.getElementById("loading-container").style.display = "none";
       document.getElementById("upload-success").style.display = "none";

@@ -374,17 +374,20 @@ public class MainBean extends DefaultBean{
     
     @PostMapping("/importFile/upload")
     @ResponseBody
-    public ResponseEntity<Resource> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file) {
         
         try {
             setFile(file);
 
             if (!validateFileName(file.getOriginalFilename())) {
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity
+                    .badRequest()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(getStatusMessage());
             }
 
             upload();
-            
+
             Path generated = getGeneratedXBRL();
             if (generated == null || !Files.exists(generated)) {
                 return ResponseEntity.status(500).build();
