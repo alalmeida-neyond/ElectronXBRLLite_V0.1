@@ -48,7 +48,7 @@ function updateLanguageLabels(language) {
                 } else if (element.tagName === "I") {
                     element.title = translation;
                 } else {
-                    element.textContent = translation;
+                    element.innerHTML = translation;
                 }
             });
         })

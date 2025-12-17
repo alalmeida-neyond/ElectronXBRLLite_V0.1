@@ -484,3 +484,7 @@ tbody:before {
 
 .body-faq {background-color: #e6e8eb;}
 
+.italic {
+  display: block;
+}
+
