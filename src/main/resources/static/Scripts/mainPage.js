@@ -1129,6 +1129,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     uploadError.style.display === "none";
     uploadSuccess.style.display === "none";
+    document.getElementById("logContainer")?.classList.remove("error");
 
     const container = document.getElementById(`detail-import-${ioid}`);
     if (!container) return;

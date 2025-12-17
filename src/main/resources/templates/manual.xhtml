@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org/">
+
+<head>
+    <div th:replace="~{Layouts/title}"></div>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="./Style/mainPageUpload.css" rel="stylesheet" type="text/css" />
+    <link rel="shortcut icon" th:href="@{/Images/favico.ico}" />
+    <link href="./Style/Headers.css" rel="stylesheet" type="text/css" />
+    <link href="./Style/footer.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="./Scripts/userManualPage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+
+</head>
+
+<body class="manualBody" style="padding-top:113px;overflow-y: hidden;">
+    <div id="mainHeader">
+        <div th:replace="~{Layouts/xbrl2_header1}"></div>
+    </div>
+
+    <div class="container">
+        <div class="scrollableDiv">
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white"
+                    type="button" data-bs-toggle="collapse" data-bs-target="#collapseBlock1" aria-expanded="false" aria-controls="collapseBlock1">
+
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+
+                    <span class="internationalization" data-key="questionLoadXBRLQuestion.label"></span>
+                    
+                    
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock1">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadXBRLAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/loadXBRLImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBlock2" aria-expanded="false"
+                    aria-controls="collapseBlock2">
+
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadImportLogsQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock2">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadImportLogsAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/loadImportLogsImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock3" aria-expanded="false" aria-controls="collapseBlock3">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadValidatedRulesQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock3">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadValidatedRulesAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/loadValidationRulesImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock4" aria-expanded="false" aria-controls="collapseBlock4">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadGenerationLogsQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock4">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadGenerationLogsAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/loadGenerationLogsImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock5" aria-expanded="false" aria-controls="collapseBlock5">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadFilterModuleMainTableQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock5">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadFilterModuleMainTableAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/filterModuleMainTableImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseBlock6" aria-expanded="false"
+                    aria-controls="collapseBlock6">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadFilterReferenceDateMainTableQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock6">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadFilterReferenceDateMainTableAnswer.label">
+                    </div>
+                    <img class ="mt-3" th:src="@{/Images/filterReferenceDateMainTableImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock7" aria-expanded="false" aria-controls="collapseBlock7">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadCaptionIconsMainTableQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock7">
+                <div class="card card-body body-faq">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <img class="flex-shrink-0" th:src="@{/Images/iconOKImage.png}" style="width: 5%;"/>
+                        <div class="internationalization flex-grow-1" data-key="questionLoadCaptionIconsMainTableOKAnswer.label"></div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <img class="flex-shrink-0" th:src="@{/Images/iconOKWithErrorsImage.png}" style="width: 5%;"/>
+                        <div class="internationalization flex-grow-1"data-key="questionLoadCaptionIconsMainTableOKWithErrorsAnswer.label"></div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <img class="flex-shrink-0" th:src="@{/Images/iconNotOKImage.png}" style="width: 5%;"/>
+                        <div class="internationalization flex-grow-1" data-key="questionLoadCaptionIconsMainTableNotOKAnswer.label"></div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <img class="flex-shrink-0" th:src="@{/Images/iconPendingImage.png}" style="width: 5%;"/>
+                        <div class="internationalization flex-grow-1" data-key="questionLoadCaptionIconsMainTablePendingAnswer.label"></div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <img class="flex-shrink-0" th:src="@{/Images/iconOkEmptyImage.png}" style="width: 5%;"/>
+                        <div class="internationalization flex-grow-1" data-key="questionLoadCaptionIconsMainTableOKEmptyAnswer.label"></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock8" aria-expanded="false" aria-controls="collapseBlock8">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadChangeLanguageQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock8">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadChangeLanguageAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/loadChangeLanguageImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock9" aria-expanded="false" aria-controls="collapseBlock9">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadPermitedFilesQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock9">
+                <div class="card card-body body-faq internationalization breakLine" data-key="questionLoadPermitedFilesAnswer.label"></div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock10" aria-expanded="false" aria-controls="collapseBlock10">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadDownloadTemplatesPageQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock10">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadDownloadTemplatesPageAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/loadDownloadTemplatesPageImage.png}" />
+                </div>
+
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseBlock11" aria-expanded="false"
+                    aria-controls="collapseBlock11">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadFilterModuleTemplateTableQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock11">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadFilterModuleTemplateTableAnswer.label">
+                    </div>
+                    <img class ="mt-3" th:src="@{/Images/loadFilterModuleTemplateTableImage.png}" />
+                </div>
+
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseBlock12" aria-expanded="false"
+                    aria-controls="collapseBlock12">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadFilterBeginDateTemplateTableQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock12">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadFilterBeginDateTemplateTableAnswer.label">
+                    </div>
+                    <img class ="mt-3" th:src="@{/Images/loadFilterBeginDateTemplateTableImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapseBlock13" aria-expanded="false"
+                    aria-controls="collapseBlock13">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadFilterVersionTemplateTableQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock13">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadFilterVersionTemplateTableAnswer.label">
+                    </div>
+                    <img class ="mt-3" th:src="@{/Images/loadFilterVersionTemplateTableImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock14" aria-expanded="false" aria-controls="collapseBlock14">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadDownloadTemplateButtonQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock14">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadDownloadTemplateButtonAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/loadDownloadTemplateButtonImage.png}" />
+                </div>
+            </div>
+
+
+            <div class="mt-3 d-grid gap-2">
+                <button class="btn btn-faq btn-lg d-flex align-items-center gap-2 text-start collapse-trigger collapsed text-white" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBlock15" aria-expanded="false" aria-controls="collapseBlock15">
+                
+                    <i class="collapse-icon-up bi bi-caret-up-fill" aria-hidden="true"></i>
+                    <i class="collapse-icon-down bi bi-caret-down-fill" aria-hidden="true"></i>
+                    <span class="internationalization text-start" data-key="questionLoadReturnMainPageQuestion.label"></span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseBlock15">
+                <div class="card card-body body-faq">
+                    <div class="internationalization breakLine" data-key="questionLoadReturnMainPageAnswer.label"></div>
+                    <img class ="mt-3" th:src="@{/Images/loadReturnMainPageImage.png}" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="footer">
+        <div th:replace="~{Layouts/footer}"></div>
+    </div>
+
+</body>
+
+</html>

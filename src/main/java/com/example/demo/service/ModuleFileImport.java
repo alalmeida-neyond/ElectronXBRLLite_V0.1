@@ -195,16 +195,10 @@ public class ModuleFileImport extends RunnableExtension{
             }
             //for each sheet in the imported file;
 
-            // incrementJavaOperationTime(); 
-            // restartTimeOracleSelect();
             List<VariableVersion> varVersionMapList = VariableVersionDAL.getListOfVariableVersionOfModuleSheets(moduleVersion.getModuleVID());
-            // incrementOracleSelectOperationTime();
-            // logsList.add(new LogOperationTemp("Tempo de Select para obter o VariableVersion de um módulo:" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));
-            // restartTimeOracleSelect();
+
             List<TableVersionDPM> fillingIndicatorModuleList = TableVersionDAL.getAllFilesImported(moduleVersion,referenceDate);
-            // logsList.add(new LogOperationTemp("Tempo de Select para obter o TABLEVERSION de um módulo:" + ((System.nanoTime() - startTimeOracleSelectWithBreak)/1000000000),io.getIoId()));
-            // incrementOracleSelectOperationTime();
-            // restartTimeJava();
+
             TableVersionDPM singleFillingIndicatorAsTableVersion = null;
             List<HeaderDTO> headerDTOList;
             List<CellVariableDTO> cellVariablesList;

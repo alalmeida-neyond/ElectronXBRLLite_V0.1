@@ -486,20 +486,6 @@ public class MainBean extends DefaultBean{
         return modelAndView;
     }
 
-    @GetMapping("/settings")
-    public ModelAndView settings() {
-        ModelAndView modelAndView = new ModelAndView();
-
-        String storedPath = getStoredPathOrFallback();
-        modelAndView.addObject(Constants.storedPathString, storedPath);
-
-        //modelAndView.addObject(Constants.LEICodeKeyString, getLEICodeUser());
-       
-        modelAndView.setViewName("settings");
-       
-        return modelAndView;
-    }
-
     @GetMapping("/templates")
     public ModelAndView templates(@RequestParam(required = false) Integer moduleVid,@RequestParam(required = false) Integer year,@RequestParam(required = false) Integer month, @RequestParam(required = false) String version) {
         ModelAndView modelAndView = new ModelAndView();
@@ -527,6 +513,7 @@ public class MainBean extends DefaultBean{
             
         return modelAndView;
     }
+    
 
     @PostMapping("/templates/download")
     public ResponseEntity<Resource> downloadByFilename(
@@ -570,6 +557,18 @@ public class MainBean extends DefaultBean{
             ex.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/manual")
+    public ModelAndView userManual() throws FileNotFoundException {
+        ModelAndView modelAndView = new ModelAndView();
+
+        String storedPath = getStoredPathOrFallback();
+        modelAndView.addObject(Constants.storedPathString, storedPath);
+        
+        modelAndView.setViewName("manual");
+        
+        return modelAndView;
     }
 
     private String getStoredPathOrFallback() {
@@ -679,29 +678,6 @@ public class MainBean extends DefaultBean{
         return result;
     }
 
-    private List<String> testDatabaseAccess()
-    {
-        List<String> result = new ArrayList<String>();
-
-        EntityManager em = null;
-
-        try {
-
-            em = getEntityManager();
-            StringBuilder query = new StringBuilder();
-            query.append("SELECT name FROM DPM_MD.Datatype");
-
-            result = em.createNativeQuery(query.toString()).getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if(em != null){
-                em.close();
-            }
-        }
-
-        return result;
-    }
     private Path getGeneratedXBRL()
     {
         return generatedXBRL;

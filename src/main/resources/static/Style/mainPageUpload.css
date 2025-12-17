@@ -465,3 +465,22 @@ tbody:before {
 
 .page-btn.roundButton i{ font-size: .85em; line-height: 1; }
 
+.breakLine{ white-space: pre-line; }
+
+.scrollableDiv {
+  max-height: min(82vh, calc(92vh - 6rem)) !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
+}
+
+.collapse-trigger .collapse-icon-up { display: none; }
+.collapse-trigger:not(.collapsed) .collapse-icon-up { display: inline-block; }
+.collapse-trigger:not(.collapsed) .collapse-icon-down { display: none; }
+
+
+.btn-faq { background-color: #033d51; border-color: #033d51; }
+.btn-faq:hover { background-color: #04516c; border-color: #04516c; }
+
+.body-faq {background-color: #e6e8eb;}
+
