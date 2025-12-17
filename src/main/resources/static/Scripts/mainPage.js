@@ -387,7 +387,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     closeAllDetailRows();
 
-    ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
+    ["homepage", "templatesPage", "manualPage"].forEach((id) =>
       document.getElementById(id).classList.add("isDisabled")
     );
     const uploadError = document.getElementById("upload-error");
@@ -447,7 +447,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("logContainer")?.classList?.remove("after");
       document.getElementById("logContainer")?.classList.add("error");
 
-      ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
+      ["homepage", "templatesPage", "manualPage"].forEach((id) =>
         document.getElementById(id).classList.remove("isDisabled")
       );
       
@@ -462,7 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
       fetchIOs();
     })
     .catch((err) => {
-      ["homepage", "templatesPage", "settingsPage"].forEach((id) =>
+      ["homepage", "templatesPage", "manualPage"].forEach((id) =>
         document.getElementById(id).classList.remove("isDisabled")
       );
       document.getElementById("upload-text").style.display = "block";
