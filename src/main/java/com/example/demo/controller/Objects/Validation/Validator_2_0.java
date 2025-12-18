@@ -20,11 +20,11 @@ import com.example.demo.controller.Objects.Entities.Conf.*;
 import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.*;
 import com.example.demo.controller.Objects.Entities.Logs.LogOperationTemp;
+import com.example.demo.controller.Objects.Entities.Logs.LogValidationProcess;
 import com.example.demo.controller.Objects.Extensions.RunnableExtension;
 import com.example.demo.controller.Objects.Generation.XBRLGenerator;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
-import com.example.demo.controller.Objects.Logs.*;
 import com.example.demo.service.ProgressService;
 
 import org.jboss.logging.Logger;

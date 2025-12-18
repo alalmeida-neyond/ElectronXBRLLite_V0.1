@@ -1,5 +1,5 @@
 
-package com.example.demo.controller.Objects.Logs;
+package com.example.demo.controller.Objects.Entities.Logs;
 
 import java.time.LocalDateTime;
 import com.example.demo.Data.*;

@@ -47,10 +47,10 @@ import com.example.demo.controller.Objects.Entities.Conf.*;
 import com.example.demo.controller.Objects.Entities.DAL.*;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
+import com.example.demo.controller.Objects.Entities.Logs.GenerateLogDAL;
 import com.example.demo.controller.Objects.IO.IO;
 import com.example.demo.controller.Objects.IO.IOState;
 import com.example.demo.controller.Objects.Import.*;
-import com.example.demo.controller.Objects.Logs.GenerateLogDAL;
 import com.example.demo.service.ProgressService;
 
 import jakarta.persistence.EntityManager;

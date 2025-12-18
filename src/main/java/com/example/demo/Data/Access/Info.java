@@ -16,8 +16,8 @@ import com.example.demo.controller.Objects.Entities.DPMOrigin.ModuleVersion;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.Operator;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.OperatorArgument;
 import com.example.demo.controller.Objects.Entities.DPMOrigin.TableVersionDPM;
+import com.example.demo.controller.Objects.Entities.Logs.LogValidationProcess;
 import com.example.demo.controller.Objects.IO.IOState;
-import com.example.demo.controller.Objects.Logs.LogValidationProcess;
 
 import jakarta.persistence.EntityManager;
 
